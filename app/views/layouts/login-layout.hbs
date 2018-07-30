@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <!-- include jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- include Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <!-- include custom stylesheet -->
+  <link rel="stylesheet" href="/css/login-style.css" />
+
+  <!-- include local jQuery effects -->
+  <script src="/js/jquery-effects.js"></script>
+
+  <!-- reCAPTCHA -->
+  <script src='https://www.google.com/recaptcha/api.js'></script>
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+  <div id="bootstrap-menu" class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="row">
+        <div class="center-block">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+              <img class="navbar-logo" src="/images/logo.png" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div id="login-form" class="col-md-4 col-md-offset-4">
+        
+        {{#if success_msg}}
+          <div class="alert alert-success">{{{success_msg}}}</div>
+        {{/if}}
+
+        {{#if error_msg}}
+          <div class="alert alert-danger">{{{error_msg}}}</div>
+        {{/if}}
+
+        {{#if error}}
+          <div class="alert alert-danger">{{{error}}}</div>
+        {{/if}}
+
+        {{{body}}}
+
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+      <div class="container">
+        <center>
+          <p>Murakami is open source, licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL (v3.0)</a></p>
+          <small>Look under the bonnet on <a href="https://github.com/honeypieio/murakami" target="_blank">GitHub</a> | <a href="/privacy">Privacy Policy</a></small>
+        </center>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

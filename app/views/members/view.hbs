@@ -1,0 +1,394 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+	<h1 class="{{member.full_name.class}}">{{member.full_name.text}}
+	{{#if user.admin}}
+		<a href="/members/update/{{member.id.text}}"><span class="h3">edit</span></a>
+	{{/if}}
+	</h1>
+</div>
+
+<div class="row">
+	<h4 class="{{member.status.class}}">{{member.status.text}}</h4>
+
+	<h4>Membership expires: {{member.current_exp_membership.text.nice}}</h4>
+
+	<h4><span id="carbon">0</span> kilos of carbon saved!</h4>
+
+	<h4><b>Tokens: <span id="balance">{{member.balance.text}}</span></b></h4>
+
+</div>
+
+<div class="row">
+	<div class="form-group form-inline">
+	    <div class="form-group">
+	      	<a class='btn btn-primary form-control' href="/members/renew/{{member.id.text}}/12" onclick='return confirm("Are you sure you want to renew this membership for 12 months?")'>Renew Membership (Full Year)</a>
+
+	    </div>
+	    <div class="form-group">
+	      	<a class='btn btn-primary form-control' href="/members/renew/{{member.id.text}}/6" onclick='return confirm("Are you sure you want to renew this membership for 6 months?")'>Renew Membership (Half Year)</a>
+	    </div>
+	</div>
+</div>
+
+{{#if member.isMember.text}}
+<div class="row">
+	<a href="/members/remove/{{member.id.text}}" onclick='return confirm("Are you sure you want to remove this member? This process can be reversed at a later date")'>Remove member</a>
+</div>
+{{else}}
+<div class="row">
+	<a href="/members/restore/{{member.id.text}}" onclick='return confirm("Are you sure you want to restore this member? This process can be reversed at a later date")'>Restore member</a>
+</div>
+{{/if}}
+
+
+{{#if user.admin}}
+<div class="row">
+	<small>
+		<a href="/members/destroy/{{member.id.text}}" onclick='return confirm("Are you sure you want to *permanently* delete this member? All information held on this member will be destroyed or anonymised. This process is IRREVERSIBLE!")'>Destroy this member</a>
+	</small>
+</div>
+{{/if}}
+
+<hr />
+
+<div class="row">
+{{#if user.admin}}
+	<h3>Contact Info</h3>
+	<a href="mailto:{{member.email.text}}"><p>{{member.email.text}}</p></a>
+	<p>{{member.phone_no.text}}</p>
+	<p>{{member.address.text}}</p>
+
+	<hr />
+{{/if}}
+</div>
+
+<div class="row">
+	<h3>Membership</h3>
+
+	{{#if member.last_volunteered.nice}}
+		<p>Last volunteered: {{member.last_volunteered.text.nice}}</p>
+	{{/if}}
+	<p>Member since: {{member.earliest_membership_date.text.nice}}</p>
+	<p>Current membership valid from {{member.current_init_membership.text.normal}} to {{member.current_exp_membership.text.normal}}</p>
+	<p>{{member.first_name.text}} {{member.volunteer_status.text}} and is {{member.active_swapper.text}}.</p>
+
+	<a onclick="reveal('#working_groups')" class="clickable">View working groups</a>
+
+	<div id="working_groups" class="hidden">
+
+		<h3>Working Groups</h3>
+
+		<div id="working_group_info" class="row"></div>
+
+		{{#if member.working_groups}}
+			<p>{{member.first_name.text}} is a member of:</p>
+
+			{{#groupedEach 2 member.working_groups}}
+			  <ul>
+			    {{#each this}}
+			      
+					{{#if isMember}}
+						<li>
+							<p>{{name}}{{#if sub_groups}}<span> (General)</span>{{/if}}
+
+							{{#if ../../user.admin}}
+								<span>- <a class="clickable" onclick="workingGroupAjaxReq('/working-groups/members/remove/{{id}}/{{../../member.id.text}}')">remove</a></span>
+							{{/if}}
+							</p>
+						</li>
+					{{/if}}
+			      
+			    {{/each}}
+			  </ul>
+			{{/groupedEach}}
+		{{else}}
+			<p>{{member.first_name.text}} doesn't belong to any working groups :'(</p>
+		{{/if}}
+	
+		<br />
+
+		<div class="row">
+			<div class="col-lg-3">
+				<select id="workingGroupSelect" class="form-control">
+					{{#each settings.definitions.working_groups}}
+						<option value="{{id}}">{{name}}
+							{{#if sub_groups}}
+								(General)
+							{{/if}}
+						</option>
+						{{#if sub_groups}}
+							{{#each sub_groups}}
+								<option value="{{../id}}-{{id}}">{{../name}}: {{name}}</option>
+							{{/each}}
+						{{/if}}
+					{{/each}}
+				</select>
+			</div>
+
+			<div class="col-lg-2">
+				{{#if user.admin}}
+					<a class="form-control btn btn-primary" onclick="workingGroupJoin()">Join!</a>
+				{{else}}
+					<a class="form-control btn btn-primary" onclick="workingGroupJoin()">Request to Join!</a>
+				{{/if}}
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<hr />
+
+{{#if user.admin}}
+  <!--
+	<h3>Volunteered Hours</h3>
+	<div class="row">
+		<div class="col-md-8">
+			<table class="fadeIn" data-pagination="true" data-toggle="table" data-striped="true">
+				<tbody>
+				{{#each vol_hours}}
+					<tr>
+						<td></td>
+						<td></td>
+					</tr>
+				{{/each}}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<hr /> -->
+
+{{/if}}
+
+
+
+</hr>
+
+<div class="row">
+	<input type="hidden" id="member_id" value="{{member.id.text}}" />
+
+	<div id="transaction_info" class="row"></div>
+
+	<div class="row">
+		<div class="col-md-7">
+			{{#groupedEach 3 settings.definitions.items}}
+			  <div class="row">
+			    {{#each this}}
+			      <div class="col-sm-3 item-options" onclick="addToTrans('{{id}}', '{{name}}')">
+			      		<center>
+							<span>{{name}}</span>
+						</center>
+			      </div>
+			    {{/each}}
+			  </div>
+			{{/groupedEach}}
+		</div>
+
+		<div class="col-md-5" id="transaction-list">
+
+			<table class="table table-striped">
+			  <thead>
+			    <tr>
+			      <th scope="col">Category</th>
+			      <th scope="col">Tokens</th>
+			      <th scope="col">Weight (g)</th>
+			      <th scope="col"></th>
+			    </tr>
+			  </thead>
+			  <tbody id="transaction-info">
+			    
+			  </tbody>
+			</table>
+			<div id="transaction_btns" class="hidden">
+				<a class="btn btn-success" onclick="completeTrans('add')">Add Tokens</a>
+				<a class="btn btn-danger" onclick="completeTrans('ded')">Deduct Tokens</a>
+				<br />
+				<br />
+				<span>Weights are not required when adding tokens!</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+<h3>Transaction History</h3>
+
+	<div class="row">
+		<div class="col-md-8">
+			<table id="transaction_history" class="fadeIn" data-pagination="true" data-toggle="table" data-striped="true" data-url="/members/transactions/{{member.id.text}}">
+			    <thead>
+			        <tr>
+			            <th data-field="date.text">Date</th>
+			            <th data-field="description.text">Description</th>
+			        </tr>
+			    </thead>
+
+				<tbody>
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+
+<script>
+var transaction = [];
+function addToTrans(id, category){
+	var item = {};
+	item.id = id;
+	item.category = category;
+	item.weight = 0;
+	item.tokens = 0;
+
+	transaction.push(item);
+	update();
+}
+
+function removeFromTrans(index){
+	transaction.splice(index, 1);
+	update();
+}
+
+function update(){
+	$("#transaction-info").html("");
+	var tokens_total = 0;
+	var weight_total = 0;
+
+	for(i=0;i<transaction.length;i++){
+		tokens_total += +transaction[i].tokens;
+		weight_total += +transaction[i].weight;
+		$('<tr>',{
+		    html:"<td>" + transaction[i].category + "</td>" + 
+		    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" + 
+		    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" + 
+		    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
+		}).appendTo('#transaction-info');
+	}
+
+	if(transaction.length > 0){
+		$('<tr>',{
+		    html:"<td><b>TOTAL:</b></td>" + 
+		    "<td id='tokens_total'>" + tokens_total + "</td>" + 
+		    "<td id='weight_total'>" + weight_total + "</td>" +
+		    "<td></td>"
+		}).appendTo('#transaction-info');
+	}
+
+	if(transaction.length > 0) {
+		$("#transaction_btns").removeClass("hidden");
+	} else {
+		$("#transaction_btns").addClass("hidden");
+	}
+}
+
+function workingGroupJoin(){
+	var group_id = $('#workingGroupSelect').val();
+	workingGroupAjaxReq("/working-groups/members/join/" + group_id + "/{{member.id.text}}");
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && n >= 0 && n % 1 == 0;
+}
+
+function updateTrans(index){
+
+	if(isNumeric($("#weight_" + index).html())){
+		transaction[index].weight = $("#weight_" + index).html();
+	} else {
+		$("#weight_" + index).html("");
+		transaction[index].weight = 0;
+	}
+
+	if(isNumeric($("#tokens_" + index).html())){
+		transaction[index].tokens = $("#tokens_" + index).html();
+	} else {
+		$("#tokens_" + index).html("");
+		transaction[index].tokens = 0;
+	}
+
+	if(transaction.length > 0){
+
+		var tokens_total = 0;
+		var weight_total = 0;
+
+		for(i=0;i<transaction.length;i++){
+			tokens_total += +transaction[i].tokens;
+			weight_total += +transaction[i].weight;
+		}
+
+		$("#tokens_total").html(tokens_total);
+		$("#weight_total").html(weight_total);
+	}
+
+}
+
+
+function completeTrans(type){
+
+    $.ajax({
+        type: "POST",
+        url: "/members/transactions/" + $("#member_id").val() + "/" + type,
+        data: { 
+            'transaction': transaction
+        },    
+        success: function(response){
+
+        	if(response.status == "ok"){
+	            transaction = [];
+	            update();
+	            $("#transaction_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	            getSavedCarbon()
+	            getBalance()
+	            $("#transaction_history").bootstrapTable('refresh');   
+	        } else {
+	        	$("#transaction_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	        }  
+        }
+    });
+}
+
+function getSavedCarbon(){
+	$.ajax({
+	    type: "GET",
+	    url: "/members/carbon-saved/" + $("#member_id").val(),   
+	    success: function(response){
+			$('#carbon').html(response.carbon);
+	    }
+	});
+}
+
+function getBalance(){
+	$.ajax({
+	    type: "GET",
+	    url: "/members/balance/" + $("#member_id").val(),   
+	    success: function(response){
+			$('#balance').html(response.balance);
+	    }
+	});	
+}
+
+function workingGroupAjaxReq(url){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(response){
+      	console.log(response);
+      	if(response.status == "ok"){
+        	$("#working_group_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');                     
+      	} else {
+      		$("#working_group_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
+      	}
+      }
+   });
+}
+
+getSavedCarbon();
+
+</script>

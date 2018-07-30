@@ -1,0 +1,144 @@
+<!-- Include external CSS. -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.css">
+
+<!-- Include Editor style. -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.0/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.0/css/froala_style.min.css" rel="stylesheet" type="text/css" />
+
+ 
+<!-- Include JS file. -->
+<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.0/js/froala_editor.min.js'></script>
+
+<!-- Include external JS libs. -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/codemirror.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.25.0/mode/xml/xml.min.js"></script>
+
+<!-- Include Editor JS files. -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/froala-editor/2.8.0/js/froala_editor.pkgd.min.js"></script>
+
+<!-- Include bootstrap checkbox style thing -->
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+<div class="row">
+    <h1>Email Templates</h1>
+</div>
+
+<div class="row">
+    <div class="form-group form-inline">
+      <select class="form-control" id="templates">
+        <option selected disbaled>Select an email template...</option>
+        {{#each templates}}
+            <option value="{{mail_id}}">{{mail_desc}}</option>
+        {{/each}}
+      </select>
+    </div>
+</div>
+
+<hr />
+
+<div class="row">
+    <h2>{{template.mail_desc}}&emsp;
+        <input type="checkbox" data-toggle="toggle" data-on="active" data-off="inactive" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}}>
+    </h2> 
+</div>
+
+<div class="row">
+    <input type="text" name="subject" id="subject" oninput="update_preview()" style="width: 60%; margin-bottom: 15px;" class="form-control" value="{{template.subject}}">
+    <div id="editor" oninput="update_preview()" onblur="update_preview()">
+        {{{template.markup}}}
+    </div>
+</div>
+
+<br />
+
+<div class="row">
+    <div id="update-mail-template" style="float:right;">
+        <button type="button" class="btn btn-basic" style="float:right;" onclick="update_mail_template()">Update Template</button><br>
+        <p id="submit_response" style="float:right;"></p>
+    </div>
+</div>
+
+<br />
+<br />
+
+<div class="row">
+    <div id="preview">
+        <h3>Preview</h3>
+        <p>From: <b>Shrub Co-op</b></p>
+        <p>Subject: <b id="subject-preview"></b></p>
+        <div id="preview-content" style="border: 1px black solid; padding: 25px;"></div>
+    </div>
+</div>
+
+<br />
+<hr />
+
+<div class="row">
+    <div id="mail_info">
+        <p>To include personalised information in the body of an email, please use a | (vertical line symbol) at the start and end of its reference name</p>
+        <p>Find below the personalised information you can use, and their reference names.</p>
+        <ul>
+            <li><b>first_name</b> - the recipient's first name</li>
+            <li><b>last_name</b> - the recipient's last name</li>
+            <li><b>fullname</b> - the recipient's full name</li>
+            <li><b>exp_date</b> - the date the recipient's membership will end</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+
+$('#templates').on('change', function () {
+    var url = "/settings/email-templates/" + $(this).val();
+    window.location = url;
+});
+
+$(function() { $('#editor').froalaEditor() });
+
+function update_preview(){
+    var raw_markup = document.getElementsByClassName("fr-view")[0].innerHTML;
+    var modified_markup;
+    modified_markup = raw_markup.replace("|first_name|", "Ringo").replace("|last_name|", "Starr").replace("|fullname|", "Ringo Starr").replace("|exp_date|", "September 20th 2023");
+    $("#subject-preview").html($("#subject").val());
+    $("#preview-content").html(modified_markup);
+}
+
+$("document").ready(function(){
+    update_preview();
+});
+
+$(".fr-view").blur(function(){
+    update_preview();
+});
+
+function update_mail_template(){
+
+    update_preview();
+
+    var mail_id = '{{template.mail_id}}';
+    var mail_body = document.getElementsByClassName("fr-view")[0].innerHTML;
+    var mail_subject = document.getElementById("subject").value;
+    var active = $("#templateActive").is(':checked')
+
+    $.ajax({
+        type: "POST",
+        url: "/settings/email-templates/" + mail_id,
+        data: { 
+            'message': mail_body, 
+            'subject': mail_subject,
+            'active': active
+        },    
+        success: function(msg){
+            $("#submit_response").hide();
+            document.getElementById("submit_response").innerHTML = msg; 
+            $("#submit_response").fadeIn();      
+        }
+     });
+ }
+
+
+</script>

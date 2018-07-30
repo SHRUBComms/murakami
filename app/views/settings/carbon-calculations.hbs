@@ -1,0 +1,41 @@
+<div class="row">
+  <h1>Carbon Calculations Factors</h1>
+</div>
+
+<div class="row">
+  <p>Update factors used for calculating carbon savings!</p>
+</div>
+
+<hr />
+
+<form action="/settings/carbon-factors" method="post">
+  <div class="row">
+    <div class="col-lg-10">
+      
+      {{#groupedEach 2 settings.definitions.items}}
+        <div class="row">
+          {{#each this}}
+            <div class="col-lg-2">
+              <p><b>{{name}}:</b></p>
+            </div>
+            <div class="col-lg-2">
+              <input class="form-control" type="text" value="{{factor}}" name="factors[{{id}}]" />
+            </div>
+            <br class="hidden-lg hidden-xl" />
+          {{/each}}
+        </div>
+        <br class="hidden-xs hidden-sm hidden-md" />
+      {{/groupedEach}}
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="form-group form-inline">
+      <div class="form-group">
+          <button type="submit" class="btn btn-primary form-control">Update Factors</button>
+        </div>
+    </div>
+  </div>
+
+</form>

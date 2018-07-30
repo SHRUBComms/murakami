@@ -1,0 +1,55 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<!-- Bootstrap table export -->
+<script src="https://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
+<script src="https://rawgit.com/wenzhixin/bootstrap-table/master/src/extensions/export/bootstrap-table-export.js"></script>
+
+
+<h1>View/Export Volunteer Hours</h1>
+
+<div class="col-lg-4 col-lg-push-8">
+    <div class="row">
+        <div class="form-group">
+          <select id="working_groups" class="form-control">
+            <option value="">All Working Groups</option>
+            {{#each user.admin_wg}}
+              <option value="{{id}}">{{name}}</option>
+            {{/each}}
+          </select>
+        </div>
+    </div>
+</div>
+
+<div class="col-lg-7 col-lg-pull-4">
+  <div class="row">
+    <table id="members_table" class="fadeIn" data-search="true" data-toggle="table" data-striped="true" data-toolbar="#toolbar" data-show-export="true" data-export-options='{"fileName": "shrub_volunteer_hours"}'>
+      <thead>
+   		<th data-sortable="true" data-field="name">Name</th>
+   		<th data-sortable="true" data-field="date">Date</th>
+   		<th data-sortable="true" data-field="working_group">Working Groups</th>
+   		<th data-sortable="true" data-field="duration">Duration (hours)</th>
+      </thead>
+      <tbody>
+      {{#each hours}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{date}}</td>
+          <td>{{working_group}}</td>
+          <td>{{duration}}</td>
+        </tr>
+      {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+$('#working_groups').on('change', function () {
+  var url = "/working-groups/view-volunteer-hours/" + $(this).val();
+  window.location = url;
+});
+</script>

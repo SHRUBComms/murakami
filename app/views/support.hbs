@@ -1,0 +1,65 @@
+
+
+{{#if errors}}
+  <div class="alert alert-danger">{{{errors.0.msg}}}</div>
+{{/if}}
+
+<center>
+	<h2>Support</h2>
+</center>
+
+<hr />
+
+<div class="row">
+	<div class="text-center" style="padding: 0.75em">
+		<p>If you have any questions, suggestions, or are experiencing issues using Murakami - please get in touch 
+
+		<script>
+
+		  emailE = 'murakami.org.uk'
+
+		  emailE = ('support' + '@' + emailE)
+
+		  document.write('<a href="mailto:' + emailE + '">via email</a>')
+
+		</script>
+
+		 or the contact form below</p>
+
+		<p>
+			<small>(there's no such thing as a foolish question!)</small>
+		</p>
+	</div>
+
+</div>
+
+
+
+<div class="form-area">  
+    <form role="form" action="/support" method="post">
+
+		<div class="form-group">
+			<input type="text" class="form-control" id="name" name="name" placeholder="Name" value="{{name}}" required>
+		</div>
+		<div class="form-group">
+			<input type="text" class="form-control" id="email" name="email" placeholder="Email" value="{{email}}" required>
+		</div>
+
+		<div class="form-group">
+			<input type="text" class="form-control" id="subject" name="subject" placeholder="Subject" value="{{subject}}" required>
+		</div>
+        <div class="form-group">
+        	<textarea class="form-control" type="textarea" name="message" placeholder="Message" rows="7">{{message}}</textarea>
+        </div>
+        
+	  	<div class="form-group">
+	  	   <button class="btn-block btn-shrub" type="submit">Send Message</button>
+		</div>
+
+		<p>
+			<a href="/">← Back to login</a>
+		</p>
+
+    </form>
+</div>
+

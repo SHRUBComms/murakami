@@ -1,0 +1,183 @@
+<h2>Add Member</h2>
+{{#if errors}}
+  <div class="alert alert-danger">{{{errors.0.msg}}}</div>
+{{/if}}
+<div class="container">
+  <form method="post" action="/members/add{{#if token}}?token={{token}}{{/if}}" class="form-group">
+    <div class="row">
+      <h3>Personal Details</h3>
+    </div>
+    <div class="row">
+      <div class="form-group form-inline">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}}>
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}}>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <h3>Contact Details</h3>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-4" style="padding: 0;">
+        <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-4" style="padding: 0;">
+        <input type="text" class="form-control" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-4" style="padding: 0;">
+        <input type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}>
+      </div>
+    </div>
+
+    <div class="row">
+      <h3>Membership Info</h3>
+    </div>
+    <div class="row">
+      <div class="form-group form-inline">
+          <select class="form-control" name="membership_type" onchange="membership_type_update()">
+            <option value="paid">Paid Membership</option>
+            <option value="free">Free Membership (as volunteer)</option>
+          </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group form-inline">
+          <select class="form-control" name="volunteer_status">
+            <option value="never" selected>Not interested in volunteering</option>
+            <option value="occasionally">Will volunteer occasionally</option>
+            <option value="regularly">Will volunteer regularly</option>
+          </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group form-inline">
+          <select class="form-control" name="membership_length">
+            <option value="half_year">Half Year</option>
+            <option value="year" selected>Full Year</option>
+          </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <h4>Working Groups</h4>
+    </div>
+
+    <div class="row">
+      <div class="form-group form-inline">
+          <div class="form-group">
+            <select id="workingGroupSelect" class="form-control">
+              {{#each settings.definitions.working_groups}}
+                <option value='{"{{id}}":"{{name}}"}'>{{name}}
+                  {{#if sub_groups}}
+                    (General)
+                  {{/if}}
+                </option>
+                {{#if sub_groups}}
+                  {{#each sub_groups}}
+                    <option value='{"{{../id}}-{{id}}":"{{../name}}: {{name}}"}'>{{../name}}: {{name}}</option>
+                  {{/each}}
+                {{/if}}
+              {{/each}}
+            </select>
+          </div>
+          <div class="form-group">
+            {{#if user.admin}}
+              <a class="form-control btn btn-primary" onclick="addToJoinList()">Join!</a>
+            {{else}}
+              <a class="form-control btn btn-primary" onclick="addToJoinList()">Request to Join!</a>
+            {{/if}}
+          </div>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div id="wgInfo" class="hidden">
+      {{#if user.admin}}
+        <p>Member will be added to:</p>
+      {{else}}
+        <p>Member will request to join:</p>
+      {{/if}}
+      </div>
+      <ul id="workingGroupJoinSummary"></ul>
+    </div>
+    <input type="hidden" name="working_groups" id="working_groups" value="" />
+
+    <br />
+
+    <div class="row">
+      <div class="form-group form-inline">
+        <p><input type="checkbox" name="mailchimpConsent" /> Opt-in to our newsletter!</p>
+      </div>
+    </div>
+
+    <hr />
+    <div class="row">
+      <div class="form-group form-inline">
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary form-control">Add Member</button>
+          </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+
+var joinList = {{{json working_groups}}}
+
+function membership_type_update(){
+    var value = document.getElementsByName("membership_type")[0].value;
+    if(value == "paid") {
+        //show other boxes
+        $("select[name=volunteer_status]").show("fast");
+        $("select[name=membership_length]").show("fast"); 
+    } else {
+        //hide other boxes and set values
+        $("select[name=volunteer_status]").hide("fast");
+        $("select[name=membership_length]").hide("fast");
+
+        document.getElementsByName("volunteer_status")[0].value = "regularly";
+        document.getElementsByName("membership_length")[0].value = "half_year";
+    }
+}
+
+function addToJoinList(){
+  var wg = JSON.parse($("#workingGroupSelect").val())
+  joinList[Object.keys(wg)[0]] = wg[Object.keys(wg)[0]];
+  updateSummary();
+}
+
+function removeFromJoinList(key){
+  delete joinList[key];
+  updateSummary();
+}
+
+function updateSummary(){
+
+  $("#working_groups").val(JSON.stringify(joinList));
+
+  if(Object.keys(joinList).length === 0 && joinList.constructor === Object){
+    $("#wgInfo").addClass("hidden")
+  } else {
+    $("#wgInfo").removeClass("hidden")
+  }
+
+  $("#workingGroupJoinSummary").html("");
+  Object.keys(joinList).forEach(function(key) {
+    $("#workingGroupJoinSummary").html($("#workingGroupJoinSummary").html() + "<li id='" + key + "'>" + joinList[key] + " - <a onclick='removeFromJoinList(\"" + key + "\")' class='clickable'>remove</a></li>");
+  });
+  
+}
+
+updateSummary();
+
+</script>

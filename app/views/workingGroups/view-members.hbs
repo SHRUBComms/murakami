@@ -1,0 +1,107 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<!-- Bootstrap table export -->
+<script src="https://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
+<script src="https://rawgit.com/wenzhixin/bootstrap-table/master/src/extensions/export/bootstrap-table-export.js"></script>
+
+<div class="row">
+	<h1>Members of 
+    {{#if working_group.prefix}}
+      {{working_group.prefix}} {{working_group.name}}
+    {{else}}
+      {{working_group.name}}
+    {{/if}}
+    </h1>
+</div>
+
+{{#ifGreaterThan user.admin_wg.length 1}}
+<div class="row">
+  <div class="form-group form-inline">
+    <select class="form-control" id="working_groups">
+      <option disabled selected>Select a working group...</option>
+      {{#each user.admin_wg}}
+        <option value="{{id}}">{{name}}
+        {{#if sub_groups}}
+          (General)
+          {{#each sub_groups}}
+            <option value="{{../id}}-{{id}}">{{../name}}: {{name}}</option>
+          {{/each}}
+        {{/if}}
+        </option>
+      {{/each}}
+    </select>
+  </div>
+</div>
+{{/ifGreaterThan}}
+
+<div id="remove_member_info" class="row"></div>
+
+<div class="row">  
+  <div class="col-lg-6 nopadding">
+  	<table id="group_members" class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-url="/working-groups/get-members/{{working_group.id}}" data-show-export="true" data-export-options='{
+                                  "fileName": "{{working_group.name}} members", 
+                                  "ignoreColumn": [2]
+                                }'>
+  		<thead>
+  			<th data-sortable="true" data-field="name">Name</th>
+        <th data-sortable="true" data-field="email" class="hidden-xs hidden-sm">Email</th>
+  			<th data-field="options"></th>
+  		</thead>
+  		<tbody>
+
+  		</tbody>
+  	</table>
+  </div>
+  <div class="col-lg-5 col-lg-offset-1">
+    <div class="row hidden-xs hidden-sm hidden-md fadeIn">
+      <div class="stats-wrapper">
+        <h3>{{working_group.name}}</h3>
+
+        <p><span id="new_members">0</span> new member(s) this month!</p>
+        <hr />
+        <p><b><span id="total_current_members">0</span> total member(s)</b></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--          <p><span id="hours_volunteered">0</span> hour(s) have been volunteered for{{#if working_group.prefix}}
+      {{working_group.prefix}} {{working_group.name}}
+    {{else}}
+      {{working_group.name}}
+    {{/if}}</p>-->
+
+<script>
+
+function removeMemberAjax(url){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(response){
+      	console.log(response);
+      	if(response.status == "ok"){
+        	$("#remove_member_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#remove_member_info\')">' + response.msg + '</div>');
+        	$("#group_members").bootstrapTable('refresh');         
+      	} else {
+      		$("#remove_member_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#remove_member_info\')">' + response.msg + '</div>');
+      	}
+      }
+   });
+}
+
+$('#working_groups').on('change', function () {
+  var url = "/working-groups/members/" + $(this).val();
+  window.location = url;
+});
+
+$(document).ready(function(){
+  getStat('/reports/analytics/new-members/{{working_group.id}}', '#new_members')
+  getStat('/reports/analytics/total-members/{{working_group.id}}', '#total_current_members')
+})
+
+</script>

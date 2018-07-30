@@ -1,0 +1,33 @@
+<div class="row">
+	<h1>Working Group Settings</h1>
+</div>
+
+<div class="row">
+  <h1>Add Members to 
+    {{#if working_group.prefix}}
+      {{working_group.prefix}} {{working_group.name}}
+    {{else}}
+      {{working_group.name}}
+    {{/if}}
+    </h1>
+</div>
+
+{{#ifGreaterThan user.admin_wg.length 1}}
+<div class="row">
+  <div class="form-group form-inline">
+    <select class="form-control" id="working_groups">
+      <option disabled selected>Select a working group...</option>
+      {{#each user.admin_wg}}
+        <option value="{{id}}">{{name}}
+        {{#if sub_groups}}
+          (General)
+          {{#each sub_groups}}
+            <option value="{{../id}}-{{id}}">{{../name}}: {{name}}</option>
+          {{/each}}
+        {{/if}}
+        </option>
+      {{/each}}
+    </select>
+  </div>
+</div>
+{{/ifGreaterThan}}

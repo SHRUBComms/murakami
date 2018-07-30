@@ -1,0 +1,23 @@
+{{#if errors}}
+  <div class="alert alert-danger">{{{errors.0.msg}}}</div>
+{{/if}}
+
+<center>
+	<h2>Account Recovery</h2>
+</center>
+
+<hr />
+
+<form action="/recover" method="post">
+    <div class="form-group">
+    	<input type="text" class="form-control" name="username" placeholder="Username">
+  	</div>
+
+  	<div class="form-group">
+  		<button class="btn-block btn-shrub" type="submit">Recover Account</button>
+	</div>
+</form>
+
+<p>
+	<a href="/">← Back to login</a>
+</p>

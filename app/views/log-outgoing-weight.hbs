@@ -1,0 +1,142 @@
+<div class="row">
+	<h1>Log Outgoing Weight (Non-members)</h1>
+</div>
+
+<br />
+
+<div class="row">
+
+	<div id="transaction_info" class="row"></div>
+
+	<div class="row">
+		<div class="col-md-7">
+			{{#groupedEach 3 settings.definitions.items}}
+			  <div class="row">
+			    {{#each this}}
+			      <div class="col-sm-3 item-options" onclick="addToTrans('{{id}}', '{{name}}')">
+			      		<center>
+							<span>{{name}}</span>
+						</center>
+			      </div>
+			    {{/each}}
+			  </div>
+			{{/groupedEach}}
+		</div>
+
+		<div class="col-md-5" id="transaction-list">
+
+			<table class="table table-striped">
+			  <thead>
+			    <tr>
+			      <th scope="col">Category</th>
+			      <th scope="col">Weight (g)</th>
+			      <th scope="col"></th>
+			    </tr>
+			  </thead>
+			  <tbody id="transaction-info">
+			    
+			  </tbody>
+			</table>
+			<div id="transaction_btns" class="hidden">
+				<a class="btn btn-success" onclick="completeTrans('add')">Log Weight</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+var transaction = [];
+function addToTrans(id, category){
+	var item = {};
+	item.id = id;
+	item.category = category;
+	item.weight = 0;
+
+	transaction.push(item);
+	update();
+}
+
+function removeFromTrans(index){
+	transaction.splice(index, 1);
+	update();
+}
+
+function update(){
+	$("#transaction-info").html("");
+	var weight_total = 0;
+
+	for(i=0;i<transaction.length;i++){
+		weight_total += +transaction[i].weight;
+		$('<tr>',{
+		    html:"<td>" + transaction[i].category + "</td>" +  
+		    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" + 
+		    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
+		}).appendTo('#transaction-info');
+	}
+
+	if(transaction.length > 0){
+		$('<tr>',{
+		    html:"<td><b>TOTAL:</b></td>" + 
+		    "<td id='weight_total'>" + weight_total + "</td>" +
+		    "<td></td>"
+		}).appendTo('#transaction-info');
+	} 
+
+	if(transaction.length > 0) {
+		$("#transaction_btns").removeClass("hidden");
+	} else {
+		$("#transaction_btns").addClass("hidden");
+	}
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && n >= 0 && n % 1 == 0;
+}
+
+function updateTrans(index){
+
+	if(isNumeric($("#weight_" + index).html())){
+		transaction[index].weight = $("#weight_" + index).html();
+	} else {
+		$("#weight_" + index).html("");
+		transaction[index].weight = 0;
+	}
+
+	if(transaction.length > 0){
+
+		var weight_total = 0;
+
+		for(i=0;i<transaction.length;i++){
+			weight_total += +transaction[i].weight;
+		}
+
+		$("#weight_total").html(weight_total);
+	}
+
+}
+
+
+function completeTrans(type){
+
+    $.ajax({
+        type: "POST",
+        url: "/carbon-calculations",
+        data: { 
+            'transaction': transaction
+        },    
+        success: function(response){
+
+        	if(response.status == "ok"){
+	            transaction = [];
+	            update();
+	            $("#transaction_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	            $("#transaction_history").bootstrapTable('refresh');   
+	        } else {
+	        	$("#transaction_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	        }  
+        }
+    });
+}
+
+</script>

@@ -1,0 +1,70 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+   <h1>Review Volunteer Hours</h1>
+   <h3>{{working_group.name}}</h3>
+</div>
+
+{{#ifGreaterThan user.admin_wg.length 1}}
+<div class="row">
+  <div class="form-group form-inline">
+    <select class="form-control" id="working_groups">
+      <option disabled selected>Select a working group...</option>
+      {{#each user.admin_wg}}
+        <option value="{{id}}">{{name}}
+        {{#if sub_groups}}
+          (General)
+          {{#each sub_groups}}
+            <option value="{{../id}}-{{id}}">{{../name}}: {{name}}</option>
+          {{/each}}
+        {{/if}}
+        </option>
+      {{/each}}
+    </select>
+  </div>
+</div>
+{{/ifGreaterThan}}
+
+<div id="vol_hours_info" class="row"></div>
+
+<div class="row">
+   <table id="vol_hours" class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-url="/working-groups/get-unreviewed-vol-hours/{{working_group.id}}">
+   	<thead>
+   		<th data-sortable="true" data-field="name">Name</th>
+   		<th data-sortable="true" data-field="date">Date</th>
+   		<th data-sortable="true" data-field="duration">Duration (hours)</th>
+      <th data-sortable="true" data-field="tokens">Tokens</th>
+   		<th data-sortable="true" data-field="options"></th>
+   	</thead>
+   	<tbody>
+   	</tbody>
+   </table>
+</div>
+
+<script>
+function volunteerHoursAjax(url){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(response){
+        console.log(response);
+      	if(response.status == "ok"){
+        	$("#vol_hours_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#vol_hours_info\')">' + response.msg + '</div>');
+			    $("#vol_hours").bootstrapTable('refresh');
+      	} else {
+      		$("#vol_hours_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#vol_hours_info\')">' + response.msg + '</div>');
+      	}
+      }
+   });
+}
+
+$('#working_groups').on('change', function () {
+  var url = "/working-groups/review-volunteer-hours/" + $(this).val();
+  window.location = url;
+});
+
+</script>

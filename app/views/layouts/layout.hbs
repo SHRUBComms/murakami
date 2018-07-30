@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <!-- include jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- include Bootstrap -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <!-- include custom stylesheet -->
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <!-- include local jQuery effects -->
+  <script src="/js/jquery-effects.js"></script>
+
+  <!-- reCAPTCHA -->
+  <script src='https://www.google.com/recaptcha/api.js'></script>
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+  <div id="bootstrap-menu" class="navbar navbar-default navbar-expand-lg navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="row">
+
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+              <img class="navbar-logo" src="/images/logo.png" />
+            </a>
+            {{#if user}}
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-menubuilder">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            {{/if}}
+          </div>
+          {{#if user}}
+          <div class="collapse navbar-collapse navbar-menubuilder">
+              <ul class="nav navbar-nav navbar-left">
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if membersActive}}id="active"{{/if}}>Members
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="/members/">View Members</a></li>
+                      <li><a href="/members/add">Add Member</a></li>
+                      <li><a href="/log">Log Volunteer Hours</a></li>
+                    </ul>
+                  </li>
+                  {{#if user.admin}}
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if reportsActive}}id="active"{{/if}}>Reports
+                      <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="/reports/export">Export Data</a></li>
+                      </ul>
+                    </li>
+
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if settingsActive}}id="active"{{/if}}>Settings
+                      <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="/settings/">General</a></li>
+                        <li><a href="/settings/carbon-factors">Carbon Factors</a></li>
+                        <!--<li><a href="/settings/working-groups">Working Groups</a></li>-->
+                        <li><a href="/settings/email-templates">Email Templates</a></li>
+                      </ul>
+                    </li>
+
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if usersActive}}id="active"{{/if}}>Users
+                      <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li><a href="/users/">View Users</a></li>
+                        <li><a href="/users/add">Add User</a></li>
+                      </ul>
+                    </li>
+
+                    {{#if user.admin_wg}}
+                      <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if workingGroupsActive}}id="active"{{/if}}>Working Groups
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li><a href="/working-groups/members">View Members</a></li>
+                          <li><a href="/working-groups/add-members">Add Members</a></li>
+                          <li><a href="/working-groups/review-join-requests">Review Join Requests</a></li>
+                          <li role="separator" class="divider"></li>
+                          <li><a href="/working-groups/view-volunteer-hours">View Volunteer Hours</a></li>
+                          <li><a href="/working-groups/log-volunteer-hours">Log Volunteer Hours</a></li>
+                          <li><a href="/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
+                          
+                        </ul>
+                      </li>
+                    {{/if}}
+
+                  {{/if}}
+                  <li class="hidden-md hidden-lg"><a href="/log-outgoing-weight">Log Outgoing Weight (Non-member)</a></li>
+                  <li class="hidden-md hidden-lg"><a href="/logout">Logout</a></li>
+
+              </ul>
+          </div>
+          {{/if}}
+
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div id="page-content">
+        
+        {{#if success_msg}}
+        <div class="row">
+          <div id="success_msg" class="col-md-6 alert alert-success" onclick="dismiss('#success_msg')">{{{success_msg}}}</div>
+        </div>
+        {{/if}}
+
+        {{#if error_msg}}
+        <div class="row">
+          <div id="error_msg" class="col-md-6 alert alert-danger" onclick="dismiss('#error_msg')">{{{error_msg}}}</div>
+        </div>
+        {{/if}}
+
+        {{#if error}}
+        <div class="row">
+          <div id="error" class="col-md-6 alert alert-danger" onclick="dismiss('#error')">{{{error}}}</div>
+        </div>
+        {{/if}}
+
+        {{#if user}}
+          <a href="/logout" class="btn btn-lg pull-right hidden-xs hidden-sm">Logout</a>
+        {{/if}}
+        
+        <div class="container">
+          {{{body}}}
+        </div>
+
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="container">
+        <div class="footer">
+          <p>Murakami is open source, licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL (v3.0)</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+<script>
+$(document).ready(function(){
+  $('.fadeIn').fadeIn();
+});
+function reveal(id){
+  $(id).toggleClass("hidden");
+}
+function dismiss(id){
+  $(id).fadeOut();
+}
+
+
+function simpleAjaxGetRequest(url, elem){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(msg){
+          document.getElementById(elem).innerHTML = msg;
+          console.log(msg);                      
+      }
+   });
+}
+
+function getStat(url, elem){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(stat){
+          $(elem).text(stat)                      
+      }
+   });  
+}
+</script>
+</body>
+</html>

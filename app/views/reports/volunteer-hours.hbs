@@ -1,0 +1,57 @@
+<!-- Moments.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
+
+<!-- Charts.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+<!-- Hammer.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+
+<!-- Chart.js zoom -->
+<script src="https://npmcdn.com/Chart.Zoom.js@latest/Chart.Zoom.min.js"></script>
+
+<h1>Volunteer Hours</h1>
+
+<div id="data" class="hidden">{{{json data}}}</div>
+<canvas id="graph"></canvas>
+
+<script>
+
+var data = JSON.parse($("#data").text());
+data.type = 'bar'
+data.options = {
+				responsive: true,
+				pan: {
+					enabled: true,
+					mode: 'x'
+				},
+				
+				zoom: {
+					enabled: true,
+					drag: true,
+					mode: 'x'
+				},
+			  	scales: {
+			    	xAxes: [{
+			      		type: 'time',
+			      		time: {
+			        		displayFormats: {
+			           			'millisecond': 'MMM DD',
+			           			'second': 'MMM DD',
+					            'minute': 'MMM DD',
+					            'hour': 'MMM DD',
+					            'day': 'MMM DD',
+					            'week': 'MMM DD',
+					            'month': 'MMM DD',
+					            'quarter': 'MMM DD',
+					            'year': 'MMM DD',
+					        }
+					    }
+					}]
+				}
+			}
+var ctx = document.getElementById("graph").getContext('2d');
+
+var myChart = new Chart(ctx, data);
+
+</script>

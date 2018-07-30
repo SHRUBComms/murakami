@@ -1,0 +1,85 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+	<h1>Members</h1>
+</div>
+
+<div class="col-lg-3 col-lg-push-9">
+    <div class="row">
+        <div class="form-group">
+          <select id="membership_status_filter" class="form-control">
+            <option value="all">Members & Non-members</option>
+            <option value="members" selected>Members Only</option>
+            <option value="non-members">Non-members Only</option>
+          </select>
+        </div>
+
+        <p>
+          <a class="btn btn-primary hidden-xs hidden-sm" href="/log-outgoing-weight">Log Outgoing Weight (Non-members)</a>
+        </p>
+    </div>
+    <div class="row hidden-xs hidden-sm hidden-md fadeIn">
+      <div class="stats-wrapper">
+        <h3>Today:</h3>
+        <p><span id="carbon_saved_today">0</span>kg of carbon saved!</p>
+        <p><span id="new_members">0</span> new member(s)</p>
+        <p><span id="swaps_today">0</span> swap(s)</p>
+        <hr />
+        <p><b><span id="total_current_members">0</span> total members!</b></p>
+      </div>
+    </div>
+</div>
+
+<div class="col-lg-8 col-lg-pull-3">
+	<div class="row">
+		<table id="members_table" class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true">
+			<thead>
+				<th data-sortable="true">Name</th>
+				<th data-sortable="true" class="hidden-xs hidden-sm" data-field="membership_status">Membership</th>
+				<th data-sortable="true">Tokens</th>
+			</thead>
+			<tbody>
+			{{#each members}}
+				<tr>
+					<td><a href="/members/view/{{id.text}}">{{full_name.text}}</a></td>
+					<td>{{status.text}}</td>
+					<td>{{balance.text}}</td>
+				</tr>
+			{{/each}}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script>
+
+var filter = {
+  membership_status: ["Current member, paid", "Current member, free"],
+};
+
+$(document).ready(function(){
+  $('#members_table').bootstrapTable('filterBy', filter);
+  getStat('/reports/analytics/carbon-saved-today', '#carbon_saved_today')
+  getStat('/reports/analytics/members-who-joined-today', '#new_members')
+  getStat('/reports/analytics/swaps-today', '#swaps_today')
+  getStat('/reports/analytics/current-members', '#total_current_members')
+})
+
+$('#membership_status_filter').on('change', function () {
+    var selection = $(this).val();
+    if(selection == "all"){
+      filter.membership_status = ["Current member, paid", "Current member, free", "No longer a member"];
+    } else if(selection == "members") {
+      filter.membership_status = ["Current member, paid", "Current member, free"];
+    } else if(selection == "non-members"){
+      filter.membership_status = ["No longer a member"];
+    }
+
+    $('#members_table').bootstrapTable('filterBy', filter);
+});
+
+</script>
