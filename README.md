@@ -1,7 +1,7 @@
 # Murakami
 A lightweight, open-source membership management system for [Shrub](https://shrubcoop.org)!
 If you are interested in using/adapting Murakami for your organisation or simply want to know more, feel free to [get in touch](https://honeypie.io/contact) :-)
-[Demo](https://shrub.space/murakami)
+~~[Demo](https://shrub.space/murakami)~~
 > Version 2.0
 
 Murakami is straight-to-the-point - it facilitates the following features with little to no faff:
