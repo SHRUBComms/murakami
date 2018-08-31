@@ -352,7 +352,7 @@ router.get('/log-volunteer-hours/:group_id', Auth.isLoggedIn, Auth.isAdmin, func
   });
 })
 
-router.post('/log-volunteer-hours', function(req, res){
+router.post('/log-volunteer-hours', Auth.isLoggedIn, function(req, res){
   var message = {};
   var shift = req.body.shift;
 

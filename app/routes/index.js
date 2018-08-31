@@ -26,11 +26,11 @@ router.get('/error', function(req, res){
   res.render('error');
 })
 
-router.get('/log', function(req, res){
+router.get('/log', Auth.isLoggedIn, function(req, res){
   res.redirect('/log-volunteer-hours');
 })
 
-router.get('/log-volunteer-hours', function(req, res){
+router.get('/log-volunteer-hours', Auth.isLoggedIn, function(req, res){
   res.render('log-volunteer-hours', {
     title: 'Log Volunteer Hours',
     membersActive: true,
