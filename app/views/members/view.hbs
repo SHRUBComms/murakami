@@ -210,7 +210,12 @@
 				<a class="btn btn-danger" onclick="completeTrans('ded')">Deduct Tokens</a>
 				<br />
 				<br />
-				<span>Weights are not required when adding tokens!</span>
+				<p><small>Weights are not required when adding tokens!</small></p>
+				<p>
+					<input type="checkbox" id="useTokens" name="useTokens" checked />&nbsp;
+					Use tokens for this transaction
+				</p>
+				
 			</div>
 		</div>
 	</div>
@@ -336,7 +341,8 @@ function completeTrans(type){
         type: "POST",
         url: "/members/transactions/" + $("#member_id").val() + "/" + type,
         data: { 
-            'transaction': transaction
+            'transaction': transaction,
+            'useTokens': $("#useTokens").is(":checked")
         },    
         success: function(response){
 
