@@ -10,6 +10,11 @@
 		<a href="/members/update/{{member.id.text}}"><span class="h3">edit</span></a>
 	{{/if}}
 	</h1>
+	{{#unless member.isVolInducted}}
+	    <div class="form-group col-md-3" style="padding: 0px;">
+	      	<a class='btn btn-success form-control' href="/members/add-volunteer/{{member.id.text}}">Make {{member.first_name.text}} A Volunteer</a>
+	    </div>		
+	{{/unless}}
 </div>
 
 <div class="row">
@@ -37,11 +42,11 @@
 
 {{#if member.isMember.text}}
 <div class="row">
-	<a href="/members/remove/{{member.id.text}}" onclick='return confirm("Are you sure you want to remove this member? This process can be reversed at a later date")'>Remove member</a>
+	<a href="/members/remove/{{member.id.text}}" onclick='return confirm("Are you sure you want to remove this member? This process can be reversed at a later date")'>Revoke membership</a>
 </div>
 {{else}}
 <div class="row">
-	<a href="/members/restore/{{member.id.text}}" onclick='return confirm("Are you sure you want to restore this member? This process can be reversed at a later date")'>Restore member</a>
+	<a href="/members/restore/{{member.id.text}}" onclick='return confirm("Are you sure you want to restore this member? This process can be reversed at a later date")'>Restore membership</a>
 </div>
 {{/if}}
 
@@ -49,7 +54,7 @@
 {{#if user.admin}}
 <div class="row">
 	<small>
-		<a href="/members/destroy/{{member.id.text}}" onclick='return confirm("Are you sure you want to *permanently* delete this member? All information held on this member will be destroyed or anonymised. This process is IRREVERSIBLE!")'>Destroy this member</a>
+		<a href="/members/destroy/{{member.id.text}}" onclick='return confirm("Are you sure you want to *permanently* delete this member? All information held on this member will be destroyed or anonymised. This process is IRREVERSIBLE!")'>Delete member</a>
 	</small>
 </div>
 {{/if}}

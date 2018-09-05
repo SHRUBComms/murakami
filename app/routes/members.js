@@ -558,6 +558,14 @@ router.post('/add', function (req, res) {
 				var membership_type = req.body.membership_type.trim();
 				var volunteer_status = req.body.volunteer_status.trim();
 				var membership_length = req.body.membership_length.trim();
+
+
+				var shrubExplained = req.body.shrubExplained;
+				var safeSpace = req.body.safeSpace;
+
+				var fseNewsletterConsent = req.body.fseNewsletterConsent;
+				var generalNewsletterConsent = req.body.generalNewsletterConsent;
+
 				if(req.body.working_groups){
 					var working_groups = JSON.parse(req.body.working_groups);
 				}
@@ -572,6 +580,12 @@ router.post('/add', function (req, res) {
 				req.checkBody("email", "Please enter an email address").notEmpty();
 				req.checkBody("email", "Please enter a shorter email address (<= 89 characters)").isLength({max: 89});
 				req.checkBody("email", "Please enter a valid email address").isEmail();
+
+				req.checkBody("emergencyContactRelation", "Please enter the emergency contact's relation to the member").notEmpty();
+				req.checkBody("emergencyContactPhoneNo", "Please make sure you have explained our Safe Space policy").notEmpty();
+
+				req.checkBody("shrubExplained", "Please make sure you have explained SHRUB's vision").notEmpty();
+				req.checkBody("safeSpace", "Please make sure you have explained our Safe Space policy").notEmpty();
 
 				if(phone_no){
 					req.checkBody("phone_no", "Please enter a shorter phone number (<= 15)").isLength({max: 15});
@@ -638,7 +652,9 @@ router.post('/add', function (req, res) {
 						address: address,
 						token: req.query.token,
 						settings: settings,
-						working_groups: working_groups
+						working_groups: working_groups,
+						emergencyContactPhoneNo: emergencyContactPhoneNo,
+						emergencyContactRelation: emergencyContactRelation
 					});
 
 
@@ -677,9 +693,7 @@ router.post('/add', function (req, res) {
 
 				    	if(req.user.admin){
 
-				    		Members.updateWorkingGroups(member.member_id, JSON.stringify(formattedWorkingGroups), function(){
-				    			console.log("WORKING GROUPS UPDATED: " + JSON.stringify(formattedWorkingGroups));
-				    		});
+				    		Members.updateWorkingGroups(member.member_id, JSON.stringify(formattedWorkingGroups), function(){});
 
 				    		
 				    	} else {
@@ -689,11 +703,9 @@ router.post('/add', function (req, res) {
 				    	}					
 
 
+						var shrubMailchimp = new Mailchimp(process.env.SHRUB_MAILCHIMP_SECRET_API_KEY);
+						var fseMailchimp = new Mailchimp(process.env.FSE_MAILCHIMP_SECRET_API_KEY);
 
-
-						var mailchimp = new Mailchimp(process.env.MAILCHIMP_SECRET_API_KEY);
-
-				        var listID = (process.env.MAILCHIMP_NEWSLETTER_LIST_ID);
 				        var subscribeBody = {
 				            email_address: email,
 				            status: "subscribed",
@@ -702,10 +714,14 @@ router.post('/add', function (req, res) {
 				                LNAME: last_name
 				            }
 				        }
-				        if(req.body.mailchimpConsent == "on"){
-					        mailchimp.put('/lists/' + listID + '/members/' + md5(email), subscribeBody);
+				        if(generalNewsletterConsent == "on"){
+					        mailchimp.put('/lists/' + process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID + '/members/' + md5(email), subscribeBody);
 					    }
-					    // TODO: add tokens if paid full year member
+
+				        if(fseNewsletterConsent == "on"){
+					        mailchimp.put('/lists/' + process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID + '/members/' + md5(email), subscribeBody);
+					    }
+
 					    if(membership_length == "year"){
 					    	var transaction = {
 								member_id: member.member_id, 
@@ -739,6 +755,40 @@ router.post('/add', function (req, res) {
 	});
 });
 
+
+router.get("/add-volunteer/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
+	Members.getById(req.params.member_id, function(err, member){
+		if(member[0] && !err){
+			res.render("members/add-volunteer", {
+				member: member[0],
+				membersActive: true,
+				title: "Add Volunteer"
+			})
+		} else {
+			req.flash("error", "Member not found!")
+			res.redirect("/members");
+		}
+	})
+});
+
+router.post("/add-volunteer/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
+
+	Members.getById(req.params.member_id, function(err, members){
+		if(member[0] && !err) {
+
+			var emergencyContactRelation = req.body.emergencyContactRelation.trim();
+			var emergencyContactPhoneNo = req.body.emergencyContactPhoneNo.trim();
+
+			req.checkBody("emergencyContactRelation", "Please enter the emergency contact's relation to the member").notEmpty();
+			req.checkBody("emergencyContactPhoneNo", "Please make sure you have explained our Safe Space policy").notEmpty();
+
+		} else {
+			req.flash("error", "Member not found!")
+			res.redirect("/members");			
+		}
+	})
+
+});
 
 router.get('/renew/:member_id/:length', Auth.isLoggedIn, function(req, res){
 

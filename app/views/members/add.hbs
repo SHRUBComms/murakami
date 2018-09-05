@@ -2,7 +2,7 @@
 {{#if errors}}
   <div class="alert alert-danger">{{{errors.0.msg}}}</div>
 {{/if}}
-<div class="container">
+<div class="col-md-6">
   <form method="post" action="/members/add{{#if token}}?token={{token}}{{/if}}" class="form-group">
     <div class="row">
       <h3>Personal Details</h3>
@@ -10,11 +10,18 @@
     <div class="row">
       <div class="form-group form-inline">
         <div class="form-group">
-          <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}}>
+          <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
         </div>
         <div class="form-group">
-          <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}}>
+          <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
         </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <p><b>Date of Birth</b> (must be 16 or over to join)</p>
+      <div class="form-group col-sm-4" style="padding: 0;">
+        <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
       </div>
     </div>
 
@@ -22,20 +29,49 @@
       <h3>Contact Details</h3>
     </div>
     <div class="row">
-      <div class="form-group col-sm-4" style="padding: 0;">
-        <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
+      <div class="form-group col-sm-8" style="padding: 0;">
+        <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}} required />
       </div>
     </div>
     <div class="row">
-      <div class="form-group col-sm-4" style="padding: 0;">
+      <div class="form-group col-sm-8" style="padding: 0;">
         <input type="text" class="form-control" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
       </div>
     </div>
     <div class="row">
-      <div class="form-group col-sm-4" style="padding: 0;">
+      <div class="form-group col-sm-8" style="padding: 0;">
         <input type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}>
       </div>
     </div>
+
+    <div class="row">
+      <div class="form-group form-inline">
+
+        <p><input type="checkbox" name="generalNewsletterConsent" required /> I understand that SHRUB Co-op may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
+
+      </div>
+    </div>
+
+    <div class="row">
+      <h4>Newsletters</h4>
+    </div>
+
+    <div class="row">
+      <div class="form-group form-inline">
+        <p><input type="checkbox" name="generalNewsletterConsent" /> Join the SHRUB Co-op newsletter (every 2 weeks) - to keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group form-inline">
+        <p><input type="checkbox" name="fseNewsletterConsent" /> Join the Food Sharing Edinburgh newsletter (every 2 weeks)</p>
+      </div>
+    </div>
+
+</div>
+
+<div class="col-md-4 col-md-offset-1">
+
 
     <div class="row">
       <h3>Membership Info</h3>
@@ -114,21 +150,41 @@
     <br />
 
     <div class="row">
+      <h3>Additional Checks</h3>
+    </div>
+
+    <div class="row">
       <div class="form-group form-inline">
-        <p><input type="checkbox" name="mailchimpConsent" /> Opt-in to our newsletter!</p>
+        <p><input type="checkbox" name="shrubExplained" required /> Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group form-inline">
+        <p><input type="checkbox" name="safeSpace" required /> Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group form-inline">
+        <p><input type="checkbox" name="safeSpace" required /> Agreed to our <a href="#" target="_blank">data protection policy</a></p>
       </div>
     </div>
 
     <hr />
+
     <div class="row">
       <div class="form-group form-inline">
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary form-control">Add Member</button>
-          </div>
+        <div class="form-group pull-right">
+          <button type="submit" class="btn btn-primary form-control">Add Member</button>
+        </div>
       </div>
     </div>
   </form>
+
+
 </div>
+
 
 <script>
 
@@ -177,6 +233,12 @@ function updateSummary(){
   });
   
 }
+
+var date = new Date();
+$('#dob').prop('max', (date.getFullYear()-16)+"-"+
+                      ('0' + (date.getMonth()+ +1)).slice(-2)+"-"+
+                      ('0' + date.getDate()).slice(-2));
+
 
 updateSummary();
 

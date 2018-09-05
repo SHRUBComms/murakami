@@ -1,0 +1,83 @@
+<div class="row">
+  <h1>{{member.first_name}} {{member.last_name}}</h1>
+</div>
+<div class="row">
+  <h4>Volunteer Registration</h4>
+</div>
+<div class="row">
+    <div class="form-group col-md-3" style="padding: 0px;">
+        <a class='btn btn-primary form-control' href="/members/view/{{member.member_id}}">← Back To Main Profile</a>
+    </div>  
+</div>
+
+{{#if errors}}
+  <div class="alert alert-danger">{{{errors.0.msg}}}</div>
+{{/if}}
+
+<div class="row">
+  <form method="post" action="/members/add-volunteer/{{member.member_id}}" class="form-group">
+    <div class="col-md-6">
+
+      <div class="row">
+        <h3>Roles</h3>
+      </div>
+      <div class="row">
+        <div class="form-group col-sm-4" style="padding: 0;">
+          <input type="text" class="form-control" placeholder="Role" name="role"{{#if role}} value="{{role}}"{{/if}}>
+        </div>      
+      </div>
+      <div class="row">
+        <div class="form-group form-inline">
+
+          <p><input type="checkbox" name="roleExplained" /> The role has been been explained</p>
+
+        </div>
+      </div>
+
+
+      <div class="row">
+        <h4>Emergency Contact</h4>
+      </div>
+      <div class="row">
+        <div class="form-group col-sm-8" style="padding: 0;">
+          <input type="text" class="form-control" placeholder="Relation" name="emergencyContactRelation"{{#if emergencyContactRelation}} value="{{emergencyContactRelation}}"{{/if}}>
+        </div>      
+      </div>
+      <div class="row">
+        <div class="form-group col-sm-8" style="padding: 0;">
+          <input type="text" class="form-control" placeholder="Phone Number" name="emergencyContactPhoneNo"{{#if emergencyContactPhoneNo}} value="{{emergencyContactPhoneNo}}"{{/if}}>
+        </div>      
+      </div>
+
+    </div>
+
+    <div class="col-md-5 col-md-offset-1">
+
+      <div class="row">
+        <h3>Our Agreement</h3>
+      </div>
+
+      <div class="row">
+        <p><b>Committed Hours Per Week</b> (must not exceed 15 hrs/week)</p>
+        <div class="form-group col-sm-4" style="padding: 0;">
+          <input type="number" min="1" max="15" class="form-control" placeholder="Hours Per Week" name="hoursPerWeek" id="hoursPerWeek" value="{{hoursPerWeek}}">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group form-inline">
+          <p><input type="checkbox" name="volunteerAgreement"> Yes, I commit to the role, responsibilities and time commitment as detailed in the volunteer role description</p>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<div class="row">
+  <div class="col-md-5">
+    <div class="row">
+
+    </div>
+  </div>
+</div>

@@ -25,6 +25,17 @@ Members.searchByName = function(search, callback){
 	con.query(sql, callback);
 }
 
+Members.searchByNameAndGroup = function(search, group_id, callback){
+	var query = "SELECT * FROM members " +
+				"WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND first_name != '[redacted]' " + 
+				"AND working_groups LIKE ?" +
+				"ORDER BY first_name ASC LIMIT 3";
+	var inserts = ["%" + search + "%", "%" + group_id + "%"];
+
+	var sql = mysql.format(query, inserts);
+	con.query(sql, callback);
+}
+
 Members.getById = function(id, callback) {
 	var query = "SELECT * FROM members WHERE member_id = ?";
 	var inserts = [id]

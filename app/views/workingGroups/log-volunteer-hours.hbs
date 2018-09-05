@@ -71,9 +71,10 @@
 function search(){
   $.ajax({
       type: "POST",
-      url: "/members/search",
+      url: "/working-groups/members/search",
       data: { 
-          'term': $('#memberInput').val()
+          'term': $('#memberInput').val(),
+          'group_id': "{{working_group.id}}"
       },    
       success: function(response){
 

@@ -26,16 +26,21 @@ router.get('/error', function(req, res){
   res.render('error');
 })
 
-router.get('/log', Auth.isLoggedIn, function(req, res){
+router.get('/log', function(req, res){
   res.redirect('/log-volunteer-hours');
 })
 
-router.get('/log-volunteer-hours', Auth.isLoggedIn, function(req, res){
-  res.render('log-volunteer-hours', {
-    title: 'Log Volunteer Hours',
-    membersActive: true,
-    captcha:recaptcha.render()
-  });  
+router.get('/log-volunteer-hours', function(req, res){
+  Settings.getAll(function(err, settings){
+    settings = settings[0];
+    settings.definitions = JSON.parse(settings.definitions);
+    res.render('log-volunteer-hours', {
+      title: 'Log Volunteer Hours',
+      membersActive: true,
+      captcha:recaptcha.render(),
+      settings: settings
+    });  
+  })
 })
 
 router.get('/success', function(req, res){
@@ -258,9 +263,10 @@ router.post('/recover', function(req, res){
 });
 
 router.get('/privacy', function (req, res){
-  res.render('privacy', {
+  res.redirect("/");
+  /*res.render('privacy', {
     title: 'Privacy Policy'
-  });
+  });*/
 });
 
 router.get('/log-outgoing-weight', Auth.isLoggedIn, function(req, res){

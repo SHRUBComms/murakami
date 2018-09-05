@@ -2,35 +2,90 @@
   <h1>Log Volunteer Hours</h1>
 </div>
 
-<br />
-
-{{#if user}}
-<div class="row hidden">
-  <div class="g-recaptcha" data-sitekey="6Le9vEUUAAAAAItUqpLpm2tNEl2rsTqqnbRK5_L1"></div>
-</div>
-{{else}}
-<div class="row">
-	<div class="g-recaptcha" data-sitekey="6Le9vEUUAAAAAItUqpLpm2tNEl2rsTqqnbRK5_L1"></div>
-</div>
-{{/if}}
-
-<br />
-
 <div class="row">
 
   <div class="col-lg-5 nopadding">
     <div id="hours_logged_info" class="row"></div>
     <h3>Log A Shift!</h3>
-    <p>Search for your membership</p>
-    <div class="form-group">
-      <input type="text" id="memberInput" class="form-control" placeholder="Name" oninput="search()" />
-    </div>
+    {{#if user}}
+      <p>Search for your membership</p>
 
-    <div class="row">
-      <div class='col-lg-offset-1'>
-        <div id="searchOutput"></div>
+      <div class="row hidden">
+        <div class="g-recaptcha" data-sitekey="6Le9vEUUAAAAAItUqpLpm2tNEl2rsTqqnbRK5_L1"></div>
       </div>
-    </div>
+
+      <div class="form-group">
+        <input type="text" id="memberInput" class="form-control" placeholder="Name" oninput="search()" />
+      </div>
+
+      <div class="row">
+        <div class='col-lg-offset-1'>
+          <div id="searchOutput"></div>
+        </div>
+      </div>
+
+    {{else}}
+      <p>Enter your unique membership ID, the hours you worked and select a working group</p>
+      <form action="/working-groups/log-volunteer-hours" method="post">
+
+        <div class="row">
+          <div class="col-md-5">
+            <div class="form-group">
+              <div class="g-recaptcha" data-sitekey="6Le9vEUUAAAAAItUqpLpm2tNEl2rsTqqnbRK5_L1"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-5">
+            <div class="form-group">
+              <input type="text" class="form-control" name="member_id" id="member_id" placeholder="Membership ID" value="{{member_id}}" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-10">
+            <div class="form-group">
+              <select class="form-control" name="working_group">
+                <option value="">Select a working group...</option>
+                {{#each settings.definitions.working_groups}}
+                  <option value="{{id}}">{{name}} {{#if sub_groups}}(General){{/if}}</option>
+
+                    {{#each sub_groups}}
+                      <option value="{{id}}">{{../name}}: {{name}}</option>
+                    {{/each}}
+
+                {{/each}}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <p class="center-block"><b>Duration</b></p>
+              <input type="range" id="duration" oninput="updateDuration('generic')" name="duration" min="0.25" max="24" step="0.25" value="0" />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group center-block">
+              <p><b><span id="duration_value">0</span> hour(s)</b></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group form-inline">
+            <div class="form-group pull-right">
+              <button type="submit" class="btn btn-primary form-control">Log Hours</button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    {{/if}}
   </div>
 
   <div class="col-lg-5 col-lg-offset-1">
@@ -123,13 +178,11 @@ function updateSearchOutput(results){
     	}
 
 
-
-      
       $('#searchOutput').html($('#searchOutput').html() + 
         "<div class='member-result text-center'>" +
-          "<p><b>" + 
+          "<a href='/members/view/" + results[i].id + "'><p><b>" + 
             results[i].name + 
-          "</p></b>" +
+          "</p></b></a>" +
 
           "<p>" + 
             results[i].email + 
@@ -149,8 +202,13 @@ function updateSearchOutput(results){
 }
 
 function updateDuration(member){
-  var duration = $("#duration_" + member).val()
-  $("#duration_" + member + "_value").html(duration);
+  if(member == "generic"){
+    var duration = $("#duration").val()
+    $("#duration_value").html(duration);
+  } else {
+    var duration = $("#duration_" + member).val()
+    $("#duration_" + member + "_value").html(duration);
+  }
 }
 
 $('#working_groups').on('change', function () {

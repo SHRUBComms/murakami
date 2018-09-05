@@ -121,7 +121,6 @@ Settings.getAll(function(err, settings){
 
 // Global variables
 app.use(function (req, res, next) {
-  console.log(req.headers['x-forwarded-for'] || req.connection.remoteAddress)
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
