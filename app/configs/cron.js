@@ -54,7 +54,7 @@ var job = new CronJob({
     // Update volunteer statuses
 
     // Update free vols
-    Members.getFreeVols(function(err, volunteers){
+    /*Members.getFreeVols(function(err, volunteers){
         async.each(volunteers, function(volunteer, callback){
             WorkingGroups.getHoursFromPastTwoMonthsByMemberId(volunteer.member_id, function(err, hours){
                 if(!hours[0]){
@@ -62,7 +62,7 @@ var job = new CronJob({
                 }
             });
         });        
-    })
+    })*/
 
 
   },

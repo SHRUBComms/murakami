@@ -16,6 +16,7 @@ var Settings = require("../models/settings");
 var Mailchimp = require('mailchimp-api-v3');
 var Carbon = require("../models/carbon-calculations");
 var AccessTokens = require("../models/access-tokens");
+var Mail = require("../configs/mail");
 
 function censorName(name){
     var name = name.split(' ');
@@ -562,6 +563,9 @@ router.post('/add', function (req, res) {
 
 				var shrubExplained = req.body.shrubExplained;
 				var safeSpace = req.body.safeSpace;
+				var contactConsent = req.body.contactConsent;
+				var gdprConsent = req.body.gdprConsent;
+
 
 				var fseNewsletterConsent = req.body.fseNewsletterConsent;
 				var generalNewsletterConsent = req.body.generalNewsletterConsent;
@@ -571,6 +575,8 @@ router.post('/add', function (req, res) {
 				}
 				
 				// Validation
+				req.checkBody("first_name", "Please enter a date of birth").notEmpty();
+
 				req.checkBody("first_name", "Please enter a first name").notEmpty();
 				req.checkBody("first_name", "Please enter a shorter first name (<= 20 characters)").isLength({max: 20});
 
@@ -581,16 +587,26 @@ router.post('/add', function (req, res) {
 				req.checkBody("email", "Please enter a shorter email address (<= 89 characters)").isLength({max: 89});
 				req.checkBody("email", "Please enter a valid email address").isEmail();
 
-				req.checkBody("emergencyContactRelation", "Please enter the emergency contact's relation to the member").notEmpty();
-				req.checkBody("emergencyContactPhoneNo", "Please make sure you have explained our Safe Space policy").notEmpty();
-
 				req.checkBody("shrubExplained", "Please make sure you have explained SHRUB's vision").notEmpty();
 				req.checkBody("safeSpace", "Please make sure you have explained our Safe Space policy").notEmpty();
+				req.checkBody("contactConsent", "Please make sure this member has consented to being contacted by email").notEmpty();
+				req.checkBody("gdprConsent", "Please make sure this member has agreed to our privacy policy").notEmpty();
 
 				if(phone_no){
 					req.checkBody("phone_no", "Please enter a shorter phone number (<= 15)").isLength({max: 15});
-					req.checkBody("phone_no", "Please enter a valid UK phone number").isMobilePhone("en-GB");
+					req.checkBody("phone_no", "Please enter a valid UK mobile phone number").isMobilePhone("en-GB");
 				}
+
+				var dob = new Date(req.body.dob);
+				var today = new Date();
+
+				var over16 = (today - dob) / (1000 * 3600 * 24 * 365) >= 16;
+
+				if(!over16) {
+					console.log("Too young!");
+				}
+
+				
 
 				// Parse membership info
 				if(membership_length == "year"){
@@ -637,9 +653,17 @@ router.post('/add', function (req, res) {
 
 				// Parse request's body
 				var errors = req.validationErrors();
+
+	            
+
+	            if (!errors && !over16) {
+	            	var error = {param: "dob", msg: "Must be over 16 to be a member", value: req.body.dob};
+	                errors = [];
+	                errors.push(error);
+	            }
+	            
+
 			    if(errors) {
-
-
 
 					res.render('members/add',{
 						errors: errors,
@@ -653,8 +677,12 @@ router.post('/add', function (req, res) {
 						token: req.query.token,
 						settings: settings,
 						working_groups: working_groups,
-						emergencyContactPhoneNo: emergencyContactPhoneNo,
-						emergencyContactRelation: emergencyContactRelation
+						shrubExplained: shrubExplained,
+						safeSpace: safeSpace,
+						contactConsent: contactConsent,
+						gdprConsent: gdprConsent,
+						dob: dob
+
 					});
 
 
@@ -715,11 +743,11 @@ router.post('/add', function (req, res) {
 				            }
 				        }
 				        if(generalNewsletterConsent == "on"){
-					        mailchimp.put('/lists/' + process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID + '/members/' + md5(email), subscribeBody);
+					        shrubMailchimp.put('/lists/' + process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID + '/members/' + md5(email), subscribeBody);
 					    }
 
 				        if(fseNewsletterConsent == "on"){
-					        mailchimp.put('/lists/' + process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID + '/members/' + md5(email), subscribeBody);
+					        fseMailchimp.put('/lists/' + process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID + '/members/' + md5(email), subscribeBody);
 					    }
 
 					    if(membership_length == "year"){
@@ -873,5 +901,25 @@ router.get('/destroy/:member_id', Auth.isLoggedIn, Auth.isAdmin, function(req, r
 		}
 	});
 });
+
+router.get('/id-remind/:member_id', Auth.isLoggedIn, Auth.isAdmin, function(req, res){
+	Members.getById(req.params.member_id, function(err, member){
+		if(!member[0] || err){
+			req.flash("error", "Member not found");
+			res.redirect("/members");
+		} else {
+			Mail.sendAutomated("membership_id_reminder", member[0].member_id, function(err){
+				if(err){
+					console.log(err);
+					req.flash("error", "Something went wrong!");
+					res.redirect("/members");
+				} else {
+					req.flash("success_msg", "Member has been sent their ID");
+					res.redirect("/members/" + req.params.member_id);					
+				}
+			})
+		}
+	})
+})
 
 module.exports = router;

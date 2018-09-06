@@ -102,7 +102,7 @@ $(function() { $('#editor').froalaEditor() });
 function update_preview(){
     var raw_markup = document.getElementsByClassName("fr-view")[0].innerHTML;
     var modified_markup;
-    modified_markup = raw_markup.replace("|first_name|", "Ringo").replace("|last_name|", "Starr").replace("|fullname|", "Ringo Starr").replace("|exp_date|", "September 20th 2023");
+    modified_markup = raw_markup.replace("|first_name|", "Ringo").replace("|last_name|", "Starr").replace("|fullname|", "Ringo Starr").replace("|exp_date|", "September 20th 2023").replace("|membership_id|", "6491762");
     $("#subject-preview").html($("#subject").val());
     $("#preview-content").html(modified_markup);
 }

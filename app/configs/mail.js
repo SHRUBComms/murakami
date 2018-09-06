@@ -66,8 +66,9 @@ Mail.sendAutomated = function(mail_id, member_id, callback){
             mail.markup = sanitizeHtml(mail.markup);
             mail.markup.replace("|first_name|", member.first_name.text)
                        .replace("|last_name|", member.last_name.text)
-                       .replace("|fullname|", member.name.text)
+                       .replace("|fullname|", member.full_name.text)
                        .replace("|exp_date|", member.current_exp_membership.text.nice)
+                       .replace("|membership_id|", member.id.text)
             var message = {
               html: mail.markup,
                 from: 'Shrub Co-op <shrub@murakami.org.uk>',

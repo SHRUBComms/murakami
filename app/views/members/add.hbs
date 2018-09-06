@@ -47,7 +47,7 @@
     <div class="row">
       <div class="form-group form-inline">
 
-        <p><input type="checkbox" name="generalNewsletterConsent" required /> I understand that SHRUB Co-op may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
+        <p><input type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}} /> I understand that SHRUB Co-op may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
 
       </div>
     </div>
@@ -58,13 +58,13 @@
 
     <div class="row">
       <div class="form-group form-inline">
-        <p><input type="checkbox" name="generalNewsletterConsent" /> Join the SHRUB Co-op newsletter (every 2 weeks) - to keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
+        <p><input type="checkbox" name="generalNewsletterConsent" {{#if generalNewsLetterConsent}}checked{{/if}} /> Join the SHRUB Co-op newsletter (every 2 weeks) - to keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
       </div>
     </div>
 
     <div class="row">
       <div class="form-group form-inline">
-        <p><input type="checkbox" name="fseNewsletterConsent" /> Join the Food Sharing Edinburgh newsletter (every 2 weeks)</p>
+        <p><input type="checkbox" name="fseNewsletterConsent" {{#if fseNewsLetterConsent}}checked{{/if}} /> Join the Food Sharing Edinburgh newsletter (every 2 weeks)</p>
       </div>
     </div>
 
@@ -155,19 +155,19 @@
 
     <div class="row">
       <div class="form-group form-inline">
-        <p><input type="checkbox" name="shrubExplained" required /> Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings</p>
+        <p><input type="checkbox" name="shrubExplained" required {{#if shrubExplained}}checked{{/if}} /> Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings</p>
       </div>
     </div>
 
     <div class="row">
       <div class="form-group form-inline">
-        <p><input type="checkbox" name="safeSpace" required /> Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure</p>
+        <p><input type="checkbox" name="safeSpace" required {{#if safeSpace}}checked{{/if}} /> Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure</p>
       </div>
     </div>
 
     <div class="row">
       <div class="form-group form-inline">
-        <p><input type="checkbox" name="safeSpace" required /> Agreed to our <a href="#" target="_blank">data protection policy</a></p>
+        <p><input type="checkbox" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}} /> Agreed to our <a href="#" target="_blank">privacy policy</a></p>
       </div>
     </div>
 
