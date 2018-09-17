@@ -10,13 +10,19 @@
 		<a href="/members/update/{{member.id.text}}"><span class="h3">edit</span></a>
 	{{/if}}
 	</h1>
-	<!--
-	{{#unless member.isVolInducted}}
-	    <div class="form-group col-md-3" style="padding: 0px;">
-	      	<a class='btn btn-success form-control' href="/members/add-volunteer/{{member.id.text}}">Make {{member.first_name.text}} A Volunteer</a>
-	    </div>		
-	{{/unless}}
-	-->
+
+	{{#if user.admin}}
+		{{#if volInfo}}
+		    <div class="form-group col-md-3" style="padding: 0px;">
+		      	<a class='btn btn-success form-control' href="/members/volunteer-info/{{member.id.text}}">View/Update Volunteer Info</a>
+		    </div>
+		{{else}}
+		    <div class="form-group col-md-3" style="padding: 0px;">
+		      	<a class='btn btn-success form-control' href="/members/volunteer-info/{{member.id.text}}">Make {{member.first_name.text}} A Volunteer</a>
+		    </div>
+		{{/if}}
+	{{/if}}
+
 	<!--
 	{{#if user.admin}}
 	    <div class="form-group col-md-3" style="padding: 0px;">

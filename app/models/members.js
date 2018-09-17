@@ -44,6 +44,25 @@ Members.getById = function(id, callback) {
 	con.query(sql, callback);
 }
 
+Members.getVolInfoById = function(id, callback) {
+	var query = "SELECT * FROM volunteer_info WHERE member_id = ?";
+	var inserts = [id]
+	var sql = mysql.format(query, inserts);
+	
+	con.query(sql, callback);
+}
+
+Members.putVolInfo = function(volInfo, callback) {
+	var query = `INSERT INTO volunteer_info (member_id, emergencyContactRelation, emergencyContactPhoneNo, roles, hoursPerWeek, survey, availability) VALUES (?, ?, ?, ?, ?, ?, ?) 
+				ON DUPLICATE KEY UPDATE emergencyContactRelation= ?, emergencyContactPhoneNo = ?, roles = ?, hoursPerWeek = ?, survey = ?, availability = ?`;
+	var inserts = [volInfo.member_id, volInfo.emergencyContactRelation, volInfo.emergencyContactPhoneNo, volInfo.roles, volInfo.hoursPerWeek, volInfo.survey, volInfo.availability,
+	volInfo.emergencyContactRelation, volInfo.emergencyContactPhoneNo, volInfo.roles, volInfo.hoursPerWeek, volInfo.survey, volInfo.availability]
+
+	var sql = mysql.format(query, inserts);
+	
+	con.query(sql, callback);
+}
+
 Members.getMembersWhoJoinedToday = function(callback) {
 	var query = "SELECT * FROM members WHERE current_init_membership = CURDATE() AND earliest_membership_date = CURDATE()";
 	con.query(query, callback);
