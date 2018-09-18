@@ -38,6 +38,8 @@ router.post('/', function(req,res){
   var errors = req.validationErrors();
     if(errors) {
       res.render('support', {
+        layout: "login-layout",
+        title: "Support",
         errors: errors,
         name: name,
         email: email,
@@ -45,10 +47,15 @@ router.post('/', function(req,res){
         message: message
       }); 
     } else {
+      message = "Name: " + name + "<br />" +
+                "Email: " + email + "<br /><br />" +
+                message;
       Mail.sendSupport(name, email, subject, message, function(err){
         if(err){
           req.flash('error_msg', 'Something went wrong! Please try again');
           res.render('support', {
+            layout: "login-layout",
+            title: "Support",
             name: name,
             email: email,
             subject: subject,

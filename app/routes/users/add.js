@@ -103,7 +103,7 @@ router.post('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 			if(err) throw err;
 			user = user[0]
 			req.flash('success_msg', 'New user added!');
-			res.redirect('/users/update/' + user.id);	    		
+			res.redirect('/users/view/' + user.id);	    		
 		});
 
     }).catch(function(errors) {

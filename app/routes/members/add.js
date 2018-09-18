@@ -13,6 +13,7 @@ var AccessTokens = require(rootDir + "/app/models/access-tokens");
 var Transactions = require(rootDir + "/app/models/transactions");
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Mail = require(rootDir + "/app/configs/mail");
 
 router.get('/', function(req, res) {
 	AccessTokens.get(req.query.token, "add_member", function(tokenValid){
@@ -250,23 +251,22 @@ router.post('/', function (req, res) {
 								amount: 5, 
 								comment: null
 					    	};
-					    	console.log(transaction);
 					    	Transactions.add(transaction, function(err){
-					    		console.log(err);
 				    			Members.updateBalance(member.member_id, 5, function(err){});
 					    	});
 					    }
 
-						req.flash('success_msg', 'New member added!');
-						if(req.query.token){
-							// TODO: mark token as used
-							AccessTokens.markAsUsed(req.query.token, function(err){
-								res.redirect('/success');
-							});
-						} else {
-							res.redirect('/members/view/' + member.member_id);
-						}
-						
+					    Mail.sendAutomated("hello", member.member_id, function(err){
+							req.flash('success_msg', 'New member added!');
+							if(req.query.token){
+								// TODO: mark token as used
+								AccessTokens.markAsUsed(req.query.token, function(err){
+									res.redirect('/success');
+								});
+							} else {
+								res.redirect('/members/view/' + member.member_id);
+							}					    	
+					    })
 
 					});
 			    }

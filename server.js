@@ -126,23 +126,30 @@ app.use(function (req, res, next) {
   res.locals.error = req.flash('error');
   if(req.user){
     res.locals.user = req.user
-    if(req.user.admin){
-      req.user.admin_wg = JSON.parse(req.user.admin_wg);
-      Settings.getAll(function(err, settings){
-        settings = settings[0];
-        settings.definitions = JSON.parse(settings.definitions)
-        async.eachOf(req.user.admin_wg, function(wg, i, callback){
-          WorkingGroups.verifyGroupById(wg, settings, function(group){
-            req.user.admin_wg[i] = group;
-          });
-          callback()
-        }, function(err){
-          next()
-        });        
-      });
-    
+    if(req.user.deactivated == 0){
+      if(req.user.admin){
+        req.user.admin_wg = JSON.parse(req.user.admin_wg);
+        Settings.getAll(function(err, settings){
+          settings = settings[0];
+          settings.definitions = JSON.parse(settings.definitions)
+          async.eachOf(req.user.admin_wg, function(wg, i, callback){
+            WorkingGroups.verifyGroupById(wg, settings, function(group){
+              req.user.admin_wg[i] = group;
+            });
+            callback()
+          }, function(err){
+            next()
+          });        
+        });
+      
+      } else {
+        next();
+      }
     } else {
-      next();
+      res.locals.user = null;
+      req.logout();
+      req.session = null;
+      next();      
     }
   } else {
     res.locals.user = null;

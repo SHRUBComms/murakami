@@ -11,12 +11,12 @@ var WorkingGroups = require("./working-groups");
 var Users = {}
 
 Users.getAll = function(callback) {
-	var query = "SELECT * FROM login ORDER BY username ASC";
+	var query = "SELECT * FROM login WHERE deactivated = 0 ORDER BY username ASC ";
 	con.query(query, callback);
 }
 
 Users.getByUsername = function(username, callback) {
-	var query = "SELECT * FROM login WHERE username = ?";
+	var query = "SELECT * FROM login WHERE username = ? AND deactivated = 0";
 	var inserts = [username]
 	var sql = mysql.format(query, inserts);
 	
@@ -24,7 +24,7 @@ Users.getByUsername = function(username, callback) {
 }
 
 Users.getByUsernameOrEmail = function(email, callback) {
-	var query = "SELECT * FROM login WHERE username = ? OR email = ?";
+	var query = "SELECT * FROM login WHERE (username = ? OR email = ?) AND deactivated = 0";
 	var inserts = [email, email]
 	var sql = mysql.format(query, inserts);
 	
@@ -32,7 +32,7 @@ Users.getByUsernameOrEmail = function(email, callback) {
 }
 
 Users.getByEmail = function(email, callback) {
-	var query = "SELECT * FROM login WHERE email = ?";
+	var query = "SELECT * FROM login WHERE email = ? AND deactivated = 0";
 	var inserts = [email]
 	var sql = mysql.format(query, inserts);
 	
@@ -128,6 +128,14 @@ Users.updatePassword = function(user_id, password, callback){
 
 }
 
+Users.deactivate = function(user_id, callback){
+	var query = "UPDATE login SET deactivated = 1 WHERE id = ?";
+	var inserts = [user_id];
+	var sql = mysql.format(query, inserts)
+
+	con.query(sql, callback);
+}
+
 Users.setResetCodeAsUsed = function(reset_code, callback){
 	var query = "UPDATE password_reset SET used = 1 WHERE reset_code = ?";
 	var inserts = [reset_code];
@@ -191,7 +199,6 @@ Users.makeNice = function(user, settings, callback) {
 				WorkingGroups.verifyGroupById(user.working_groups[i], settings, function(group){
 					if(group){
 						beautifulUser.working_groups[group.id] = group.name
-						console.log(beautifulUser.working_groups);
 					}
 				});
 				callback();

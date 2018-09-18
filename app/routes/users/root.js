@@ -34,7 +34,8 @@ router.get('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 });
 
 router.use("/add", require("./add"))
+router.use("/view", require("./view"))
 router.use("/update", require("./update"))
-router.use("/change-password", require("./change-password"))
+router.use("/deactivate", require("./deactivate"))
 
 module.exports = router;
