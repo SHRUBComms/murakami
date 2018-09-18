@@ -155,15 +155,17 @@ job.start();
 
 
 // Import routers
-var appRouter = require('./app/routes/index');
-var membersRouter = require("./app/routes/members");
-var reportsRouter = require("./app/routes/reports");
-var settingsRouter = require("./app/routes/settings");
-var workingGroupsRouter = require("./app/routes/working-groups");
-var usersRouter = require("./app/routes/users");
+var appRouter = require('./app/routes/root');
+var apiRouter = require("./app/routes/api/root");
+var membersRouter = require("./app/routes/members/root");
+var reportsRouter = require("./app/routes/reports/root");
+var settingsRouter = require("./app/routes/settings/root");
+var workingGroupsRouter = require("./app/routes/working-groups/root");
+var usersRouter = require("./app/routes/users/root");
 
 // Use routers
 app.use('/members', membersRouter);
+app.use('/api', apiRouter);
 app.use('/reports', reportsRouter);
 app.use('/settings', settingsRouter);
 app.use('/working-groups', workingGroupsRouter);

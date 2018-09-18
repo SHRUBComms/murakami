@@ -116,7 +116,7 @@
 function search(){
   $.ajax({
       type: "POST",
-      url: "/members/search",
+      url: "/api/post/members/search",
       data: { 
           'term': $('#memberInput').val()
       },    
@@ -243,9 +243,9 @@ function logHours(member_id){
 }
 
 $(document).ready(function(){
-  getStat('/reports/analytics/total-hours-volunteered-this-month', '#total_hours_volunteered_this_month')
-  getStat('/reports/analytics/new-volunteers-this-month', '#new_volunteers')
-  getStat('/reports/analytics/total-volunteers', '#total_volunteers')
+  getStat('/api/get/reports/this-month/hours-volunteered', '#total_hours_volunteered_this_month')
+  getStat('/api/get/reports/this-month/new-volunteers', '#new_volunteers')
+  getStat('/api/get/reports/all-time/current-volunteers', '#total_volunteers')
 })
 
 </script>

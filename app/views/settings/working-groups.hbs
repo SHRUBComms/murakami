@@ -1,15 +1,5 @@
 <div class="row">
-	<h1>Working Group Settings</h1>
-</div>
-
-<div class="row">
-  <h1>Add Members to 
-    {{#if working_group.prefix}}
-      {{working_group.prefix}} {{working_group.name}}
-    {{else}}
-      {{working_group.name}}
-    {{/if}}
-    </h1>
+	<h1>{{group.name}} Settings</h1>
 </div>
 
 {{#ifGreaterThan user.admin_wg.length 1}}
@@ -17,17 +7,49 @@
   <div class="form-group form-inline">
     <select class="form-control" id="working_groups">
       <option disabled selected>Select a working group...</option>
-      {{#each user.admin_wg}}
-        <option value="{{id}}">{{name}}
-        {{#if sub_groups}}
-          (General)
-          {{#each sub_groups}}
-            <option value="{{../id}}-{{id}}">{{../name}}: {{name}}</option>
-          {{/each}}
-        {{/if}}
-        </option>
-      {{/each}}
+        {{#each user.admin_wg}}
+          <option value='{{id}}'>{{name}}
+            {{#if sub_groups}}
+              (General)
+            {{/if}}
+          </option>
+        {{/each}}
     </select>
   </div>
 </div>
 {{/ifGreaterThan}}
+
+<form action="/settings/working-groups/{{group.id}}" method="POST">
+
+  <div class="row">
+    <div class="form-group form-inline">
+      <p><b>Group Name</b></p>
+      <div class="form-group" style="padding: 0;">
+        <input type="text" class="form-control" placeholder="Prefix (optional)" name="prefix" id="prefix" value="{{group.prefix}}">
+      </div>
+      <div class="form-group" style="padding: 0;">
+        <input type="text" class="form-control" placeholder="Group Name" name="name" id="name" value="{{group.name}}" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <p><b>Rate (tokens per hour)</b></p>
+    <p>Reward volunteers by giving them tokens to spend in the swapshop!</p>
+    <div class="form-group col-md-1" style="padding: 0;">
+      <input type="number" min="0" max="5" step="1" class="form-control" placeholder="Rate" name="rate" id="rate" value="{{group.rate}}" required>
+    </div>
+  </div>
+
+  <div class="row">
+    <button type="submit" class="btn btn-primary">Update Group!</button>
+  </div>
+
+</form>
+
+<script>
+$('#working_groups').on('change', function () {
+  var url = "/settings/working-groups/" + $(this).val();
+  window.location = url;
+});
+</script>

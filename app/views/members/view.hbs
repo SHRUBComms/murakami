@@ -117,7 +117,7 @@
 							<p>{{name}}{{#if sub_groups}}<span> (General)</span>{{/if}}
 
 							{{#if ../../user.admin}}
-								<span>- <a class="clickable" onclick="workingGroupAjaxReq('/working-groups/members/remove/{{id}}/{{../../member.id.text}}')">remove</a></span>
+								<span>- <a class="clickable" onclick="workingGroupAjaxReq('/api/get/working-groups/members/leave/{{id}}/{{../../member.id.text}}')">remove</a></span>
 							{{/if}}
 							</p>
 						</li>
@@ -246,7 +246,7 @@
 
 	<div class="row">
 		<div class="col-md-8">
-			<table id="transaction_history" class="fadeIn" data-pagination="true" data-toggle="table" data-striped="true" data-url="/members/transactions/{{member.id.text}}">
+			<table id="transaction_history" class="fadeIn" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/members/transactions/{{member.id.text}}">
 			    <thead>
 			        <tr>
 			            <th data-field="date.text">Date</th>
@@ -315,7 +315,7 @@ function update(){
 
 function workingGroupJoin(){
 	var group_id = $('#workingGroupSelect').val();
-	workingGroupAjaxReq("/working-groups/members/join/" + group_id + "/{{member.id.text}}");
+	workingGroupAjaxReq("/api/get/working-groups/members/join/" + group_id + "/{{member.id.text}}");
 }
 
 function isNumeric(n) {
@@ -359,7 +359,7 @@ function completeTrans(type){
 
     $.ajax({
         type: "POST",
-        url: "/members/transactions/" + $("#member_id").val() + "/" + type,
+        url: "/api/post/members/transactions/" + $("#member_id").val() + "/" + type,
         data: { 
             'transaction': transaction,
             'useTokens': $("#useTokens").is(":checked")
@@ -383,7 +383,7 @@ function completeTrans(type){
 function getSavedCarbon(){
 	$.ajax({
 	    type: "GET",
-	    url: "/members/carbon-saved/" + $("#member_id").val(),   
+	    url: "/api/get/members/carbon-saved/" + $("#member_id").val(),   
 	    success: function(response){
 			$('#carbon').html(response.carbon);
 	    }
@@ -393,7 +393,7 @@ function getSavedCarbon(){
 function getBalance(){
 	$.ajax({
 	    type: "GET",
-	    url: "/members/balance/" + $("#member_id").val(),   
+	    url: "/api/get/members/balance/" + $("#member_id").val(),   
 	    success: function(response){
 			$('#balance').html(response.balance);
 	    }

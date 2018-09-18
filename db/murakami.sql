@@ -1,10 +1,10 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.4.1deb2ubuntu2
+-- version 4.5.4.1deb2ubuntu2.1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 18, 2018 at 04:36 PM
--- Server version: 5.7.22-0ubuntu0.16.04.1
+-- Generation Time: Sep 18, 2018 at 05:12 PM
+-- Server version: 5.7.23-0ubuntu0.16.04.1
 -- PHP Version: 7.0.30-0ubuntu0.16.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `murakami_dev_exp`
+-- Database: `murakami_dev`
 --
 
 -- --------------------------------------------------------
@@ -75,13 +75,6 @@ CREATE TABLE `global_settings` (
   `can_add_members` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Dumping data for table `global_settings`
---
-
-INSERT INTO `global_settings` (`id`, `token`, `definitions`, `hourly_rate`, `password_reset`, `can_add_members`) VALUES
-(1, '4{]0()ikb*N6(8GzMI>F', '{\n  "items": [\n    {\n      "id": "IT-100",\n      "name": "Textiles & Shoes",\n      "factor": "16.100",\n      "active": true\n    },\n    {\n      "id": "IT-101",\n      "name": "Electronics",\n      "factor": "3.58",\n      "active": true\n    },\n    {\n      "id": "IT-102",\n      "name": "Books",\n      "factor": "0.913",\n      "active": true\n    },\n    {\n      "id": "IT-103",\n      "name": "Plastics",\n      "factor": "3.342",\n      "active": true\n    },\n    {\n      "id": "IT-104",\n      "name": "Metal",\n      "factor": "2.936",\n      "active": true\n    },\n    {\n      "id": "IT-105",\n      "name": "Wood",\n      "factor": "0.435",\n      "active": true\n    },\n    {\n      "id": "IT-106",\n      "name": "Glass/Ceramic",\n      "factor": "0.8946",\n      "active": true\n    }\n  ],\n  "working_groups": [\n    {\n      "id": "WG-100",\n      "name": "Swapshop",\n      "prefix": "the",\n      "rate": "3",\n      "active": true\n    },\n    {\n      "id": "WG-101",\n      "name": "Food Sharing",\n      "prefix": null,\n      "rate": 0,\n      "active": true,\n      "sub_groups": [\n        {\n          "id": "001",\n          "name": "Events Volunteers",\n          "active": true\n        },\n        {\n          "id": "002",\n          "name": "Research Volunteers",\n          "active": true\n        }\n      ]\n    },\n    {\n      "id": "WG-102",\n      "name": "Finance & Admin",\n      "prefix": null,\n      "rate": "0",\n      "active": true\n    },\n    {\n      "id": "WG-103",\n      "name": "Welfare",\n      "prefix": null,\n      "rate": "0",\n      "active": true\n    },\n    {\n      "id": "WG-104",\n      "name": "Zero Waste Advocate Network",\n      "prefix": "the",\n      "rate": "0",\n      "active": true\n    },\n    {\n      "id": "WG-105",\n      "name": "Wee Spoke Hub",\n      "prefix": "the",\n      "rate": "0",\n      "active": true\n    },\n    {\n      "id": "WG-106",\n      "name": "Workshops",\n      "prefix": null,\n      "rate": "0",\n      "active": true\n    },\n    {\n      "id": "WG-107",\n      "name": "Governance & Policy",\n      "prefix": null,\n      "rate": "0",\n      "active": true\n    },\n    {\n      "id": "WG-108",\n      "name": "Communications & Outreach",\n      "prefix": null,\n      "rate": "0",\n      "active": true\n    }\n  ]\n}', 0, 1, 1);
-
 -- --------------------------------------------------------
 
 --
@@ -105,7 +98,7 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `username`, `first_name`, `last_name`, `email`, `password`, `admin`, `admin_wg`, `created_at`) VALUES
-('01746919992', 'test.admin', 'Test', 'Admin', 'rosshudson8@gmail.com', '$2b$10$wVHiTpRnr0EWXk8OJn0mZuVERIa/pjb2yaVXIJOkmxqdxOrDT0Zo2', 1, '["WG-101"]', '2018-05-24 23:02:28');
+('01746919992', 'test.admin', 'Test', 'Admin', 'hello@rosshudson.co.uk', '$2a$10$s/TIShnWvvCx9GHGphyyDuzRQkPqhGSrM.SZk32EkVbE/KmQagsse', 1, '["WG-100",\n"WG-101",\n"WG-101-001",\n"WG-103",\n"WG-105",\n"WG-106",\n"WG-107",\n"WG-108"]', '2018-05-24 23:02:28');
 
 -- --------------------------------------------------------
 
@@ -121,13 +114,6 @@ CREATE TABLE `mail_templates` (
   `markup` longtext NOT NULL,
   `plaintext` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `mail_templates`
---
-
-INSERT INTO `mail_templates` (`active`, `mail_id`, `mail_desc`, `subject`, `markup`, `plaintext`) VALUES
-(1, 'hello', 'Sent when new member signs up (non-volunteer)', 'Welcome to Shrub!', '<p>Hey, |first_name|!</p><p>Thanks for joining Shrub.</p><p>Love Shrub Co-op</p>', 'Hey, |first_name|!\n\nThanks for joining Shrub.\n\nLove Shrub Co-op');
 
 -- --------------------------------------------------------
 
@@ -192,11 +178,11 @@ CREATE TABLE `transactions` (
 --
 
 CREATE TABLE `volunteer_hours` (
-  `shift_id` int(11) NOT NULL,
+  `shift_id` varchar(11) NOT NULL,
   `member_id` varchar(11) NOT NULL,
   `date` date NOT NULL,
   `duration_as_decimal` float NOT NULL,
-  `working_group` varchar(6) NOT NULL,
+  `working_group` varchar(10) NOT NULL,
   `approved` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -208,10 +194,14 @@ CREATE TABLE `volunteer_hours` (
 
 CREATE TABLE `volunteer_info` (
   `member_id` varchar(11) NOT NULL,
-  `passion` text NOT NULL,
-  `skills` mediumtext NOT NULL,
-  `hours_per` text NOT NULL,
-  `availability` longtext NOT NULL
+  `emergencyContactRelation` varchar(25) NOT NULL,
+  `emergencyContactPhoneNo` varchar(15) NOT NULL,
+  `roles` text NOT NULL,
+  `hoursPerWeek` int(11) NOT NULL,
+  `survey` text NOT NULL,
+  `availability` text NOT NULL,
+  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -314,17 +304,12 @@ ALTER TABLE `working_group_requests`
 -- AUTO_INCREMENT for table `attempts`
 --
 ALTER TABLE `attempts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 --
 -- AUTO_INCREMENT for table `global_settings`
 --
 ALTER TABLE `global_settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
---
--- AUTO_INCREMENT for table `volunteer_hours`
---
-ALTER TABLE `volunteer_hours`
-  MODIFY `shift_id` int(11) NOT NULL AUTO_INCREMENT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

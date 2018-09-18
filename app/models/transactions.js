@@ -86,7 +86,8 @@ Transactions.undo = function(transaction_id, callback){
 }
 
 
-Transactions.makeNice = function(transaction, callback){
+Transactions.makeNice = function(transaction, settings, callback){
+
 	var beautifulTransaction  = {
 		date:{
 			text: null
@@ -125,29 +126,25 @@ Transactions.makeNice = function(transaction, callback){
 		callback(beautifulTransaction);
 	} else if(categories){
 		beautifulTransaction.description.text += " for swapping"
-		Settings.getAll(function(err, settings){
 
-			settings[0].definitions = JSON.parse(settings[0].definitions);
+		categories = JSON.parse(categories);
 
-			categories = JSON.parse(categories);
-
-			async.eachOf(categories, function(category, key, callback){
-				for(i=0;i<settings[0].definitions.items.length;i++){
-					if(settings[0].definitions.items[i].id == key) {
-						beautifulTransaction.description.text += "<br />" + settings[0].definitions.items[i].name + ": " + categories[key];
-					}
+		async.eachOf(categories, function(category, key, callback){
+			for(i=0;i<settings.definitions.items.length;i++){
+				if(settings.definitions.items[i].id == key) {
+					beautifulTransaction.description.text += "<br />" + settings.definitions.items[i].name + ": " + categories[key];
 				}
-				callback();
-			}, function (err) {
-				if(transaction.comment){
-					beautifulTransaction.description.text += "<br />" +
-					"Comment: " + transaction.comment
-				}
+			}
+			callback();
+		}, function (err) {
+			if(transaction.comment){
+				beautifulTransaction.description.text += "<br />" +
+				"Comment: " + transaction.comment
+			}
 
-				callback(beautifulTransaction);
-			});
-			
+			callback(beautifulTransaction);
 		});
+			
 		
 
 	}

@@ -63,10 +63,10 @@ var filter = {
 
 $(document).ready(function(){
   $('#members_table').bootstrapTable('filterBy', filter);
-  getStat('/reports/analytics/carbon-saved-today', '#carbon_saved_today')
-  getStat('/reports/analytics/members-who-joined-today', '#new_members')
-  getStat('/reports/analytics/swaps-today', '#swaps_today')
-  getStat('/reports/analytics/current-members', '#total_current_members')
+  getStat('/api/get/reports/today/carbon-saved', '#carbon_saved_today')
+  getStat('/api/get/reports/today/new-members', '#new_members')
+  getStat('/api/get/reports/today/swaps', '#swaps_today')
+  getStat('/api/get/reports/all-time/current-members', '#total_current_members')
 })
 
 $('#membership_status_filter').on('change', function () {

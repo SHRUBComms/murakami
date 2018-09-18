@@ -13,16 +13,13 @@
   <div class="form-group form-inline">
     <select class="form-control" id="working_groups">
       <option disabled selected>Select a working group...</option>
-      {{#each user.admin_wg}}
-        <option value="{{id}}">{{name}}
-        {{#if sub_groups}}
-          (General)
-          {{#each sub_groups}}
-            <option value="{{../id}}-{{id}}">{{../name}}: {{name}}</option>
-          {{/each}}
-        {{/if}}
-        </option>
-      {{/each}}
+        {{#each user.admin_wg}}
+          <option value='{{id}}'>{{name}}
+            {{#if sub_groups}}
+              (General)
+            {{/if}}
+          </option>
+        {{/each}}
     </select>
   </div>
 </div>
@@ -126,11 +123,11 @@ function updateSearchOutput(results){
   } else {
     for(i=0;i<results.length;i++){
 
-      var membershipBtn = "<a class='btn btn-primary' onclick='ajaxGetRequest(\"/working-groups/members/join/{{working_group.id}}/" + results[i].id + "\")'>Add To {{working_group.name}}</a>"
+      var membershipBtn = "<a class='btn btn-primary' onclick='ajaxGetRequest(\"/api/get/working-groups/members/join/{{working_group.id}}/" + results[i].id + "\")'>Add To {{working_group.name}}</a>"
 
       for(j=0;j<results[i].working_groups.length;j++){
         if(results[i].working_groups[j].id == "{{working_group.id}}"){
-          membershipBtn = "<a class='btn btn-danger' onclick='ajaxGetRequest(\"/working-groups/members/remove/{{working_group.id}}/" + results[i].id + "\")'>Remove From {{working_group.name}}</a>"
+          membershipBtn = "<a class='btn btn-danger' onclick='ajaxGetRequest(\"/api/get/working-groups/members/leave/{{working_group.id}}/" + results[i].id + "\")'>Remove From {{working_group.name}}</a>"
         }
       }
       
@@ -164,7 +161,7 @@ function updateSearchOutput(results){
 function search(){
   $.ajax({
       type: "POST",
-      url: "/members/search",
+      url: "/api/post/members/search",
       data: { 
           'term': $('#memberInput').val()
       },    
