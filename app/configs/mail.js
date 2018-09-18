@@ -55,7 +55,7 @@ Mail.sendAutomated = function(mail_id, member_id, callback){
       settings.definitions = JSON.parse(settings.definitions)
       if(err || !member[0]) throw err;
 
-      Members.makeNice(member[0], settings, function(member){
+      Members.makeNice(member[0], settings, function(beautifulMember){
         Settings.getEmailTemplateById(mail_id, function(err, template){
 
           if(err || !template[0]) throw err;
@@ -64,15 +64,17 @@ Mail.sendAutomated = function(mail_id, member_id, callback){
           if(mail.active){
 
             mail.markup = sanitizeHtml(mail.markup);
-            mail.markup.replace("|first_name|", member.first_name.text)
-                       .replace("|last_name|", member.last_name.text)
-                       .replace("|fullname|", member.full_name.text)
-                       .replace("|exp_date|", member.current_exp_membership.text.nice)
-                       .replace("|membership_id|", member.id.text)
+
+            mail.markup = mail.markup.replace("|first_name|", beautifulMember.first_name.text)
+                       .replace("|last_name|", beautifulMember.last_name.text)
+                       .replace("|fullname|", beautifulMember.full_name.text)
+                       .replace("|exp_date|", beautifulMember.current_exp_membership.text.nice)
+                       .replace("|membership_id|", beautifulMember.id.text)
+
             var message = {
               html: mail.markup,
                 from: 'Shrub Co-op <shrub@murakami.org.uk>',
-                to: member.full_name.text + " <" + member.email.text + ">",
+                to: beautifulMember.full_name.text + " <" + beautifulMember.email.text + ">",
                 subject: mail.subject
             }
 

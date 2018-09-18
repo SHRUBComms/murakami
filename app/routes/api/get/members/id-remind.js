@@ -22,7 +22,7 @@ router.get('/:member_id', Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 					res.redirect("/members");
 				} else {
 					req.flash("success_msg", "Member has been sent their ID");
-					res.redirect("/members/" + req.params.member_id);					
+					res.redirect("/members/volunteer-info/" + req.params.member_id);					
 				}
 			})
 		}
