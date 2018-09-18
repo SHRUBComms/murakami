@@ -51,14 +51,14 @@ router.post('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 
 	req.checkBody("username", "Please enter a username").notEmpty();
 	req.checkBody("username", "Please enter a shorter username (<= 20 characters)").isLength({max: 20});
-	//req.checkBody("username", "Please enter a valid username").matches();
+	req.checkBody("username", "Please enter a valid username").matches(/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/);
 
 	req.checkBody("email", "Please enter an email address").notEmpty();
 	req.checkBody("email", "Please enter a shorter email address (<= 89 characters)").isLength({max: 89});
 	req.checkBody("email", "Please enter a valid email address").isEmail();
 
 	req.checkBody("password", "Please enter a password").notEmpty();
-	req.checkBody("password", "Please enter a shorter password (<= 255 characters)").isLength({max: 255});
+	req.checkBody("password", "Please enter a valid password (between 6 and 255 characters)").isLength({min: 6, max: 255});
 	
     if(req.body.password){
     	req.assert('passwordConfirm', 'Passwords do not match').equals(req.body.password);

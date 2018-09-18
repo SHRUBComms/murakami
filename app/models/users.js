@@ -16,7 +16,7 @@ Users.getAll = function(callback) {
 }
 
 Users.getByUsername = function(username, callback) {
-	var query = "SELECT * FROM login WHERE username = ? AND deactivated = 0";
+	var query = "SELECT * FROM login WHERE username = ?";
 	var inserts = [username]
 	var sql = mysql.format(query, inserts);
 	
@@ -32,7 +32,7 @@ Users.getByUsernameOrEmail = function(email, callback) {
 }
 
 Users.getByEmail = function(email, callback) {
-	var query = "SELECT * FROM login WHERE email = ? AND deactivated = 0";
+	var query = "SELECT * FROM login WHERE email = ?";
 	var inserts = [email]
 	var sql = mysql.format(query, inserts);
 	
