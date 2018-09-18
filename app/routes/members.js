@@ -871,20 +871,22 @@ router.post("/volunteer-info/:member_id", Auth.isLoggedIn, Auth.isAdmin, functio
 
 				if(req.body.volInfo.roles){
 					volInfo.roles = JSON.parse(req.body.volInfo.roles);
+					console.log(volInfo.roles);
 					for(i=0; i<volInfo.roles.length;i++) {
 						
-						
-						WorkingGroups.verifyGroupById(volInfo.roles[i].wg_id, settings, function(group){
+						if(volInfo.roles[i].wg_id){
+							WorkingGroups.verifyGroupById(volInfo.roles[i].wg_id, settings, function(group){
 
-							if(group){
+								if(group){
 
-								var role = {wg: null, name: null}
-								
-								role.wg = group.id;
-								role.name = volInfo.roles[i].name;
-								volInfo.formattedRoles.push(role);
-							}
-						})
+									var role = {wg: null, name: null}
+									console.log(role.name);
+									role.wg = group.id;
+									role.name = volInfo.roles[i].name;
+									volInfo.formattedRoles.push(role);
+								}
+							})
+						}
 					}
 				}
 
@@ -896,7 +898,7 @@ router.post("/volunteer-info/:member_id", Auth.isLoggedIn, Auth.isAdmin, functio
 	                errors.push(error);
 	            }
 
-	            volInfo.roles = volInfo.formattedRoles;
+	            
 
 	            var days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 	            var periods = ["m", "ea", "a", "la", "e"];
@@ -949,6 +951,7 @@ router.post("/volunteer-info/:member_id", Auth.isLoggedIn, Auth.isAdmin, functio
 			    } else {
 
 			    	volInfo.member_id = req.params.member_id; 
+			    	volInfo.roles = volInfo.formattedRoles;
 
 			    	volInfo.availability = JSON.stringify(volInfo.availability);
 			    	volInfo.survey = JSON.stringify(volInfo.survey);
@@ -962,7 +965,8 @@ router.post("/volunteer-info/:member_id", Auth.isLoggedIn, Auth.isAdmin, functio
 								membersActive: true,
 								title: "Volunteer Info",
 								settings: settings,
-								volInfo: volInfo
+								volInfo: volInfo,
+								member: member[0]
 							});
 			    		} else {
 			    			req.flash("success_msg", "Volunteer info updated!")

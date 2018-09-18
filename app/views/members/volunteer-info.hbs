@@ -11,7 +11,9 @@
 
 <div class="row">
   <h2>Volunteer Information</h2>
-  <p>Last update: <b>{{volInfo.lastUpdated}}</b></p>
+  {{#if volInfo}}
+    <p>Last update: <b>{{volInfo.lastUpdated}}</b></p>
+  {{/if}}
 </div>
 
 {{#if errors}}
