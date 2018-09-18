@@ -68,7 +68,7 @@
 function search(){
   $.ajax({
       type: "POST",
-      url: "/working-groups/members/search",
+      url: "/api/post/working-groups/search",
       data: { 
           'term': $('#memberInput').val(),
           'group_id': "{{working_group.id}}"

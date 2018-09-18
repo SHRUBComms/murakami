@@ -6,7 +6,7 @@ var Settings = require("./settings");
 var Members = {}
 
 Members.getAll = function(callback) {
-	var query = "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC";
+	var query = "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
 	con.query(query, callback);
 }
 
@@ -17,7 +17,7 @@ Members.getAllCurrentMembers = function(callback) {
 
 Members.searchByName = function(search, callback){
 	var query = "SELECT * FROM members " +
-				"WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND is_member = 1 AND first_name != '[redacted]'" + 
+				"WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND first_name != '[redacted]'" + 
 				"ORDER BY first_name ASC LIMIT 3";
 	var inserts = ["%" + search + "%"];
 
