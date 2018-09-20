@@ -213,3 +213,10 @@ h1 {
   margin: 10px;
   text-align: center;
 }
+
+#electricalSafety {
+  background-color: #EFEFEF;
+  color: black;
+  padding: 20px;
+  border-radius: 10px;
+}

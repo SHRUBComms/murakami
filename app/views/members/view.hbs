@@ -193,6 +193,32 @@
 <div class="row">
 	<input type="hidden" id="member_id" value="{{member.id.text}}" />
 
+	<div class="row">
+
+		<div class="col-md-6">
+
+			<div id="electricalSafety" class="hidden center-block">
+
+				<h4><b>Please check the safety of any outgoing electronics!</b></h4>
+				<p>If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
+
+			      <div class="form-group form-inline">
+			          <div class="form-group">
+			              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
+			          </div>
+			          <div class="form-group">
+			              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
+			          </div>
+			      </div>
+
+			    <h3 id="electricalSafetyMessage"></h3>
+
+			</div>
+		</div>
+	</div>
+
+	<br />
+
 	<div id="transaction_info" class="row"></div>
 
 	<div class="row">
@@ -239,6 +265,8 @@
 			</div>
 		</div>
 	</div>
+
+
 </div>
 
 <div class="row">
@@ -274,6 +302,10 @@ function addToTrans(id, category){
 
 	transaction.push(item);
 	update();
+
+	if(item.id == "IT-101") {
+		showElectricalSafety();
+	}
 }
 
 function removeFromTrans(index){
@@ -289,6 +321,7 @@ function update(){
 	for(i=0;i<transaction.length;i++){
 		tokens_total += +transaction[i].tokens;
 		weight_total += +transaction[i].weight;
+
 		$('<tr>',{
 		    html:"<td>" + transaction[i].category + "</td>" + 
 		    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" + 
@@ -413,6 +446,46 @@ function workingGroupAjaxReq(url){
       	}
       }
    });
+}
+
+function showElectricalSafety() {
+	$("#electricalSafety").removeClass("hidden");
+}
+
+function verifyElectricalSafety() {
+	$.ajax({
+		type: "POST",
+		url: "https://shrub.space/testing/api/verify-safety.php",
+		crossDomain: true,
+		data: {
+			"key": "{{{diode_api_key}}}",
+			"item-id": $("#patTestingNumber").val()
+		},
+        success: function(response){
+        	response = JSON.parse(response);
+        	if(response.status == "fail"){
+        		if(response.msg.includes("DO NOT SELL!!!")){
+	        		$("#electricalSafety").css("background-color", "red")
+	        		$("#electricalSafetyMessage").text(response.msg);
+	        		setTimeout(function(){ alert(response.msg); }, 500);
+        		} else {
+        			$("#electricalSafety").css("background-color", "#FFD24C")
+        			$("#electricalSafetyMessage").text(response.msg);
+        		}
+        	} else {
+        		$("#electricalSafety").css("background-color", "#98FB98")
+        		$("#electricalSafetyMessage").text(response.msg);
+        	}
+        	
+        }
+	})
+}
+
+function resetElectricalColours(){
+
+	$("#electricalSafety").css("background-color", "#EFEFEF")
+	$("#electricalSafetyMessage").text("");
+
 }
 
 getSavedCarbon();
