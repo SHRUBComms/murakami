@@ -18,7 +18,7 @@ router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
     settings.definitions = JSON.parse(settings.definitions);
     Members.getAllVolunteerInfo(settings, function(err, volunteerInfo){
 
-      res.render("WorkingGroups/find-a-volunteer", {
+      res.render("workingGroups/find-a-volunteer", {
         title: "Find A Volunteer",
         workingGroupsActive: true,
         volunteers: volunteerInfo
