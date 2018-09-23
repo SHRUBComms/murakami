@@ -71,8 +71,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     path: "/",
-    httpOnly: true,
-    maxAge: 1000*60*60
+    httpOnly: true
   },
   name: "murakami_biscuit"
 }));

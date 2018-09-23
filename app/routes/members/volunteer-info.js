@@ -57,7 +57,6 @@ router.get("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
-	//console.log(req.body);
 
 	Members.getById(req.params.member_id, function(err, member){
 		if(member[0] && !err) {
@@ -89,7 +88,7 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 				if(req.body.volInfo.roles){
 					volInfo.roles = JSON.parse(req.body.volInfo.roles);
-					console.log(volInfo.roles);
+
 					for(i=0; i<volInfo.roles.length;i++) {
 						
 						if(volInfo.roles[i].wg_id){
@@ -107,8 +106,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 						}
 					}
 				}
-
-				//console.log(volInfo.formattedRoles)
 
 	            if (!errors && volInfo.formattedRoles.length == 0) {
 	            	var error = {param: "roles", msg: "Please select at least one valid role", value: req.body.volInfo.roles};
@@ -154,7 +151,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 	            
 
 			    if(errors) {
-			    	//console.log(volInfo);
 
 					res.render('members/volunteer-info',{
 						errors: errors,
@@ -168,6 +164,10 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 			    } else {
 
+			    	if(!volInfo.survey.skills.other){
+			    		delete volInfo.survey.skills.other;
+			    	}
+
 			    	volInfo.member_id = req.params.member_id; 
 			    	volInfo.roles = volInfo.formattedRoles;
 
@@ -176,7 +176,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 			    	volInfo.roles = JSON.stringify(volInfo.roles);
 
 			    	Members.putVolInfo(volInfo, function(err){
-			    		console.log(err);
 			    		if(err) {
 			    			req.flash("error", "Something went wrong!")
 							res.render('members/volunteer-info',{
