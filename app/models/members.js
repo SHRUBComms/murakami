@@ -237,7 +237,6 @@ Members.getAllVolunteerInfo = function(settings, callback) {
 
 	        	callback()
 		    }, function(err){
-		    	console.log(volunteerInfo[0].survey.skills);
 		        callback(err, volunteerInfo);
 		    }); 
 	    } else {
