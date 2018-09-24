@@ -25,8 +25,7 @@ router.get('/:group_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
     settings.definitions = JSON.parse(settings.definitions);
     WorkingGroups.verifyGroupById(req.params.group_id, settings, function(group){
       if(group){
-        WorkingGroups.getAllUnreviewedJoinRequests(req.params.group_id, function(err, joinRequests){
-          if(err) throw err;
+        WorkingGroups.getAllUnreviewedJoinRequests(group.id, function(err, joinRequests){
           async.eachOf(joinRequests, function(request, i, callback){
             WorkingGroups.makeJoinRequestNice(joinRequests[i], function(request){
               joinRequests[i] = request;

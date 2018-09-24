@@ -2,10 +2,13 @@ var con = require('./index');
 var mysql = require('mysql');
 var bcrypt = require('bcrypt-nodejs');
 
+var rootDir = process.env.CWD;
+
 var Helpers = require("../configs/helpful_functions");
+
 var Settings = require("./settings");
 var Attempts = require("./attempts");
-var Members = require("./members");
+
 
 var WorkingGroups = {}
 
@@ -107,7 +110,7 @@ WorkingGroups.getAllUnreviewedJoinRequests = function(group_id, callback){
 	var query = "SELECT * FROM working_group_requests WHERE working_group = ? AND verified IS NULL";
 	var inserts = [group_id]
 	var sql = mysql.format(query, inserts);
-	
+
 	con.query(sql, callback);	
 }
 
@@ -223,40 +226,52 @@ WorkingGroups.getAllApprovedVolunteerHoursByGroupId = function(group_id, callbac
 
 WorkingGroups.makeJoinRequestNice = function(request, callback){
 
+	var Members = require("./members");
+
 	Members.getById(request.member_id, function(err, member){
-		var beautifulRequest = {};
-		beautifulRequest.name = member[0].first_name + " " + member[0].last_name;
-		beautifulRequest.id = request.request_id;
-		beautifulRequest.member_id = request.member_id;
+		if(member[0] && !err){
+			var beautifulRequest = {};
+			beautifulRequest.name = member[0].first_name + " " + member[0].last_name;
+			beautifulRequest.id = request.request_id;
+			beautifulRequest.member_id = request.member_id;
 
-		var options = {year: 'numeric', month: 'long', day: 'numeric' };
-		beautifulRequest.date = new Date(request.time_requested).toLocaleDateString("en-GB",options);
+			var options = {year: 'numeric', month: 'long', day: 'numeric' };
+			beautifulRequest.date = new Date(request.time_requested).toLocaleDateString("en-GB",options);
 
-		callback(beautifulRequest);	
+			callback(beautifulRequest);
+		} else {
+			callback({})
+		}
 	});
 }
 
 
 WorkingGroups.makeVolunteerHoursNice = function(hours, settings, callback){
 
+	var Members = require("./members");
+
 	Members.getById(hours.member_id, function(err, member){
-		var beautifulHours = {};
-		beautifulHours.name = member[0].first_name + " " + member[0].last_name;
-		beautifulHours.id = hours.id;
-		beautifulHours.member_id = hours.member_id;
+		if(err){
+			console.log(err);
+			callback(null)
+		} else {
+			var beautifulHours = {};
+			beautifulHours.name = member[0].first_name + " " + member[0].last_name;
+			beautifulHours.id = hours.id;
+			beautifulHours.member_id = hours.member_id;
 
-		WorkingGroups.verifyGroupById(hours.working_group, settings, function(group){
-			beautifulHours.working_group = group.name;
+			WorkingGroups.verifyGroupById(hours.working_group, settings, function(group){
+				beautifulHours.working_group = group.name;
 
-			beautifulHours.duration = hours.duration_as_decimal;
-			beautifulHours.tokens = Math.floor(hours.duration_as_decimal * group.rate)
+				beautifulHours.duration = hours.duration_as_decimal;
+				beautifulHours.tokens = Math.floor(hours.duration_as_decimal * group.rate)
 
-			var options = {year: 'numeric', month: 'long', day: 'numeric' };
-			beautifulHours.date = new Date(hours.date).toLocaleDateString("en-GB",options);
+				var options = {year: 'numeric', month: 'long', day: 'numeric' };
+				beautifulHours.date = new Date(hours.date).toLocaleDateString("en-GB",options);
 
-			callback(beautifulHours);
-		});
-	
+				callback(beautifulHours);
+			});
+		}
 	});
 }
 

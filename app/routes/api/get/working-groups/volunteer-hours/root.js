@@ -17,28 +17,31 @@ router.get('/:group_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
     WorkingGroups.verifyGroupById(req.params.group_id, settings, function(group){
       if(group){
         WorkingGroups.getUnreviewedVolunteerHoursById(req.params.group_id, function(err, hours){
-          if(err) throw err;
-          console.log(hours);
+          if(err || !hours) {
+            console.log(err);
+            res.send([]);
+          } else {
 
-          formattedHours = [];
+            var formattedHours = [];
 
-          async.eachOf(hours, function(hour, i, callback){
-            WorkingGroups.makeVolunteerHoursNice(hours[i], settings, function(hour){
-              formattedHours[i] = {};
+            async.eachOf(hours, function(hour, i, callback){
+              WorkingGroups.makeVolunteerHoursNice(hour, settings, function(hour){
+                formattedHours[i] = {};
 
-              formattedHours[i].name = '<a href="/members/view/' + hour.member_id + '">' + hour.name + '</a>';
-              formattedHours[i].date = hour.date;
-              formattedHours[i].duration = hour.duration;
-              formattedHours[i].tokens = hour.tokens;
-              formattedHours[i].options = '<a class="btn btn-success" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' + hours[i].shift_id + '\')">Approve</a>' +
-              '&emsp;<a class="btn btn-danger" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' + hours[i].shift_id + '\')">Deny</a>';
-              callback();
-            });
+                formattedHours[i].name = '<a href="/members/view/' + hour.member_id + '">' + hour.name + '</a>';
+                formattedHours[i].date = hour.date;
+                formattedHours[i].duration = hour.duration;
+                formattedHours[i].tokens = hour.tokens;
+                formattedHours[i].options = '<a class="btn btn-success" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' + hours[i].shift_id + '\')">Approve</a>' +
+                '&emsp;<a class="btn btn-danger" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' + hours[i].shift_id + '\')">Deny</a>';
+                callback();
+              });
 
-          }, function (err) {
+            }, function (err) {
+              res.send(formattedHours);
+            });            
+          }
 
-            res.send(formattedHours);
-          });
 
         });
       } else {
