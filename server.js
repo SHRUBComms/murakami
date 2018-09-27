@@ -5,6 +5,7 @@ require('dotenv').config()
 
 // Import resources
 var express = require('express');
+var cors = require('cors')
 var app = express();
 var bodyParser = require("body-parser");
 var flash = require("connect-flash");
@@ -65,6 +66,8 @@ var port = process.env.PORT || 3000;
 
 // Define public (static) directory
 app.use(express.static('app/public'));
+
+app.use(cors())
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
