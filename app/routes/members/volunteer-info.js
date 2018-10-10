@@ -91,7 +91,7 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 					for(i=0; i<volInfo.roles.length;i++) {
 						
-						if(volInfo.roles[i].wg_id){
+						if(volInfo.roles[i].wg_id && volInfo.roles[i].name){
 							WorkingGroups.verifyGroupById(volInfo.roles[i].wg_id, settings, function(group){
 
 								if(group){
@@ -186,6 +186,7 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 								member: member[0]
 							});
 			    		} else {
+			    			
 			    			req.flash("success_msg", "Volunteer info updated!")
 			    			res.redirect("/members/volunteer-info/" + req.params.member_id);
 			    		}
