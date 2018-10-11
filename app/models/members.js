@@ -184,8 +184,8 @@ Members.redact = function(member_id, callback) {
 }
 
 Members.updateBasic = function(member, callback) {
-	var query = "UPDATE members SET first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ? WHERE member_id = ?";
-	var inserts = [member.first_name, member.last_name, member.email, member.phone_no, member.address, member.member_id];
+	var query = "UPDATE members SET first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ?, free = ? WHERE member_id = ?";
+	var inserts = [member.first_name, member.last_name, member.email, member.phone_no, member.address, member.free, member.member_id];
 	var sql = mysql.format(query, inserts);
 
 	con.query(sql, callback);

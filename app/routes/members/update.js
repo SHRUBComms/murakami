@@ -16,6 +16,7 @@ router.get('/:member_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 			req.flash('error_msg', 'Member not found!');
 			res.back();
 		} else {
+			console.log(member[0]);
 
 			res.render('members/update', {
 			  	title: "Update Member",
@@ -26,7 +27,8 @@ router.get('/:member_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 				last_name: member[0].last_name,
 				email: member[0].email,
 				phone_no: member[0].phone_no,
-				address: member[0].address
+				address: member[0].address,
+				free: member[0].free
 			});	
 		}	
 	});
@@ -44,6 +46,13 @@ router.post('/:member_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 			var email = req.body.email.trim();
 			var phone_no = req.body.phone_no.trim();
 			var address = req.body.address.trim();
+			var free = req.body.free;
+
+			if(free == "free"){
+				free = 1;
+			} else {
+				free = 0;
+			}
 
 			// Validation
 			req.checkBody("first_name", "Please enter a first name").notEmpty();
@@ -67,7 +76,8 @@ router.post('/:member_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 				last_name: last_name,
 				email: email,
 				phone_no: phone_no,
-				address: address				
+				address: address,
+				free: free			
 			};
 
 			// Parse request's body
@@ -83,7 +93,8 @@ router.post('/:member_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 					last_name: last_name,
 					email: email,
 					phone_no: phone_no,
-					address: address
+					address: address,
+					free: free
 				});
 
 		    } else {

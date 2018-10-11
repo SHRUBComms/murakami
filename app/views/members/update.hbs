@@ -37,6 +37,18 @@
       </div>
     </div>
 
+    <div class="row">
+      <h3>Membership Info</h3>
+    </div>
+    <div class="row">
+      <div class="form-group form-inline">
+          <select class="form-control" name="free" onchange="membership_type_update()">
+            <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
+            <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
+          </select>
+      </div>
+    </div>
+
     <hr />
     <div class="row">
       <div class="form-group form-inline">
