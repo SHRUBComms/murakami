@@ -1,6 +1,7 @@
 // /members/volunteer-info
 
 var router = require("express").Router();
+var async = require("async");
 
 var rootDir = process.env.CWD;
 
@@ -27,23 +28,37 @@ router.get("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 						volInfo.availability = JSON.parse(volInfo.availability);
 						volInfo.survey = JSON.parse(volInfo.survey)
 						volInfo.roles = JSON.parse(volInfo.roles);
+						volInfo.formattedRoles = [];
 
-						for(i=0;i<volInfo.roles.length;i++) {
-							WorkingGroups.verifyGroupById(volInfo.roles[i].wg, settings, function(group){
-								volInfo.roles[i].wg_id = group.id;
-								volInfo.roles[i].wg_name = group.name;
+						async.each(volInfo.roles, function(role, callback) {
+
+							WorkingGroups.verifyGroupById(role.wg_id, settings, function(group){
+								if(group) {
+									let formattedRole = {};				
+									formattedRole.wg_id = group.id;
+									formattedRole.wg_name = group.name;
+									formattedRole.name = role.name;
+									callback(formattedRole);					
+								}
 							})
-						}
+
+						    
+						}, function(formattedRole) {
+						    	if(formattedRole) {
+								volInfo.formattedRoles.push(formattedRole);
+							}
+						});
 
 					}
-
+					
+					volInfo.roles = volInfo.formattedRoles;
 
 
 					res.render("members/volunteer-info", {
 						member: member[0],
 						membersActive: true,
 						title: "Volunteer Info",
-						volInfo: volInfo,
+						volInfo: volInfo || null,
 						settings: settings
 					})
 				})
@@ -89,22 +104,32 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 				if(req.body.volInfo.roles){
 					volInfo.roles = JSON.parse(req.body.volInfo.roles);
 
-					for(i=0; i<volInfo.roles.length;i++) {
-						
-						if(volInfo.roles[i].wg_id && volInfo.roles[i].name){
-							WorkingGroups.verifyGroupById(volInfo.roles[i].wg_id, settings, function(group){
+					async.each(volInfo.roles, function(role, callback) {
 
+
+						if(role.wg_id && role.name){
+							WorkingGroups.verifyGroupById(role.wg_id, settings, function(group){
+								console.log("tried to find working group...");
 								if(group){
-
-									var role = {wg: null, name: null}
-									console.log(role.name);
-									role.wg = group.id;
-									role.name = volInfo.roles[i].name;
-									volInfo.formattedRoles.push(role);
+									console.log("group verified");
+									let formattedRole = {}
+									formattedRole.wg_id = group.id;
+									formattedRole.name = role.name;
+									
+									callback(role)
 								}
 							})
+						} else {
+							callback(null);
 						}
-					}
+
+					    
+					}, function(formattedRole) {
+					    	if(formattedRole) {
+							volInfo.formattedRoles.push(formattedRole);
+						}
+						
+					});
 				}
 
 	            if (!errors && volInfo.formattedRoles.length == 0) {
