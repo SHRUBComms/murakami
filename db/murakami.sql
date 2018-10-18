@@ -3,9 +3,9 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 18, 2018 at 05:12 PM
+-- Generation Time: Oct 18, 2018 at 12:27 PM
 -- Server version: 5.7.23-0ubuntu0.16.04.1
--- PHP Version: 7.0.30-0ubuntu0.16.04.1
+-- PHP Version: 7.0.32-0ubuntu0.16.04.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -90,15 +90,16 @@ CREATE TABLE `login` (
   `password` varchar(255) NOT NULL,
   `admin` tinyint(4) NOT NULL DEFAULT '0',
   `admin_wg` text,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `deactivated` tinyint(4) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `login`
 --
 
-INSERT INTO `login` (`id`, `username`, `first_name`, `last_name`, `email`, `password`, `admin`, `admin_wg`, `created_at`) VALUES
-('01746919992', 'test.admin', 'Test', 'Admin', 'hello@rosshudson.co.uk', '$2a$10$s/TIShnWvvCx9GHGphyyDuzRQkPqhGSrM.SZk32EkVbE/KmQagsse', 1, '["WG-100",\n"WG-101",\n"WG-101-001",\n"WG-103",\n"WG-105",\n"WG-106",\n"WG-107",\n"WG-108"]', '2018-05-24 23:02:28');
+INSERT INTO `login` (`id`, `username`, `first_name`, `last_name`, `email`, `password`, `admin`, `admin_wg`, `created_at`, `deactivated`) VALUES
+('01746919992', 'test.admin', 'Test', 'Admin', 'example@email.com', '$2a$10$s/TIShnWvvCx9GHGphyyDuzRQkPqhGSrM.SZk32EkVbE/KmQagsse', 1, '["WG-100","WG-101","WG-101-001","WG-101-002","WG-103","WG-105","WG-106","WG-107","WG-108"]', '2018-05-24 23:02:28', 0)
 
 -- --------------------------------------------------------
 
@@ -304,7 +305,7 @@ ALTER TABLE `working_group_requests`
 -- AUTO_INCREMENT for table `attempts`
 --
 ALTER TABLE `attempts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
 --
 -- AUTO_INCREMENT for table `global_settings`
 --
