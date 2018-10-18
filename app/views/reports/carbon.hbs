@@ -4,6 +4,10 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
+<!-- Export plugin -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/extensions/export/bootstrap-table-export.min.js"></script>
+<script src="//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
+
 <div class="row">
 	<h1>Carbon Report</h1>
 </div>
@@ -31,10 +35,9 @@
   </form>
 </div>
 
-<br />
 
 <div class="row">
-	<table class="fadeIn" data-toggle="table" data-striped="true">
+	<table class="fadeIn" data-toggle="table" data-striped="true" data-show-export="true" data-export-options='{"fileName": "swapshop_carbon"}'>
 		<thead>
 			<th data-sortable="true">Date</th>
       {{#each settings.definitions.items}}

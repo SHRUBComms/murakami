@@ -37,8 +37,6 @@ router.get('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 			var dataByMonth = []
 			let length = Math.ceil(moment(endDate).diff(moment(startDate), 'months', true));
 
-			console.log(length);
-
 			for(i=0;i<length;i++){
 
 				let date = moment(startDate);
@@ -84,7 +82,6 @@ router.get('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 			endDate = endDate.toISOString().split('T')[0] || null;
 			endDate = endDate.split("-")[0] + "-" + endDate.split("-")[1]
 
-			console.log(endDate);
 
 			res.render("reports/carbon", {
 				reportsActive: true,
