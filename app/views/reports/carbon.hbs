@@ -1,0 +1,55 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+	<h1>Carbon Report</h1>
+</div>
+
+<div class="row">
+  <p>This is the raw outgoing weights from the Swapshop (will be extended to other working groups in the near future!)</p>
+</div>
+
+<div class="row">
+  <form class="form-inline" action="/reports/carbon" method="get">
+    <div class="form-group">
+      <input type="month" name="startDate" class="form-control" value="{{startDate}}">
+    </div>
+    <div class="form-group">
+      <input type="month" name="endDate" class="form-control" value="{{endDate}}">
+    </div>
+    <div class="form-group">
+      <select class="form-control" name="unit">
+        <option value="grams" {{#ifCond unit.name '==' "grams"}}selected{{/ifCond}}>Grams</option>
+        <option value="kilos" {{#ifCond unit.name '==' "kilos"}}selected{{/ifCond}}>Kilograms</option>
+        <option value="tonnes" {{#ifCond unit.name '==' "tonnes"}}selected{{/ifCond}}>Tonnes</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
+
+<br />
+
+<div class="row">
+	<table class="fadeIn" data-toggle="table" data-striped="true">
+		<thead>
+			<th data-sortable="true">Date</th>
+      {{#each settings.definitions.items}}
+			 <th data-sortable="true">{{name}}</th>
+      {{/each}}
+		</thead>
+		<tbody>
+		{{#each carbon}}
+			<tr>
+				<td>{{month.plain}}</td>
+        {{#each carbon}}
+          <td>{{this}}</td>
+        {{/each}}
+			</tr>
+		{{/each}}
+		</tbody>
+	</table>
+</div>

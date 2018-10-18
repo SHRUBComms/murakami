@@ -32,6 +32,7 @@
     "express-validator": "^5.2.0",
     "mailchimp-api-v3": "*",
     "md5": "^2.2.1",
+    "moment": "^2.22.2",
     "mysql": "*",
     "nodemailer": "^4.6.5",
     "nodemailer-html-to-text": "^2.1.0",

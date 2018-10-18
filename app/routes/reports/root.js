@@ -6,10 +6,10 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get('/', Auth.isLoggedIn, function (req, res) {
+router.get('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 	res.send("Under construction!");
 });
 
-//router.use("/add", require("./add"))
+router.use("/carbon", require("./carbon"))
 
 module.exports = router;
