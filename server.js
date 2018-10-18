@@ -115,10 +115,6 @@ app.use(passport.session());
 // Connect Flash
 app.use(flash());
 
-Settings.getAll(function(err, settings){
-  var globalSettings = settings[0];
-})
-
 // Global variables
 app.use(function (req, res, next) {
   res.locals.success_msg = req.flash('success_msg');
