@@ -138,6 +138,17 @@ WorkingGroups.createJoinRequest = function(member_id, group_id, callback){
 	});
 }
 
+WorkingGroups.createApprovedJoinRequest = function(member_id, group_id, callback){
+	var dt = new Date();
+	Helpers.uniqueIntId(11, 'working_group_requests', 'request_id', function(id){
+		var query = "INSERT INTO working_group_requests (request_id, member_id, working_group, verified, time_requested) VALUES (?,?,?,?,?)";
+		var inserts = [id, member_id, group_id, 1, new Date(dt.setMonth(dt.getMonth()))]
+		var sql = mysql.format(query, inserts);
+		
+		con.query(sql, callback);
+	});
+}
+
 WorkingGroups.deleteJoinRequestById = function(request_id, callback){
 	var query = "DELETE FROM working_group_requests WHERE request_id = ?"
 	var inserts = [request_id];

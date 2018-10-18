@@ -22,9 +22,12 @@ var job = new CronJob({
     });
 
     Members.getExpired(function(err, members){
+        // TODO: extend expired members membership by 2 months if volunteered relatively frequently
     	async.each(members, function(member, callback){
+
     		Members.updateStatus(member.member_id, 0, function(err){
     			console.log("Membership expired (" + member.member_id + ")");
+
     		})
     	});
     })

@@ -57,9 +57,15 @@ router.get('/:working_group/:member_id', Auth.isLoggedIn, function(req, res){
                     message.msg = "Something went wrong!";
                     res.send(message);                  
                   };
-                  message.status = "ok";
-                  message.msg = "Member added!";
-                  res.send(message);
+
+                  var request = {
+
+                  }
+                  WorkingGroups.createJoinApprovedRequest(member.member_id, group.id, function(err){
+                    message.status = "ok";
+                    message.msg = "Member added!";
+                    res.send(message);
+                  })
                 });
               } else {
 
