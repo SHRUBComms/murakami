@@ -2,6 +2,9 @@ var con = require('./index');
 var mysql = require('mysql');
 var Helpers = require("../configs/helpful_functions");
 var Settings = require("./settings");
+var WorkingGroups = require("./working-groups");
+
+var async = require("async");
 
 var Members = {}
 
@@ -181,11 +184,66 @@ Members.redact = function(member_id, callback) {
 }
 
 Members.updateBasic = function(member, callback) {
-	var query = "UPDATE members SET first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ? WHERE member_id = ?";
-	var inserts = [member.first_name, member.last_name, member.email, member.phone_no, member.address, member.member_id];
+	var query = "UPDATE members SET first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ?, free = ? WHERE member_id = ?";
+	var inserts = [member.first_name, member.last_name, member.email, member.phone_no, member.address, member.free, member.member_id];
 	var sql = mysql.format(query, inserts);
 
 	con.query(sql, callback);
+}
+
+Members.getAllVolunteerInfo = function(settings, callback) {
+	var query = `SELECT * FROM volunteer_info
+				INNER JOIN members ON volunteer_info.member_id=members.member_id`
+	con.query(query, function(err, volunteerInfo){
+		if(volunteerInfo){
+	    	async.eachOf(volunteerInfo, function(volunteer, i, callback){
+		      	if(volunteer.working_groups){
+
+					volunteer.working_groups = JSON.parse(volunteer.working_groups);
+
+			        async.eachOf(volunteer.working_groups, function(wg, j, callback){
+			            WorkingGroups.verifyGroupById(wg, settings, function(group){
+			              	volunteer.working_groups[j] = group;
+			            });
+			            callback()
+			        }, function(err){
+
+			        }); 
+					    		
+		      	}
+
+		      	volunteer.survey = JSON.parse(volunteer.survey);
+
+		      	var commMethods = {"fb_messenger": "Facebook Messenger", "whatsapp": "WhatsApp", "sms": "text (SMS)", "phone_call": "a phone call", "email": "email"}
+
+		      	volunteer.survey.preferredCommMethod = commMethods[volunteer.survey.preferredCommMethod]
+
+		      	var days = {"mon": "Monday", "tue": "Tuesday", "wed": "Wednesday", "thu": "Thursday", "fri": "Friday", "sat": "Saturday", "sun": "Sunday"}
+		      	var periods = {"m": "Mornings (10-12)", "ea": "Early Afternoons (12-2)", "a": "Afternoons (2-4)", "la": "Late Afternoons (4-6)", "e": "Evenings (6-8)" }
+
+				volunteer.availability = JSON.parse(volunteer.availability);
+
+				var plainTimes = []
+
+		        async.eachOf(volunteer.availability, function(value, key, callback){
+
+		            plainTimes.push(days[key.substring(0, 3)] + " " + (periods[key.substring(4, 5)] || periods[key.substring(4, 6)]))
+
+		            callback()
+		        }, function(err){
+		        	volunteer.availability = plainTimes;
+		        }); 
+
+
+	        	callback()
+		    }, function(err){
+		        callback(err, volunteerInfo);
+		    }); 
+	    } else {
+	    	callback(err, null)
+	    }
+    });
+
 }
 
 Members.renew = function(member_id, length, callback) {

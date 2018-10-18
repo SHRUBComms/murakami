@@ -39,7 +39,7 @@ router.get('/:group_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
   });
 });
 
-router.post('/add-members/:group_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
+router.post('/:group_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
 
   Settings.getAll(function(err, settings){
     settings = settings[0]

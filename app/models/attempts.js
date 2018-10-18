@@ -28,7 +28,7 @@ Attempts.passed = function(user_id, ip_address) {
 }
 
 Attempts.getLastLogin = function(user_id, callback){
-	var query = "SELECT login_timestamp FROM attempts WHERE user_id = ? AND outcome = 1 ORDER BY login_timestamp ASC";
+	var query = "SELECT login_timestamp FROM attempts WHERE user_id = ? AND outcome = 1 ORDER BY login_timestamp DESC LIMIT 1";
 	
 	var inserts = [user_id];
 	var sql = mysql.format(query, inserts);

@@ -15,5 +15,6 @@ router.use("/add-members", require("./add-members"))
 router.use("/review-join-requests", require("./review-join-requests"))
 router.use("/review-volunteer-hours", require("./review-volunteer-hours"))
 router.use("/log-volunteer-hours", require("./log-volunteer-hours"))
+router.use("/find-a-volunteer", require("./find-a-volunteer"))
 
 module.exports = router;

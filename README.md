@@ -1,6 +1,6 @@
 # Murakami
 A lightweight, open-source membership management system for [Shrub](https://shrubcoop.org)!
-If you are interested in using/adapting Murakami for your organisation or simply want to know more, feel free to [get in touch](https://honeypie.io/contact) :-)
+If you are interested in using/adapting Murakami for your organisation or simply want to know more, feel free to [get in touch](mailto:hello@rosshudson.co.uk) :-)
 ~~[Demo](https://shrub.space/murakami)~~
 > Version 2.0
 
@@ -24,9 +24,8 @@ Murakami is straight-to-the-point - it facilitates the following features with l
     * An administrator has full access to the system - including reports, settings, managing email templates, managing users and managing working groups (review requests to join, volunteer hours, add members etc). Every admin can be assigned to multiple working groups or none at all
 
 ## Roadmap
-* Volunteer availability
 * Implement analytics
-* Implement ability to change working group information on-the-fly
+* Implement till system
 
 ### Requirements
 * NodeJS
@@ -46,7 +45,7 @@ Murakami is straight-to-the-point - it facilitates the following features with l
 ~/murakami $ npm install
 ~/murakami $ nano .env
 ```
-* Input your mail, database, Mailchimp, and reCaptcha credentials. Be sure to set your `NODE_ENV` and `PORT`.
+* Input your mail, database, Mailchimp, and reCaptcha credentials. Be sure to set your `NODE_ENV`, `CWD` and `PORT`.
 
 ### Deployment
 

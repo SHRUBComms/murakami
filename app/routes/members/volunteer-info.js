@@ -1,6 +1,7 @@
 // /members/volunteer-info
 
 var router = require("express").Router();
+var async = require("async");
 
 var rootDir = process.env.CWD;
 
@@ -27,23 +28,37 @@ router.get("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 						volInfo.availability = JSON.parse(volInfo.availability);
 						volInfo.survey = JSON.parse(volInfo.survey)
 						volInfo.roles = JSON.parse(volInfo.roles);
+						volInfo.formattedRoles = [];
 
-						for(i=0;i<volInfo.roles.length;i++) {
-							WorkingGroups.verifyGroupById(volInfo.roles[i].wg, settings, function(group){
-								volInfo.roles[i].wg_id = group.id;
-								volInfo.roles[i].wg_name = group.name;
+						async.each(volInfo.roles, function(role, callback) {
+
+							WorkingGroups.verifyGroupById(role.wg_id, settings, function(group){
+								if(group) {
+									let formattedRole = {};				
+									formattedRole.wg_id = group.id;
+									formattedRole.wg_name = group.name;
+									formattedRole.name = role.name;
+									callback(formattedRole);					
+								}
 							})
-						}
+
+						    
+						}, function(formattedRole) {
+						    	if(formattedRole) {
+								volInfo.formattedRoles.push(formattedRole);
+							}
+						});
 
 					}
-
+					
+					volInfo.roles = volInfo.formattedRoles;
 
 
 					res.render("members/volunteer-info", {
 						member: member[0],
 						membersActive: true,
 						title: "Volunteer Info",
-						volInfo: volInfo,
+						volInfo: volInfo || null,
 						settings: settings
 					})
 				})
@@ -57,7 +72,6 @@ router.get("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
-	//console.log(req.body);
 
 	Members.getById(req.params.member_id, function(err, member){
 		if(member[0] && !err) {
@@ -89,26 +103,34 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 				if(req.body.volInfo.roles){
 					volInfo.roles = JSON.parse(req.body.volInfo.roles);
-					console.log(volInfo.roles);
-					for(i=0; i<volInfo.roles.length;i++) {
-						
-						if(volInfo.roles[i].wg_id){
-							WorkingGroups.verifyGroupById(volInfo.roles[i].wg_id, settings, function(group){
 
+					async.each(volInfo.roles, function(role, callback) {
+
+
+						if(role.wg_id && role.name){
+							WorkingGroups.verifyGroupById(role.wg_id, settings, function(group){
+								console.log("tried to find working group...");
 								if(group){
-
-									var role = {wg: null, name: null}
-									console.log(role.name);
-									role.wg = group.id;
-									role.name = volInfo.roles[i].name;
-									volInfo.formattedRoles.push(role);
+									console.log("group verified");
+									let formattedRole = {}
+									formattedRole.wg_id = group.id;
+									formattedRole.name = role.name;
+									
+									callback(role)
 								}
 							})
+						} else {
+							callback(null);
 						}
-					}
-				}
 
-				//console.log(volInfo.formattedRoles)
+					    
+					}, function(formattedRole) {
+					    	if(formattedRole) {
+							volInfo.formattedRoles.push(formattedRole);
+						}
+						
+					});
+				}
 
 	            if (!errors && volInfo.formattedRoles.length == 0) {
 	            	var error = {param: "roles", msg: "Please select at least one valid role", value: req.body.volInfo.roles};
@@ -154,7 +176,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 	            
 
 			    if(errors) {
-			    	//console.log(volInfo);
 
 					res.render('members/volunteer-info',{
 						errors: errors,
@@ -168,6 +189,10 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 			    } else {
 
+			    	if(!volInfo.survey.skills.other){
+			    		delete volInfo.survey.skills.other;
+			    	}
+
 			    	volInfo.member_id = req.params.member_id; 
 			    	volInfo.roles = volInfo.formattedRoles;
 
@@ -176,7 +201,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 			    	volInfo.roles = JSON.stringify(volInfo.roles);
 
 			    	Members.putVolInfo(volInfo, function(err){
-			    		console.log(err);
 			    		if(err) {
 			    			req.flash("error", "Something went wrong!")
 							res.render('members/volunteer-info',{
@@ -187,6 +211,7 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 								member: member[0]
 							});
 			    		} else {
+			    			
 			    			req.flash("success_msg", "Volunteer info updated!")
 			    			res.redirect("/members/volunteer-info/" + req.params.member_id);
 			    		}

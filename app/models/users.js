@@ -11,7 +11,7 @@ var WorkingGroups = require("./working-groups");
 var Users = {}
 
 Users.getAll = function(callback) {
-	var query = "SELECT * FROM login WHERE deactivated = 0 ORDER BY username ASC ";
+	var query = "SELECT * FROM login WHERE deactivated = 0 ORDER BY CONCAT(first_name, last_name) ASC ";
 	con.query(query, callback);
 }
 

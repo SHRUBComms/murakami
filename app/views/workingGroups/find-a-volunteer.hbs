@@ -1,0 +1,75 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+	<h1>Find A Volunteer</h1>
+</div>
+
+<div class="row">
+	<p>Please use the search bar to find a volunteer - simply type in a working group, time or skill</p>
+</div>
+
+<div class="row">
+	<table class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-formatNoMatches="No members found!">
+		<thead>
+			<th data-sortable="true">Name</th>
+			<th data-sortable="true">Skills</th>
+			<th data-sortable="true" class="hidden-xs hidden-sm">Working Groups</th>
+			<th data-sortable="true">Availability</th>
+		</thead>
+		<tbody>
+		{{#each volunteers}}
+			<tr>
+				<td>
+					<a href="/members/view/{{member_id}}">
+						{{first_name}} {{last_name}}
+					</a>
+					<br />
+					Prefers to be contacted via {{survey.preferredCommMethod}}
+				</td>
+				<td>
+					{{#each survey.skills}}
+						{{#if @last}}
+							{{#ifCond @key '==' 'other'}}
+								{{formToPlain this}}
+							{{else}}
+								{{formToPlain @key}}
+							{{/ifCond}}
+						{{else}}
+							{{#ifCond @key '==' 'other'}}
+								{{formToPlain this}}
+							{{else}}
+								{{formToPlain @key}},<br />
+							{{/ifCond}}
+						{{/if}}
+					{{/each}}
+				</td>
+				<td>
+					{{#each working_groups}}
+						{{#if @last}}	
+							{{name}}
+						{{else}}
+							{{name}},<br/> 
+						{{/if}}
+					{{else}}
+						None :(
+					{{/each}}
+				</td>
+				<td>
+					{{#each availability}}
+						{{#if @last}}
+							{{this}}
+						{{else}}
+							{{this}},<br />
+						{{/if}}
+						
+					{{/each}}
+				</td>
+			</tr>
+		{{/each}}
+		</tbody>
+	</table>
+</div>

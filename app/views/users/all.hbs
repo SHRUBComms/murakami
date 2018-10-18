@@ -11,19 +11,19 @@
 <div class="row">
 	<table class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-formatNoMatches="No users found!">
 		<thead>
-			<th data-sortable="true">Username</th>
 			<th data-sortable="true">Name</th>
-			<th data-sortable="true" class="hidden-xs hidden-sm">Email</th>
-			<th data-sortable="true" class="hidden-xs hidden-sm">Admin</th>
+			<th data-sortable="true">Email</th>
+			<th data-sortable="true" class="hidden-xs hidden-sm">Username</th>
+			<th data-sortable="true" class="hidden-xs hidden-sm">Class</th>
 			<th data-sortable="true" class="hidden-xs hidden-sm">Last Login</th>
 		</thead>
 		<tbody>
 		{{#each users}}
 			<tr>
-				<td><a href="/users/view/{{id}}">{{username}}</a></td>
-				<td>{{full_name}}</td>
+				<td><a href="/users/view/{{id}}">{{full_name}}</a></td>
 				<td>{{email}}</td>
-				<td>{{#if admin}}Yep{{else}}Nope{{/if}}</td>
+				<td>{{username}}</td>
+				<td>{{#if admin}}Administrator{{else}}Swapshop{{/if}}</td>
 				<td>{{#if last_login}}
 						{{last_login}}
 					{{else}}
