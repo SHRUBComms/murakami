@@ -88,7 +88,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 
 				req.checkBody("volInfo.emergencyContactPhoneNo", "Please enter the emergency contact's phone number").notEmpty();
 				req.checkBody("volInfo.emergencyContactPhoneNo", "Please enter a shorter phone number (<= 15)").isLength({max: 15});
-				req.checkBody("volInfo.emergencyContactPhoneNo", "Please enter a valid UK mobile phone number").isMobilePhone("en-GB");
 
 				req.checkBody("volInfo.hoursPerWeek", "Please enter the agreed hours to be volunteer per week").notEmpty();
 				req.checkBody("volInfo.hoursPerWeek", "Please enter a valid integer of hours per week (>= 1 and <= 15)").isInt({ gt: 0, lt: 16 });
@@ -96,6 +95,7 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 				req.checkBody("rolesExplained", "Please make sure the role(s) have been explained").notEmpty();
 				req.checkBody("medicalDisclosed", "Please make sure the member has disclosed any medical conditions").notEmpty();
 				req.checkBody("volunteerAgreement", "Please make sure the member has agreed to the role(s)").notEmpty();
+				req.checkBody("benefitsExplained", "Please make sure you have explained membership benefits.").notEmpty();
 
 				var errors = req.validationErrors();
 
