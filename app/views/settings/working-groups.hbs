@@ -1,5 +1,5 @@
 <div class="row">
-	<h1>{{group.name}} Settings</h1>
+	<h1>{{#if group.parent_name}}{{group.parent_name}}: {{/if}}{{group.name}} Settings</h1>
 </div>
 
 {{#ifGreaterThan user.admin_wg.length 1}}

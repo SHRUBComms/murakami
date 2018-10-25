@@ -26,7 +26,6 @@ WorkingGroups.verifyGroupById = function(group_id, settings, callback) {
 				callback(settings.definitions.working_groups[i]);
 
 			} else if(group_id.length == 10 && settings.definitions.working_groups[i].sub_groups) {
-
 				for(j=0; j<settings.definitions.working_groups[i].sub_groups.length; j++){
 					if(settings.definitions.working_groups[i].sub_groups[j].id == group_id.substring(7, 10)){
 
@@ -35,6 +34,8 @@ WorkingGroups.verifyGroupById = function(group_id, settings, callback) {
 						group.id = group_id;
 						group.name = settings.definitions.working_groups[i].name + ": " + settings.definitions.working_groups[i].sub_groups[j].name;
 						group.rate = settings.definitions.working_groups[i].rate;
+						group.sub_group_name = settings.definitions.working_groups[i].sub_groups[j].name;
+						group.parent_name = settings.definitions.working_groups[i].name;
 
 						callback(group);
 					}

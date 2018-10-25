@@ -28,7 +28,9 @@ router.get("/:group_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 	    WorkingGroups.verifyGroupById(req.params.group_id, settings, function(group){
 	      if(group){
 
-	      	console.log(req.user.admin_wg);
+
+			group.name = group.name.split(': ')[1] || group.name;
+
 		  	res.render('settings/working-groups', {
 		  		title: "Working Group Settings",
 		  		settingsActive: true,
@@ -47,68 +49,76 @@ router.post("/:group_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
 	Settings.getAll(function(err, settings){
 		settings = settings[0];
 		settings.definitions = JSON.parse(settings.definitions);
-	    WorkingGroups.verifyGroupById(req.params.group_id, settings, function(group){
-	      if(group){
+		console.log(req.params.group_id);
 
-	      	var name = req.body.name.trim();
-	      	var prefix = req.body.prefix.trim();
-	      	var rate = req.body.rate || 0;
+		var group_id = req.params.group_id;
+      	var name = req.body.name.trim();
+      	var prefix = req.body.prefix.trim() || null;
+      	var rate = req.body.rate || 0;
 
-	      	//sanitize!
+      	//sanitize!
 
-			req.checkBody("name", "Please enter a group name").notEmpty();
+		req.checkBody("name", "Please enter a group name").notEmpty();
 
-			if(prefix) {
-				req.checkBody("prefix", "Please enter a group name").notEmpty();
-			}
+		if(prefix) {
+			req.checkBody("prefix", "Please enter a group name").notEmpty();
+		}
 
-			req.checkBody("rate", "Please enter a rate (set to 0 if unwanted)").notEmpty();
-			req.checkBody("rate", "Please enter a valid rate (a whole number between 0 and 5)").isInt({ gt: -1, lt: 5 });
+		req.checkBody("rate", "Please enter a rate (set to 0 if unwanted)").notEmpty();
+		req.checkBody("rate", "Please enter a valid rate (a whole number between 0 and 5)").isInt({ gt: -1, lt: 5 });
 
-			var errors = req.validationErrors();
+		var errors = req.validationErrors();
 
-			if(!errors){
+		if(!errors){
 
-				var index = null;
-				for(i=0;i<settings.definitions.working_groups.length;i++){
-					if(settings.definitions.working_groups[i].id == group.id){
-						index = i;
+			var found = false;
+			for(i=0;i<settings.definitions.working_groups.length;i++){
+				if(group_id == settings.definitions.working_groups[i].id){
+					found = true;
+					settings.definitions.working_groups[i].prefix = prefix;
+					settings.definitions.working_groups[i].name = name;
+					settings.definitions.working_groups[i].rate = rate;						
+				} else {
+					if(settings.definitions.working_groups[i].sub_groups){
+						for(j=0;j<settings.definitions.working_groups[i].sub_groups.length;j++){
+							if(group_id.substring(7, 10) == settings.definitions.working_groups[i].sub_groups[j].id){
+
+								found = true;
+								settings.definitions.working_groups[i].sub_groups[j].prefix = prefix;
+								settings.definitions.working_groups[i].sub_groups[j].name = name;
+								settings.definitions.working_groups[i].sub_groups[j].rate = rate;	
+							}
+						}
 					}
 				}
+			}
+			console.log(found);
+			if(found){
+		      	Settings.updateDefinitions(JSON.stringify(settings.definitions), function(err){
+		      		req.flash("success_msg", "Group successfully updated!");
+		      		res.redirect("/settings/working-groups/" + group_id);
+		      	})
+			} else {
+				req.flash("error", "Something went wrong!")
+				res.redirect("/settings/working-groups/" + group_id);
+			}
 
-				if(!isNaN(index)){
-					settings.definitions.working_groups[index].prefix = prefix;
-					settings.definitions.working_groups[index].name = name;
-					settings.definitions.working_groups[index].rate = rate;
+	    } else {
 
-			      	Settings.updateDefinitions(JSON.stringify(settings.definitions), function(err){
-			      		req.flash("success_msg", "Group successfully updated!");
-			      		res.redirect("/settings/working-groups/" + group.id);
-			      	})
-				} else {
-					req.flash("error", "Something went wrong!")
-					res.redirect("/settings/working-groups/" + group.id);
-				}
+	    	group.prefix = prefix;
+	    	group.name = name;
+	    	group.rate = rate;
 
-		    } else {
+		  	res.render('settings/working-groups', {
+		  		title: "Working Group Settings",
+		  		settingsActive: true,
+		  		settings: settings,
+		  		group: group
+		  	});
+	    }
 
-		    	group.prefix = prefix;
-		    	group.name = name;
-		    	group.rate = rate;
-
-			  	res.render('settings/working-groups', {
-			  		title: "Working Group Settings",
-			  		settingsActive: true,
-			  		settings: settings,
-			  		group: group
-			  	});
-		    }
-
-	      } else {
-	        res.redirect('/error');
-	      }
-	    }); 
-	});	
+	});
+ 
 })
 
 module.exports = router;
