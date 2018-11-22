@@ -259,25 +259,25 @@ function updateOptions(path) {
 
   $("#options").html(markup);
 
-  var parent = path.split("[")
-  parent.pop();
-
   var parentReal = false;
-
-  console.log(parent);
-
-  if (parent.length > 0) {
+  var parent = path.split("[")
+  var current = path;
+  if(parent.length > 1){
+    parent.pop();
     parentReal = true;
+    parent = parent.join("[");
+    console.log("Joined: ", parent)
+  } else {
+    parent = "categories.options"
   }
 
-  parent = parent.join("[");
 
   $("#options").html(
     $("#options").html() +
       '<div class="row">' +
       '<div class="col-sm-3 item-options green" onclick="' +
       "openAddCategoryDialog('" +
-      parent +
+      current +
       "');" +
       '">' +
       "<center>" +
@@ -306,7 +306,18 @@ function updateOptions(path) {
 }
 
 function openAddCategoryDialog(path) {
-  category = eval(path);
+  var category;
+  if(!eval(path).name){
+    category = eval(path.split("."));
+    category.pop();
+    path = category.join(".");
+    category = eval(path);
+  } else {
+    category = eval(path);
+  }
+
+  console.log(category)
+
   $("#parent_name").html(category.name || "root");
   $("#addChild").modal("show");
   $("#addCategorySubmit").attr("onClick", "addCategory('" + path + "')");
@@ -347,6 +358,7 @@ function openMoveCategoryDialog(path) {
 }
 
 function addCategory(path) {
+  console.log(path);
   newCategory = {};
   newCategory.till_id = "{{{till.till_id}}}";
   newCategory.name = $("#addCategoryName").val();

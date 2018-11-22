@@ -18,8 +18,7 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
     	req.params.member_id,
     	function(err, transactions) {
 	      if (transactions.length > 0) {
-	        Tills.getCategoriesByTillId(
-	          req.params.till_id,
+	        Tills.getCategories(
 	          "tree",
 	          function(err, categories) {
 	          	Carbon.getCategories(function(err, carbonCategories){
@@ -50,6 +49,8 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
 		                    formattedTransaction.date = moment(
 		                      formattedTransaction.date
 		                    ).format("D/M/YY hh:mm A");
+
+		                    formattedTransaction.till_name = transaction.till_name;
 
 		                    formattedTransaction.customer = {};
 		                    if (transaction.member_id != "anon") {
