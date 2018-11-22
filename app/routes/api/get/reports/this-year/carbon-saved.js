@@ -6,7 +6,6 @@ var rootDir = process.env.CWD;
 
 var Carbon = require(rootDir + "/app/models/carbon-calculations");
 
-
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get("/", function(req, res) {
@@ -19,7 +18,8 @@ router.get("/", function(req, res) {
         Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
           totalCarbon
         ) {
-          res.send(Math.abs(totalCarbon).toFixed(3));
+          console.log(totalCarbon, " kilos");
+          res.send(Math.abs(totalCarbon * 1e-3).toFixed(3));
         });
       });
     }

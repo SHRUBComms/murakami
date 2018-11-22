@@ -136,32 +136,22 @@ Helpers.calculateCarbon = function(carbon, carbonCategoriesRaw, callback) {
   );
 };
 
-Helpers.calculateCarbon = function(carbon, carbonCategoriesRaw, callback) {
+Helpers.calculateCarbon = function(carbon, carbonCategories, callback) {
   var totalCarbon = 0;
-  var carbonCategories = {};
-  console.log(carbon, carbonCategories);
-  async.each(
-    carbonCategoriesRaw,
-    function(category, callback) {
-      carbonCategories[category.carbon_id] = category.factors;
-      callback();
-    },
-    function() {
-      for (let i = 0; i < carbon.length; i++) {
-        carbon[i].trans_object = JSON.parse(carbon[i].trans_object);
 
-        Object.keys(carbon[i].trans_object).forEach(function(key) {
-          if (carbonCategories[key]) {
-            totalCarbon +=
-              carbon[i].trans_object[key] *
-              carbonCategories[key][carbon[i].method] *
-              1e-3;
-          }
-        });
+  for (let i = 0; i < carbon.length; i++) {
+    carbon[i].trans_object = JSON.parse(carbon[i].trans_object);
+
+    Object.keys(carbon[i].trans_object).forEach(function(key) {
+      if (carbonCategories[key]) {
+        totalCarbon +=
+          carbon[i].trans_object[key] *
+          carbonCategories[key].factors[carbon[i].method] *
+          1e-3;
       }
-      callback(totalCarbon);
-    }
-  );
+    });
+  }
+  callback(totalCarbon);
 };
 
 Helpers.flatten = function(array) {
