@@ -46,7 +46,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                 till: till,
                 allWorkingGroups: allWorkingGroups,
                 working_group: group,
-                categories: categories
+                categories: categories,
+                diode_api_key: process.env.DIODE_API_KEY
               });
             });
           });

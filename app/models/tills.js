@@ -169,8 +169,7 @@ Tills.getCategoriesByTillId = function(till_id, format, callback) {
 };
 
 Tills.getCategories = function(format, callback) {
-  var query =
-    "SELECT * FROM stock_categories";
+  var query = "SELECT * FROM stock_categories";
 
   con.query(query, function(err, categories) {
     if (err) {
@@ -231,11 +230,11 @@ Tills.getStatusById = function(till_id, callback) {
   });
 };
 
-Tills.open = function(till_id, counted_float, user_id, callback) {
+Tills.open = function(till_id, counted_float, user_id, note, callback) {
   var query =
-    "INSERT INTO till_activity (action_id, till_id, user_id, expected_float, counted_float, opening) VALUES (?,?,?,?,?,?)";
+    "INSERT INTO till_activity (action_id, till_id, user_id, expected_float, counted_float, opening, note) VALUES (?,?,?,?,?,?,?)";
   Helpers.uniqueIntId(20, "transactions", "transaction_id", function(id) {
-    var inserts = [id, till_id, user_id, null, counted_float, 1];
+    var inserts = [id, till_id, user_id, null, counted_float, 1, note];
 
     var sql = mysql.format(query, inserts);
 
@@ -248,12 +247,21 @@ Tills.close = function(
   expected_float,
   counted_float,
   user_id,
+  note,
   callback
 ) {
   var query =
-    "INSERT INTO till_activity (action_id, till_id, user_id, expected_float, counted_float, opening) VALUES (?,?,?,?,?,?)";
+    "INSERT INTO till_activity (action_id, till_id, user_id, expected_float, counted_float, opening, note) VALUES (?,?,?,?,?,?,?)";
   Helpers.uniqueIntId(20, "transactions", "transaction_id", function(id) {
-    var inserts = [id, till_id, user_id, expected_float, counted_float, 0];
+    var inserts = [
+      id,
+      till_id,
+      user_id,
+      expected_float,
+      counted_float,
+      0,
+      note
+    ];
 
     var sql = mysql.format(query, inserts);
 
@@ -308,6 +316,6 @@ Tills.getTransactionsByMemberId = function(member_id, callback) {
   var sql = mysql.format(query, inserts);
 
   con.query(sql, callback);
-}
+};
 
 module.exports = Tills;

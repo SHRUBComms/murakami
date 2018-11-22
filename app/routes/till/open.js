@@ -36,22 +36,27 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
 
 router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
   var counted_float = req.body.counted_float;
+  var note = req.body.note;
 
   if (counted_float > 0) {
     Tills.getTillById(req.params.till_id, function(err, till) {
       if (till) {
         Tills.getStatusById(req.params.till_id, function(status) {
           if (status.opening == "0") {
-            Tills.open(req.params.till_id, counted_float, req.user.id, function(
-              err
-            ) {
-              if (err) {
-                req.flash("error", "Something went wrong!");
-                res.redirect("/till/open/" + req.params.till_id);
-              } else {
-                res.redirect("/till/" + req.params.till_id);
+            Tills.open(
+              req.params.till_id,
+              counted_float,
+              req.user.id,
+              note,
+              function(err) {
+                if (err) {
+                  req.flash("error", "Something went wrong!");
+                  res.redirect("/till/open/" + req.params.till_id);
+                } else {
+                  res.redirect("/till/" + req.params.till_id);
+                }
               }
-            });
+            );
           } else {
             req.flash("error", "Till already open!");
             res.redirect("/till/" + req.params.till_id);

@@ -17,6 +17,9 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
   var paymentMethod = req.body.paymentMethod;
   var transaction = req.body.transaction;
   var payWithTokens = JSON.parse(req.body.payWithTokens) || false;
+  var note = req.body.note;
+
+  console.log(note);
 
   var membershipBought;
 
@@ -25,7 +28,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
       Tills.getStatusById(till_id, function(status) {
         if (status.opening == 1) {
           Carbon.getCategories(function(err, carbonCategories) {
-            console.log(carbonCategories);
             Tills.getFlatCategoriesByTillId(till_id, function(err, categories) {
               var categoriesAsObj = {};
               var transactionSanitized = [];
@@ -102,7 +104,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                 date: new Date(),
                 summary: {
                   totals: {},
-                  bill: transaction
+                  bill: transaction,
+                  comment: note
                 }
               };
 
