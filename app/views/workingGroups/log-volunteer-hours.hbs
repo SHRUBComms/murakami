@@ -3,12 +3,12 @@
     </h1>
 </div>
 
-{{#ifGreaterThan user.admin_wg.length 1}}
+{{#ifGreaterThan user.working_groups.length 1}}
 <div class="row">
   <div class="form-group form-inline">
     <select class="form-control" id="working_groups">
       <option disabled selected>Select a working group...</option>
-        {{#each user.admin_wg}}
+        {{#each user.working_groups}}
           <option value='{{id}}'>{{name}}
             {{#if sub_groups}}
               (General)
@@ -35,30 +35,6 @@
         <div id="searchOutput"></div>
       </div>
     </div>
-  </div>
-
-  <div class="col-lg-5 col-lg-offset-1">
-
-    <div class="row">
-      <div id="add_by_mail_info" class="row"></div>
-      <h3>Need to log hours of someone who isn't in the system yet?</h3>
-      <p>Type in the name and email of the person you want to add - they'll be sent a one-time link to a sign up form
-        <br />
-        <small>e.g. John Doe &lt;example@mail.com&gt;</small>
-      </p>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-          <div class="form-group">
-              <input type="text" class="form-control" id="batchMailInput" placeholder="John Doe <example@mail.com>" />
-          </div>
-          <div class="form-group">
-              <a class="btn btn-primary" id="addByMailSubmit" onclick="postAddresses()">Send Sign Up Link</a>
-          </div>
-      </div>
-    </div>
-
   </div>
 
 </div>
@@ -92,7 +68,7 @@ function updateSearchOutput(results){
       "<p class='text-center'>Nothing found :'( - <a href='/members/add' target='_blank'>add a new member</a></p>" +
       "</div>");
   } else {
-    for(i=0;i<results.length;i++){
+    for(let i=0;i<results.length;i++){
 
       var shiftLogger = '<div class="row">' +
                           '<div class="col-lg-6">' +
@@ -145,52 +121,6 @@ $('#working_groups').on('change', function () {
   var url = "/working-groups/log-volunteer-hours/" + $(this).val();
   window.location = url;
 });
-
-function postAddresses(){
-  $('#addByMailSubmit').attr('disabled', true);
-  var input = $("#batchMailInput").val()
-  var name = input.substr(0, input.indexOf('<'));
-  var address = input.substring(
-    input.lastIndexOf("<") + 1, 
-    input.lastIndexOf(">")
-  );
-
-  if(!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(input)){
-    if(name != null){
-      if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(address)){
-       $.ajax({
-          type: "POST",
-          url: "/working-groups/add-members/{{working_group.id}}",
-          data: {
-            name: name,
-            address: address,
-            working_group: "{{#if working_group.prefix}}{{working_group.prefix}} {{/if}}{{working_group.name}}"
-          },
-          success: function(response){
-            console.log(response);
-            $('#addByMailSubmit').removeAttr('disabled');
-            if(response.status == "ok"){
-              $("#add_by_mail_info").html('<div class="alert alert-success" onclick="dismiss(\'#add_by_mail_info\')">' + response.msg + '</div>');
-            } else {
-              $("#add_by_mail_info").html('<div class="alert alert-danger" onclick="dismiss(\'#add_by_mail_info\')">' + response.msg + '</div>');
-            }
-          }
-       });
-
-      } else {
-        $('#addByMailSubmit').removeAttr('disabled');
-        $("#add_by_mail_info").html('<div class="alert alert-danger" onclick="dismiss(\'#add_by_mail_info\')">Please enter a valid email address</div>');
-      }
-    } else {
-      $('#addByMailSubmit').removeAttr('disabled');
-      $("#add_by_mail_info").html('<div class="alert alert-danger" onclick="dismiss(\'#add_by_mail_info\')">Please enter a name</div>');    
-    }
-  } else {
-    $('#addByMailSubmit').removeAttr('disabled');
-    $("#add_by_mail_info").html('<div class="alert alert-danger" onclick="dismiss(\'#add_by_mail_info\')">Please put the details in the correct format - John Doe &lt;example@mail.com&gt;</div>');     
-  }
-
-}
 
 function logHours(member_id){
   var duration = $("#duration_" + member_id).val();

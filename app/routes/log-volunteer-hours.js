@@ -1,24 +1,39 @@
 // /log-volunteer-hours
 
 var router = require("express").Router();
-var Recaptcha = require('express-recaptcha').Recaptcha;
+var Recaptcha = require("express-recaptcha").Recaptcha;
 
 var rootDir = process.env.CWD;
-var recaptcha = new Recaptcha(process.env.RECAPTCHA_SITE_KEY, process.env.RECAPTCHA_SECRET_KEY);
+var recaptcha = new Recaptcha(
+  process.env.RECAPTCHA_SITE_KEY,
+  process.env.RECAPTCHA_SECRET_KEY
+);
 
-var Settings = require(rootDir + "/app/models/settings");
+var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-router.get('/', function(req, res){
-  Settings.getAll(function(err, settings){
-    settings = settings[0];
-    settings.definitions = JSON.parse(settings.definitions);
-    res.render('log-volunteer-hours', {
-      title: 'Log Volunteer Hours',
-      membersActive: true,
-      captcha:recaptcha.render(),
-      settings: settings
-    });  
-  })
-})
+router.get("/", function(req, res) {
+  WorkingGroups.getAll(function(err, working_groups) {
+    if(req.user){
+      res.render("log-volunteer-hours", {
+        title: "Log Volunteer Hours",
+        volunteersActive: true,
+        captcha: recaptcha.render(),
+        working_groups: working_groups
+      });
+    } else {
+      var till_id = req.query.till_id;
+      res.render("log-volunteer-hours", {
+        title: "Log Volunteer Hours",
+        layout: "till",
+        logoutActive: true,
+        captcha: recaptcha.render(),
+        working_groups: working_groups,
+        till: {
+          till_id: till_id
+        }
+      });
+    }
+  });
+});
 
 module.exports = router;

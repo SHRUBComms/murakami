@@ -1,25 +1,21 @@
 <div class="row">
-	<h1>{{#if group.parent_name}}{{group.parent_name}}: {{/if}}{{group.name}} Settings</h1>
+	<h1>Working Group Settings</h1>
 </div>
 
-{{#ifGreaterThan user.admin_wg.length 1}}
+{{#ifGreaterThan user.working_groups.length 1}}
 <div class="row">
   <div class="form-group form-inline">
     <select class="form-control" id="working_groups">
       <option disabled selected>Select a working group...</option>
-        {{#each user.admin_wg}}
-          <option value='{{id}}'>{{name}}
-            {{#if sub_groups}}
-              (General)
-            {{/if}}
-          </option>
+        {{#each user.working_groups}}
+          <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
         {{/each}}
     </select>
   </div>
 </div>
 {{/ifGreaterThan}}
 
-<form action="/settings/working-groups/{{group.id}}" method="POST">
+<form action="/settings/working-groups/{{group.group_id}}" method="POST">
 
   <div class="row">
     <div class="form-group form-inline">

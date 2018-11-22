@@ -13,12 +13,12 @@
    <h3>{{working_group.name}}</h3>
 </div>
 
-{{#ifGreaterThan user.admin_wg.length 1}}
+{{#ifGreaterThan user.working_groups.length 1}}
 <div class="row">
   <div class="form-group form-inline">
     <select class="form-control" id="working_groups">
       <option disabled selected>Select a working group...</option>
-        {{#each user.admin_wg}}
+        {{#each user.working_groups}}
           <option value='{{id}}'>{{name}}
             {{#if sub_groups}}
               (General)

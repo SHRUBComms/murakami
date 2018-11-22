@@ -1,58 +1,57 @@
-var CronJob = require('cron').CronJob;
+var CronJob = require("cron").CronJob;
 var async = require("async");
 
 // Import models etc.
 var Members = require("../models/members");
 var Transactions = require("../models/transactions");
-var Mail = require("./mail")
-var WorkingGroups = require("../models/working-groups")
+var Mail = require("./mail");
 
 var job = new CronJob({
-  cronTime: '0 30 9 * * *',
+  cronTime: "0 30 9 * * *",
   onTick: function() {
     // Begone expired members!
-    Members.getMembershipsExpiringToday(function(err, members){
-    	async.each(members, function(member, callback){
-    		Members.updateStatus(member.member_id, 0, function(err){
-    			Mail.sendAutomated("goodbye", member.member_id, function(err) {
-                    console.log("Membership expired (" + member.member_id + ")");
-                })
-    		})
-    	});
+    Members.getMembershipsExpiringToday(function(err, members) {
+      async.each(members, function(member, callback) {
+        Members.updateStatus(member.member_id, 0, function(err) {
+          Mail.sendAutomated("goodbye", member.member_id, function(err) {
+            console.log("Membership expired (" + member.member_id + ")");
+          });
+        });
+      });
     });
 
-    Members.getExpired(function(err, members){
-        // TODO: extend expired members membership by 2 months if volunteered relatively frequently
-    	async.each(members, function(member, callback){
-
-    		Members.updateStatus(member.member_id, 0, function(err){
-    			console.log("Membership expired (" + member.member_id + ")");
-
-    		})
-    	});
-    })
+    Members.getExpired(function(err, members) {
+      // TODO: extend expired members membership by 2 months if volunteered relatively frequently
+      async.each(members, function(member, callback) {
+        Members.updateStatus(member.member_id, 0, function(err) {
+          console.log("Membership expired (" + member.member_id + ")");
+        });
+      });
+    });
 
     // Redact personal info of 2+ year old members
-    Members.getExpiredTwoYearsAgo(function(err, members){
-    	async.each(members, function(member, callback){
-    		Members.redact(member.member_id, function(err){
-    			console.log("Member redacted (" + member.member_id + ")");
-    		})
-    	});
+    Members.getExpiredTwoYearsAgo(function(err, members) {
+      async.each(members, function(member, callback) {
+        Members.redact(member.member_id, function(err) {
+          console.log("Member redacted (" + member.member_id + ")");
+        });
+      });
     });
 
     // Process transactions - change active swapper status
-    Transactions.getAllFromLast30Days(function(err, transactions){
-    	async.each(transactions, function(transaction, callback){
-    		Members.updateActiveSwapperStatus(transaction.member_id, 1, function(err){
-    			console.log("Member is active swapper (" + transaction.member_id + ")");
-    		});
-    	});
+    Transactions.getAllFromLast30Days(function(err, transactions) {
+      async.each(transactions, function(transaction, callback) {
+        Members.updateActiveSwapperStatus(transaction.member_id, 1, function(
+          err
+        ) {
+          console.log(
+            "Member is active swapper (" + transaction.member_id + ")"
+          );
+        });
+      });
     });
 
     // Every 6 months ask members to update
-
-
 
     // Update volunteer statuses
 
@@ -64,13 +63,11 @@ var job = new CronJob({
                     Members.updateVolunteerStatus
                 }
             });
-        });        
+        });
     })*/
-
-
   },
   start: false,
-  timeZone: 'Europe/London'
+  timeZone: "Europe/London"
 });
 
 module.exports = job;

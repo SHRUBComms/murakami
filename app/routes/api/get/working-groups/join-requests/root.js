@@ -2,45 +2,68 @@
 
 var router = require("express").Router();
 var async = require("async");
+var moment = require("moment");
 
 var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var Settings = require(rootDir + "/app/models/settings");
+var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get('/:group_id', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
-  Settings.getAll(function(err, settings){
-    settings = settings[0]
-    settings.definitions = JSON.parse(settings.definitions);
-    WorkingGroups.verifyGroupById(req.params.group_id, settings, function(group){
-      if(group){
-        WorkingGroups.getAllUnreviewedJoinRequests(req.params.group_id, function(err, joinRequests){
-          if(err) throw err;
-
-          formattedJoinRequests = [];
-          async.eachOf(joinRequests, function(request, i, callback){
-            WorkingGroups.makeJoinRequestNice(joinRequests[i], function(niceRequest){
-              formattedJoinRequests[i] = {};
-              formattedJoinRequests[i].name = "<a href='/members/view/" + niceRequest.member_id + "'>" + niceRequest.name + "</a>";
-              formattedJoinRequests[i].date = niceRequest.date;
-              formattedJoinRequests[i].options = '<a class="btn btn-success" onclick="joinRequestsAjax(\'/api/get/working-groups/join-requests/approve/' + niceRequest.id + '\')">Approve</a>' +
-              '&emsp;<a class="btn btn-danger" onclick="joinRequestsAjax(\'/api/get/working-groups/join-requests/deny/' + niceRequest.id + '\')">Deny</a>';
-
+router.get("/:group_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
+  req,
+  res
+) {
+  WorkingGroups.getById(req.params.group_id, function(err, group) {
+    if (group) {
+      group = group[0];
+      WorkingGroups.getAllUnreviewedJoinRequests(group.group_id, function(
+        err,
+        joinRequests
+      ) {
+        formattedJoinRequests = [];
+        async.eachOf(
+          joinRequests,
+          function(request, i, callback) {
+            formattedJoinRequests[i] = {};
+            Members.getById(joinRequests[i].member_id, function(err, member) {
+              if (member[0]) {
+                member = member[0];
+                formattedJoinRequests[i].name =
+                  "<a href='/members/view/" +
+                  member.member_id +
+                  "'>" +
+                  member.first_name +
+                  " " +
+                  member.last_name +
+                  "</a>";
+                formattedJoinRequests[i].date = moment(
+                  joinRequests[i].time_requested
+                ).format("DD/MM/YY");
+                formattedJoinRequests[i].options =
+                  '<a class="btn btn-success" onclick="joinRequestsAjax(\'/api/get/working-groups/join-requests/approve/' +
+                  joinRequests[i].request_id +
+                  "')\">Approve</a>" +
+                  '&emsp;<a class="btn btn-danger" onclick="joinRequestsAjax(\'/api/get/working-groups/join-requests/deny/' +
+                  joinRequests[i].request_id +
+                  "')\">Deny</a>";
+              }
               callback();
             });
-
-          }, function (err) {
-
-            res.send(formattedJoinRequests);
-          });
-
-        });
-      } else {
-        res.send("Invalid group!");
-      }
-    });
+          },
+          function(err) {
+            res.send(
+              formattedJoinRequests.filter(
+                value => Object.keys(value).length !== 0
+              )
+            );
+          }
+        );
+      });
+    } else {
+      res.send([]);
+    }
   });
 });
 

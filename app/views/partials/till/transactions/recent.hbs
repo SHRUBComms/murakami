@@ -1,0 +1,36 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+
+
+<div class="row">
+	<h3>Recent Transactions</h3>
+	<br />
+	<div class="row">
+		<div class="col-md-12">
+			<table id="transaction_history" class="fadeIn" data-pagination="true" data-page-size="5" data-toggle="table" data-striped="true" data-url="/api/get/tills/transactions/{{till.till_id}}">
+			    <thead>
+			        <tr>
+			        	<th><a class="btn btn-default" onclick="$('#transaction_history').bootstrapTable('refresh');">&#8635;</a></th>
+			        	<th></th>
+			        	<th></th>
+			        	<th colspan="2">Totals</th>
+			        </tr>
+			        <tr>
+			        	<th data-field="date">Timestamp</th>
+			        	<th data-field="customer.name">Customer</th>
+			            <th data-field="bill">Summary</th>
+			        	<th scope="col" data-field="totals.tokens">Tokens</th>
+			        	<th scope="col" data-field="totals.money">Money</th>
+			        </tr>
+			    </thead>
+
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

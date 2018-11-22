@@ -1,0 +1,56 @@
+{{#if till}}
+
+
+	<div class="row">
+		<h1>{{title}}</h1>
+	</div>
+
+
+    {{> till/transactions/simple/index}}
+
+
+	<br />
+
+	<br />
+
+	<br />
+
+	{{> till/transactions/recent}}
+
+
+{{ else }}
+
+	<center>
+		<h2>{{title}}</h2>
+	</center>
+	<hr />
+	<div class="row">
+		<div class="col-md-12">
+			<div class="form-group">
+				<select class="form-control" id="tills">
+					<option>Select a till...</option>
+					{{#each tills}}
+						{{#each ../allWorkingGroups}}
+
+							{{#ifCond group_id '==' ../group_id}}
+
+								<option value="{{../till_id}}">{{name}}: {{../name}}</option>
+
+							{{/ifCond}}
+						{{/each}}
+					{{/each}}
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<script>
+
+		$('#tills').on('change', function () {
+		  var url = "/till/" + $(this).val();
+		  window.location = url;
+		});
+
+	</script>
+
+{{/if}}

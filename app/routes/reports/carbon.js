@@ -8,148 +8,88 @@ var rootDir = process.env.CWD;
 var Auth = require(rootDir + "/app/configs/auth");
 
 var Carbon = require(rootDir + "/app/models/carbon-calculations");
-var Settings = require(rootDir + "/app/models/settings");
+var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-router.get('/', Auth.isLoggedIn, Auth.isAdmin, function (req, res) {
-	var startDate = new Date(req.query.startDate);
-	var endDate = req.query.endDate;
-	var unit = req.query.unit;
-	var type = req.query.type;
+router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+  var startDate = req.query.startDate || new Date();
+  var endDate = req.query.endDate || new Date();
+  var unit = req.query.unit;
+  var type = req.query.type;
+  var group_id = req.query.group_id;
+  var method = req.query.method;
 
-	if(unit == "grams") {
-		unit = {factor: 1, name: "grams"};
-	} else if(unit == "tonnes") {
-		unit = {factor: 1e-6, name: "tonnes"};
-	} else {
-		unit = {factor: 1e-3, name: "kilos"};
-	}
+  if (unit == "grams") {
+    unit = { factor: 1, name: "grams" };
+  } else if (unit == "tonnes") {
+    unit = { factor: 1e-6, name: "tonnes" };
+  } else {
+    unit = { factor: 1e-3, name: "kilos" };
+  }
 
-	if(endDate){
-		endDate = new Date(endDate);
-	} else {
-		endDate = new Date();
-	}
+  if (endDate) {
+    endDate = new Date(endDate);
+  } else {
+    endDate = new Date();
+  }
 
-	Settings.getAll(function(err, settings){
-		settings = settings[0];
-		settings.definitions = JSON.parse(settings.definitions);
+  Carbon.getCategories(function(err, carbonCategories) {
+    WorkingGroups.getAll(function(err, working_groups) {
+      Carbon.getAllByWorkingGroup(group_id, function(err, raw) {
 
-		Carbon.getAll(function(err, raw){
+        formattedData = {};
 
-			if(type == "monthly_summary"){
+        Object.keys(carbonCategories).forEach(function(key) {
+          formattedData[key] = 0;
+        });
 
-				var dataByMonth = []
-				let length = Math.ceil(moment(endDate).diff(moment(startDate), 'months', true));
+        for (let i=0; i < raw.length; i++) {
+          if (
+            raw[i].trans_date >= startDate &&
+            raw[i].trans_date <= endDate &&
+            raw[i].method == method
+          ) {
+            raw[i].trans_object = JSON.parse(raw[i].trans_object);
+            Object.keys(raw[i].trans_object).forEach(function(key) {
+              formattedData[key] =
+                formattedData[key] + +raw[i].trans_object[key];
+            });
+          }
+        }
 
-				for(i=0;i<length;i++){
+        Object.keys(formattedData).forEach(function(key) {
+          console.log(formattedData[key], carbonCategories[key][method], unit.factor)
+          formattedData[key] = (formattedData[key] * unit.factor).toFixed(4);
+        });
 
-					let date = moment(startDate);
-					date = moment(date).add(i, 'M');
+        var dates = { start: null, end: null };
+        console.log(startDate)
+        dates.start = moment(startDate).format("DD/MM/YY");
+        dates.end = moment(endDate).format("DD/MM/YY");
 
-					let plain = moment(date).format("MMMM YYYY");
+        try {
+          startDate = startDate.toISOString().split("T")[0];
+        } catch (err) {
+          startDate = null;
+        }
+        endDate = endDate.toISOString().split("T")[0] || null;
 
-					let categories = {};
-
-					for(j=0;j<settings.definitions.items.length;j++){
-						categories[settings.definitions.items[j].id] = 0;
-					}
-
-				    dataByMonth.push({month: {simple: new Date(date), plain: plain }, carbon: categories });
-				}
-
-				for(i=0;i<raw.length;i++){
-					var date = new Date(raw[i].trans_date);
-					for(j=0;j<dataByMonth.length;j++){
-				        if((date.getMonth() == dataByMonth[j].month.simple.getMonth()) && (date.getYear() == dataByMonth[j].month.simple.getYear())){
-				        	raw[i].trans_object = JSON.parse(raw[i].trans_object);
-				            Object.keys(raw[i].trans_object).forEach(function(key) {
-				            	dataByMonth[j].carbon[key] = dataByMonth[j].carbon[key] + +raw[i].trans_object[key]
-				            });
-				        }
-				    }
-				}
-
-				for(i=0;i<dataByMonth.length;i++){
-					Object.keys(dataByMonth[i].carbon).forEach(function(key) {
-						dataByMonth[i].carbon[key] = (dataByMonth[i].carbon[key] * unit.factor).toFixed(4);
-					});
-				}
-
-				// console.log(dataByMonth);
-
-				try {
-					startDate = startDate.toISOString().split('T')[0];
-				} catch(err) {
-					startDate = null;
-				}
-				endDate = endDate.toISOString().split('T')[0] || null;
-
-
-				res.render("reports/carbon", {
-					reportsActive: true,
-					title: "Carbon Report",
-					carbon: dataByMonth,
-					unit: unit,
-					type: type,
-					settings: settings,
-					startDate: startDate,
-					endDate: endDate
-				})
-			} else if(type == "basic_total") {
-
-				formattedData = {};
-
-				for(i=0;i<settings.definitions.items.length;i++){
-					formattedData[settings.definitions.items[i].id] = 0;
-				}
-
-				for(i=0;i<raw.length;i++){
-
-			        if(raw[i].trans_date >= startDate && raw[i].trans_date <= endDate){
-			        	raw[i].trans_object = JSON.parse(raw[i].trans_object);
-			            Object.keys(raw[i].trans_object).forEach(function(key) {
-			            	formattedData[key] = formattedData[key] + +raw[i].trans_object[key]
-			            });
-			        }
-				   
-				}
-
-				Object.keys(formattedData).forEach(function(key) {
-					formattedData[key] = (formattedData[key] * unit.factor).toFixed(4);
-				});
-
-				try {
-					startDate = startDate.toISOString().split('T')[0];
-				} catch(err) {
-					startDate = null;
-				}
-				endDate = endDate.toISOString().split('T')[0] || null;
-
-
-				res.render("reports/carbon", {
-					reportsActive: true,
-					title: "Carbon Report",
-					carbon: formattedData,
-					type: type,
-					unit: unit,
-					settings: settings,
-					startDate: startDate,
-					endDate: endDate
-				})
-
-
-			} else {
-				res.render("reports/carbon", {
-					reportsActive: true,
-					title: "Carbon Report",
-					unit: unit,
-					settings: settings,
-					startDate: startDate,
-					endDate: endDate
-				})				
-			}
-		});
-	});
+        res.render("reports/carbon", {
+          carbonActive: true,
+          title: "Carbon Report",
+          carbon: formattedData,
+          type: type,
+          unit: unit,
+          startDate: startDate,
+          endDate: endDate,
+          carbonCategories: carbonCategories,
+          working_groups: working_groups,
+          group_id: group_id,
+          method: method,
+          dates
+        });
+      });
+    });
+  });
 });
 
 module.exports = router;

@@ -1,0 +1,603 @@
+<ul class='custom-menu'>
+  <li data-action="add">Add Child</li>
+  <li data-action="edit">Edit</li>
+  <li data-action="move">Move</li>
+  <li data-action="remove" class="fail">Remove</li>
+</ul>
+
+<div id="addChild" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add New Category Under "<span id="parent_name"></span>"</h4>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+          <div class="col-xs-8 col-xs-offset-2">
+            <div class="row">
+              <div class="form-group">
+                <input type="text" placeholder="Category Name" id="addCategoryName" class="form-control" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group form-inline">
+                <p><input type="checkbox" class="fixedPrice" /> Fixed price</p>
+                <div class="input-group valueInput hidden">
+                  <span class="input-group-addon">£</span>
+                  <input class="form-inline form-control" id="addCategoryValue" type="text" placeholder="0.00" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group">
+                <p><input type="checkbox" id="addCategoryAllowTokens" /> Can be bought with tokens</p>
+              </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+
+              <div class="form-group">
+                <select name="carbon_id" id="addCategoryCarbonId" class="form-control">
+                  <option value="">None (can't be weighed)</option>
+                  {{#each carbonCategories}}
+                    <option value="{{carbon_id}}">{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="addCategorySubmit" onclick="addCategory()">Add Category</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="editCategory" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Edit Category "<span id="category_name"></span>"</h4>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+          <div class="col-xs-8 col-xs-offset-2">
+            <div class="row">
+              <div class="form-group">
+                <input type="text" placeholder="Category Name" id="editCategoryName" class="form-control" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group form-inline">
+                <p><input type="checkbox" class="fixedPrice" id="editCategoryFixedPriceCheck" /> Fixed price</p>
+                <div class="input-group valueInput hidden">
+                  <span class="input-group-addon">£</span>
+                  <input class="form-inline form-control" id="editCategoryValue" type="text" placeholder="0.00" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group">
+                <p><input type="checkbox" id="editCategoryAllowTokens" /> Can be bought with tokens</p>
+              </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+
+              <div class="form-group">
+                <select name="carbon_id" id="editCategoryCarbonId" class="form-control">
+                  <option value="">None (can't be weighed)</option>
+                  {{#each carbonCategories}}
+                    <option value="{{carbon_id}}">{{name}}</option>
+                  {{/each}}
+                </select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="editCategorySubmit" onclick="updateCategory()">Update Category</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="moveCategory" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Move Category "<span id="move_category_name"></span>"</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-6 col-sm-offset-3">
+            <input class="form-control" id="searchCategory" type="text" oninput="searchCategories(this)" placeholder="Move to..." />
+            <input type="hidden" id="newParent" />
+            <center>
+              <p id="categorySearchResults"></p>
+            </center>          
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="moveCategorySubmit" onclick="moveCategory()">Move Category</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<style>
+.custom-menu {
+    padding: 0;
+    list-style: none;
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #FFF;
+    color: #333;
+    border-radius: 5px;
+}
+
+.custom-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.custom-menu li:hover {
+    background-color: #DEF;
+}
+</style>
+
+<script>
+
+
+$(".fixedPrice").change(function() {
+  if ($(this).is(":checked")) {
+    
+    $(".valueInput").removeClass("hidden");
+  } else {
+    $(".valueInput").addClass("hidden");
+  }
+});
+
+var categories = {};
+// prettier-ignore
+categories.options = {{{json categories}}}; 
+categories.parent = null;
+
+var category = {};
+
+updateOptions("categories.options");
+
+function updateOptions(path) {
+  $("#options").html("");
+  console.log(path);
+  options = eval(path);
+  var markup = "";
+
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].active == 0) {
+      options.splice(i, 1);
+    }
+  }
+
+  for (let i = 0; i < options.length; i++) {
+    var option = options[i];
+    if (options[i].active == 1) {
+      if (!option.value) {
+        option.value = 0;
+      }
+      if (option.children && option.children.length > 0) {
+        option.onclick =
+          "updateOptions('" + path + "[" + i + "].children" + "')";
+      } else {
+        option.onclick = "openEditCategoryDialog('" + path + "[" + i + "]');";
+      }
+      var wrapper,
+        wrapperEnd = "";
+
+      if ((i + 1) % 3 == 1 && option.name) {
+        markup = markup + "<div class='row'>";
+      }
+
+      markup =
+        markup +
+        '<div id="' +
+        path +
+        "[" +
+        i +
+        ']" class="col-xs-5 col-sm-3 item-options itemBtn" style="vertical-align:middle;" onclick="' +
+        option.onclick +
+        '">' +
+        "<center>" +
+        "<span>" +
+        option.name +
+        "</span>" +
+        "</center>" +
+        "</div>";
+
+      if ((i + 1) % 3 == 0 || i + 1 == options.length) {
+        markup = markup + "</div>";
+      }
+
+      option.onclick = "";
+    }
+  }
+
+  $("#options").html(markup);
+
+  var parent = path.split("[")
+  parent.pop();
+
+  var parentReal = false;
+
+  console.log(parent);
+
+  if (parent.length > 0) {
+    parentReal = true;
+  }
+
+  parent = parent.join("[");
+
+  $("#options").html(
+    $("#options").html() +
+      '<div class="row">' +
+      '<div class="col-sm-3 item-options green" onclick="' +
+      "openAddCategoryDialog('" +
+      parent +
+      "');" +
+      '">' +
+      "<center>" +
+      "<span>New Category</span>" +
+      "</center>" +
+      "</div>"
+  );
+
+
+
+  if (parentReal) {
+    $("#options").html(
+      $("#options").html() +
+        '<div class="row">' +
+        '<div class="col-sm-3 item-options" onclick="' +
+        "updateOptions('" +
+        parent +
+        "')" +
+        '">' +
+        "<center>" +
+        "<span>← Back</span>" +
+        "</center>" +
+        "</div>"
+    );
+  }
+}
+
+function openAddCategoryDialog(path) {
+  category = eval(path);
+  $("#parent_name").html(category.name || "root");
+  $("#addChild").modal("show");
+  $("#addCategorySubmit").attr("onClick", "addCategory('" + path + "')");
+}
+
+function openEditCategoryDialog(path) {
+  category = eval(path);
+
+  $("#category_name").html(category.name);
+  $("#editCategoryName").val(category.name);
+  $("#editCategoryCarbonId").val(category.carbon_id);
+  if (category.value) {
+    $("#editCategoryFixedPriceCheck").prop("checked", true);
+    $(".valueInput").removeClass("hidden");
+  } else {
+    $("#editCategoryFixedPriceCheck").prop("checked", false);
+    $(".valueInput").addClass("hidden");
+  }
+
+  if (category.allowTokens) {
+    $("#editCategoryAllowTokens").prop("checked", true);
+  } else {
+    $("#editCategoryAllowTokens").prop("checked", false);
+  }
+
+  $("#editCategoryValue").val(category.value || null);
+
+  $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
+
+  $("#editCategory").modal("show");
+}
+
+function openMoveCategoryDialog(path) {
+  category = eval(path);
+  $("#move_category_name").html(category.name);
+  $("#moveCategory").modal("show");
+  $("#moveCategorySubmit").attr("onClick", "moveCategory('" + path + "')");
+}
+
+function addCategory(path) {
+  newCategory = {};
+  newCategory.till_id = "{{{till.till_id}}}";
+  newCategory.name = $("#addCategoryName").val();
+  newCategory.carbon_id = $("#addCategoryCarbonId").val() || null;
+  newCategory.value = $("#addCategoryValue").val() || null;
+
+  if ($("#addCategoryAllowTokens").is(":checked") == true) {
+    newCategory.allowTokens = 1;
+  } else {
+    newCategory.allowTokens = 0;
+  }
+
+  newCategory.parent = eval(path).item_id;
+
+  $.ajax({
+    type: "POST",
+    url: "/api/post/tills/categories/add",
+    data: {
+      category: newCategory
+    },
+    success: function(response) {
+      if (response.status == "ok") {
+        newCategory.item_id = response.newId;
+        if (!eval(path).children) {
+          eval(path + ".children=[]");
+        }
+
+        
+        if (newCategory.parent) {
+          getCategories(path + ".children");
+        } else {
+          getCategories("categories.options");
+        }
+
+        $("#addCategoryName").val("");
+        $("#addCategoryCarbonId").val("");
+        $("#addCategoryValue").val("");
+        $("#addCategoryAllowTokens").prop("checked", true);
+
+        alert(response.msg);
+
+        $("#addCategory").modal("hide");
+      } else {
+        alert(response.msg);
+      }
+    }
+  });
+}
+
+function updateCategory(path) {
+  
+  let category = {};
+  category.item_id = eval(path).item_id;
+  category.name = $("#editCategoryName").val();
+  category.carbon_id = $("#editCategoryCarbonId").val() || null;
+  category.value = $("#editCategoryValue").val() || null;
+
+  if ($("#editCategoryAllowTokens").is(":checked") == true) {
+    category.allowTokens = 1;
+  } else {
+    category.allowTokens = 0;
+  }
+
+  $.ajax({
+    type: "POST",
+    url: "/api/post/tills/categories/update",
+    data: {
+      category: category
+    },
+    success: function(response) {
+      if (response.status == "ok") {
+        $("#editCategory").modal("hide");
+        var oldCategory = eval(path);
+        oldCategory.name = category.name;
+        oldCategory.carbon_id = category.carbon_id;
+        oldCategory.value = category.value;
+
+        eval(path + "=" + JSON.stringify(oldCategory));
+
+        var parent = path.split("[")
+        parent.pop();
+        parent = parent.join("[");
+
+        updateOptions(parent);
+        alert(response.msg);
+
+      } else {
+        alert(response.msg);
+      }
+    }
+  });
+}
+
+function moveCategory(path) {
+  
+  $.ajax({
+    type: "POST",
+    url: "/api/post/tills/categories/move",
+    data: {
+      item_id: eval(path).item_id,
+      newParent: $("#newParent").val(),
+      till_id: "{{{till.till_id}}}"
+    },
+    success: function(response) {
+      if (response.status == "ok") {
+        $("#moveCategory").modal("hide");
+        alert(response.msg);
+        $("#newParent").val("");
+        $("#searchCategory").val("");
+        $("#moveCategory").modal("hide");
+
+        var parent = path.split("[")
+        parent.pop();
+        parent = parent.join("[");
+        $("#categorySearchResults").html("");
+        getCategories(parent);
+      } else {
+        alert(response.msg);
+      }
+    }
+  });
+}
+
+function removeCategory(path) {
+  $.ajax({
+    type: "POST",
+    url: "/api/post/tills/categories/remove",
+    data: {
+      item_id: eval(path).item_id,
+      till_id: "{{{till.till_id}}}"
+    },
+    success: function(response) {
+      if (response.status == "ok") {
+        alert(response.msg);
+        var parent = path.split("[")
+        parent.pop();
+        parent = parent.join("[");
+        getCategories(parent);
+      } else {
+        alert(response.msg);
+      }
+    }
+  });
+}
+
+function searchCategories(e) {
+  $.ajax({
+    type: "POST",
+    url: "/api/post/tills/categories/search",
+    data: {
+      term: e.value,
+      till_id: "{{{till.till_id}}}"
+    },
+    success: function(response) {
+      $("#newParent").val("");
+      $("#categorySearchResults").html("<ul>");
+      if (response.status == "ok" && response.results.length > 0) {
+        for (let i = 0; i < response.results.length; i++) {
+          $("#categorySearchResults").html(
+            $("#categorySearchResults").html() +
+              "<li style='list-style-type: none;'><a class='btn btn-primary' onclick='selectCategory(this)' id='" +
+              response.results[i].item_id +
+              "'>" +
+              response.results[i].name +
+              "</a></li><br />"
+          );
+        }
+      } else {
+        $("#categorySearchResults").html("No results :'(")
+      }
+      $("#categorySearchResults").html(
+        $("#categorySearchResults").html() + "</ul>"
+      );
+    }
+  });
+}
+
+function selectCategory(e) {
+  $(e).addClass("member-selected");
+  $("#newParent").val(e.id);
+}
+
+function getCategories(path) {
+  
+  $.ajax({
+    type: "GET",
+    url: "/api/get/tills/categories/{{{till.till_id}}}",
+    success: function(response) {
+      categories = {};
+      categories.options = response;
+      categories.parent = null;
+      if (eval(path)) {
+        updateOptions(path);
+      } else {
+        updateOptions("categories.options");
+      }
+    }
+  });
+}
+
+var globalCategory;
+
+$(document).bind("contextmenu", function(event) {
+  if ($(".itemBtn:hover").length != 0) {
+    globalCategory = $(".itemBtn:hover").attr("id");
+    event.preventDefault();
+
+    openMenu();
+  }
+});
+
+function openMenu() {
+  $(".custom-menu")
+    .finish()
+    .toggle(100)
+    .css({
+      top: event.pageY + "px",
+      left: event.pageX + "px"
+    });
+}
+
+// If the document is clicked somewhere
+$(document).bind("mousedown", function(e) {
+  // If the clicked element is not the menu
+  if (!$(e.target).parents(".custom-menu").length > 0) {
+    // Hide it
+    $(".custom-menu").hide(100);
+  }
+});
+
+// If the menu element is clicked
+$(".custom-menu li").click(function() {
+  // This is the triggered action name
+  switch ($(this).attr("data-action")) {
+    case "edit":
+      openEditCategoryDialog(globalCategory);
+      break;
+    case "move":
+      openMoveCategoryDialog(globalCategory);
+      break;
+    case "add":
+      openAddCategoryDialog(globalCategory);
+      break;
+    case "remove":
+      if(confirm("Are you sure you want to remove this category?")){ removeCategory(globalCategory); }
+      break;
+  }
+
+  // Hide it AFTER the action was triggered
+  $(".custom-menu").hide(100);
+});
+
+
+</script>

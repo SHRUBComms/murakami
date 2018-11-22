@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-gb">
 <head>
   <title>{{title}}</title>
 
@@ -45,73 +45,108 @@
           {{#if user}}
           <div class="collapse navbar-collapse navbar-menubuilder">
               <ul class="nav navbar-nav navbar-left">
+                <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if membersActive}}id="active"{{/if}}>Members
+                  <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="/members">View All Members</a></li>
+                    <li><a href="/members/add">Add Member</a></li>
+
+                    {{#ifCond user.admin '||' user.volunteer}}
+                      {{#if user.working_groups}}
+                        <li><a href="/working-groups/members">{{#ifCond user.working_groups.length '==' 1}}{{user.working_groups.0.name}}{{else}}Your Working Groups{{/ifCond}}</a></li>
+                      {{/if}}
+                    {{/ifCond}}
+
+                    {{#if user.admin}}
+                    <!--
+                      <li role="separator" class="divider"></li>    
+                      <li><a href="#">Export Members</a></li>
+                      --> 
+                    {{/if}}  
+                               
+                  </ul>
+                </li>
+
                   <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if membersActive}}id="active"{{/if}}>Members
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if volunteersActive}}id="active"{{/if}}>Volunteers
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                      <li><a href="/members/">View Members</a></li>
-                      <li><a href="/members/add">Add Member</a></li>
                       <li><a href="/log">Log Volunteer Hours</a></li>
+                      {{#ifCond user.admin '||' user.volunteer}}
+                        <li><a href="/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
+
+                        <li role="separator" class="divider"></li> 
+
+                        <li><a href="/working-groups/induct-volunteers">Manage Volunteers</a></li>
+                        <li><a href="/working-groups/find-a-volunteer?group_id={{user.working_groups.0.group_id}}">Find Volunteers</a></li>
+                      {{/ifCond}}
+                      {{#if user.admin}}
+                      <!--
+                        <li role="separator" class="divider"></li>    
+                        <li><a href="#">Export Volunteer Hours</a></li>
+                      -->
+                      {{/if}}
                     </ul>
                   </li>
+
                   {{#if user.admin}}
-                    <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if reportsActive}}id="active"{{/if}}>Reports
-                      <span class="caret"></span></a>
-                      <ul class="dropdown-menu">
-                        <li><a href="/reports/carbon">Carbon</a></li>
-                        <!--<li><a href="/reports/transactions">Transactions</a></li>-->
-                      </ul>
-                    </li>
 
                     <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if settingsActive}}id="active"{{/if}}>Settings
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if tillsActive}}id="active"{{/if}}>Tills
                       <span class="caret"></span></a>
                       <ul class="dropdown-menu">
-                        <li><a href="/settings/general">General</a></li>
-                        <li><a href="/settings/carbon-factors">Carbon Factors</a></li>
-                        <li><a href="/settings/working-groups">Working Groups</a></li>
-                        <li><a href="/settings/email-templates">Email Templates</a></li>
+                        <li><a href="/settings/tills">Manage Tills</a></li>
+                        <li><a href="/settings/tills/add">Add Till</a></li>
+                        <!--
+                        <li role="separator" class="divider"></li>    
+
+                        <li><a href="#">Export Transactions</a></li>
+                        -->
                       </ul>
                     </li>
-
-                    <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if usersActive}}id="active"{{/if}}>Users
-                      <span class="caret"></span></a>
-                      <ul class="dropdown-menu">
-                        <li><a href="/users/update/{{user.id}}">Your Account</a></li>
-                        <li><a href="/users/">View Users</a></li>
-                        <li><a href="/users/add">Add User</a></li>
-                      </ul>
-                    </li>
-
-                    {{#if user.admin_wg}}
-                      <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if workingGroupsActive}}id="active"{{/if}}>Working Groups
-                        <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                          <li><a href="/working-groups/members">View Members</a></li>
-                          <li><a href="/working-groups/add-members">Add Members</a></li>
-                          <li><a href="/working-groups/review-join-requests">Review Join Requests</a></li>
-
-                          <li role="separator" class="divider"></li>
-
-                          <li><a href="/working-groups/log-volunteer-hours">Log Volunteer Hours</a></li>
-                          <li><a href="/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
-
-                          
-
-                          <li role="separator" class="divider"></li>
-
-                          <li><a href="/working-groups/find-a-volunteer">Find A Volunteer!</a></li>
-
-                          
-                        </ul>
-                      </li>
-                    {{/if}}
 
                   {{/if}}
-                  <li class="hidden-md hidden-lg"><a href="/log-outgoing-weight">Log Outgoing Weight (Non-member)</a></li>
+
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if carbonActive}}id="active"{{/if}}>Carbon
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+
+                      <li><a href="/log-outgoing-weight">Log Outgoing Weight</a></li>
+
+                      {{#if user.admin}}
+                        <li><a href="/settings/carbon-factors">Settings</a></li>
+                        <li role="separator" class="divider"></li>    
+                        <li><a href="/reports/carbon">Export Carbon</a></li>
+                      {{/if}}                                               
+                    </ul>
+                  </li>
+
+                  {{#if user.admin}}
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if usersActive}}id="active"{{/if}}>Users
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="/users/update/{{user.id}}">Your Account</a></li>
+                      <li role="separator" class="divider"></li> 
+                      <li><a href="/users/">View Users</a></li>
+                      <li><a href="/users/add">Add User</a></li>
+                    </ul>
+                  </li>
+                  {{/if}}
+
+                  {{#if user.admin}}
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if settingsActive}}id="active"{{/if}}>Settings
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="/settings/working-groups">Working Groups</a></li>
+                      <li><a href="/settings/email-templates">Email Templates</a></li>
+                    </ul>
+                  </li>
+                  {{/if}}
+
                   <li class="hidden-md hidden-lg"><a href="/logout">Logout</a></li>
 
               </ul>
@@ -140,6 +175,12 @@
         {{#if error}}
         <div class="row">
           <div id="error" class="col-md-6 alert alert-danger" onclick="dismiss('#error')">{{{error}}}</div>
+        </div>
+        {{/if}}
+
+        {{#if errors}}
+        <div class="row">
+          <div id="errors" class="col-md-6 alert alert-danger" onclick="dismiss('#errors')">{{{error.0.msg}}}</div>
         </div>
         {{/if}}
 

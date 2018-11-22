@@ -11,10 +11,10 @@
 <div class="row">
 	<h1>Carbon Report</h1>
 </div>
-
 <div class="row">
-  <p>This is the raw outgoing weights from the Swapshop (will be extended to other working groups in the near future!)</p>
+  <p>This tool exports <b>raw</b> weights - this is not how much carbon has been saved.</p>
 </div>
+<br />
 
 <div class="row">
   <form class="form-inline" action="/reports/carbon" method="get">
@@ -25,16 +25,29 @@
       <input type="date" name="endDate" class="form-control" value="{{endDate}}">
     </div>
     <div class="form-group">
-      <select class="form-control" name="type">
-        <option value="basic_total" {{#ifCond type '==' "basic_total"}}selected{{/ifCond}}>Simple totals</option>
-        <option value="monthly_summary" {{#ifCond type '==' "monthly_summary"}}selected{{/ifCond}}>Monthly summaries</option>
-      </select>
-    </div>
-    <div class="form-group">
       <select class="form-control" name="unit">
         <option value="grams" {{#ifCond unit.name '==' "grams"}}selected{{/ifCond}}>Grams</option>
         <option value="kilos" {{#ifCond unit.name '==' "kilos"}}selected{{/ifCond}}>Kilograms</option>
         <option value="tonnes" {{#ifCond unit.name '==' "tonnes"}}selected{{/ifCond}}>Tonnes</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <select class="form-control" name="group_id">
+        {{#each working_groups}}
+          <option value="{{group_id}}"{{#ifCond group_id '==' ../group_id}} selected{{/ifCond}}>{{name}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="form-group">
+      <select class="form-control" name="method">
+        <option value="recycled" {{#ifCond method '==' "recycled"}}selected{{/ifCond}}>Recycled</option>
+        <option value="generated" {{#ifCond method '==' "generated"}}selected{{/ifCond}}>Generated</option>
+        <option value="incinerated" {{#ifCond method '==' "incinerated"}}selected{{/ifCond}}>Incinerated</option>
+        <option value="landfilled" {{#ifCond method '==' "landfilled"}}selected{{/ifCond}}>Landfilled</option>
+        <option value="composted" {{#ifCond method '==' "composted"}}selected{{/ifCond}}>Composted</option>
+        <option value="reused" {{#ifCond method '==' "reused"}}selected{{/ifCond}}>Reused</option>
+        <option value="stored" {{#ifCond method '==' "restored"}}selected{{/ifCond}}>Stored</option>
+        <option value="other" {{#ifCond method '==' "other"}}selected{{/ifCond}}>Other</option>
       </select>
     </div>
     <button type="submit" class="btn btn-primary">Update</button>
@@ -46,28 +59,19 @@
 	<table class="fadeIn" data-toggle="table" data-striped="true" data-show-export="true" data-export-options='{"fileName": "swapshop_carbon"}'>
 		<thead>
 			<th data-sortable="true">Date</th>
-      {{#each settings.definitions.items}}
+      {{#each carbonCategories}}
 			 <th data-sortable="true">{{name}}</th>
       {{/each}}
 		</thead>
 		<tbody>
-    {{#ifCond type '==' 'basic_total'}}
+
       <tr>
-        <td>{{startDate}} to {{endDate}}</td>
+        <td>{{dates.start}} to {{dates.end}}</td>
         {{#each carbon}}
           <td>{{this}}</td>
         {{/each}}
       </tr>
-    {{else}}
-  		{{#each carbon}}
-  			<tr>
-  				<td>{{month.plain}}</td>
-          {{#each carbon}}
-            <td>{{this}}</td>
-          {{/each}}
-  			</tr>
-  		{{/each}}
-    {{/ifCond}}
+
 		</tbody>
 	</table>
 </div>

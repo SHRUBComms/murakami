@@ -1,0 +1,75 @@
+<div class="row">
+	<h1>{{title}}</h1>
+  <a href="/till/{{till.till_id}}" class="btn btn-primary">Go To Till</a>
+</div>
+
+{{#if status.opening}}
+  {{!-- {{> till/transactions/recent}} --}}
+{{/if}}
+
+
+<hr />
+
+
+<div class="row">  
+  	<div class="col-lg-6 nopadding">
+
+    	<h3>Categories</h3>
+
+      <div class="col-md-12" id="options">
+
+      </div>
+
+  	</div>
+
+
+  <div class="col-lg-5 col-lg-offset-1">
+    <h3>Settings</h3>
+
+    <div class="row">
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="Till Name" id="till_name" value="{{till.name}}">
+        </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-sm-6">
+          <p><input type="checkbox" name="stock_control" {{#if till.stockControl}}checked{{/if}} /> Stock control</p>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+function updateSettings() {
+  var till = {}
+  till.name = $("#till_name").val();
+  till.till_id = "{{{till.till_id}}}"
+  $.ajax({
+    type: "POST",
+    url: "/api/post/tills/update",
+    data: {
+      "till": till
+    },
+      success: function(response){
+        if(response.status == "ok"){
+          alert(response.msg);
+        } else {
+          alert(response.msg);
+        }
+      }
+  })
+}
+
+
+</script>
+
+{{> till/categories}}

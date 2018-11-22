@@ -26,6 +26,10 @@ h1 {
   cursor: pointer;
 }
 
+.grey {
+  color: grey;
+}
+
 .nopadding {
    padding: 0 !important;
    margin: 0 !important;
@@ -196,6 +200,16 @@ h1 {
   cursor: pointer;
 }
 
+.item-options.green {
+  background-color: rgb(27, 214, 127);
+  color: white;
+  border: 3px solid rgb(27, 214, 127);
+}
+
+.item-options.green:hover {
+  background-color: rgba(27, 234, 127, 1)
+}
+
 .remove-item {
   cursor: pointer;
 }
@@ -203,6 +217,18 @@ h1 {
 .member-result {
   background-color: rgb(246,246,246);
   padding: 5vh;
+}
+
+.member-selected {
+  border: 5px solid rgb(58, 193, 115);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px;
+  text-align: center;
+}
+
+.member-selected.expired {
+  border: 5px solid red;
 }
 
 .stats-wrapper {

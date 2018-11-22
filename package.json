@@ -24,7 +24,6 @@
     "cors": "*",
     "cron": "^1.3.0",
     "dotenv": "^6.0.0",
-    "email-existence": "^0.1.6",
     "express": "^4.16.3",
     "express-back": "*",
     "express-handlebars": "^3.0.0",

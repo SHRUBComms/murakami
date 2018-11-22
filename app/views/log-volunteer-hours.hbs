@@ -49,13 +49,8 @@
             <div class="form-group">
               <select class="form-control" name="working_group">
                 <option value="">Select a working group...</option>
-                {{#each settings.definitions.working_groups}}
-                  <option value="{{id}}">{{name}} {{#if sub_groups}}(General){{/if}}</option>
-
-                    {{#each sub_groups}}
-                      <option value="{{id}}">{{../name}}: {{name}}</option>
-                    {{/each}}
-
+                {{#each working_groups}}
+                  <option value="{{group_id}}">{{name}}</option>
                 {{/each}}
               </select>
             </div>
@@ -139,12 +134,12 @@ function updateSearchOutput(results){
       "<p class='text-center'>Nothing found :'(" +
       "</div>");
   } else {
-    for(i=0;i<results.length;i++){
+    for(let i=0;i<results.length;i++){
 
     	var workingGroupSelectMarkup =  '<select id="working_group_select_' + results[i].id + '" class="form-control">'+
     										'<option>Select a working group...</option>';
-    	for(j=0;j<results[i].working_groups.length;j++){
-			workingGroupSelectMarkup += "<option value='" + results[i].working_groups[j].id + "'>" + results[i].working_groups[j].name + "</option>";
+    	for(let j=0;j<results[i].working_groups.length;j++){
+			workingGroupSelectMarkup += "<option value='" + results[i].working_groups[j].group_id + "'>" + results[i].working_groups[j].name + "</option>";
     	}
 		
     	workingGroupSelectMarkup += '</select>';

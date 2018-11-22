@@ -8,26 +8,30 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-
-router.get('/:request_id', Auth.isLoggedIn, Auth.isAdmin, function(req, res){
+router.get("/:request_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
+  req,
+  res
+) {
   var message = {
     status: "fail",
     msg: null
   };
 
-
-  WorkingGroups.getJoinRequestById(req.params.request_id, function(err, request){
-    if(err){
+  WorkingGroups.getJoinRequestById(req.params.request_id, function(
+    err,
+    request
+  ) {
+    if (err) {
       message.status = "fail";
       message.msg = "Something went wrong!";
-      res.send(message);                  
+      res.send(message);
     } else {
       //TODO: sanitize
-      WorkingGroups.denyJoinRequest(req.params.request_id, function(err){
-        if(err){
+      WorkingGroups.denyJoinRequest(req.params.request_id, function(err) {
+        if (err) {
           message.status = "fail";
           message.msg = "Something went wrong!";
-          res.send(message);                  
+          res.send(message);
         } else {
           message.status = "ok";
           message.msg = "Member not added!";
@@ -36,7 +40,6 @@ router.get('/:request_id', Auth.isLoggedIn, Auth.isAdmin, function(req, res){
       });
     }
   });
-
 });
 
 module.exports = router;

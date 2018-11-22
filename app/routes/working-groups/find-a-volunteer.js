@@ -2,29 +2,49 @@
 
 var router = require("express").Router();
 var async = require("async");
-var emailExistence = require("email-existence");
 
 var rootDir = process.env.CWD;
 
-var Settings = require(rootDir + "/app/models/settings")
-var Members = require(rootDir + "/app/models/members")
-var WorkingGroups = require(rootDir + "/app/models/working-groups")
+var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
-  Settings.getAll(function(err, settings){
-    settings = settings[0];
-    settings.definitions = JSON.parse(settings.definitions);
-    Members.getAllVolunteerInfo(settings, function(err, volunteerInfo){
+router.get("/", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(req, res) {
+  var availability = req.query.availability || {};
+  Members.getVolunteerInfoByGroupId(req.query.group_id, function(
+    err,
+    volunteers
+  ) {
+    async.eachOf(
+      volunteers,
+      function(volunteer, i, callback) {
+        var found = true;
+        Object.keys(availability).forEach(function(key, value) {
+          if (!volunteer.availability[key]) {
+            console.log("NOT FOUND");
+            found = false;
+          }
+        });
+        if (found == false) {
+          volunteers[i] = {};
+        }
 
-      res.render("workingGroups/find-a-volunteer", {
-        title: "Find A Volunteer",
-        workingGroupsActive: true,
-        volunteers: volunteerInfo
-      })    
-    })
+        callback();
+      },
+      function() {
+        volunteers = volunteers.filter(
+          value => Object.keys(value).length !== 0
+        );
+        res.render("workingGroups/find-a-volunteer", {
+          title: "Find A Volunteer",
+          volunteersActive: true,
+          volunteers: volunteers,
+          availability: availability,
+          group_id: req.query.group_id
+        });
+      }
+    );
   });
-})
+});
 
 module.exports = router;

@@ -20,10 +20,19 @@
 		<tbody>
 		{{#each users}}
 			<tr>
-				<td><a href="/users/view/{{id}}">{{full_name}}</a></td>
+				<td><a href="/users/update/{{id}}">{{full_name}}</a></td>
 				<td>{{email}}</td>
 				<td>{{username}}</td>
-				<td>{{#if admin}}Administrator{{else}}Swapshop{{/if}}</td>
+				<td>{{#if admin}}
+						Staff Admin
+					{{else}}
+						{{#if volunteer}}
+							Volunteer Admin
+						{{else}}
+							Till User
+						{{/if}}
+					{{/if}}
+				</td>
 				<td>{{#if last_login}}
 						{{last_login}}
 					{{else}}

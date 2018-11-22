@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+
+  <!-- include jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- include Bootstrap -->
+  <link rel="stylesheet" href="/css/bootstrap.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <!-- include custom stylesheet -->
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <!-- include local jQuery effects -->
+  <script src="/js/jquery-effects.js"></script>
+
+  <!-- reCAPTCHA -->
+  <script src='https://www.google.com/recaptcha/api.js'></script>
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="/images/favicon.png" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+  <div id="bootstrap-menu" class="navbar navbar-default navbar-expand-lg navbar-static-top" role="navigation">
+    <div class="container">
+      <div class="row">
+
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+              <img class="navbar-logo" src="/images/logo.png" />
+            </a>
+            {{#if user}}
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-menubuilder">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            {{/if}}
+          </div>
+          {{#if user}}
+          <div class="collapse navbar-collapse navbar-menubuilder">
+              <ul class="nav navbar-nav navbar-left">
+                <li>
+                  <a href="/till/{{till.till_id}}" {{#if transactionsActive}}id="active"{{/if}}>Transaction</a>
+                </li>
+                <li>
+                  <a href="/till/donations/{{till.till_id}}" {{#if donationsActive}}id="active"{{/if}}>Donation</a>
+                </li>
+                <li>
+                  <a href="/members/add?till_id={{till.till_id}}" {{#if addMemberActive}}id="active"{{/if}}>Add Member</a>
+                </li>
+                <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if logoutActive}}id="active"{{/if}}>Logout
+                  <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="/log-volunteer-hours?till_id={{till.till_id}}">Log Volunteer Hours</a></li>
+                    <li><a href="/till/close/{{till.till_id}}">Close Till</a></li>
+                    <li role="separator" class="divider"></li> 
+                    <li>
+                      <a href="/logout" onclick="return confirm('You\'re about to log out. Have you closed the till and logged your hours?')">Logout</a>
+                    </li>
+                  </ul>
+                </li>
+
+              </ul>
+          </div>
+          {{/if}}
+
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div id="page-content">
+        
+        {{#if success_msg}}
+        <div class="row">
+          <div id="success_msg" class="col-md-6 alert alert-success" onclick="dismiss('#success_msg')">{{{success_msg}}}</div>
+        </div>
+        {{/if}}
+
+        {{#if error_msg}}
+        <div class="row">
+          <div id="error_msg" class="col-md-6 alert alert-danger" onclick="dismiss('#error_msg')">{{{error_msg}}}</div>
+        </div>
+        {{/if}}
+
+        {{#if error}}
+        <div class="row">
+          <div id="error" class="col-md-6 alert alert-danger" onclick="dismiss('#error')">{{{error}}}</div>
+        </div>
+        {{/if}}
+        
+        <div class="container">
+          {{{body}}}
+        </div>
+
+        
+      </div>
+    </div>
+    <div class="row">
+      <div class="container">
+        <div class="footer">
+          <p>Murakami is open source, licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL (v3.0)</a></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+<script>
+$(document).ready(function(){
+  $('.fadeIn').fadeIn();
+});
+function reveal(id){
+  $(id).toggleClass("hidden");
+}
+function dismiss(id){
+  $(id).fadeOut();
+}
+
+
+function simpleAjaxGetRequest(url, elem){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(msg){
+          document.getElementById(elem).innerHTML = msg;
+          console.log(msg);                      
+      }
+   });
+}
+
+function getStat(url, elem){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(stat){
+          $(elem).text(stat)                      
+      }
+   });  
+}
+</script>
+</body>
+</html>

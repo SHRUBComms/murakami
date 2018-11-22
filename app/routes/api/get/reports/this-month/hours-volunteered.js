@@ -6,16 +6,14 @@ var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get('/', function(req, res){
-  WorkingGroups.getHoursThisMonth(function(err, hours){
-    if(hours[0]["SUM(duration_as_decimal)"]){
+router.get("/", function(req, res) {
+  WorkingGroups.getHoursThisMonth(function(err, hours) {
+    if (hours[0]["SUM(duration_as_decimal)"]) {
       res.send(hours[0]["SUM(duration_as_decimal)"].toString());
     } else {
       res.send("0");
     }
-  })
+  });
 });
 
 module.exports = router;

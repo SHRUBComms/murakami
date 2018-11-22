@@ -6,72 +6,106 @@ var async = require("async");
 var rootDir = process.env.CWD;
 
 var Members = require(rootDir + "/app/models/members");
-var Settings = require(rootDir + "/app/models/settings");
+var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-function censorName(name){
-    var name = name.split(' ');
-    nameCensored = name[0] + " ";
-    name.splice(0, 1);
-    for(i=0; i<name.length;i++){
-      middleLength = name[i].length - 2
-      nameCensored += name[i].slice(0,1) + "*".repeat(middleLength) + name[i].slice(-1)
-      if(i+1 != name.length){
-        nameCensored += " ";
-      }
-    }
-    return nameCensored;
+function censorEmail(email) {
+  var email = email.split("@");
+  usernameMiddleLength = email[0].length - 2;
+  domainMiddleLength = email[1].length - 2;
+  return (
+    email[0].slice(0, 1) +
+    "*".repeat(usernameMiddleLength) +
+    email[0].slice(-1) +
+    "@" +
+    email[1].slice(0, 1) +
+    "*".repeat(domainMiddleLength) +
+    email[1].slice(-1)
+  );
 }
 
-function censorEmail(email){
-    var email = email.split('@');
-    usernameMiddleLength = email[0].length - 2;
-    domainMiddleLength = email[1].length -2;
-    return email[0].slice(0,1) + "*".repeat(usernameMiddleLength) + email[0].slice(-1) + "@" + email[1].slice(0, 1) + "*".repeat(domainMiddleLength) + email[1].slice(-1);  
-}
-
-router.post('/', function(req, res){
+router.post("/", Auth.isLoggedIn, function(req, res) {
   var term = req.body.term;
-  if(!term) {
-    res.send({status: "ok", results: []});
+  if (!term) {
+    res.send({ status: "ok", results: [] });
   } else {
-    Members.searchByName(term, function(err, members){
-      Settings.getAll(function(err, settings){
-        settings = settings[0];
-        settings.definitions = JSON.parse(settings.definitions)
-        if(err){
-          res.send({status: "fail", results: []});
+    Members.searchByName(term, function(err, members) {
+      WorkingGroups.getAll(function(err, working_groups) {
+        if (err) {
+          res.send({ status: "fail", results: [] });
         } else {
-          async.eachOf(members, function(member, i, callback){
-            Members.makeSearchNice(members[i], settings, function(member){
-              members[i] = {};
-              members[i].id = member.id
-              if(req.user){
-                if(req.user.admin){
+          async.eachOf(
+            members,
+            function(member, i, callback) {
+              Members.makeSearchNice(members[i], working_groups, function(
+                member
+              ) {
+                members[i] = {};
+                members[i].id = member.id;
+                members[i].first_name = member.first_name;
+
+                if (req.user.admin || req.user.volunteer) {
                   members[i].name = member.name;
                   members[i].email = member.email;
                   members[i].working_groups = member.working_groups;
-                } else if (req.user) {
+                } else {
                   members[i].name = member.name;
-                  members[i].email = censorEmail(member.email)
+                  members[i].email = censorEmail(member.email);
                   members[i].working_groups = member.working_groups;
                 }
-              } else {
-                members[i].name = censorName(member.name);
-                members[i].email = censorEmail(member.email)
-                members[i].working_groups = member.working_groups;
-              }
 
-              callback();
-            });
-          }, function (err) {
-
-            res.send({status: "ok", results: members});
-          });
-          
+                callback();
+              });
+            },
+            function(err) {
+              res.send({ status: "ok", results: members });
+            }
+          );
         }
-      })
+      });
+    });
+  }
+});
+
+router.post("/simple", Auth.isLoggedIn, function(req, res) {
+  var term = req.body.term;
+  if (!term) {
+    res.send({ status: "ok", results: [] });
+  } else {
+    Members.searchByName(term, function(err, members) {
+      if (err) {
+        res.send({ status: "fail", results: [] });
+      } else {
+        var formattedMembers = [];
+        async.each(
+          members,
+          function(member, callback) {
+            var isMember;
+            if (member.is_member == 1) {
+              isMember = true;
+            }
+
+            var formattedMember = {};
+            formattedMember.id = member.member_id;
+            formattedMember.name = member.first_name + " " + member.last_name;
+            formattedMember.balance = member.balance;
+            formattedMember.is_member = isMember;
+            formattedMember.membership_expires = member.current_exp_membership;
+            if (!req.user.admin) {
+              formattedMember.email = censorEmail(member.email);
+            } else {
+              formattedMember.email = member.email;
+            }
+
+            formattedMembers.push(formattedMember);
+            callback();
+          },
+          function(err) {
+            res.send({ status: "ok", results: formattedMembers });
+          }
+        );
+      }
     });
   }
 });

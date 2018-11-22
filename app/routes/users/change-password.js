@@ -6,10 +6,10 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/change-password", Auth.isLoggedIn, Auth.isAdmin, function(req, res){
+router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   req.logout();
   req.session = null;
-  res.redirect('/recover');
-})
+  res.redirect("/recover");
+});
 
 module.exports = router;

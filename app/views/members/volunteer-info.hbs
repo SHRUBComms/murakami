@@ -21,10 +21,6 @@
   {{/if}}
 </div>
 
-{{#if errors}}
-  <div class="alert alert-danger">{{{errors.0.msg}}}</div>
-{{/if}}
-
 <form method="post" action="/members/volunteer-info/{{member.member_id}}" class="form-group">
   <div class="row">
     <div class="col-md-6">
@@ -39,17 +35,8 @@
 
             <select class="form-control" id="roleWGInput">
               <option disabled selected>Select a working group...</option>
-              {{#each settings.definitions.working_groups}}
-                <option value='{{id}}'>{{name}}
-                  {{#if sub_groups}}
-                    (General)
-                  {{/if}}
-                </option>
-                {{#if sub_groups}}
-                  {{#each sub_groups}}
-                    <option value='{{../id}}-{{id}}'>{{../name}}: {{name}}</option>
-                  {{/each}}
-                {{/if}}
+              {{#each allWorkingGroups}}
+                <option value='{{group_id}}'>{{name}}</option>
               {{/each}}
             </select>
 
@@ -87,9 +74,10 @@
         <h4>Emergency Contact <span class="fail">*</span></h4>
       </div>
       <div class="row">
-        <div class="form-group col-sm-8" style="padding: 0;">
+        <div class="form-group form-inline">
           <input type="text" class="form-control" placeholder="Relation" name="volInfo[emergencyContactRelation]"{{#if volInfo.emergencyContactRelation}} value="{{volInfo.emergencyContactRelation}}"{{/if}}>
-        </div>      
+          <input type="text" class="form-control" placeholder="Name" name="volInfo[emergencyContactName]"{{#if volInfo.emergencyContactName}} value="{{volInfo.emergencyContactName}}"{{/if}}>
+        </div>       
       </div>
       <div class="row">
         <div class="form-group col-sm-8" style="padding: 0;">
@@ -367,11 +355,12 @@
           <p>What is your preferred method of communication? <span class="fail">*</span></p>
 
           <div>
-            <p><input type="radio" name="volInfo[survey][preferredCommMethod]" value="email" {{#ifCond volInfo.survey.preferredCommMethod '==' 'email'}}checked{{/ifCond}} required> Email</p>
-            <p><input type="radio" name="volInfo[survey][preferredCommMethod]" value="sms" {{#ifCond volInfo.survey.preferredCommMethod '==' 'sms'}}checked{{/ifCond}}> Text</p>
-            <p><input type="radio" name="volInfo[survey][preferredCommMethod]" value="whatsapp" {{#ifCond volInfo.survey.preferredCommMethod '==' 'whatsapp'}}checked{{/ifCond}}> WhatsApp</p>
-            <p><input type="radio" name="volInfo[survey][preferredCommMethod]" value="fb_messenger" {{#ifCond volInfo.survey.preferredCommMethod '==' 'fb_messenger'}}checked{{/ifCond}}> Facebook Messenger</p>
-            <p><input type="radio" name="volInfo[survey][preferredCommMethod]" value="phone_call" {{#ifCond volInfo.survey.preferredCommMethod '==' 'phone_call'}}checked{{/ifCond}}> Phone Call</p>
+
+            <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][email]" {{#if volInfo.survey.preferredCommMethod.email}}checked{{/if}}> Email</p>
+            <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][sms]" {{#if volInfo.survey.preferredCommMethod.sms}}checked{{/if}}> Text</p>
+            <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][whatsapp]" {{#if volInfo.survey.preferredCommMethod.whatsapp}}checked{{/if}}> WhatsApp</p>
+            <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][fb_messenger]" {{#if volInfo.survey.preferredCommMethod.fb_messenger}}checked{{/if}}> Facebook Messenger</p>
+            <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][phone_call]" {{#if volInfo.survey.preferredCommMethod.phone_call}}checked{{/if}}> Phone Call</p>
           </div>
           
         </li>
@@ -433,7 +422,7 @@ function updateSummary(){
   }
 
   $("#roleSummary").html("");
-  for(i=0;i<roles.length;i++) {
+  for(let i=0;i<roles.length;i++) {
     $("#roleSummary").html($("#roleSummary").html() + 
       "<li>" + roles[i].name + " (with " + roles[i].wg_name + ") - <a onclick='removeRole(\"" + i + "\")' class='clickable'>remove</a></li>");
   }

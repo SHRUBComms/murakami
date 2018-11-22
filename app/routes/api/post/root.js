@@ -2,7 +2,8 @@
 
 var router = require("express").Router();
 
-router.use("/members", require("./members/root"))
-router.use("/working-groups", require("./working-groups/root"))
+router.use("/members", require("./members/root"));
+router.use("/working-groups", require("./working-groups/root"));
+router.use("/tills", require("./tills/root"));
 
 module.exports = router;

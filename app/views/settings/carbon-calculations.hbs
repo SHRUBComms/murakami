@@ -1,32 +1,43 @@
 <div class="row">
-  <h1>Carbon Calculations Factors</h1>
+  <h1>Carbon Categories</h1>
 </div>
 
 <div class="row">
-  <p>Update factors used for calculating carbon savings!</p>
+  <p>Update categories used for carbon accounting!</p>
 </div>
 
 <hr />
 
-<form action="/settings/carbon-factors" method="post">
-  <div class="row">
-    <div class="col-lg-10">
-      
-      {{#groupedEach 2 settings.definitions.items}}
-        <div class="row">
-          {{#each this}}
-            <div class="col-lg-2">
-              <p><b>{{name}}:</b></p>
-            </div>
-            <div class="col-lg-2">
-              <input class="form-control" type="text" value="{{factor}}" name="factors[{{id}}]" />
-            </div>
-            <br class="hidden-lg hidden-xl" />
-          {{/each}}
-        </div>
-        <br class="hidden-xs hidden-sm hidden-md" />
-      {{/groupedEach}}
+<div class="row">
+  <div class="form-group form-inline">
+    <select class="form-control" id="carbonCategories">
+      {{#each carbonCategories}}
+        <option value='{{carbon_id}}'{{#ifCond carbon_id '==' ../selectedCategory.carbon_id}} selected{{/ifCond}}>{{name}}</option>
+      {{/each}}
+    </select>
+  </div>
+</div>
 
+<form action="/settings/carbon-factors/{{selectedCategory.carbon_id}}" method="post">
+  <div class="row">
+    <div class="col-md8">
+      <table class="table" style="width: auto !important;">
+        {{#groupedEach 2 selectedCategory.factors}}
+          <tr>
+            {{#each this}}
+              {{#each this}}
+              <td style="vertical-align: middle;">
+                <p><b>{{formToPlain @key}}:</b></p>
+              </td>
+              <td>
+                <input class="form-control" type="text" value="{{this}}" name="factors[{{@key}}]" />
+              </td>
+              {{/each}}
+            {{/each}}
+          </tr>
+        {{/groupedEach}}
+
+      </table>
     </div>
   </div>
 
@@ -39,3 +50,10 @@
   </div>
 
 </form>
+
+<script>
+$('#carbonCategories').on('change', function () {
+  var url = "/settings/carbon-factors/" + $(this).val();
+  window.location = url;
+});
+</script>

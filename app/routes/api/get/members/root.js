@@ -11,5 +11,4 @@ router.use("/restore", require("./restore"));
 router.use("/destroy", require("./destroy"));
 router.use("/id-remind", require("./id-remind"));
 
-
 module.exports = router;
