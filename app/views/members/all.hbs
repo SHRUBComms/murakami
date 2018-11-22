@@ -21,7 +21,6 @@
     <div class="row hidden-xs hidden-sm hidden-md fadeIn">
       <div class="stats-wrapper">
         <h3>Today:</h3>
-        <p><span id="carbon_saved_today">0</span>kg of carbon saved!</p>
         <p><span id="new_members">0</span> new member(s)</p>
         <p><span id="swaps_today">0</span> swap(s)</p>
         <hr />
@@ -59,7 +58,6 @@ var filter = {
 
 $(document).ready(function(){
   $('#members_table').bootstrapTable('filterBy', filter);
-  getStat('/api/get/reports/today/carbon-saved', '#carbon_saved_today')
   getStat('/api/get/reports/today/new-members', '#new_members')
   getStat('/api/get/reports/today/swaps', '#swaps_today')
   getStat('/api/get/reports/all-time/current-members', '#total_current_members')
