@@ -170,6 +170,11 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           formattedTransaction.summary.totals.tokens +
                           " tokens";
                       }
+
+                      if(!formattedTransaction.summary.totals.tokens && !formattedTransaction.summary.totals.money){
+                        response.msg += " Nothing";
+                      }
+
                       response.msg += " paid.";
 
                       let returnedMember = {};
@@ -251,10 +256,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 [carbon],
                                 carbonCategories,
                                 function(carbonSaved) {
-                                  response.msg +=
-                                    " " +
-                                    Math.abs(carbonSaved.toFixed(2)) +
-                                    "kg of carbon saved!";
+                                  if(carbonSaved > 0){
+                                    response.msg +=
+                                      " " +
+                                      Math.abs(carbonSaved.toFixed(2)) +
+                                      "kg of carbon saved!";
+                                  }
                                   Members.updateBalance(
                                     member_id,
                                     returnedMember.balance,
@@ -340,10 +347,13 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           [carbon],
                           carbonCategories,
                           function(carbonSaved) {
-                            response.msg +=
-                              " " +
-                              Math.abs(carbonSaved.toFixed(2)) +
-                              "kg of carbon saved!";
+                            if(carbonSaved > 0){
+                              response.msg +=
+                                " " +
+                                Math.abs(carbonSaved.toFixed(2)) +
+                                "kg of carbon saved!";                              
+                            }
+
                             res.send(response);
                           }
                         );

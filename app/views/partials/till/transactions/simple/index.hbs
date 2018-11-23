@@ -1,7 +1,6 @@
 <div class="row">
 	<input type="hidden" id="member_id" value="{{member.id.text}}" />
 
-
 	<div id="transaction_info" class="row hidden"></div>
 
 	<div class="row">
@@ -411,7 +410,7 @@ function updateButtons(){
 			$("#selectPaymentMethod").removeClass("hidden");
 		}
 
-		if(tokens_total > 0 || money_total > 0) {
+		if((tokens_total > 0 || money_total > 0) || member.name) {
 			$("#transaction_btns").removeClass("hidden");
 		} else {
 			$("#transaction_btns").addClass("hidden");

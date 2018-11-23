@@ -52,6 +52,9 @@
                   <a href="/till/donations/{{till.till_id}}" {{#if donationsActive}}id="active"{{/if}}>Donation</a>
                 </li>
                 <li>
+                  <a href="/log-outgoing-weight?till_id={{till.till_id}}" {{#if carbonActive}}id="active"{{/if}}>Log Carbon</a>
+                </li>
+                <li>
                   <a href="/members/add?till_id={{till.till_id}}" {{#if addMemberActive}}id="active"{{/if}}>Add Member</a>
                 </li>
                 <li class="dropdown">
