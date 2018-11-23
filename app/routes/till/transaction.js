@@ -170,6 +170,11 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           formattedTransaction.summary.totals.tokens +
                           " tokens";
                       }
+
+                      if(!formattedTransaction.summary.totals.tokens && !formattedTransaction.summary.totals.money){
+                        response.msg += " Nothing";
+                      }
+
                       response.msg += " paid.";
 
                       let returnedMember = {};
