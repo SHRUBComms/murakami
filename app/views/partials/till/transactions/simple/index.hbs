@@ -219,7 +219,7 @@ categories.parent = null
 function calculateChange(e){
 	let cashGiven = e.value;
 	let change = 0;
-	console.log(money_total);
+	
 	if(isNumeric(cashGiven)){
 		if(cashGiven > money_total){
 			change = cashGiven - money_total			
@@ -237,7 +237,7 @@ function update(){
 	for(let i=0;i<transaction.length;i++){
 		tokens_total += +transaction[i].tokens;
 		weight_total += +transaction[i].weight;
-		console.log(transaction[i]);
+		
 		if(transaction[i].carbon_id !== ""  && transaction[i].setValue == false){
 			$('<tr>',{
 			    html:"<td>" + transaction[i].category + "</td>" + 
@@ -526,7 +526,7 @@ function selectMember(index){
 	}
 
 	$("#payWithTokens").change(function(){
-		console.log("triggered");
+		
 		if(this.checked) {
 			payWithTokens = true;
 		} else {
@@ -553,7 +553,7 @@ function completeTrans(type){
             'note': $("#note").val()
         },    
         success: function(response){
-        	console.log(response);
+        	
         	$("#confirmTransaction").prop("checked", false)
         	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");

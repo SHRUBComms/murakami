@@ -135,7 +135,7 @@ function logHours(member_id){
         }
       },
       success: function(response){
-        console.log(response);
+        
         search();
         if(response.status == "ok"){
           $("#hours_logged_info").html('<div class="alert alert-success" onclick="dismiss(\'#hours_logged_info\')">' + response.msg + '</div>');

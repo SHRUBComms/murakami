@@ -44,7 +44,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     );
 
                     Tills.addTransaction(formattedTransaction, function(err) {
-                      console.log(err);
                       Mail.sendGeneral(
                         member.first_name +
                           " " +

@@ -204,7 +204,7 @@ updateOptions("categories.options");
 
 function updateOptions(path) {
   $("#options").html("");
-  console.log(path);
+  
   options = eval(path);
   var markup = "";
 
@@ -358,7 +358,7 @@ function openMoveCategoryDialog(path) {
 }
 
 function addCategory(path) {
-  console.log(path);
+  
   newCategory = {};
   newCategory.till_id = "{{{till.till_id}}}";
   newCategory.name = $("#addCategoryName").val();

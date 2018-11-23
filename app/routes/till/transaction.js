@@ -19,8 +19,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
   var payWithTokens = JSON.parse(req.body.payWithTokens) || false;
   var note = req.body.note;
 
-  console.log(note);
-
   var membershipBought;
 
   Tills.getTillById(till_id, function(err, till) {
@@ -117,7 +115,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                     if (member.is_member == 1 || membershipBought) {
                       let totals = {};
-                      console.log(payWithTokens);
+
                       if (payWithTokens == true) {
                         if (money_total == 0) {
                           if (member.balance >= tokens_total) {
@@ -235,7 +233,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           err
                         ) {
                           if (err) {
-                            console.log(err);
                             res.send({
                               status: "fail",
                               msg: "Something has gone terribly wrong!"
@@ -250,7 +247,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               method: "recycled"
                             };
                             Carbon.add(carbon, function(err) {
-                              console.log(err);
                               Helpers.calculateCarbon(
                                 [carbon],
                                 carbonCategories,
@@ -326,7 +322,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                   Tills.addTransaction(formattedTransaction, function(err) {
                     if (err) {
-                      console.log(err);
                       res.send({
                         status: "fail",
                         msg: "Something has gone terribly wrong!"
@@ -341,7 +336,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         method: "recycled"
                       };
                       Carbon.add(carbon, function(err) {
-                        console.log(err);
                         Helpers.calculateCarbon(
                           [carbon],
                           carbonCategories,

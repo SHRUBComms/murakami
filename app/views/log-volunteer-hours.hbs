@@ -214,7 +214,7 @@ $('#working_groups').on('change', function () {
 function logHours(member_id){
   var duration = $("#duration_" + member_id).val();
   var working_group = $("#working_group_select_" + member_id).val();
-  console.log(working_group);
+  
    $.ajax({
       type: "POST",
       url: "/working-groups/log-volunteer-hours",

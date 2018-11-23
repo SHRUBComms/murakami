@@ -49,7 +49,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               callback();
             },
             function() {
-              for (let i=0; i < transaction.length; i++) {
+              for (let i = 0; i < transaction.length; i++) {
                 if (
                   !isNaN(parseFloat(transaction[i].weight)) &&
                   transaction[i].weight > 0 &&
@@ -82,7 +82,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
             );
             Carbon.add(formattedTransaction, function(err) {
               if (err) {
-                console.log(err);
                 message.status = "fail";
                 message.msg = "Something went wrong!";
                 res.send(message);

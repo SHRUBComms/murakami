@@ -31,13 +31,11 @@ var register = function(Handlebars) {
 
       if (!Array.isArray(context)) {
         context = Object.keys(context).map(function(key) {
-          let obj = {}
-          obj[key] = context[key]
+          let obj = {};
+          obj[key] = context[key];
           return obj;
         });
       }
-
-      console.log(context);
 
       if (context.length > 0) {
         for (let i = 0; i < context.length; i++) {
@@ -83,7 +81,7 @@ var register = function(Handlebars) {
     },
 
     formToPlain: function(str) {
-      if(str){
+      if (str) {
         return str.replace(/_/g, " ").replace(/\w\S*/g, function(txt) {
           return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
@@ -93,7 +91,6 @@ var register = function(Handlebars) {
     },
 
     concat: function(array) {
-      console.log(array);
       return "hello";
     }
   };

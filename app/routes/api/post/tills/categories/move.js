@@ -8,7 +8,7 @@ var Tills = require(rootDir + "/app/models/tills");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.post("/", function(req, res) {
+router.post("/", Auth.isLoggedIn, function(req, res) {
   var response = { status: "fail", msg: "something went wrong!" };
 
   var till_id = req.body.till_id;
@@ -19,40 +19,32 @@ router.post("/", function(req, res) {
     Tills.getTillById(till_id, function(err, till) {
       if (till) {
         if (item_id) {
-
-              Tills.getCategoriesByTillId(till_id, "kv", function(
-                err,
-                categories
-              ) {
-                if (categories[item_id]) {
-                  if (categories[newParent]) {
-                    if (newParent != item_id) {
-
-                      Tills.moveCategory(item_id, newParent, function(err) {
-                        if (err) {
-                          res.send(response);
-                        } else {
-                          response.status = "ok";
-                          response.msg = "Category moved!";
-                          res.send(response);
-                        }
-                      }); 
+          Tills.getCategoriesByTillId(till_id, "kv", function(err, categories) {
+            if (categories[item_id]) {
+              if (categories[newParent]) {
+                if (newParent != item_id) {
+                  Tills.moveCategory(item_id, newParent, function(err) {
+                    if (err) {
+                      res.send(response);
                     } else {
-                      response.msg = "Category cannot be it's own parent.";
-                      res.send(response);                      
+                      response.status = "ok";
+                      response.msg = "Category moved!";
+                      res.send(response);
                     }
-                   
-                  } else {
-                    response.msg = "Select a valid parent.";
-                    res.send(response);
-                  }
-
+                  });
                 } else {
-                  response.msg = "Select a valid category";
+                  response.msg = "Category cannot be it's own parent.";
                   res.send(response);
                 }
-              });
-
+              } else {
+                response.msg = "Select a valid parent.";
+                res.send(response);
+              }
+            } else {
+              response.msg = "Select a valid category";
+              res.send(response);
+            }
+          });
         } else {
           response.msg = "Please select a category!";
           res.send(response);

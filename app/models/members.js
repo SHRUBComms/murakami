@@ -60,7 +60,7 @@ Members.getVolInfoById = function(id, callback) {
 
 Members.putVolInfo = function(volInfo, callback) {
   var query = `INSERT INTO volunteer_info (member_id, emergencyContactRelation, emergencyContactName, emergencyContactPhoneNo, roles, hoursPerWeek, survey, availability) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE emergencyContactRelation = ?, emergencyContactName = ?, emergencyContactPhoneNo = ?, roles = ?, hoursPerWeek = ?, survey = ?, availability = ?`;
+        ON DUPLICATE KEY UPDATE emergencyContactRelation = ?, emergencyContactName = ?, emergencyContactPhoneNo = ?, roles = ?, hoursPerWeek = ?, survey = ?, availability = ?`;
   var inserts = [
     volInfo.member_id,
     volInfo.emergencyContactRelation,
@@ -170,7 +170,7 @@ Members.getMembershipsExpiringToday = function(callback) {
 
 Members.getAllVolunteers = function(callback) {
   var query = `SELECT * FROM volunteer_info
-				INNER JOIN members ON volunteer_info.member_id=members.member_id AND members.is_member=1`;
+        INNER JOIN members ON volunteer_info.member_id=members.member_id AND members.is_member=1`;
   con.query(query, callback);
 };
 
@@ -311,12 +311,11 @@ Members.delete = function(member_id, callback) {
 
 Members.getVolunteerInfoByGroupId = function(group_id, callback) {
   var query = `SELECT * FROM volunteer_info
-				INNER JOIN members ON volunteer_info.member_id=members.member_id and working_groups LIKE ?`;
+        INNER JOIN members ON volunteer_info.member_id=members.member_id and working_groups LIKE ?`;
   var inserts = ["%" + group_id + "%"];
   var sql = mysql.format(query, inserts);
-  console.log(sql);
+
   con.query(sql, function(err, volunteers) {
-    console.log(err, volunteers);
     async.each(
       volunteers,
       function(volunteer, callback) {
@@ -365,7 +364,7 @@ Members.getVolunteerInfoByGroupId = function(group_id, callback) {
 
 Members.getAllVolunteerInfo = function(settings, callback) {
   var query = `SELECT * FROM volunteer_info
-				INNER JOIN members ON volunteer_info.member_id=members.member_id`;
+        INNER JOIN members ON volunteer_info.member_id=members.member_id`;
   con.query(query, function(err, volunteerInfo) {
     if (volunteerInfo) {
       async.eachOf(

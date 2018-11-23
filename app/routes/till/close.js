@@ -23,7 +23,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
               function(total_sales) {
                 total_sales = total_sales || 0;
                 res.render("till/close", {
-                  title: "Close " + till.name + " - " + group.name,
+                  title: "Close " + till.name,
                   layout: "login-layout",
                   till: till,
                   allWorkingGroups: allWorkingGroups,

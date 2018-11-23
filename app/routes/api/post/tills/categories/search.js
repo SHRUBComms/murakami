@@ -19,7 +19,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
     if (err) {
       res.send(response);
     } else {
-      console.log(categories);
       response.status = "ok";
       response.results = categories;
       res.send(response);

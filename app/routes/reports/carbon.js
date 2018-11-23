@@ -26,23 +26,16 @@ router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
     unit = { factor: 1e-3, name: "kilos" };
   }
 
-  if (endDate) {
-    endDate = new Date(endDate);
-  } else {
-    endDate = new Date();
-  }
-
   Carbon.getCategories(function(err, carbonCategories) {
     WorkingGroups.getAll(function(err, working_groups) {
       Carbon.getAllByWorkingGroup(group_id, function(err, raw) {
-
         formattedData = {};
 
         Object.keys(carbonCategories).forEach(function(key) {
           formattedData[key] = 0;
         });
 
-        for (let i=0; i < raw.length; i++) {
+        for (let i = 0; i < raw.length; i++) {
           if (
             raw[i].trans_date >= startDate &&
             raw[i].trans_date <= endDate &&
@@ -57,12 +50,16 @@ router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
         }
 
         Object.keys(formattedData).forEach(function(key) {
-          console.log(formattedData[key], carbonCategories[key][method], unit.factor)
+          console.log(
+            formattedData[key],
+            carbonCategories[key][method],
+            unit.factor
+          );
           formattedData[key] = (formattedData[key] * unit.factor).toFixed(4);
         });
 
         var dates = { start: null, end: null };
-        console.log(startDate)
+        console.log(startDate);
         dates.start = moment(startDate).format("DD/MM/YY");
         dates.end = moment(endDate).format("DD/MM/YY");
 

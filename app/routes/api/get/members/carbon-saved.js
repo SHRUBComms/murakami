@@ -1,12 +1,10 @@
 // /api/get/members/carbon-saved
 
 var router = require("express").Router();
-var async = require("async");
 
 var rootDir = process.env.CWD;
 
 var Members = require(rootDir + "/app/models/members");
-
 var Carbon = require(rootDir + "/app/models/carbon-calculations");
 
 var Auth = require(rootDir + "/app/configs/auth");

@@ -80,7 +80,7 @@ function removeMemberAjax(url){
       type: "GET",
       url: url,
       success: function(response){
-      	console.log(response);
+      	
       	if(response.status == "ok"){
         	$("#remove_member_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#remove_member_info\')">' + response.msg + '</div>');
         	$("#group_members").bootstrapTable('refresh');         

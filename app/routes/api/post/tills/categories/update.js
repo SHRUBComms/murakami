@@ -28,7 +28,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                   Tills.updateCategory(category, function(err) {
                     if (err) {
-                      console.log(err);
                       res.send(response);
                     } else {
                       response.status = "ok";

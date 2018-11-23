@@ -30,7 +30,6 @@ router.get("/:shift_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
     } else {
       WorkingGroups.getAll(function(err, allWorkingGroups) {
         if (allWorkingGroups[shift.working_group]) {
-          var group = allWorkingGroups[shift.working_group];
           Members.getById(shift.member_id, function(err, member) {
             if (err) throw err;
 

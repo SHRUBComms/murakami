@@ -18,7 +18,6 @@ router.post("/", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(req, res) {
     res.send({ status: "ok", results: [] });
   } else {
     Members.searchByNameAndGroup(term, group_id, function(err, members) {
-      console.log(members);
       if (err) {
         res.send({ status: "fail", results: [] });
       } else {

@@ -18,7 +18,6 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
       Members.getVolInfoById(req.params.member_id, function(err, volInfo) {
         WorkingGroups.getAll(function(err, allWorkingGroups) {
           Members.makeNice(member[0], allWorkingGroups, function(member) {
-            console.log(member);
             res.render("members/view", {
               title: "View Member",
               member: member,

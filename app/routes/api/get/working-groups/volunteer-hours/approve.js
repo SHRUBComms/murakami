@@ -26,7 +26,7 @@ router.get("/:shift_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
       message.msg = "Couldn't find that shift!";
       res.send(message);
     }
-    console.log(shift);
+
     var shift = shift[0];
 
     Members.getById(shift.member_id, function(err, member) {
@@ -44,8 +44,13 @@ router.get("/:shift_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
               user_id: req.user.id,
               date: new Date(),
               summary: {
-                totals: {tokens: Math.floor(shift.duration) * group.rate},
-                bill: [{item_id: "volunteering", tokens: Math.floor(shift.duration) * group.rate}],
+                totals: { tokens: Math.floor(shift.duration) * group.rate },
+                bill: [
+                  {
+                    item_id: "volunteering",
+                    tokens: Math.floor(shift.duration) * group.rate
+                  }
+                ],
                 comment: "with " + group.name
               },
               amount: Math.floor(shift.duration) * group.rate

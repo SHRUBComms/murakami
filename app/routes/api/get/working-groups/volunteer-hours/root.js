@@ -7,7 +7,6 @@ var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get("/:group_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
@@ -22,7 +21,6 @@ router.get("/:group_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
           if (err || !hours) {
             res.send([]);
           } else {
-            console.log(hours);
             var formattedHours = [];
 
             async.eachOf(

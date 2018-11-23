@@ -111,7 +111,7 @@ Helpers.treeify = function(list, callback) {
 Helpers.calculateCarbon = function(carbon, carbonCategoriesRaw, callback) {
   var totalCarbon = 0;
   var carbonCategories = {};
-  console.log(carbon, carbonCategories);
+
   async.each(
     carbonCategoriesRaw,
     function(category, callback) {

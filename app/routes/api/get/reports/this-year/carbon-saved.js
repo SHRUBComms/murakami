@@ -18,7 +18,6 @@ router.get("/", function(req, res) {
         Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
           totalCarbon
         ) {
-          console.log(totalCarbon, " kilos");
           res.send(Math.abs(totalCarbon * 1e-3).toFixed(3));
         });
       });

@@ -45,7 +45,6 @@ Carbon.getToday = function(callback) {
 };
 
 Carbon.add = function(transaction, callback) {
-  console.log(transaction);
   if (transaction.amount > 0) {
     var query =
       "INSERT INTO carbon (transaction_id, member_id, user_id, group_id, trans_object, method, trans_date) VALUES (?,?,?,?,?,?,?)";
@@ -77,7 +76,7 @@ Carbon.getCategories = function(callback) {
   var query = "SELECT * FROM carbon_categories ORDER BY name ASC";
   con.query(query, function(err, carbonCategories) {
     carbonCategoriesObj = {};
-    for (let i=0; i < carbonCategories.length; i++) {
+    for (let i = 0; i < carbonCategories.length; i++) {
       carbonCategories[i].factors = JSON.parse(carbonCategories[i].factors);
       carbonCategoriesObj[carbonCategories[i].carbon_id] = carbonCategories[i];
     }
