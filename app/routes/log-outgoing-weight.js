@@ -13,11 +13,22 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   WorkingGroups.getAll(function(err, working_groups) {
     Carbon.getCategories(function(err, carbonCategories) {
       carbonCategories = Object.values(carbonCategories);
+      var layout;      
+
+      if(req.user.admin || req.user.volunteer) {
+        layout = "layout"
+      } else {
+        layout = "till"
+      }
       res.render("log-outgoing-weight", {
+        layout: layout,
         carbonActive: true,
         title: "Log Outgoing Weight (Non-member)",
         carbonCategories: carbonCategories,
-        working_groups: working_groups
+        working_groups: working_groups,
+        till: {
+          till_id: req.query.till_id
+        }
       });
     });
   });
