@@ -4,7 +4,6 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
 var Carbon = require(rootDir + "/app/models/carbon-calculations");
 
 var Auth = require(rootDir + "/app/configs/auth");
