@@ -410,7 +410,7 @@ function updateButtons(){
 			$("#selectPaymentMethod").removeClass("hidden");
 		}
 
-		if(tokens_total > 0 || money_total > 0) {
+		if((tokens_total > 0 || money_total > 0) || member.name) {
 			$("#transaction_btns").removeClass("hidden");
 		} else {
 			$("#transaction_btns").addClass("hidden");
