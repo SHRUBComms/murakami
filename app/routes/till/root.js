@@ -38,15 +38,15 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
               err,
               categories
             ) {
-              console.log(categories[0].children[0]);
               res.render("till/root", {
-                title: till.name + " - " + group.name,
+                title: till.name,
                 layout: "till",
                 transactionsActive: true,
                 till: till,
                 allWorkingGroups: allWorkingGroups,
                 working_group: group,
-                categories: categories
+                categories: categories,
+                diode_api_key: process.env.DIODE_API_KEY
               });
             });
           });

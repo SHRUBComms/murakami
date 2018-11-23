@@ -17,6 +17,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
   var paymentMethod = req.body.paymentMethod;
   var transaction = req.body.transaction;
   var payWithTokens = JSON.parse(req.body.payWithTokens) || false;
+  var note = req.body.note;
 
   var membershipBought;
 
@@ -25,7 +26,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
       Tills.getStatusById(till_id, function(status) {
         if (status.opening == 1) {
           Carbon.getCategories(function(err, carbonCategories) {
-            console.log(carbonCategories);
             Tills.getFlatCategoriesByTillId(till_id, function(err, categories) {
               var categoriesAsObj = {};
               var transactionSanitized = [];
@@ -102,7 +102,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                 date: new Date(),
                 summary: {
                   totals: {},
-                  bill: transaction
+                  bill: transaction,
+                  comment: note
                 }
               };
 
@@ -114,7 +115,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                     if (member.is_member == 1 || membershipBought) {
                       let totals = {};
-                      console.log(payWithTokens);
+
                       if (payWithTokens == true) {
                         if (money_total == 0) {
                           if (member.balance >= tokens_total) {
@@ -232,7 +233,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           err
                         ) {
                           if (err) {
-                            console.log(err);
                             res.send({
                               status: "fail",
                               msg: "Something has gone terribly wrong!"
@@ -247,7 +247,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               method: "recycled"
                             };
                             Carbon.add(carbon, function(err) {
-                              console.log(err);
                               Helpers.calculateCarbon(
                                 [carbon],
                                 carbonCategories,
@@ -325,7 +324,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                   Tills.addTransaction(formattedTransaction, function(err) {
                     if (err) {
-                      console.log(err);
                       res.send({
                         status: "fail",
                         msg: "Something has gone terribly wrong!"
@@ -340,7 +338,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         method: "recycled"
                       };
                       Carbon.add(carbon, function(err) {
-                        console.log(err);
                         Helpers.calculateCarbon(
                           [carbon],
                           carbonCategories,

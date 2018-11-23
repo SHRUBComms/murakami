@@ -1,32 +1,6 @@
 <div class="row">
 	<input type="hidden" id="member_id" value="{{member.id.text}}" />
 
-	<div class="row">
-
-		<div class="col-md-6">
-
-			<div id="electricalSafety" class="hidden center-block">
-
-				<h4><b>Please check the safety of any outgoing electronics!</b></h4>
-				<p>If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
-
-			      <div class="form-group form-inline">
-			          <div class="form-group">calcul
-			              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
-			          </div>
-			          <div class="form-group">
-			              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
-			          </div>
-			      </div>
-
-			    <h3 id="electricalSafetyMessage"></h3>
-
-			</div>
-		</div>
-	</div>
-
-	<br />
-
 	<div id="transaction_info" class="row hidden"></div>
 
 	<div class="row">
@@ -124,6 +98,16 @@
 	      		<br /> 
 	      	</div>
       	</div>
+
+
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<textarea id="note" placeholder="Note (optional)" class="form-control"></textarea>
+			</div>
+		</div>
+
+		<br />
+
       	<div class="row">
       		<center>
 	      		<p><input type="checkbox" id="confirmTransaction" /> Transaction details are correct</p>
@@ -134,6 +118,51 @@
       <div class="modal-footer">
       	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal" onclick="completeTrans()" disabled="disabled">Complete Transaction</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="electricalSafetyModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Electrical Safety Check</h4>
+      </div>
+      <div class="modal-body">
+		<div class="row">
+
+			<div class="col-md-12">
+
+				<div id="electricalSafety">
+
+					<h4><b>Please check the safety of any outgoing electronics!</b></h4>
+					<p>If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
+
+				      <div class="form-group form-inline">
+				          <div class="form-group">
+				              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
+				          </div>
+				          <div class="form-group">
+				              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
+				          </div>
+				      </div>
+
+				    <h3 id="electricalSafetyMessage"></h3>
+
+				</div>
+			</div>
+		</div>
+
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal">Item Safe</button>
+        <button type="button" class="btn btn-danger" id="removeUnsafe" onclick="" data-dismiss="modal">Not Safe</button>
       </div>
     </div>
 
@@ -166,15 +195,15 @@ function addToTrans(id, category, value, carbon_id, allowTokens){
 		item.setValue = false;
 	}
 
-	console.log(item.setValue);
+	if(carbon_id == "IT-101"){
+		$("#electricalSafetyModal").modal("show");
+		$("#removeUnsafe").attr("onclick", "removeFromTrans(" + (transaction.length - 1) + ")");
+	}
 	
 
 	transaction.push(item);
 	update();
 
-	if(item.id == "IT-101") {
-		showElectricalSafety();
-	}
 }
 
 function removeFromTrans(index){
@@ -189,7 +218,7 @@ categories.parent = null
 function calculateChange(e){
 	let cashGiven = e.value;
 	let change = 0;
-	console.log(money_total);
+	
 	if(isNumeric(cashGiven)){
 		if(cashGiven > money_total){
 			change = cashGiven - money_total			
@@ -207,7 +236,7 @@ function update(){
 	for(let i=0;i<transaction.length;i++){
 		tokens_total += +transaction[i].tokens;
 		weight_total += +transaction[i].weight;
-		console.log(transaction[i]);
+		
 		if(transaction[i].carbon_id !== ""  && transaction[i].setValue == false){
 			$('<tr>',{
 			    html:"<td>" + transaction[i].category + "</td>" + 
@@ -496,7 +525,7 @@ function selectMember(index){
 	}
 
 	$("#payWithTokens").change(function(){
-		console.log("triggered");
+		
 		if(this.checked) {
 			payWithTokens = true;
 		} else {
@@ -511,7 +540,6 @@ function selectMember(index){
 
 function completeTrans(type){
 	let member_id = member.id || null;
-	console.log(payWithTokens);
     $.ajax({
         type: "POST",
         url: "/till/transaction",
@@ -520,14 +548,16 @@ function completeTrans(type){
         	'till_id': "{{till.till_id}}",
         	'paymentMethod': paymentMethod,
             'transaction': transaction,
-            'payWithTokens': payWithTokens
+            'payWithTokens': payWithTokens,
+            'note': $("#note").val()
         },    
         success: function(response){
-        	console.log(response);
+        	
         	$("#confirmTransaction").prop("checked", false)
         	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");
         	if(response.status == "ok"){
+        		$("#note").val("")
         		$("#transaction_history").bootstrapTable('refresh'); 
 	            transaction = [];
 	            update();

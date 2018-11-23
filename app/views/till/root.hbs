@@ -30,14 +30,9 @@
 				<select class="form-control" id="tills">
 					<option>Select a till...</option>
 					{{#each tills}}
-						{{#each ../allWorkingGroups}}
 
-							{{#ifCond group_id '==' ../group_id}}
+						<option value="{{till_id}}">{{name}}</option>
 
-								<option value="{{../till_id}}">{{name}}: {{../name}}</option>
-
-							{{/ifCond}}
-						{{/each}}
 					{{/each}}
 				</select>
 			</div>

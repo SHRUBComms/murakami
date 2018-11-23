@@ -211,13 +211,13 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
           Object.keys(volInfo.availability).forEach(function(key) {
             var validDay = false;
             var validPeriod = false;
-            for (let i=0; i < days.length; i++) {
+            for (let i = 0; i < days.length; i++) {
               if (key.substring(0, 3) == days[i]) {
                 validDay = true;
               }
             }
 
-            for (let i=0; i < periods.length; i++) {
+            for (let i = 0; i < periods.length; i++) {
               if (
                 key.substring(4, 5) == periods[i] ||
                 key.substring(4, 6) == periods[i]
@@ -278,9 +278,7 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
               Members.updateWorkingGroups(
                 member[0].member_id,
                 JSON.stringify(Object.keys(working_groups)),
-                function(err) {
-                  console.log(err);
-                }
+                function(err) {}
               );
               req.flash("success_msg", "Volunteer info updated!");
               res.redirect("/members/volunteer-info/" + req.params.member_id);

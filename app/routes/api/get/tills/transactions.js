@@ -83,7 +83,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                             formattedTransaction.bill = [];
                             let bill = "";
                             for (
-                              let i=0;
+                              let i = 0;
                               i < transaction.summary.bill.length;
                               i++
                             ) {
@@ -92,14 +92,14 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                 "donation"
                               ) {
                                 bill +=
-                                  "Donation: " +
+                                  "Tokens added for donation: " +
                                   transaction.summary.bill[i].tokens;
                               } else if (
                                 transaction.summary.bill[i].item_id ==
                                 "volunteering"
                               ) {
                                 bill +=
-                                  "Volunteering: " +
+                                  "Tokens added for volunteering: " +
                                   transaction.summary.bill[i].tokens;
                               } else if (
                                 flatCategoriesAsObj[
@@ -111,7 +111,9 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                     transaction.summary.bill[i].item_id
                                   ].absolute_name +
                                   ": " +
-                                  parseFloat(transaction.summary.bill[i].tokens).toFixed(2);
+                                  parseFloat(
+                                    transaction.summary.bill[i].tokens
+                                  ).toFixed(2);
                               }
 
                               if (i + 1 !== transaction.summary.bill.length) {
@@ -119,8 +121,9 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                               }
                             }
 
-                            if(transaction.summary.comment){
-                              bill += "<br />Comment: " + transaction.summary.comment;
+                            if (transaction.summary.comment) {
+                              bill +=
+                                "<br />Comment: " + transaction.summary.comment;
                             }
 
                             formattedTransaction.bill = bill;

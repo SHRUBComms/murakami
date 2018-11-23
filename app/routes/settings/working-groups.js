@@ -4,7 +4,6 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
@@ -66,7 +65,6 @@ router.post("/:group_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
 
       if (!errors) {
         WorkingGroups.updateGroup(group, function(err) {
-          console.log(group);
           req.flash("success_msg", "Group successfully updated!");
           res.redirect("/settings/working-groups/" + group_id);
         });

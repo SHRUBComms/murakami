@@ -21,7 +21,6 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
         });
       },
       function() {
-        console.log(tills);
         res.render("settings/tills/root", {
           title: "Manage Tills",
           tillsActive: true,
@@ -40,9 +39,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           err,
           categories
         ) {
-
           var layout;
-          if(req.user.admin == 1){
+          if (req.user.admin == 1) {
             layout = "layout";
           } else {
             layout = "till";
@@ -50,7 +48,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           Carbon.getCategories(function(err, carbonCategories) {
             res.render("settings/tills/view", {
               layout: layout,
-              title: till.name + " - " + till.group_name,
+              title: till.name,
               tillsActive: true,
               till: till,
               categories: categories,

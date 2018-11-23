@@ -357,7 +357,7 @@ function workingGroupAjaxReq(url){
       type: "GET",
       url: url,
       success: function(response){
-      	console.log(response);
+      	
       	if(response.status == "ok"){
         	$("#working_group_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');                     
       	} else {

@@ -10,8 +10,6 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 var Members = require(rootDir + "/app/models/members");
 var Tills = require(rootDir + "/app/models/tills");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
 router.post("/", function(req, res) {
   var message = {};
 
@@ -47,18 +45,27 @@ router.post("/", function(req, res) {
                         user_id: req.user.id,
                         date: new Date(),
                         summary: {
-                          totals: {tokens: Math.floor(shift.duration) * group.rate},
-                          bill: [{item_id: "volunteering", tokens: Math.floor(shift.duration) * group.rate}],
+                          totals: {
+                            tokens: Math.floor(shift.duration) * group.rate
+                          },
+                          bill: [
+                            {
+                              item_id: "volunteering",
+                              tokens: Math.floor(shift.duration) * group.rate
+                            }
+                          ],
                           comment: "with " + group.name
                         },
                         amount: Math.floor(shift.duration) * group.rate
                       };
 
                       if (transaction.amount > 0) {
-                        transaction.summary = JSON.stringify(transaction.summary)
+                        transaction.summary = JSON.stringify(
+                          transaction.summary
+                        );
                         Tills.addTransaction(transaction, function(err) {
                           if (err) {
-                            console.log(err)
+                            console.log(err);
                             message.status = "fail";
                             message.msg = "Something went wrong!";
                             res.send(message);

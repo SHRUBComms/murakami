@@ -98,7 +98,7 @@ function removeMemberAjax(url){
       type: "GET",
       url: url,
       success: function(response){
-      	console.log(response);
+      	
       	if(response.status == "ok"){
         	$("#member_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#member_info\')">' + response.msg + '</div>');
         	$("#group_members").bootstrapTable('refresh');
@@ -115,7 +115,7 @@ function joinRequestsAjax(url){
       type: "GET",
       url: url,
       success: function(response){
-        console.log(response);
+        
         if(response.status == "ok"){
           $("#member_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#member_info\')">' + response.msg + '</div>');
           $("#group_members").bootstrapTable('refresh');
@@ -182,7 +182,7 @@ function joinGroup(url){
       type: "GET",
       url: url,
       success: function(response){
-        console.log(response);
+        
         search();
         if(response.status == "ok"){
           $("#member_info").html('<div class="alert alert-success" onclick="dismiss(\'#member_info\')">' + response.msg + '</div>');

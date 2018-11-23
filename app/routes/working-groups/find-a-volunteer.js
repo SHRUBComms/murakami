@@ -21,7 +21,6 @@ router.get("/", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(req, res) {
         var found = true;
         Object.keys(availability).forEach(function(key, value) {
           if (!volunteer.availability[key]) {
-            console.log("NOT FOUND");
             found = false;
           }
         });

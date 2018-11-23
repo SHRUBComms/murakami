@@ -113,7 +113,7 @@ function ajaxGetRequest(url){
       type: "GET",
       url: url,
       success: function(response){
-        console.log(response);
+        
         search();
         if(response.status == "ok"){
           $("#join_requests_info").html('<div class="alert alert-success" onclick="dismiss(\'#join_requests_info\')">' + response.msg + '</div>');
