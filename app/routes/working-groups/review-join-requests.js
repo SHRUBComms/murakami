@@ -10,7 +10,7 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"]), function(req, res) {
   if (req.user.working_groups) {
     var group = req.user.working_groups[0].id;
     res.redirect("/working-groups/review-join-requests/" + group);
@@ -19,7 +19,7 @@ router.get("/", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(req, res) {
   }
 });
 
-router.get("/:group_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
+router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"]), function(
   req,
   res
 ) {

@@ -9,7 +9,7 @@ var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"]), function(req, res) {
   var availability = req.query.availability || {};
   Members.getVolunteerInfoByGroupId(req.query.group_id, function(
     err,

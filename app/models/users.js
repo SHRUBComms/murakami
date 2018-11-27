@@ -94,7 +94,7 @@ Users.updateWorkingGroups = function(user_id, working_groups, callback) {
 
 Users.add = function(user, callback) {
   var query =
-    "INSERT INTO login (id, first_name, last_name, username, email, password, admin, volunteer, working_groups) VALUES (?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO login (id, first_name, last_name, username, email, password, class, working_groups) VALUES (?,?,?,?,?,?,?,?)";
 
   // Generate ID!
   Helpers.uniqueIntId(11, "login", "id", function(id) {
@@ -109,8 +109,7 @@ Users.add = function(user, callback) {
           user.username,
           user.email,
           user.password,
-          user.admin,
-          user.volunteer,
+          user.class,
           user.working_groups
         ];
         var sql = mysql.format(query, inserts);
@@ -124,12 +123,11 @@ Users.add = function(user, callback) {
 
 Users.update = function(user, callback) {
   var query =
-    "UPDATE login SET first_name = ?, last_name = ?, admin = ?, volunteer = ?, working_groups = ? WHERE id = ?";
+    "UPDATE login SET first_name = ?, last_name = ?, class = ?, working_groups = ? WHERE id = ?";
   var inserts = [
     user.first_name,
     user.last_name,
-    user.admin,
-    user.volunteer,
+    user.class,
     user.working_groups,
     user.user_id
   ];
@@ -182,8 +180,7 @@ Users.makeNice = function(user, working_groups, callback) {
     first_name: null,
     last_name: null,
     full_name: null,
-    admin: null,
-    volunteer: null,
+    class: null,
     working_groups: {},
     last_login: null
   };
@@ -207,8 +204,8 @@ Users.makeNice = function(user, working_groups, callback) {
   beautifulUser.email = user.email;
 
   // Admin status
-  if (user.admin == 1 && user.volunteer == 0) {
-    beautifulUser.admin = true;
+  if (["admin", "till"].includes(user.class)) {
+    beautifulUser.class = user.class;
   }
 
   if (user.volunteer == 1 && user.admin == 0) {

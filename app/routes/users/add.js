@@ -9,7 +9,7 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   WorkingGroups.getAll(function(err, workingGroups) {
     res.render("users/add", {
       title: "Add User",
@@ -20,7 +20,10 @@ router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   });
 });
 
-router.post("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   var first_name = req.body.first_name.trim();
   var last_name = req.body.last_name.trim();
   var username = req.body.username.trim();
@@ -100,15 +103,8 @@ router.post("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   var admin = 0;
   var volunteer = 0;
 
-  if (userClass == "volunteer") {
-    admin = 0;
-    volunteer = 1;
-  } else if (userClass == "staff") {
-    admin = 1;
-    volunteer = 0;
-  } else {
-    admin = 0;
-    volunteer = 0;
+  if (!["admin", "till"].includes(userClass)) {
+    userClass = "till";
   }
 
   var formattedWorkingGroups = [];
@@ -131,8 +127,7 @@ router.post("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
         last_name: last_name,
         username: username,
         email: email,
-        admin: admin,
-        volunteer: volunteer,
+        class: userClass,
         working_groups: JSON.stringify(formattedWorkingGroups.sort()),
         password: password,
         passwordConfirm: passwordConfirm

@@ -8,7 +8,7 @@ var Users = require(rootDir + "/app/models/users");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Users.getById(req.params.user_id, function(err, user) {
     if (user[0] && !err && !user[0].deactivated) {
       var user = user[0];

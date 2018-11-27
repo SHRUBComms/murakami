@@ -10,7 +10,7 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Users.getAll(function(err, users) {
     WorkingGroups.getAll(function(err, working_groups) {
       if (err) throw err;

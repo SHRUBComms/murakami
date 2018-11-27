@@ -9,7 +9,7 @@ var Members = require(rootDir + "/app/models/members");
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
 
-router.get("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Members.getById(req.params.member_id, function(err, member) {
     if (!member[0] || err) {
       req.flash("error", "Member not found");

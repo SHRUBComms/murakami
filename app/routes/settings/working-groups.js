@@ -8,7 +8,7 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   if (req.user.working_groups) {
     var group = req.user.working_groups[0].group_id;
     res.redirect("/settings/working-groups/" + group);
@@ -18,7 +18,7 @@ router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   }
 });
 
-router.get("/:group_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   WorkingGroups.getAll(function(err, working_groups) {
     if (working_groups[req.params.group_id]) {
       res.render("settings/working-groups", {
@@ -32,7 +32,7 @@ router.get("/:group_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   });
 });
 
-router.post("/:group_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.post("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   WorkingGroups.getById(req.params.group_id, function(err, group) {
     if (group[0]) {
       group = group[0];

@@ -47,8 +47,9 @@
     <div class="form-group form-inline">
       <select class="form-control" name="class">
         <option value="till">Till User</option>
-        <option value="volunteer">Volunteer Admin</option>
-        <option value="staff">Staff Admin</option>
+        <!--<option value="volunteer">Volunteer Co-ordinator</option>
+        <option value="staff">Staff Member</option>-->
+        <option value="admin">Admin</option>
       </select>
     </div>
   </div>
@@ -132,7 +133,7 @@ function updateSummary(){
   Object.keys(joinList).forEach(function(key) {
     $("#workingGroupJoinSummary").html($("#workingGroupJoinSummary").html() + "<li id='" + key + "'>" + joinList[key] + " - <a onclick='removeFromJoinList(\"" + key + "\")' class='clickable'>remove</a></li>");
   });
-  
+
 }
 
 updateSummary();

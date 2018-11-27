@@ -11,7 +11,7 @@ var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:shift_id", Auth.isLoggedIn, Auth.isVolunteerOrAdmin, function(
+router.get("/:shift_id", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"]), function(
   req,
   res
 ) {

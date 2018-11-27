@@ -43,7 +43,7 @@ router.get("/:working_group/:member_id", Auth.isLoggedIn, function(req, res) {
             message.msg = "Already a member!";
             res.send(message);
           } else {
-            if (req.user.admin || req.user.volunteer) {
+            if (["admin", "volunteer"].includes(req.user.class)) {
               member.working_groups.push(req.params.working_group);
               member.working_groups = JSON.stringify(
                 member.working_groups.sort()

@@ -8,28 +8,14 @@ Auth.isLoggedIn = function(req, res, next) {
   }
 };
 
-Auth.isVolunteer = function(req, res, next) {
-  if (req.user.volunteer == 1) {
-    return next();
-  } else {
-    res.redirect("/");
-  }
-};
-
-Auth.isAdmin = function(req, res, next) {
-  if (req.user.admin == 1) {
-    return next();
-  } else {
-    res.redirect("/");
-  }
-};
-
-Auth.isVolunteerOrAdmin = function(req, res, next) {
-  if (req.user.volunteer == 1 || req.user.admin == 1) {
-    return next();
-  } else {
-    res.redirect("/");
-  }
+Auth.isOfClass = function(allowedClasses) {
+  return function(req, res, next) {
+    if (allowedClasses.includes(req.user.class)) {
+      return next();
+    } else {
+      res.redirect("/");
+    }
+  };
 };
 
 module.exports = Auth;

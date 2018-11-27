@@ -25,6 +25,14 @@ var register = function(Handlebars) {
       }
       return options.inverse(this);
     },
+    ifUserClass: function(userClass, classes, options) {
+      classes = JSON.parse(classes);
+      if (classes.includes(userClass)) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
+    },
     groupedEach: function(every, context, options) {
       var out = "",
         subcontext = [];

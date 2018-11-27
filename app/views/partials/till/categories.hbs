@@ -14,7 +14,7 @@
         <h4 class="modal-title">Add New Category Under "<span id="parent_name"></span>"</h4>
       </div>
       <div class="modal-body">
-        
+
         <div class="row">
           <div class="col-xs-8 col-xs-offset-2">
             <div class="row">
@@ -25,10 +25,12 @@
 
             <div class="row">
               <div class="form-group form-inline">
-                <p><input type="checkbox" class="fixedPrice" /> Fixed price</p>
-                <div class="input-group valueInput hidden">
-                  <span class="input-group-addon">£</span>
-                  <input class="form-inline form-control" id="addCategoryValue" type="text" placeholder="0.00" />
+                <p><input type="checkbox" class="fixedPrice" id="addCategoryFixedPriceCheck" /> Fixed price</p>
+                <div class="row nopadding">
+                  <div class="input-group valueInput hidden">
+                    <span class="input-group-addon">£</span>
+                    <input class="form-inline form-control" id="addCategoryValue" type="text" placeholder="0.00" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -36,6 +38,18 @@
             <div class="row">
               <div class="form-group">
                 <p><input type="checkbox" id="addCategoryAllowTokens" /> Can be bought with tokens</p>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group form-inline">
+                <div class="row nopadding">
+                  <div class="input-group">
+                    <span class="input-group-addon">Member discount: </span>
+                    <input class="form-inline form-control" id="addCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
+                    <span class="input-group-addon">%</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -75,7 +89,7 @@
         <h4 class="modal-title">Edit Category "<span id="category_name"></span>"</h4>
       </div>
       <div class="modal-body">
-        
+
         <div class="row">
           <div class="col-xs-8 col-xs-offset-2">
             <div class="row">
@@ -87,9 +101,23 @@
             <div class="row">
               <div class="form-group form-inline">
                 <p><input type="checkbox" class="fixedPrice" id="editCategoryFixedPriceCheck" /> Fixed price</p>
-                <div class="input-group valueInput hidden">
-                  <span class="input-group-addon">£</span>
-                  <input class="form-inline form-control" id="editCategoryValue" type="text" placeholder="0.00" />
+                <div class="row nopadding">
+                  <div class="input-group valueInput hidden">
+                    <span class="input-group-addon">£</span>
+                    <input class="form-inline form-control" id="editCategoryValue" type="text" placeholder="0.00" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group form-inline">
+                <div class="row nopadding">
+                  <div class="input-group">
+                    <span class="input-group-addon">Member discount: </span>
+                    <input class="form-inline form-control" id="editCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
+                    <span class="input-group-addon">%</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -141,7 +169,7 @@
             <input type="hidden" id="newParent" />
             <center>
               <p id="categorySearchResults"></p>
-            </center>          
+            </center>
             </div>
         </div>
       </div>
@@ -186,16 +214,17 @@
 
 $(".fixedPrice").change(function() {
   if ($(this).is(":checked")) {
-    
     $(".valueInput").removeClass("hidden");
   } else {
     $(".valueInput").addClass("hidden");
+    $("#editCategoryValue").val("");
+    $("#addCategoryValue").val("");
   }
 });
 
 var categories = {};
 // prettier-ignore
-categories.options = {{{json categories}}}; 
+categories.options = {{{json categories}}};
 categories.parent = null;
 
 var category = {};
@@ -204,7 +233,7 @@ updateOptions("categories.options");
 
 function updateOptions(path) {
   $("#options").html("");
-  
+
   options = eval(path);
   var markup = "";
 
@@ -329,13 +358,14 @@ function openEditCategoryDialog(path) {
   $("#category_name").html(category.name);
   $("#editCategoryName").val(category.name);
   $("#editCategoryCarbonId").val(category.carbon_id);
-  if (category.value) {
+  if (category.value > 0) {
     $("#editCategoryFixedPriceCheck").prop("checked", true);
     $(".valueInput").removeClass("hidden");
   } else {
     $("#editCategoryFixedPriceCheck").prop("checked", false);
     $(".valueInput").addClass("hidden");
   }
+
 
   if (category.allowTokens) {
     $("#editCategoryAllowTokens").prop("checked", true);
@@ -344,6 +374,8 @@ function openEditCategoryDialog(path) {
   }
 
   $("#editCategoryValue").val(category.value || null);
+
+  $("#editCategoryMemberDiscount").val(category.member_discount || 0);
 
   $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
 
@@ -358,12 +390,13 @@ function openMoveCategoryDialog(path) {
 }
 
 function addCategory(path) {
-  
+
   newCategory = {};
   newCategory.till_id = "{{{till.till_id}}}";
   newCategory.name = $("#addCategoryName").val();
   newCategory.carbon_id = $("#addCategoryCarbonId").val() || null;
   newCategory.value = $("#addCategoryValue").val() || null;
+  newCategory.member_discount = $("#addCategoryMemberDiscount").val() || 0;
 
   if ($("#addCategoryAllowTokens").is(":checked") == true) {
     newCategory.allowTokens = 1;
@@ -386,7 +419,7 @@ function addCategory(path) {
           eval(path + ".children=[]");
         }
 
-        
+
         if (newCategory.parent) {
           getCategories(path + ".children");
         } else {
@@ -396,6 +429,8 @@ function addCategory(path) {
         $("#addCategoryName").val("");
         $("#addCategoryCarbonId").val("");
         $("#addCategoryValue").val("");
+        $("#addCategoryMemberDiscount").val("0");
+        $("#addCategoryFixedPriceCheck")
         $("#addCategoryAllowTokens").prop("checked", true);
 
         alert(response.msg);
@@ -409,12 +444,13 @@ function addCategory(path) {
 }
 
 function updateCategory(path) {
-  
+
   let category = {};
   category.item_id = eval(path).item_id;
   category.name = $("#editCategoryName").val();
   category.carbon_id = $("#editCategoryCarbonId").val() || null;
   category.value = $("#editCategoryValue").val() || null;
+  category.member_discount = $("#editCategoryMemberDiscount").val() || 0;
 
   if ($("#editCategoryAllowTokens").is(":checked") == true) {
     category.allowTokens = 1;
@@ -453,7 +489,7 @@ function updateCategory(path) {
 }
 
 function moveCategory(path) {
-  
+
   $.ajax({
     type: "POST",
     url: "/api/post/tills/categories/move",
@@ -542,7 +578,7 @@ function selectCategory(e) {
 }
 
 function getCategories(path) {
-  
+
   $.ajax({
     type: "GET",
     url: "/api/get/tills/categories/{{{till.till_id}}}",

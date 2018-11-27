@@ -8,14 +8,14 @@ var Settings = require(rootDir + "/app/models/settings");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Settings.getEmailTemplates(function(err, templates) {
     if (err) throw err;
     res.redirect("/settings/email-templates/" + templates[0].mail_id);
   });
 });
 
-router.get("/:mail_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Settings.getEmailTemplates(function(err, templates) {
     if (err) throw err;
     Settings.getEmailTemplateById(req.params.mail_id, function(err, template) {
@@ -33,7 +33,7 @@ router.get("/:mail_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   });
 });
 
-router.post("/:mail_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Settings.getEmailTemplateById(req.params.mail_id, function(err, template) {
     if (err || !template[0]) {
       res.send("Couldn't find that template!");

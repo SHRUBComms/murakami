@@ -30,7 +30,7 @@ router.post("/", function(req, res) {
             if (allWorkingGroups[shift.working_group]) {
               var group = allWorkingGroups[shift.working_group];
               if (req.user) {
-                if (req.user.admin || req.user.volunteer) {
+                if (["admin", "volunteer"].includes(req.user.class)) {
                   shift.approved = 1;
                   WorkingGroups.createShift(shift, function(err) {
                     if (err) {

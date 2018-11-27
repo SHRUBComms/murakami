@@ -42,7 +42,7 @@
 			    </tr>
 			  </thead>
 			  <tbody id="transaction-info">
-			    
+
 			  </tbody>
 			</table>
 			<div id="transaction_btns" class="hidden">
@@ -90,12 +90,12 @@
 	              <span class="input-group-addon">Cash Given £</span>
 	              <input class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
 	      		</div>
-	      		<br /> 	      		
+	      		<br />
 	      		<div class="input-group">
 	              <span class="input-group-addon">Change Due £</span>
 	              <input class="form-inline form-control" id="change" type="text" placeholder="0.00" readonly />
 	      		</div>
-	      		<br /> 
+	      		<br />
 	      	</div>
       	</div>
 
@@ -178,15 +178,16 @@ var money_total = 0;
 
 var paymentMethod;
 
-function addToTrans(id, category, value, carbon_id, allowTokens){
+function addToTrans(id, category, value, carbon_id, allowTokens, member_discount){
 	var item = {};
 	item.id = id;
 	item.category = category;
 	item.weight = 0;
-	
+
 	item.allowTokens = allowTokens;
 	item.carbon_id = carbon_id;
-	console.log(value)
+	item.member_discount = member_discount;
+
 	if(value > 0){
 		item.tokens = value;
 		item.setValue = true;
@@ -197,9 +198,9 @@ function addToTrans(id, category, value, carbon_id, allowTokens){
 
 	if(carbon_id == "IT-101"){
 		$("#electricalSafetyModal").modal("show");
-		$("#removeUnsafe").attr("onclick", "removeFromTrans(" + (transaction.length - 1) + ")");
+		$("#removeUnsafe").attr("onclick", "removeFromTrans(null)");
 	}
-	
+
 
 	transaction.push(item);
 	update();
@@ -207,7 +208,12 @@ function addToTrans(id, category, value, carbon_id, allowTokens){
 }
 
 function removeFromTrans(index){
-	transaction.splice(index, 1);
+	if(index){
+		transaction.splice(index, 1);
+	} else {
+		transaction.pop();
+	}
+
 	update();
 }
 
@@ -218,10 +224,10 @@ categories.parent = null
 function calculateChange(e){
 	let cashGiven = e.value;
 	let change = 0;
-	
+
 	if(isNumeric(cashGiven)){
 		if(cashGiven > money_total){
-			change = cashGiven - money_total			
+			change = cashGiven - money_total
 		}
 	}
 	$("#change").val(change.toFixed(2));
@@ -234,50 +240,62 @@ function update(){
 	var weight_total = 0;
 
 	for(let i=0;i<transaction.length;i++){
-		tokens_total += +transaction[i].tokens;
+		var value = 0;
+		var note = "";
+		if(member.name){
+			value = +transaction[i].tokens
+			tokens_total += +value;
+			if(transaction[i].member_discount > 0){
+				note = " (<span class='fail'>-" + transaction[i].member_discount + "%</span>)";
+			}
+		} else {
+			value = +transaction[i].tokens;
+			tokens_total += +transaction[i].tokens;
+		}
+
 		weight_total += +transaction[i].weight;
-		
+
 		if(transaction[i].carbon_id !== ""  && transaction[i].setValue == false){
 			$('<tr>',{
-			    html:"<td>" + transaction[i].category + "</td>" + 
-			    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" + 
-			    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" + 
+			    html:"<td>" + transaction[i].category + note + "</td>" +
+			    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" +
+			    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" +
 			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
 			}).appendTo('#transaction-info');
 		} else if(transaction[i].carbon_id == "" && transaction[i].setValue == false) {
 			$('<tr>',{
-			    html:"<td>" + transaction[i].category + "</td>" + 
-			    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" + 
-			    "<td id='weight_" + i + "'>-</td>" + 
+			    html:"<td>" + transaction[i].category + note + "</td>" +
+			    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" +
+			    "<td id='weight_" + i + "'>-</td>" +
 			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');			
+			}).appendTo('#transaction-info');
 		} else if(transaction[i].carbon_id == "" && transaction[i].setValue == true){
 			$('<tr>',{
-			    html:"<td>" + transaction[i].category + "</td>" + 
-			    "<td id='tokens_" + i + "'>" + transaction[i].tokens + "</td>" + 
-			    "<td id='weight_" + i + "'>-</td>" + 
+			    html:"<td>" + transaction[i].category + note + "</td>" +
+			    "<td id='tokens_" + i + "'>" + value + "</td>" +
+			    "<td id='weight_" + i + "'>-</td>" +
 			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');				
+			}).appendTo('#transaction-info');
 		} else if(transaction[i].carbon_id !== "" && transaction[i].setValue == true){
 			$('<tr>',{
-			    html:"<td>" + transaction[i].category + "</td>" + 
-			    "<td id='tokens_" + i + "'>" + transaction[i].tokens + "</td>" + 
-			    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" + 
+			    html:"<td>" + transaction[i].category + note + "</td>" +
+			    "<td id='tokens_" + i + "'>" + value + "</td>" +
+			    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" +
 			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');			
+			}).appendTo('#transaction-info');
 		}
 	}
 
 	if(transaction.length > 0){
 		$('<tr>',{
-		    html:"<td><b>TOTAL:</b></td>" + 
-		    "<td id='tokens_total'>" + tokens_total + "</td>" + 
+		    html:"<td><b>TOTAL:</b></td>" +
+		    "<td id='tokens_total'>" + tokens_total + "</td>" +
 		    "<td id='weight_total'>" + weight_total + "</td>" +
 		    "<td></td>"
 		}).appendTo('#transaction-info');
 	}
 
-	updateButtons()
+	updateButtons();
 
 
 
@@ -304,25 +322,25 @@ function updateOptions(path){
 		if(option.children && option.children.length > 0){
 			option.onclick =  "updateOptions('" + path + "[" + i + "].children" + "')";
 		} else {
-			option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"')";
+			option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "')";
 		}
 		var wrapper, wrapperEnd = "";
 
 		if((i+1)%3 == 1){
 			markup = markup + "<div class='row'>";
-		} 
+		}
 
-		markup = markup + 
+		markup = markup +
 
 							'<div id="' + i + '" class="col-xs-5 col-sm-3 item-options" onclick="' + option.onclick + '">' +
 				      			'<center>' +
 									'<span>' + option.name + '</span>' +
-								'</center>' + 
-				      		'</div>';	
-	
+								'</center>' +
+				      		'</div>';
+
 		if((i+1)%3 == 0){
 			markup = markup + "</div>";
-		} 
+		}
 
 
 		option.onclick = "";
@@ -345,12 +363,12 @@ function updateOptions(path){
 							'<div class="col-sm-3 item-options" onclick="' +  "updateOptions('" + parent + "')" + '">' +
 				      			'<center>' +
 									'<span>← Back</span>' +
-								'</center>' + 
-				      		'</div>');		
+								'</center>' +
+				      		'</div>');
 	}
 
-		
-	
+
+
 
 }
 
@@ -362,9 +380,18 @@ function updateButtons(){
 
 	for(let i=0;i<transaction.length;i++){
 		if(transaction[i].allowTokens == 1){
-			tokens_total += +transaction[i].tokens;
+			if(member.name){
+				tokens_total += +(transaction[i].tokens - (transaction[i].tokens * (transaction[i].member_discount/100)));
+			} else {
+				tokens_total += +transaction[i].tokens;
+			}
+
 		} else {
-			money_total += +transaction[i].tokens;
+			if(member.name){
+				money_total += +(transaction[i].tokens - (transaction[i].tokens * (transaction[i].member_discount/100)));
+			} else {
+				money_total += +transaction[i].tokens;
+			}
 		}
 		weight_total += +transaction[i].weight;
 	}
@@ -373,8 +400,11 @@ function updateButtons(){
 	$("#weight_total").html(weight_total);
 
 	if(transaction.length > 0){
-		console.log(member)
-		if(member.name && payWithTokens){
+
+		if(member.name && money_total == 0 && tokens_total == 0){
+			$("#selectPaymentMethod").addClass("hidden");
+			$(".transaction-total").html("Pay <b>nothing</b>!")
+		} else if(member.name && payWithTokens){
 			if(money_total == 0){
 				if(member.balance >= tokens_total){
 					$("#selectPaymentMethod").addClass("hidden");
@@ -383,7 +413,7 @@ function updateButtons(){
 					} else {
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " tokens</b>")
 					}
-					
+
 				} else {
 					let difference = tokens_total - member.balance;
 					$(".transaction-total").html("Pay <b>£" + (difference).toFixed(2) + "</b> and <b>" + (tokens_total - difference) +  " tokens</b>")
@@ -468,9 +498,9 @@ function searchMember(){
   $.ajax({
       type: "POST",
       url: "/api/post/members/search/simple",
-      data: { 
+      data: {
           'term': $('#memberInput').val()
-      },    
+      },
       success: function(response){
 
         if(response.status == "ok"){
@@ -498,7 +528,7 @@ function updateSearchResults(){
 				"<p><b>" + results[i].name + "</b></p>" +
 				"<p>Membership expired!<p>" +
 				"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
-				"</div>")			
+				"</div>")
 		}
 	}
 }
@@ -514,7 +544,7 @@ function selectMember(index){
 			"<p>" + member.balance + " tokens</p>" +
 			"<p><input type='checkbox' id='payWithTokens' /> Use tokens</p>" +
 			"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
-			"</div>")		
+			"</div>")
 	} else {
 		$("#searchResults").html("<div class='col-md-4 member-result member-selected expired'>" +
 			"<p><b>" + member.name + "</b></p>" +
@@ -525,7 +555,7 @@ function selectMember(index){
 	}
 
 	$("#payWithTokens").change(function(){
-		
+		console.log("triggered");
 		if(this.checked) {
 			payWithTokens = true;
 		} else {
@@ -534,9 +564,14 @@ function selectMember(index){
 		updateButtons();
 	})
 
+	update();
 	$("#memberStatement").html("Member selected: <b>" + member.name + "</b>");
 	updateButtons();
 }
+
+
+
+
 
 function completeTrans(type){
 	let member_id = member.id || null;
@@ -550,15 +585,15 @@ function completeTrans(type){
             'transaction': transaction,
             'payWithTokens': payWithTokens,
             'note': $("#note").val()
-        },    
+        },
         success: function(response){
-        	
+
         	$("#confirmTransaction").prop("checked", false)
         	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");
         	if(response.status == "ok"){
         		$("#note").val("")
-        		$("#transaction_history").bootstrapTable('refresh'); 
+        		$("#transaction_history").bootstrapTable('refresh');
 	            transaction = [];
 	            update();
 	            payWithTokens = false;
@@ -573,7 +608,7 @@ function completeTrans(type){
 	        } else {
 	        	$("#transaction_info").removeClass("hidden")
 	        	$("#transaction_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
-	        }  
+	        }
         }
     });
 }
@@ -581,7 +616,7 @@ function completeTrans(type){
 function getSavedCarbon(){
 	$.ajax({
 	    type: "GET",
-	    url: "/api/get/members/carbon-saved/" + $("#member_id").val(),   
+	    url: "/api/get/members/carbon-saved/" + $("#member_id").val(),
 	    success: function(response){
 			$('#carbon').html(response.carbon);
 	    }
@@ -591,11 +626,11 @@ function getSavedCarbon(){
 function getBalance(){
 	$.ajax({
 	    type: "GET",
-	    url: "/api/get/members/balance/" + $("#member_id").val(),   
+	    url: "/api/get/members/balance/" + $("#member_id").val(),
 	    success: function(response){
 			$('#balance').html(response.balance);
 	    }
-	});	
+	});
 }
 
 function workingGroupAjaxReq(url){
@@ -604,7 +639,7 @@ function workingGroupAjaxReq(url){
       url: url,
       success: function(response){
       	if(response.status == "ok"){
-        	$("#working_group_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');                     
+        	$("#working_group_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
       	} else {
       		$("#working_group_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
       	}
@@ -616,12 +651,14 @@ function workingGroupAjaxReq(url){
 $("#memberToggle").change(function() {
     if(this.checked) {
         $("#memberOptions").removeClass("hidden");
+				searchMember();
     } else {
     	member = {};
     	$("#searchResults").html("");
     	$("memberInput").val("");
     	$("#memberStatement").html("");
     	$("#memberOptions").addClass("hidden");
+			update();
     	updateButtons();
     }
 });
@@ -662,7 +699,7 @@ function verifyElectricalSafety() {
         		$("#electricalSafety").css("background-color", "#98FB98")
         		$("#electricalSafetyMessage").text(response.msg);
         	}
-        	
+
         }
 	})
 }

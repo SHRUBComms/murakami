@@ -18,7 +18,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   AccessTokens.get(req.query.token, "add_member", function(tokenValid) {
     if (req.user || tokenValid) {
       WorkingGroups.getAll(function(err, allWorkingGroups) {
-        if (req.user.admin == 1 || req.user.volunteer == 1) {
+        if (["admin", "volunteer"].includes(req.user.class)) {
           res.render("members/add", {
             title: "Add Member",
             membersActive: true,
@@ -243,7 +243,7 @@ router.post("/", function(req, res) {
               }
             });
 
-            if (req.user.admin || req.user.volunteer) {
+            if (["admin", "volunteer"].includes(req.user.class)) {
               Members.updateWorkingGroups(
                 member.member_id,
                 JSON.stringify(formattedWorkingGroups.sort()),
@@ -315,7 +315,7 @@ router.post("/", function(req, res) {
                   res.redirect("/success");
                 });
               } else {
-                if (req.user.admin || req.user.volunteer) {
+                if (["admin", "volunteer"].includes(req.user.class)) {
                   res.redirect("/members/view/" + member.member_id);
                 } else {
                   var till_id = req.query.till_id;

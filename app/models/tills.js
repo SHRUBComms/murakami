@@ -49,14 +49,15 @@ Tills.removeCategory = function(item_id, callback) {
 
 Tills.addCategory = function(category, callback) {
   var query =
-    "INSERT INTO stock_categories (item_id, till_id, carbon_id, name, value, allowTokens, parent) VALUES (?,?,?,?,?,?,?)";
+    "INSERT INTO stock_categories (item_id, till_id, carbon_id, name, value, member_discount, allowTokens, parent) VALUES (?,?,?,?,?,?,?,?)";
   Helpers.uniqueBase64Id(10, "stock_categories", "item_id", function(id) {
     var inserts = [
-      id,
+      category.id || id,
       category.till_id,
       category.carbon_id,
       category.name,
       category.value,
+      category.member_discount || 0,
       category.allowTokens,
       category.parent
     ];
@@ -69,12 +70,13 @@ Tills.addCategory = function(category, callback) {
 
 Tills.updateCategory = function(category, callback) {
   var query =
-    "UPDATE stock_categories SET carbon_id = ?, name = ?, value = ?, allowTokens = ? WHERE item_id = ?";
+    "UPDATE stock_categories SET carbon_id = ?, name = ?, value = ?, member_discount = ?, allowTokens = ? WHERE item_id = ?";
 
   var inserts = [
     category.carbon_id,
     category.name,
     category.value,
+    category.member_discount || null,
     category.allowTokens,
     category.item_id
   ];
@@ -133,6 +135,25 @@ Tills.getCategoryById = function(item_id, callback) {
   var inserts = [item_id];
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
+};
+
+Tills.getCategoriesByParentId = function(parent, callback) {
+  var query = "SELECT * FROM stock_categories WHERE parent = ?";
+  var inserts = [parent];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, function(err, categories) {
+    var formattedCategories = {};
+    async.each(
+      categories,
+      function(category, callback) {
+        formattedCategories[category.item_id] = category;
+        callback();
+      },
+      function() {
+        callback(err, formattedCategories);
+      }
+    );
+  });
 };
 
 Tills.getCategoriesByTillId = function(till_id, format, callback) {
@@ -309,8 +330,8 @@ Tills.getTransactionsSinceOpening = function(till_id, timestamp, callback) {
 };
 
 Tills.getTransactionsByMemberId = function(member_id, callback) {
-  var query = `SELECT transactions.*, tills.name AS till_name FROM transactions 
-  INNER JOIN tills ON transactions.till_id=tills.till_id AND transactions.member_id = ? 
+  var query = `SELECT transactions.*, tills.name AS till_name FROM transactions
+  INNER JOIN tills ON transactions.till_id=tills.till_id AND transactions.member_id = ?
   ORDER BY date DESC`;
   var inserts = [member_id];
   var sql = mysql.format(query, inserts);

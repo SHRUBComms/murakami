@@ -40,7 +40,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           categories
         ) {
           var layout;
-          if (req.user.admin == 1) {
+          if (["admin"].includes(req.user.class)) {
             layout = "layout";
           } else {
             layout = "till";

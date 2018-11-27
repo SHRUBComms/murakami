@@ -45,7 +45,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                 members[i].id = member.id;
                 members[i].first_name = member.first_name;
 
-                if (req.user.admin || req.user.volunteer) {
+                if (["admin", "volunteer"].includes(req.user.class)) {
                   members[i].name = member.name;
                   members[i].email = member.email;
                   members[i].working_groups = member.working_groups;
@@ -92,7 +92,7 @@ router.post("/simple", Auth.isLoggedIn, function(req, res) {
             formattedMember.balance = member.balance;
             formattedMember.is_member = isMember;
             formattedMember.membership_expires = member.current_exp_membership;
-            if (!req.user.admin) {
+            if (!["admin"].includes(req.user.class)) {
               formattedMember.email = censorEmail(member.email);
             } else {
               formattedMember.email = member.email;

@@ -32,6 +32,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                       category.allowTokens = 0;
                     }
 
+                    if (
+                      category.member_discount < 0 &&
+                      category.member_discount > 100
+                    ) {
+                      category.member_discount = 0;
+                    }
                     category.value = category.value || null;
 
                     Tills.addCategory(category, function(err, newCategory, id) {

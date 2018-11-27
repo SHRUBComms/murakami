@@ -10,7 +10,10 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   Users.getById(req.params.user_id, function(err, user) {
     if (err || !user[0]) {
       req.flash("error_msg", "User not found!");
@@ -21,11 +24,7 @@ router.get("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
           var userClass = "till";
 
           Users.makeNice(user[0], workingGroups, function(user) {
-            if (user.volunteer) {
-              userClass = "volunteer";
-            } else if (user.admin) {
-              userClass = "staff";
-            }
+            userClass = user.class;
 
             res.render("users/update", {
               title: "Update User",
@@ -51,7 +50,10 @@ router.get("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   });
 });
 
-router.post("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.post("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   Users.getById(req.params.user_id, function(err, user) {
     if (err || !user[0] || user[0].deactivated) {
       req.flash("error_msg", "Something went wrong, please try again!");
@@ -86,15 +88,8 @@ router.post("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
       var admin = 0;
       var volunteer = 0;
 
-      if (userClass == "volunteer") {
-        admin = 0;
-        volunteer = 1;
-      } else if (userClass == "staff") {
-        admin = 1;
-        volunteer = 0;
-      } else {
-        admin = 0;
-        volunteer = 0;
+      if (!["admin", "till"].includes(userClass)) {
+        userClass = "till";
       }
 
       // Parse request's body
@@ -119,8 +114,7 @@ router.post("/:user_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
                 user_id: req.params.user_id,
                 first_name: first_name,
                 last_name: last_name,
-                admin: admin,
-                volunteer: volunteer,
+                class: userClass,
                 working_groups: JSON.stringify(formattedWorkingGroups.sort())
               };
 

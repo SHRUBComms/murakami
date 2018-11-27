@@ -13,7 +13,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:working_group/:member_id",
   Auth.isLoggedIn,
-  Auth.isVolunteerOrAdmin,
+  Auth.isOfClass(["admin", "volunteer"]),
   function(req, res) {
     var message = {
       status: "fail",

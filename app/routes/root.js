@@ -3,7 +3,7 @@ var router = require("express").Router();
 
 router.get("/", function(req, res) {
   if (req.user) {
-    if (req.user.volunteer || req.user.admin) {
+    if (["admin"].includes(req.user.class)) {
       if (req.user.working_groups) {
         res.redirect(
           "/working-groups/members/" + req.user.working_groups[0].group_id

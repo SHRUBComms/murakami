@@ -106,14 +106,38 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                   transaction.summary.bill[i].item_id
                                 ]
                               ) {
+                                let value = transaction.summary.bill[i].tokens;
+                                let discount;
+                                if (transaction.summary.discount_info) {
+                                  if (
+                                    transaction.summary.discount_info[
+                                      transaction.summary.bill[i].item_id
+                                    ]
+                                  ) {
+                                    discount =
+                                      transaction.summary.discount_info[
+                                        transaction.summary.bill[i].item_id
+                                      ];
+                                    value = value - value * (discount / 100);
+                                  }
+                                }
+
                                 bill +=
                                   flatCategoriesAsObj[
                                     transaction.summary.bill[i].item_id
                                   ].absolute_name +
                                   ": " +
-                                  parseFloat(
-                                    transaction.summary.bill[i].tokens
-                                  ).toFixed(2);
+                                  parseFloat(value).toFixed(2);
+                                if (discount) {
+                                  bill +=
+                                    " <span class='small'>(" +
+                                    discount +
+                                    "% off from " +
+                                    parseFloat(
+                                      transaction.summary.bill[i].tokens
+                                    ).toFixed(2) +
+                                    ")</span>";
+                                }
                               }
 
                               if (i + 1 !== transaction.summary.bill.length) {

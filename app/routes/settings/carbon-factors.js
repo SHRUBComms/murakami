@@ -8,13 +8,13 @@ var Carbon = require(rootDir + "/app/models/carbon-calculations");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Carbon.getCategories(function(err, carbonCategories) {
     res.redirect("/settings/carbon-factors/" + carbonCategories[Object.keys(carbonCategories)[0]].carbon_id);
   });
 });
 
-router.get("/:carbon_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:carbon_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Carbon.getCategories(function(err, carbonCategories) {
     var carbon_id = req.params.carbon_id;
     if(carbonCategories[carbon_id]){
@@ -28,7 +28,7 @@ router.get("/:carbon_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
   });
 });
 
-router.post("/:carbon_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.post("/:carbon_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   var factors = req.body.factors;
   var carbon_id = req.params.carbon_id;
   var sanitizedFactors = {};

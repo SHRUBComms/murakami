@@ -34,6 +34,9 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               var tokens_total = 0;
               var money_total = 0;
               var weight_total = 0;
+              var member_discount_tokens = 0;
+              var member_discount_money = 0;
+              var discount_info = {};
 
               for (let i = 0; i < categories.length; i++) {
                 let category = categories[i];
@@ -63,10 +66,24 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                       }
                     }
 
+                    if (categoriesAsObj[id].member_discount) {
+                      discount_info[id] = categoriesAsObj[id].member_discount;
+                    }
+
                     if (transaction[i].allowTokens == 1) {
                       tokens_total = +tokens_total + +transaction[i].tokens;
+                      if (categoriesAsObj[id].member_discount) {
+                        member_discount_tokens +=
+                          (categoriesAsObj[id].member_discount / 100) *
+                          transaction[i].tokens;
+                      }
                     } else {
                       money_total = +money_total + +transaction[i].tokens;
+                      if (categoriesAsObj[id].member_discount) {
+                        member_discount_money +=
+                          (categoriesAsObj[id].member_discount / 100) *
+                          transaction[i].tokens;
+                      }
                     }
 
                     if (
@@ -116,6 +133,11 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     if (member.is_member == 1 || membershipBought) {
                       let totals = {};
 
+                      money_total = money_total - member_discount_money;
+                      tokens_total = tokens_total - member_discount_tokens;
+
+                      formattedTransaction.summary.discount_info = discount_info;
+
                       if (payWithTokens == true) {
                         if (money_total == 0) {
                           if (member.balance >= tokens_total) {
@@ -148,6 +170,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         );
                       }
 
+                      if (totals.money == 0 && totals.tokens == 0) {
+                        transaction.summary.paymentMethod = null;
+                      }
+
                       formattedTransaction.summary.totals = totals;
 
                       let response = {
@@ -171,7 +197,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           " tokens";
                       }
 
-                      if(!formattedTransaction.summary.totals.tokens && !formattedTransaction.summary.totals.money){
+                      if (
+                        !formattedTransaction.summary.totals.tokens &&
+                        !formattedTransaction.summary.totals.money
+                      ) {
                         response.msg += " Nothing";
                       }
 
@@ -256,7 +285,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 [carbon],
                                 carbonCategories,
                                 function(carbonSaved) {
-                                  if(carbonSaved > 0){
+                                  if (carbonSaved > 0) {
                                     response.msg +=
                                       " " +
                                       Math.abs(carbonSaved.toFixed(2)) +
@@ -347,11 +376,11 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           [carbon],
                           carbonCategories,
                           function(carbonSaved) {
-                            if(carbonSaved > 0){
+                            if (carbonSaved > 0) {
                               response.msg +=
                                 " " +
                                 Math.abs(carbonSaved.toFixed(2)) +
-                                "kg of carbon saved!";                              
+                                "kg of carbon saved!";
                             }
 
                             res.send(response);

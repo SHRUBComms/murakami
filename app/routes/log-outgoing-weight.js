@@ -15,7 +15,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
       carbonCategories = Object.values(carbonCategories);
       var layout;      
 
-      if(req.user.admin || req.user.volunteer) {
+      if(["admin", "volunteer"].includes(req.user.class)) {
         layout = "layout"
       } else {
         layout = "till"

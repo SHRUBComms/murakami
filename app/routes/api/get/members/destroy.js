@@ -8,7 +8,7 @@ var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:member_id", Auth.isLoggedIn, Auth.isAdmin, function(req, res) {
+router.get("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   var member_id = req.params.member_id;
 
   Members.redact(member_id, function(err) {

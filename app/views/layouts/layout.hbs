@@ -52,19 +52,19 @@
                     <li><a href="/members">View All Members</a></li>
                     <li><a href="/members/add">Add Member</a></li>
 
-                    {{#ifCond user.admin '||' user.volunteer}}
+                    {{#ifUserClass user.class '["staff", "admin"]'}}
                       {{#if user.working_groups}}
                         <li><a href="/working-groups/members">{{#ifCond user.working_groups.length '==' 1}}{{user.working_groups.0.name}}{{else}}Your Working Groups{{/ifCond}}</a></li>
                       {{/if}}
-                    {{/ifCond}}
+                    {{/ifUserClass}}
 
-                    {{#if user.admin}}
+                    {{#ifUserClass user.class '["staff", "admin"]'}}
                     <!--
-                      <li role="separator" class="divider"></li>    
+                      <li role="separator" class="divider"></li>
                       <li><a href="#">Export Members</a></li>
-                      --> 
-                    {{/if}}  
-                               
+                      -->
+                    {{/ifUserClass}}
+
                   </ul>
                 </li>
 
@@ -73,24 +73,24 @@
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                       <li><a href="/log">Log Volunteer Hours</a></li>
-                      {{#ifCond user.admin '||' user.volunteer}}
+                      {{#ifUserClass user.class '["staff", "admin", "volunteer"]'}}
                         <li><a href="/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
 
-                        <li role="separator" class="divider"></li> 
+                        <li role="separator" class="divider"></li>
 
                         <li><a href="/working-groups/induct-volunteers">Manage Volunteers</a></li>
                         <li><a href="/working-groups/find-a-volunteer?group_id={{user.working_groups.0.group_id}}">Find Volunteers</a></li>
-                      {{/ifCond}}
-                      {{#if user.admin}}
+                      {{/ifUserClass}}
+                      {{#ifUserClass user.class '["staff", "admin"]'}}
                       <!--
-                        <li role="separator" class="divider"></li>    
+                        <li role="separator" class="divider"></li>
                         <li><a href="#">Export Volunteer Hours</a></li>
                       -->
-                      {{/if}}
+                      {{/ifUserClass}}
                     </ul>
                   </li>
 
-                  {{#if user.admin}}
+                  {{#ifUserClass user.class '["staff", "admin"]'}}
 
                     <li class="dropdown">
                       <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if tillsActive}}id="active"{{/if}}>Tills
@@ -99,14 +99,14 @@
                         <li><a href="/settings/tills">Manage Tills</a></li>
                         <!--<li><a href="/settings/tills/add">Add Till</a></li>-->
                         <!--
-                        <li role="separator" class="divider"></li>    
+                        <li role="separator" class="divider"></li>
 
                         <li><a href="#">Export Transactions</a></li>
                         -->
                       </ul>
                     </li>
 
-                  {{/if}}
+                  {{/ifUserClass}}
 
                   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if carbonActive}}id="active"{{/if}}>Carbon
@@ -115,28 +115,30 @@
 
                       <li><a href="/log-outgoing-weight">Log Outgoing Weight</a></li>
 
-                      {{#if user.admin}}
+                      {{#ifUserClass user.class '["admin"]'}}
                         <li><a href="/settings/carbon-factors">Settings</a></li>
-                        <li role="separator" class="divider"></li>    
+                      {{/ifUserClass}}
+                      {{#ifUserClass user.class '["admin", "staff"]'}}
+                        <li role="separator" class="divider"></li>
                         <li><a href="/reports/carbon">Export Carbon</a></li>
-                      {{/if}}                                               
+                      {{/ifUserClass}}
                     </ul>
                   </li>
 
-                  {{#if user.admin}}
+                  {{#ifUserClass user.class '["admin", "staff"]'}}
                   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if usersActive}}id="active"{{/if}}>Users
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                       <li><a href="/users/update/{{user.id}}">Your Account</a></li>
-                      <li role="separator" class="divider"></li> 
+                      <li role="separator" class="divider"></li>
                       <li><a href="/users/">View Users</a></li>
                       <li><a href="/users/add">Add User</a></li>
                     </ul>
                   </li>
-                  {{/if}}
+                  {{/ifUserClass}}
 
-                  {{#if user.admin}}
+                  {{#ifUserClass user.class '["admin"]'}}
                   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if settingsActive}}id="active"{{/if}}>Settings
                     <span class="caret"></span></a>
@@ -145,7 +147,7 @@
                       <li><a href="/settings/email-templates">Email Templates</a></li>
                     </ul>
                   </li>
-                  {{/if}}
+                  {{/ifUserClass}}
 
                   <li class="hidden-md hidden-lg"><a href="/logout">Logout</a></li>
 
@@ -159,7 +161,7 @@
   <div class="container">
     <div class="row">
       <div id="page-content">
-        
+
         {{#if success_msg}}
         <div class="row">
           <div id="success_msg" class="col-md-6 alert alert-success" onclick="dismiss('#success_msg')">{{{success_msg}}}</div>
@@ -187,12 +189,12 @@
         {{#if user}}
           <a href="/logout" class="btn btn-lg pull-right hidden-xs hidden-sm">Logout</a>
         {{/if}}
-        
+
         <div class="container">
           {{{body}}}
         </div>
 
-        
+
       </div>
     </div>
     <div class="row">
@@ -222,7 +224,7 @@ function simpleAjaxGetRequest(url, elem){
       url: url,
       success: function(msg){
           document.getElementById(elem).innerHTML = msg;
-                                
+
       }
    });
 }
@@ -232,9 +234,9 @@ function getStat(url, elem){
       type: "GET",
       url: url,
       success: function(stat){
-          $(elem).text(stat)                      
+          $(elem).text(stat)
       }
-   });  
+   });
 }
 </script>
 </body>
