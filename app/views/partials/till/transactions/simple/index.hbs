@@ -226,8 +226,8 @@ function calculateChange(e){
 	let change = 0;
 
 	if(isNumeric(cashGiven)){
-		if(cashGiven > money_total){
-			change = cashGiven - money_total
+		if(cashGiven > global_money_total){
+			change = cashGiven - global_money_total;
 		}
 	}
 	$("#change").val(change.toFixed(2));
@@ -372,6 +372,8 @@ function updateOptions(path){
 
 }
 
+var global_money_total = 0;
+
 function updateButtons(){
 
 	tokens_total = 0;
@@ -400,7 +402,7 @@ function updateButtons(){
 	$("#weight_total").html(weight_total);
 
 	if(transaction.length > 0){
-
+		$("#changeCalc").addClass("hidden");
 		if(member.name && money_total == 0 && tokens_total == 0){
 			$("#selectPaymentMethod").addClass("hidden");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
@@ -414,10 +416,12 @@ function updateButtons(){
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " tokens</b>")
 					}
 
+
 				} else {
 					let difference = tokens_total - member.balance;
 					$(".transaction-total").html("Pay <b>£" + (difference).toFixed(2) + "</b> and <b>" + (tokens_total - difference) +  " tokens</b>")
 					$("#selectPaymentMethod").removeClass("hidden");
+					global_money_total = (difference).toFixed(2);
 				}
 			} else {
 				let difference = member.balance - tokens_total;
@@ -434,10 +438,12 @@ function updateButtons(){
 
 				$(".transaction-total").html("Pay <b>£" + (money).toFixed(2) + "</b> and <b>" + Math.ceil(tokens) +  " tokens</b>")
 				$("#selectPaymentMethod").removeClass("hidden");
+				global_money_total = (money).toFixed(2);
 			}
 		} else {
 			$(".transaction-total").html("Pay <b>£" + (tokens_total + money_total).toFixed(2) + "</b>");
 			$("#selectPaymentMethod").removeClass("hidden");
+			global_money_total = tokens_total + money_total;
 		}
 
 		if((tokens_total > 0 || money_total > 0) || member.name) {
@@ -449,6 +455,7 @@ function updateButtons(){
 	} else {
 		$("#transaction_btns").addClass("hidden");
 	}
+	console.log(global_money_total);
 }
 
 function workingGroupJoin(){
