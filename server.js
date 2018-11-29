@@ -143,6 +143,11 @@ app.use(function(req, res, next) {
   if (req.user) {
     res.locals.user = req.user;
     if (req.user.deactivated == 0) {
+      if (req.user.class == "admin") {
+        req.user.admin = 1;
+      } else {
+        req.user.admin = 0;
+      }
       req.user.working_groups = JSON.parse(req.user.working_groups);
       WorkingGroups.getAll(function(err, working_groups_arr) {
         var working_groups = {};
