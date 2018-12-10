@@ -589,7 +589,7 @@ Members.makeNice = function(member, allWorkingGroups, callback) {
   // Status
   if (member.is_member == 1) {
     beautifulMember.status.text = "Current member";
-    beautifulMember.status.class = "success";
+    beautifulMember.status.class = "text-success";
     if (member.free == 0) {
       beautifulMember.status.text += ", paid";
     } else {
@@ -597,7 +597,7 @@ Members.makeNice = function(member, allWorkingGroups, callback) {
     }
   } else {
     beautifulMember.status.text = "No longer a member";
-    beautifulMember.status.class = "fail";
+    beautifulMember.status.class = "text-danger";
   }
 
   beautifulMember.isMember.text = member.is_member;
@@ -643,9 +643,7 @@ Members.makeNice = function(member, allWorkingGroups, callback) {
         }
         callback();
       },
-      function(err) {
-        console.log();
-      }
+      function(err) {}
     );
   }
 

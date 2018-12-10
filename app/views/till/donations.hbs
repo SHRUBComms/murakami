@@ -1,41 +1,34 @@
-<div class="row">
-	<h1>{{title}}</h1>
+<div id="transaction_info" class="row pl-3 mt-4 mb-4"></div>
+
+<div class="row m-4">
+	<div class="col-md-5 mx-auto">
+
+		<input type="hidden" id="member_id" value="{{member.id.text}}" />
+
+    <div class="form-group">
+      	<input type="text" class="form-control" id="memberInput" oninput="searchMember()" value="" placeholder="Member's name">
+    </div>
+
+	</div>
 </div>
 
-<div class="row">
-	<input type="hidden" id="member_id" value="{{member.id.text}}" />
-
-	<br />
-
-	<div id="transaction_info" class="row hidden"></div>
-
-	<div id="memberOptions">
-		<div class="row">
-		  <div class="col-md-4">
-		    <div class="form-group">
-		      	<input type="text" class="form-control" id="memberInput" oninput="searchMember()" value="" placeholder="Member's name">
-		    </div>
-		  </div>
-		</div>
-		<div class="row" id="searchResults">
-
-		</div>
+<div class="row m-4">
+	<div class="col-md-10 mx-auto">
+		<div class="row" id="searchResults"></div>
 	</div>
+</div>
 
+<div class="row d-none" id="donationInput">
+	<div class="container">
 
-	<div class="row hidden" id="donationInput">
-
-		<div class="col-md-5">
-			<div class="col-xs-8">
-				<div class="form-group form-inline">
-					<input type="number" class="input-lg form-control" oninput="updateTokens(this)" step=1 min=1 max=50 value="1" />
-					<a class="btn btn-success btn-lg" onclick="processDonation()">Add Tokens</a>
-				</div>
+		<div class="form-group form-inline">
+			<div class="mx-auto">
+				<input type="number" class="input-lg form-control" oninput="updateTokens(this)" step=1 min=1 max=50 value="1" />
+				<a class="btn btn-success" onclick="processDonation()">Add Tokens</a>
 			</div>
 		</div>
+
 	</div>
-
-
 </div>
 
 <script>
@@ -52,9 +45,9 @@ function searchMember(){
   $.ajax({
       type: "POST",
       url: "/api/post/members/search/simple",
-      data: { 
+      data: {
           'term': $('#memberInput').val()
-      },    
+      },
       success: function(response){
 
         if(response.status == "ok"){
@@ -71,18 +64,28 @@ function updateSearchResults(){
 	$("#searchResults").html("");
 	for(let i=0;i<results.length;i++){
 		if(results[i].is_member){
-			$("#searchResults").html($("#searchResults").html() + "<div class='col-md-4 member-result'>" +
-				"<p><b>" + results[i].name + "</b></p>" +
-				"<p>" + results[i].balance + " tokens</p>" +
-				"<p>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
-				"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
+			$("#searchResults").html($("#searchResults").html() +
+				"<div class='col-md-4 mx-auto member-result'>" +
+					"<div class='card'>" +
+						"<div class='card-body'>" +
+							"<p class='mb-2'><b>" + results[i].name + "</b></p>" +
+							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
+							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
+							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
+						"</div>" +
+					"</div>" +
 				"</div>")
 		} else {
-			$("#searchResults").html($("#searchResults").html() + "<div class='col-md-4 member-result'>" +
-				"<p><b>" + results[i].name + "</b></p>" +
-				"<p>Membership expired!<p>" +
-				"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
-				"</div>")			
+			$("#searchResults").html($("#searchResults").html() +
+			"<div class='col-md-4 mx-auto member-result'>" +
+				"<div class='card'>" +
+					"<div class='card-body'>"  +
+						"<p class='mb-3'><b>" + results[i].name + "</b></p>" +
+						"<p class='mb-3'>Membership expired!<p>" +
+						"<a class='btn btn-primary mb-2' onclick='selectMember(" + i + ")'>Select Member</a>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
 		}
 	}
 }
@@ -93,17 +96,27 @@ function selectMember(index){
 	member = results[index];
 
 	if(member.is_member){
-		$("#searchResults").html("<div class='col-md-4 member-result member-selected'>" +
-			"<p><b>" + member.name + "</b></p>" +
-			"<p>" + member.balance + " tokens</p>" +
-			"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
+		$("#searchResults").html(
+			"<div class='col-md-4 mb-4 mx-auto member-result'>" +
+				"<div class='card member-selected'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens</p>" +
+						"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
+					"</div>" +
+				"</div>" +
 			"</div>")
-		$("#donationInput").removeClass("hidden")
+			$("#donationInput").removeClass("d-none")
 	} else {
-		$("#searchResults").html("<div class='col-md-4 member-result member-selected expired'>" +
-			"<p><b>" + member.name + "</b></p>" +
-			"<p>" + member.balance + " tokens (unavailable)</p>" +
-			"<p>Membership expired!" +
+		$("#searchResults").html(
+			"<div class='col-md-4 mb-4 mx-auto member-result'>" +
+				"<div class='card member-result member-selected-expired'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens (unavailable)</p>" +
+						"<p class='mb-2'>Membership expired!</p>" +
+					"</div>" +
+				"</div>" +
 			"</div>")
 		member.balance = 0;
 	}
@@ -119,19 +132,22 @@ function processDonation(type){
         	'member_id': member.id,
         	'till_id': "{{till.till_id}}",
         	'tokens': tokens
-        },    
+        },
         success: function(response){
-        	
+
         	if(response.status == "ok"){
 
-	            $("#transaction_info").removeClass("hidden");
+	            $("#transaction_info").removeClass("d-none");
 	            $("#transaction_info").css("display", "block")
-	            $("#transaction_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+
+							results[0] = response.member;
+							selectMember(0)
 
 	        } else {
-	        	$("#transaction_info").removeClass("hidden")
-	        	$("#transaction_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
-	        }  
+	        	$("#transaction_info").removeClass("d-none")
+	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+	        }
         }
     });
 }

@@ -1,179 +1,123 @@
-<h2>Add Member</h2>
+<form method="post" action="/members/add{{#if token}}?token={{token}}{{/if}}{{#if till.till_id}}?till_id={{till.till_id}}{{/if}}" class="form-group">
 
-<div class="col-md-6">
-  <form method="post" action="/members/add{{#if token}}?token={{token}}{{/if}}{{#if till.till_id}}?till_id={{till.till_id}}{{/if}}" class="form-group">
-    <div class="row">
-      <h3>Personal Details</h3>
-    </div>
-    <div class="row">
-      <div class="form-group form-inline">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+  <div class="row mt-4 mb-4">
+  	<div class="col-lg-5">
+  		<div class="card mb-4">
+  			<div class="card-body">
+          <h3 class="mb-2">Personal Details</h3>
+
+          <div class="form-inline mb-3">
+
+              <input type="text" class="form-control mr-2" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+
+              <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+
+          </div>
+
+          <p class="mb-1"><b>Date of Birth</b> (must be 16 or over to join) <span class="text-danger">*</span></p>
+          <div class="form-group col-sm-4" style="padding: 0;">
+            <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
+          </div>
+       </div>
+     </div>
+     <div class="card mb-4">
+       <div class="card-body">
+          <h3 class="mb-2">Contact Details</h3>
+          <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}} required />
+
+          <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+
+          <textarea type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
+
+          <p class="pt-3">Shrub may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
+          <div class="form-check form-check-inline mt-2">
+            <input class="form-check-input" type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}}>
+            <label class="form-check-label">Consent given <span class="text-danger">*</span></label>
+          </div>
         </div>
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+      </div>
+      <div class="card mb-4">
+        <div class="card-body">
+
+          <h4>Newsletters</h4>
+
+          <small>Optionally subscribe to our newsletters. You can unsubscribe at any time.</small>
+
+          <p class="pt-3">SHRUB Co-op newsletter (every 2 weeks) - to keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
+          <div class="form-check form-check-inline mt-2">
+            <input class="form-check-input" type="checkbox" name="generalNewsletterConsent" {{#if generalNewsLetterConsent}}checked{{/if}}>
+            <label class="form-check-label">Consent given to subscribe to general Shrub newsletter</label>
+          </div>
+
+          <p class="pt-4">Food Sharing Edinburgh newsletter (every 2 weeks)</p>
+          <div class="form-check form-check-inline mt-2">
+            <input class="form-check-input" type="checkbox" name="fseNewsletterConsent" {{#if fseNewsLetterConsent}}checked{{/if}}>
+            <label class="form-check-label">Consent given to subscribe to FSE's newletter</label>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="row">
-      <p><b>Date of Birth</b> (must be 16 or over to join) <span class="fail">*</span></p>
-      <div class="form-group col-sm-4" style="padding: 0;">
-        <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
-      </div>
-    </div>
-
-    <div class="row">
-      <h3>Contact Details</h3>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-8" style="padding: 0;">
-        <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}} required />
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-8" style="padding: 0;">
-        <input type="text" class="form-control" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-8" style="padding: 0;">
-        <input type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-
-        <p><input type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}} /> I understand that SHRUB Co-op may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter <span class="fail">*</span></p>
-
-      </div>
-    </div>
-
-    <div class="row">
-      <h4>Newsletters</h4>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <p><input type="checkbox" name="generalNewsletterConsent" {{#if generalNewsLetterConsent}}checked{{/if}} /> Join the SHRUB Co-op newsletter (every 2 weeks) - to keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <p><input type="checkbox" name="fseNewsletterConsent" {{#if fseNewsLetterConsent}}checked{{/if}} /> Join the Food Sharing Edinburgh newsletter (every 2 weeks)</p>
-      </div>
-    </div>
-
-</div>
-
-<div class="col-md-4 col-md-offset-1">
+    <div class="col-md-4 col-md-offset-1">
 
 
-    <div class="row">
-      <h3>Membership Info</h3>
-    </div>
-    <div class="row">
-      <div class="form-group form-inline">
-          <select class="form-control" name="membership_type" onchange="membership_type_update()">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="mb-2">Membership Info</h3>
+
+          <select class="form-control mb-2" name="membership_type" onchange="membership_type_update()">
             <option value="paid">Paid Membership</option>
             <option value="free">Free Membership (as volunteer)</option>
           </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group form-inline">
-          <select class="form-control" name="volunteer_status">
+
+          <select class="form-control mb-2" name="volunteer_status">
             <option value="never" selected>Not interested in volunteering</option>
             <option value="occasionally">Will volunteer occasionally</option>
             <option value="regularly">Will volunteer regularly</option>
           </select>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group form-inline">
+
           <select class="form-control" name="membership_length">
             <option value="year" {{#ifCond membership_length '==' 'year'}}selected{{/ifCond}}>Full Year</option>
             <option value="half_year" {{#ifCond membership_length '==' 'half_year'}}selected{{/ifCond}}>Half Year</option>
           </select>
-      </div>
-    </div>
 
-    <div class="row">
-      <h4>Working Groups</h4>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-          <div class="form-group">
-            <select id="workingGroupSelect" class="form-control">
-              {{#each allWorkingGroups}}
-                <option value='{"{{group_id}}":"{{name}}"}'>{{name}}</option>
-              {{/each}}
-            </select>
-          </div>
-          <div class="form-group">
-            {{#if user.admin}}
-              <a class="form-control btn btn-primary" onclick="addToJoinList()">Join!</a>
-            {{else}}
-              <a class="form-control btn btn-primary" onclick="addToJoinList()">Request to Join!</a>
-            {{/if}}
-          </div>
-      </div>
-    </div>
-
-
-    <div class="row">
-      <div id="wgInfo" class="hidden">
-      {{#if user.admin}}
-        <p>Member will be added to:</p>
-      {{else}}
-        <p>Member will request to join:</p>
-      {{/if}}
-      </div>
-      <ul id="workingGroupJoinSummary"></ul>
-    </div>
-    <input type="hidden" name="working_groups" id="working_groups" value="" />
-
-    <br />
-
-    <div class="row">
-      <h3>Additional Checks</h3>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <p><input type="checkbox" name="shrubExplained" required {{#if shrubExplained}}checked{{/if}} /> Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings <span class="fail">*</span></p>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <p><input type="checkbox" name="safeSpace" required {{#if safeSpace}}checked{{/if}} /> Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure <span class="fail">*</span></p>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <p><input type="checkbox" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}} /> Agreed to our <a href="#" target="_blank">privacy policy</a> <span class="fail">*</span></p>
-      </div>
-    </div>
-
-    <hr />
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <div class="form-group pull-right">
-          <button type="submit" class="btn btn-primary form-control">Add Member</button>
         </div>
       </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="mb-2">Additional Checks</h3>
+
+          <p>Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings</p>
+          <div class="form-check form-check-inline mt-2">
+            <input class="form-check-input" type="checkbox" name="shrubExplained" required {{#if shrubExplained}}checked{{/if}}>
+            <label class="form-check-label">Has been explained <span class="text-danger">*</span></label>
+          </div>
+
+          <p class="mt-4">Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure</p>
+          <div class="form-check form-check-inline mt-2">
+            <input class="form-check-input" type="checkbox" name="safeSpace" required {{#if safeSpace}}checked{{/if}}>
+            <label class="form-check-label">Has been explained <span class="text-danger">*</span></label>
+          </div>
+
+          <div class="form-check form-check-inline mt-4">
+            <input class="form-check-input" type="checkbox" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}} >
+            <label class="form-check-label">Agreed to our <a href="#" target="_blank">privacy policy</a>  <span class="text-danger">*</span></label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <input type="submit" class="btn btn-block btn-lg btn-success" value="Add Member">
+        </div>
+      </div>
+
     </div>
-  </form>
+  </div>
 
-
-</div>
-
+</form>
 
 <script>
 
@@ -184,7 +128,7 @@ function membership_type_update(){
     if(value == "paid") {
         //show other boxes
         $("select[name=volunteer_status]").show("fast");
-        $("select[name=membership_length]").show("fast"); 
+        $("select[name=membership_length]").show("fast");
     } else {
         //hide other boxes and set values
         $("select[name=volunteer_status]").hide("fast");
@@ -220,7 +164,7 @@ function updateSummary(){
   Object.keys(joinList).forEach(function(key) {
     $("#workingGroupJoinSummary").html($("#workingGroupJoinSummary").html() + "<li id='" + key + "'>" + joinList[key] + " - <a onclick='removeFromJoinList(\"" + key + "\")' class='clickable'>remove</a></li>");
   });
-  
+
 }
 
 var date = new Date();

@@ -4,8 +4,8 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-
 var Users = require(rootDir + "/app/models/users");
+var Settings = require(rootDir + "/app/models/settings");
 
 var Mail = require(rootDir + "/app/configs/mail");
 
@@ -13,7 +13,6 @@ router.get("/", function(req, res) {
   Settings.getAll(function(err, settings) {
     if (settings[0].password_reset == 1) {
       res.render("recover", {
-        layout: "login-layout",
         title: "Account Recovery"
       });
     } else {
@@ -29,7 +28,6 @@ router.get("/:reset_code", function(req, res) {
   ) {
     if (resets[0]) {
       res.render("reset", {
-        layout: "login-layout",
         title: "Account Recovery",
         reset_code: req.params.reset_code
       });
@@ -45,7 +43,6 @@ router.post("/:reset_code", function(req, res) {
     resets
   ) {
     if (resets[0]) {
-      
       var password = req.body.password;
 
       req.checkBody("password", "Please enter a password").notEmpty();
@@ -84,7 +81,6 @@ router.post("/:reset_code", function(req, res) {
         })
         .catch(function(errors) {
           res.render("reset", {
-            layout: "login-layout",
             errors: errors,
             title: "Account Recovery",
             reset_code: resets[0].reset_code
@@ -139,7 +135,9 @@ router.post("/", function(req, res) {
                                 "<h1>Hey " +
                                 user[0].first_name +
                                 "!</h1>" +
-                                "<p>Recover your account <a href='https://murakami.org.uk/recover/" +
+                                "<p>Recover your account <a href='" +
+                                process.env.PUBLIC_ADDRESS +
+                                "/recover/" +
                                 resets[0].reset_code +
                                 "'>here</a>. This link will expire in one hour.</p>" +
                                 "<p>From Murakami</p>";
@@ -150,6 +148,7 @@ router.post("/", function(req, res) {
                                 html,
                                 function(err) {
                                   if (err) {
+                                    console.log(err);
                                     req.flash(
                                       "error_msg",
                                       'Something went wrong sending you your recovery link, please <a href="/support">contact support</a>'

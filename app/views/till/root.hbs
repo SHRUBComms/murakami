@@ -1,43 +1,36 @@
 {{#if till}}
 
 
-	<div class="row">
-		<h1>{{title}}</h1>
-	</div>
+  {{> till/transactions/simple/index}}
 
-
-    {{> till/transactions/simple/index}}
-
-
-	<br />
-
-	<br />
-
-	<br />
 
 	{{> till/transactions/recent}}
 
 
 {{ else }}
 
-	<center>
-		<h2>{{title}}</h2>
-	</center>
-	<hr />
-	<div class="row">
-		<div class="col-md-12">
-			<div class="form-group">
-				<select class="form-control" id="tills">
-					<option>Select a till...</option>
-					{{#each tills}}
+<div class="row mt-5 mb-5">
+	<div class="col-md-4 offset-md-4">
+			<div class="card">
+					<div class="card-body">
 
-						<option value="{{till_id}}">{{name}}</option>
+          	<center>
+          		<h2>{{title}}</h2>
+          	</center>
+          	<hr />
 
-					{{/each}}
-				</select>
-			</div>
-		</div>
-	</div>
+    				<select class="form-control" id="tills">
+    					<option>Select a till...</option>
+    					{{#each tills}}
+
+    						<option value="{{till_id}}">{{name}}</option>
+
+    					{{/each}}
+    				</select>
+          </div>
+      </div>
+  </div>
+</div>
 
 	<script>
 

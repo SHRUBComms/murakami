@@ -140,7 +140,11 @@ app.use(function(req, res, next) {
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
+  res.locals.public_address = process.env.PUBLIC_ADDRESS;
   if (req.user) {
+    res.locals.notifications = {
+      old: [{ title: "Murakami update", text: "Blah blah blah", time: "now" }]
+    };
     res.locals.user = req.user;
     if (req.user.deactivated == 0) {
       if (req.user.class == "admin") {
@@ -148,6 +152,7 @@ app.use(function(req, res, next) {
       } else {
         req.user.admin = 0;
       }
+      req.user.name = req.user.first_name + " " + req.user.last_name;
       req.user.working_groups = JSON.parse(req.user.working_groups);
       WorkingGroups.getAll(function(err, working_groups_arr) {
         var working_groups = {};

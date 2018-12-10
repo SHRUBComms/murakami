@@ -5,166 +5,132 @@
   <li data-action="remove" class="fail">Remove</li>
 </ul>
 
-<div id="addChild" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
+<div class="modal" id="addChild" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Add New Category Under "<span id="parent_name"></span>"</h4>
+        <h5 class="modal-title">Add New Category Under "<span id="parent_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
 
         <div class="row">
-          <div class="col-xs-8 col-xs-offset-2">
-            <div class="row">
-              <div class="form-group">
-                <input type="text" placeholder="Category Name" id="addCategoryName" class="form-control" />
-              </div>
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+
+            <input type="text" placeholder="Category Name" id="addCategoryName" class="form-control mb-3" />
+            <p><input type="checkbox" class="fixedPrice mb-3" id="addCategoryFixedPriceCheck" /> Fixed price</p>
+
+            <div class="input-group valueInput d-none mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">£</span>
+              </span>
+              <input class="form-inline form-control" id="addCategoryValue" type="text" placeholder="0.00" />
             </div>
 
-            <div class="row">
-              <div class="form-group form-inline">
-                <p><input type="checkbox" class="fixedPrice" id="addCategoryFixedPriceCheck" /> Fixed price</p>
-                <div class="row nopadding">
-                  <div class="input-group valueInput hidden">
-                    <span class="input-group-addon">£</span>
-                    <input class="form-inline form-control" id="addCategoryValue" type="text" placeholder="0.00" />
-                  </div>
-                </div>
-              </div>
+            <p><input type="checkbox" id="addCategoryAllowTokens" class="mb-3" /> Can be bought with tokens</p>
+
+
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Member discount: </span>
+              </span>
+              <input class="form-inline form-control" id="addCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">%</span>
+              </span>
             </div>
 
-            <div class="row">
-              <div class="form-group">
-                <p><input type="checkbox" id="addCategoryAllowTokens" /> Can be bought with tokens</p>
-              </div>
-            </div>
+            <select name="carbon_id" id="addCategoryCarbonId" class="form-control mb-3">
+              <option value="">None (can't be weighed)</option>
+              {{#each carbonCategories}}
+                <option value="{{carbon_id}}">{{name}}</option>
+              {{/each}}
+            </select>
 
-            <div class="row">
-              <div class="form-group form-inline">
-                <div class="row nopadding">
-                  <div class="input-group">
-                    <span class="input-group-addon">Member discount: </span>
-                    <input class="form-inline form-control" id="addCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
-                    <span class="input-group-addon">%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <br />
-
-            <div class="row">
-
-              <div class="form-group">
-                <select name="carbon_id" id="addCategoryCarbonId" class="form-control">
-                  <option value="">None (can't be weighed)</option>
-                  {{#each carbonCategories}}
-                    <option value="{{carbon_id}}">{{name}}</option>
-                  {{/each}}
-                </select>
-              </div>
-
-            </div>
           </div>
         </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-success" id="addCategorySubmit" onclick="addCategory()">Add Category</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
-
   </div>
 </div>
 
 
-<div id="editCategory" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
+<div class="modal" id="editCategory" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Edit Category "<span id="category_name"></span>"</h4>
+        <h5 class="modal-title">Edit Category "<span id="category_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
 
         <div class="row">
-          <div class="col-xs-8 col-xs-offset-2">
-            <div class="row">
-              <div class="form-group">
-                <input type="text" placeholder="Category Name" id="editCategoryName" class="form-control" />
-              </div>
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+
+            <input type="text" placeholder="Category Name" id="editCategoryName" class="form-control mb-3" />
+            <p><input type="checkbox" class="fixedPrice mb-3" id="editCategoryFixedPriceCheck" /> Fixed price</p>
+
+            <div class="input-group valueInput d-none mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">£</span>
+              </span>
+              <input class="form-inline form-control" id="editCategoryValue" type="text" placeholder="0.00" />
             </div>
 
-            <div class="row">
-              <div class="form-group form-inline">
-                <p><input type="checkbox" class="fixedPrice" id="editCategoryFixedPriceCheck" /> Fixed price</p>
-                <div class="row nopadding">
-                  <div class="input-group valueInput hidden">
-                    <span class="input-group-addon">£</span>
-                    <input class="form-inline form-control" id="editCategoryValue" type="text" placeholder="0.00" />
-                  </div>
-                </div>
-              </div>
+            <p><input type="checkbox" id="editCategoryAllowTokens" class="mb-3" /> Can be bought with tokens</p>
+
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Member discount: </span>
+              </span>
+              <input class="form-inline form-control" id="editCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">%</span>
+              </span>
             </div>
 
-            <div class="row">
-              <div class="form-group form-inline">
-                <div class="row nopadding">
-                  <div class="input-group">
-                    <span class="input-group-addon">Member discount: </span>
-                    <input class="form-inline form-control" id="editCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
-                    <span class="input-group-addon">%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <select name="carbon_id" id="editCategoryCarbonId" class="form-control mb-3">
+              <option value="">None (can't be weighed)</option>
+              {{#each carbonCategories}}
+                <option value="{{carbon_id}}">{{name}}</option>
+              {{/each}}
+            </select>
 
-            <div class="row">
-              <div class="form-group">
-                <p><input type="checkbox" id="editCategoryAllowTokens" /> Can be bought with tokens</p>
-              </div>
-            </div>
-
-            <br />
-
-            <div class="row">
-
-              <div class="form-group">
-                <select name="carbon_id" id="editCategoryCarbonId" class="form-control">
-                  <option value="">None (can't be weighed)</option>
-                  {{#each carbonCategories}}
-                    <option value="{{carbon_id}}">{{name}}</option>
-                  {{/each}}
-                </select>
-              </div>
-
-            </div>
           </div>
         </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-success" id="editCategorySubmit" onclick="updateCategory()">Update Category</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
-
   </div>
 </div>
 
-<div id="moveCategory" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
+<div class="modal" id="moveCategory" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Move Category "<span id="move_category_name"></span>"</h4>
+        <h5 class="modal-title">Move Category "<span id="move_category_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
+
         <div class="row">
-          <div class="col-sm-6 col-sm-offset-3">
+          <div class="col-sm-6 offset-sm-3">
             <input class="form-control" id="searchCategory" type="text" oninput="searchCategories(this)" placeholder="Move to..." />
             <input type="hidden" id="newParent" />
             <center>
@@ -172,15 +138,17 @@
             </center>
             </div>
         </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-success" id="moveCategorySubmit" onclick="moveCategory()">Move Category</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
-
   </div>
 </div>
+
+
 
 
 <style>
@@ -214,9 +182,9 @@
 
 $(".fixedPrice").change(function() {
   if ($(this).is(":checked")) {
-    $(".valueInput").removeClass("hidden");
+    $(".valueInput").removeClass("d-none");
   } else {
-    $(".valueInput").addClass("hidden");
+    $(".valueInput").addClass("d-none");
     $("#editCategoryValue").val("");
     $("#addCategoryValue").val("");
   }
@@ -304,7 +272,7 @@ function updateOptions(path) {
   $("#options").html(
     $("#options").html() +
       '<div class="row">' +
-      '<div class="col-sm-3 item-options green" onclick="' +
+      '<div class="col-sm-3 item-options new-category-option" onclick="' +
       "openAddCategoryDialog('" +
       current +
       "');" +
@@ -360,10 +328,10 @@ function openEditCategoryDialog(path) {
   $("#editCategoryCarbonId").val(category.carbon_id);
   if (category.value > 0) {
     $("#editCategoryFixedPriceCheck").prop("checked", true);
-    $(".valueInput").removeClass("hidden");
+    $(".valueInput").removeClass("d-none");
   } else {
     $("#editCategoryFixedPriceCheck").prop("checked", false);
-    $(".valueInput").addClass("hidden");
+    $(".valueInput").addClass("d-none");
   }
 
 
@@ -555,10 +523,10 @@ function searchCategories(e) {
         for (let i = 0; i < response.results.length; i++) {
           $("#categorySearchResults").html(
             $("#categorySearchResults").html() +
-              "<li style='list-style-type: none;'><a class='btn btn-primary' onclick='selectCategory(this)' id='" +
+              "<li style='list-style-type: none;'><a class='btn btn-primary mt-3' onclick='selectCategory(this)' id='" +
               response.results[i].item_id +
               "'>" +
-              response.results[i].name +
+              response.results[i].absolute_name +
               "</a></li><br />"
           );
         }
@@ -573,6 +541,7 @@ function searchCategories(e) {
 }
 
 function selectCategory(e) {
+  $(".member-selected").removeClass("member-selected")
   $(e).addClass("member-selected");
   $("#newParent").val(e.id);
 }

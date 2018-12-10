@@ -1,118 +1,130 @@
-<div class="row">
-	<input type="hidden" id="member_id" value="{{member.id.text}}" />
 
-	<div id="transaction_info" class="row hidden"></div>
+<div class="row m-4">
 
-	<div class="row">
-		<div class="col-md-4">
-		    <div class="form-group">
-		      	<p><input type="checkbox" id="memberToggle"> Member</p>
-		    </div>
-		</div>
-	</div>
-
-	<div class="hidden" id="memberOptions">
-		<div class="row">
-		  <div class="col-md-4">
-		    <div class="form-group">
-		      	<input type="text" class="form-control" id="memberInput" oninput="searchMember()" value="" placeholder="Member's name">
-		    </div>
-		  </div>
-		</div>
-		<div class="row" id="searchResults">
-
-		</div>
-	</div>
-
-
-	<div class="row">
-		<div class="col-md-7" id="options">
-
-		</div>
-
-		<div class="col-md-5" id="transaction-list">
-
-			<table class="table table-striped">
-			  <thead>
-			    <tr>
-			      <th scope="col">Category</th>
-			      <th scope="col">Value</th>
-			      <th scope="col">Weight (g)</th>
-			      <th scope="col"></th>
-			    </tr>
-			  </thead>
-			  <tbody id="transaction-info">
-
-			  </tbody>
-			</table>
-			<div id="transaction_btns" class="hidden">
-				<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#myModal"><span class="transaction-total"></span></button>
+		<div class="card">
+			<div class="card-body">
+				<h3>{{till.name}} <span class="text-success">&#9679;</span></h3>
 			</div>
 		</div>
-	</div>
-
-	<hr />
-
-	<div class="row">
-		<div class="col-md-2">
-			<a href="/settings/tills/{{till.till_id}}" class="btn btn-primary btn-block">Change Categories</a>
-		</div>
-	</div>
 
 </div>
+
+<div class="row mt-2 mt-4 ml-4 mb-4">
+		<div class="col-md-3">
+
+			<input type="hidden" id="member_id" value="{{member.id.text}}" />
+
+			<div class="btn-group-toggle" data-toggle="buttons">
+			  <label class="btn btn-info">
+			    <input type="checkbox" id="memberToggle" autocomplete="off"> Customer Is A Member
+			  </label>
+			</div>
+
+			<div class="d-none" id="memberOptions">
+
+			  <input type="text" class="form-control mt-3" id="memberInput" oninput="searchMember()" value="" placeholder="Member's name">
+
+			</div>
+		</div>
+
+</div>
+
+<div class="row mt-3" id="searchResults"></div>
+
+<div class="row mt-4 no-gutters">
+	<div class="col-lg-6 mx-auto">
+
+				<div class="col-md-12 mx-auto" id="options"></div>
+
+	</div>
+
+	<div class="col-12 col-md-6 col-lg-5 col-xl-5 mx-auto mt-4 mt-lg-0 mt-xl-0" id="transaction-list">
+				<table class="table table-light table-striped">
+				  <thead>
+				    <tr>
+				      <th scope="col">Category</th>
+				      <th scope="col">Value</th>
+				      <th scope="col">Weight (g)</th>
+				      <th scope="col"></th>
+				    </tr>
+				  </thead>
+				  <tbody id="transaction-info">
+
+				  </tbody>
+				</table>
+	</div>
+</div>
+
+<div class="row mt-4 mb-4">
+	<div class="col-12 col-md-8 col-lg-6 col-xl-4 mx-auto">
+		<div id="transaction_btns" class="d-none">
+			<button type="button" class="btn btn-success btn-block btn-lg" data-toggle="modal" data-target="#myModal"><span class="transaction-total"></span></button>
+		</div>
+	</div>
+</div>
+
+<div id="transaction_info" class="row pl-3 mt-4 mb-4"></div>
 
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
     <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Transaction Summary</h4>
+			<div class="modal-header">
+        <h5 class="modal-title">Transaction Summary</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
-      	<div class="row">
+				<div class="row">
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+	      		<center>
+		      		<h4 class="transaction-total"></h4>
+		      		<p id="memberStatement"></p>
+		      		<br />
+		      		<div class="form-group d-none" id="selectPaymentMethod">
+		      			<a class="btn btn-primary btn-lg form-inline" id="cashOption" onclick="selectPaymentMethod('cash')">Cash</a>
+		      			&nbsp;
+		      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')">Card</a>
+		      		</div>
+		    	</center>
+				</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-10 col-md-6 col-md-offset-3 col-xs-offset-1 d-none mx-auto" id="changeCalc">
+		    		<div class="input-group">
+		            <span class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">Cash Given £</span>
+								</span>
+		            <input class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
+		    		</div>
+		    		<br />
+		    		<div class="input-group">
+		            <span class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">Change Due £</span>
+								</span>
+		            <input class="form-inline form-control" id="change" type="text" placeholder="0.00" readonly />
+		    		</div>
+		    		<br />
+		    	</div>
+		  	</div>
 
-      		<center>
-	      		<h1 class="transaction-total"></h1>
-	      		<p id="memberStatement"></p>
-	      		<br />
-	      		<div class="form-group hidden" id="selectPaymentMethod">
-	      			<a class="btn btn-primary btn-lg form-inline" id="cashOption" onclick="selectPaymentMethod('cash')">Cash</a>
-	      			&nbsp;
-	      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')">Card</a>
-	      		</div>
-	    	</center>
-		</div>
-		<div class="row">
-			<div class="col-xs-10 col-md-6 col-md-offset-3 col-xs-offset-1 hidden" id="changeCalc">
-	      		<div class="input-group">
-	              <span class="input-group-addon">Cash Given £</span>
-	              <input class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
-	      		</div>
-	      		<br />
-	      		<div class="input-group">
-	              <span class="input-group-addon">Change Due £</span>
-	              <input class="form-inline form-control" id="change" type="text" placeholder="0.00" readonly />
-	      		</div>
-	      		<br />
-	      	</div>
-      	</div>
 
+				<div class="row">
+					<div class="col-md-8 mx-auto">
+						<textarea id="note" placeholder="Note (optional)" class="form-control"></textarea>
+					</div>
+				</div>
 
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2">
-				<textarea id="note" placeholder="Note (optional)" class="form-control"></textarea>
-			</div>
-		</div>
-
-		<br />
-
-      	<div class="row">
-      		<center>
-	      		<p><input type="checkbox" id="confirmTransaction" /> Transaction details are correct</p>
-	      	</center>
-	    </div>
+				<div class="row">
+					<div class="conatiner mx-auto">
+						<div class="form-check form-check-inline mt-2">
+							<input class="form-check-input" type="checkbox" id="confirmTransaction">
+							<label class="form-check-label">Transaction details are correct</label>
+						</div>
+					</div>
+				</div>
 
       </div>
       <div class="modal-footer">
@@ -130,34 +142,32 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Electrical Safety Check</h4>
+			<div class="modal-header">
+        <h5 class="modal-title">Electrical Safety Check</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
-		<div class="row">
+				<div class="row">
 
-			<div class="col-md-12">
+					<div class="col-md-12">
 
-				<div id="electricalSafety">
+						<div id="electricalSafety" class="p-4">
 
-					<h4><b>Please check the safety of any outgoing electronics!</b></h4>
-					<p>If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
+							<h5 class="mb-1">Please check the safety of any outgoing electronics!</h5>
+							<p class="mb-3">If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
 
-				      <div class="form-group form-inline">
-				          <div class="form-group">
-				              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
-				          </div>
-				          <div class="form-group">
-				              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
-				          </div>
+				      <div class="form-inline mx-auto">
+		              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
+		              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
 				      </div>
 
-				    <h3 id="electricalSafetyMessage"></h3>
+						  <h5 class="mt-2" id="electricalSafetyMessage"></h5>
 
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
 
       </div>
       <div class="modal-footer">
@@ -402,14 +412,14 @@ function updateButtons(){
 	$("#weight_total").html(weight_total);
 
 	if(transaction.length > 0){
-		$("#changeCalc").addClass("hidden");
+		$("#changeCalc").addClass("d-none");
 		if(member.name && money_total == 0 && tokens_total == 0){
-			$("#selectPaymentMethod").addClass("hidden");
+			$("#selectPaymentMethod").addClass("d-none");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
 		} else if(member.name && payWithTokens){
 			if(money_total == 0){
 				if(member.balance >= tokens_total){
-					$("#selectPaymentMethod").addClass("hidden");
+					$("#selectPaymentMethod").addClass("d-none");
 					if(tokens_total == 1){
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " token</b>")
 					} else {
@@ -420,7 +430,7 @@ function updateButtons(){
 				} else {
 					let difference = tokens_total - member.balance;
 					$(".transaction-total").html("Pay <b>£" + (difference).toFixed(2) + "</b> and <b>" + (tokens_total - difference) +  " tokens</b>")
-					$("#selectPaymentMethod").removeClass("hidden");
+					$("#selectPaymentMethod").removeClass("d-none");
 					global_money_total = (difference).toFixed(2);
 				}
 			} else {
@@ -437,23 +447,23 @@ function updateButtons(){
 				}
 
 				$(".transaction-total").html("Pay <b>£" + (money).toFixed(2) + "</b> and <b>" + Math.ceil(tokens) +  " tokens</b>")
-				$("#selectPaymentMethod").removeClass("hidden");
+				$("#selectPaymentMethod").removeClass("d-none");
 				global_money_total = (money).toFixed(2);
 			}
 		} else {
 			$(".transaction-total").html("Pay <b>£" + (tokens_total + money_total).toFixed(2) + "</b>");
-			$("#selectPaymentMethod").removeClass("hidden");
+			$("#selectPaymentMethod").removeClass("d-none");
 			global_money_total = tokens_total + money_total;
 		}
 
 		if((tokens_total > 0 || money_total > 0) || member.name) {
-			$("#transaction_btns").removeClass("hidden");
+			$("#transaction_btns").removeClass("d-none");
 		} else {
-			$("#transaction_btns").addClass("hidden");
+			$("#transaction_btns").addClass("d-none");
 		}
 
 	} else {
-		$("#transaction_btns").addClass("hidden");
+		$("#transaction_btns").addClass("d-none");
 	}
 	console.log(global_money_total);
 }
@@ -524,18 +534,28 @@ function updateSearchResults(){
 	$("#searchResults").html("");
 	for(let i=0;i<results.length;i++){
 		if(results[i].is_member){
-			$("#searchResults").html($("#searchResults").html() + "<div class='col-md-4 member-result'>" +
-				"<p><b>" + results[i].name + "</b></p>" +
-				"<p>" + results[i].balance + " tokens</p>" +
-				"<p>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
-				"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
+			$("#searchResults").html($("#searchResults").html() +
+				"<div class='col-md-3 mx-auto member-result'>" +
+					"<div class='card'>" +
+						"<div class='card-body'>" +
+							"<p class='mb-2'><b>" + results[i].name + "</b></p>" +
+							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
+							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
+							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
+						"</div>" +
+					"</div>" +
 				"</div>")
 		} else {
-			$("#searchResults").html($("#searchResults").html() + "<div class='col-md-4 member-result'>" +
-				"<p><b>" + results[i].name + "</b></p>" +
-				"<p>Membership expired!<p>" +
-				"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
-				"</div>")
+			$("#searchResults").html($("#searchResults").html() +
+			"<div class='col-md-3 mx-auto member-result'>" +
+				"<div class='card'>" +
+					"<div class='card-body'>"  +
+						"<p class='mb-3'><b>" + results[i].name + "</b></p>" +
+						"<p class='mb-3'>Membership expired!<p>" +
+						"<a class='btn btn-primary mb-2' onclick='selectMember(" + i + ")'>Select Member</a>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
 		}
 	}
 }
@@ -546,17 +566,27 @@ function selectMember(index){
 	member = results[index];
 
 	if(member.is_member){
-		$("#searchResults").html("<div class='col-md-4 member-result member-selected'>" +
-			"<p><b>" + member.name + "</b></p>" +
-			"<p>" + member.balance + " tokens</p>" +
-			"<p><input type='checkbox' id='payWithTokens' /> Use tokens</p>" +
-			"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
+		$("#searchResults").html(
+			"<div class='col-md-3 mb-4 mx-auto member-result'>" +
+				"<div class='card member-selected'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens</p>" +
+						"<p class='mb-2'><input type='checkbox' id='payWithTokens' /> Use tokens</p>" +
+						"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
+					"</div>" +
+				"</div>" +
 			"</div>")
 	} else {
-		$("#searchResults").html("<div class='col-md-4 member-result member-selected expired'>" +
-			"<p><b>" + member.name + "</b></p>" +
-			"<p>" + member.balance + " tokens (unavailable)</p>" +
-			"<p>Membership expired!" +
+		$("#searchResults").html(
+			"<div class='col-md-3 mb-4 mx-auto member-result'>" +
+				"<div class='card member-result member-selected-expired'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens (unavailable)</p>" +
+						"<p class='mb-2'>Membership expired!</p>" +
+					"</div>" +
+				"</div>" +
 			"</div>")
 		member.balance = 0;
 	}
@@ -600,21 +630,25 @@ function completeTrans(type){
         	selectPaymentMethod("clear");
         	if(response.status == "ok"){
         		$("#note").val("")
-        		$("#transaction_history").bootstrapTable('refresh');
+
 	            transaction = [];
 	            update();
 	            payWithTokens = false;
-	            $("#transaction_info").removeClass("hidden");
+	            $("#transaction_info").removeClass("d-none");
 	            $("#transaction_info").css("display", "block")
-	            $("#transaction_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 	            if(member.name){
 		            results[0] = response.member;
 		            selectMember(0)
-		        }
+		        	}
+							window.setTimeout(function(){
+								$("#transaction_history").bootstrapTable('refresh');
+							}, 750)
+
 
 	        } else {
-	        	$("#transaction_info").removeClass("hidden")
-	        	$("#transaction_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
+	        	$("#transaction_info").removeClass("d-none")
+	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 	        }
         }
     });
@@ -646,9 +680,9 @@ function workingGroupAjaxReq(url){
       url: url,
       success: function(response){
       	if(response.status == "ok"){
-        	$("#working_group_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
+        	$("#working_group_info").html('<div class="alert alert-success col-md-6 mx-auto" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
       	} else {
-      		$("#working_group_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
+      		$("#working_group_info").html('<div class="alert alert-danger col-md-6 mx-auto" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
       	}
       }
    });
@@ -657,14 +691,14 @@ function workingGroupAjaxReq(url){
 
 $("#memberToggle").change(function() {
     if(this.checked) {
-        $("#memberOptions").removeClass("hidden");
+        $("#memberOptions").removeClass("d-none");
 				searchMember();
     } else {
     	member = {};
     	$("#searchResults").html("");
     	$("memberInput").val("");
     	$("#memberStatement").html("");
-    	$("#memberOptions").addClass("hidden");
+    	$("#memberOptions").addClass("d-none");
 			update();
     	updateButtons();
     }
@@ -679,7 +713,7 @@ $("#confirmTransaction").change(function() {
 });
 
 function showElectricalSafety() {
-	$("#electricalSafety").removeClass("hidden");
+	$("#electricalSafety").removeClass("d-none");
 }
 
 function verifyElectricalSafety() {
@@ -714,12 +748,12 @@ function verifyElectricalSafety() {
 function selectPaymentMethod(method){
 	$("#cashOption").removeClass("member-selected");
 	$("#cardOption").removeClass("member-selected");
-	$("#changeCalc").addClass("hidden");
+	$("#changeCalc").addClass("d-none");
 	paymentMethod = null;
 
 	if(method == "cash"){
 		$("#cashOption").addClass("member-selected");
-		$("#changeCalc").removeClass("hidden");
+		$("#changeCalc").removeClass("d-none");
 		paymentMethod = method;
 	} else if(method == "card") {
 		$("#cardOption").addClass("member-selected");
@@ -730,7 +764,7 @@ function selectPaymentMethod(method){
 
 function resetElectricalColours(){
 
-	$("#electricalSafety").css("background-color", "#EFEFEF")
+	$("#electricalSafety").css("background-color", "white")
 	$("#electricalSafetyMessage").text("");
 
 }

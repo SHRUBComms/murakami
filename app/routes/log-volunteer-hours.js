@@ -13,8 +13,18 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 router.get("/", function(req, res) {
   WorkingGroups.getAll(function(err, working_groups) {
-    if(req.user){
+    if (req.user) {
+      var tillMode = false;
+      var till_id = req.query.till_id || null;
+      if (till_id) {
+        tillMode = true;
+      }
       res.render("log-volunteer-hours", {
+        tillMode: tillMode,
+        logVolunteerHoursActive: true,
+        till: {
+          till_id: till_id
+        },
         title: "Log Volunteer Hours",
         volunteersActive: true,
         captcha: recaptcha.render(),
@@ -24,7 +34,6 @@ router.get("/", function(req, res) {
       var till_id = req.query.till_id;
       res.render("log-volunteer-hours", {
         title: "Log Volunteer Hours",
-        layout: "till",
         logoutActive: true,
         captcha: recaptcha.render(),
         working_groups: working_groups,

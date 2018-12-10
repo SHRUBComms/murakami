@@ -6,31 +6,28 @@
 
 
 
-<div class="row">
-	<h3>Recent Transactions</h3>
-	<br />
-	<div class="row">
-		<div class="col-md-12">
-			<table id="transaction_history" class="fadeIn" data-pagination="true" data-page-size="5" data-toggle="table" data-striped="true" data-url="/api/get/tills/transactions/{{till.till_id}}">
-			    <thead>
-			        <tr>
-			        	<th><a class="btn btn-default" onclick="$('#transaction_history').bootstrapTable('refresh');">&#8635;</a></th>
-			        	<th></th>
-			        	<th></th>
-			        	<th colspan="2">Totals</th>
-			        </tr>
-			        <tr>
-			        	<th data-field="date">Timestamp</th>
-			        	<th data-field="customer.name">Customer</th>
-			            <th data-field="bill">Summary</th>
-			        	<th scope="col" data-field="totals.tokens">Tokens</th>
-			        	<th scope="col" data-field="totals.money">Money</th>
-			        </tr>
-			    </thead>
+<div class="row mt-4">
+	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
+		<table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-page-size="5" data-toggle="table" data-striped="true" data-url="/api/get/tills/transactions/{{till.till_id}}">
+		    <thead>
+		        <tr>
+		        	<th><a class="btn btn-default" onclick="$('#transaction_history').bootstrapTable('refresh');">&#8635;</a></th>
+		        	<th></th>
+		        	<th></th>
+		        	<th colspan="2">Totals</th>
+		        </tr>
+		        <tr>
+		        	<th data-field="date">Timestamp</th>
+		        	<th data-field="customer.name">Customer</th>
+		            <th data-field="bill">Summary</th>
+		        	<th scope="col" data-field="totals.tokens">Tokens</th>
+		        	<th scope="col" data-field="totals.money">Money</th>
+		        </tr>
+		    </thead>
 
-				<tbody>
-				</tbody>
-			</table>
-		</div>
+			<tbody>
+			</tbody>
+		</table>
 	</div>
+
 </div>

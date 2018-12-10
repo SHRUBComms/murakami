@@ -13,17 +13,18 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   WorkingGroups.getAll(function(err, working_groups) {
     Carbon.getCategories(function(err, carbonCategories) {
       carbonCategories = Object.values(carbonCategories);
-      var layout;      
-
-      if(["admin", "volunteer"].includes(req.user.class)) {
-        layout = "layout"
-      } else {
-        layout = "till"
+      var tillMode = false;
+      var till_id = req.query.till_id || null;
+      if (till_id) {
+        tillMode = true;
       }
       res.render("log-outgoing-weight", {
-        layout: layout,
+        tillMode: tillMode,
+        till: {
+          till_id: till_id
+        },
         carbonActive: true,
-        title: "Log Outgoing Weight (Non-member)",
+        title: "Log Outgoing Weight",
         carbonCategories: carbonCategories,
         working_groups: working_groups,
         till: {

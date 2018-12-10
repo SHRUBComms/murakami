@@ -1,61 +1,56 @@
-<h2>Update Member</h2>
 {{#if errors}}
   <div class="alert alert-danger">{{{errors.0.msg}}}</div>
 {{/if}}
-<div class="container">
-  <form method="post" action="/members/update/{{member_id}}" class="form-group">
-    <div class="row">
-      <h3>Personal Details</h3>
-    </div>
-    <div class="row">
-      <div class="form-group form-inline">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}}>
-        </div>
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}}>
-        </div>
-      </div>
-    </div>
 
-    <div class="row">
-      <h3>Contact Details</h3>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-4" style="padding: 0;">
-        <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-4" style="padding: 0;">
-        <input type="text" class="form-control" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group col-sm-4" style="padding: 0;">
-        <input type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}>
-      </div>
-    </div>
+<form method="post" action="/members/update/{{member_id}}" class="form-group">
 
-    <div class="row">
-      <h3>Membership Info</h3>
-    </div>
-    <div class="row">
-      <div class="form-group form-inline">
+  <div class="row mt-4 mb-4">
+  	<div class="col-lg-4 mx-auto">
+  		<div class="card mb-4">
+  			<div class="card-body">
+
+          <h3 class="mb-2">Personal Details</h3>
+
+          <div class="form-inline mb-3">
+
+              <input type="text" class="form-control mr-2" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+
+              <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+
+          </div>
+
+        </div>
+      </div>
+
+      <div class="card mb-4">
+  			<div class="card-body">
+
+          <h3 class="mb-2">Contact Details</h3>
+
+          <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
+
+          <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+
+          <textarea type="text" class="form-control mb-2" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="mb-2">Membership Info</h3>
           <select class="form-control" name="free" onchange="membership_type_update()">
             <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
             <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
           </select>
+        </div>
       </div>
-    </div>
 
-    <hr />
-    <div class="row">
-      <div class="form-group form-inline">
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary form-control">Update Member</button>
-          </div>
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <button type="submit" class="btn btn-block btn-lg btn-primary">Update Member</button>
+        </div>
       </div>
     </div>
-  </form>
-</div>
+  </div>
+
+</form>

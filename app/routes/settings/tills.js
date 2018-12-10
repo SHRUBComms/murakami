@@ -48,7 +48,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           Carbon.getCategories(function(err, carbonCategories) {
             res.render("settings/tills/view", {
               layout: layout,
-              title: till.name,
+              title: "View Till",
               tillsActive: true,
               till: till,
               categories: categories,

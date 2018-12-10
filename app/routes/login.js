@@ -6,7 +6,6 @@ var LocalStrategy = require("passport-local").Strategy;
 
 var rootDir = process.env.CWD;
 
-
 var Users = require(rootDir + "/app/models/users");
 var Attempts = require(rootDir + "/app/models/attempts");
 var Settings = require(rootDir + "/app/models/settings");
@@ -93,7 +92,7 @@ router.post(
 router.get("/", function(req, res) {
   Settings.getAll(function(err, settings) {
     res.render("login", {
-      layout: "login-layout",
+      loginActive: true,
       title: "Login",
       settings: settings[0]
     });

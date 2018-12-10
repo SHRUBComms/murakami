@@ -14,8 +14,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
       Tills.getStatusById(req.params.till_id, function(status) {
         if (status.opening) {
           res.render("till/donations", {
-            title: till.name + " - " + till.group_name,
-            layout: "till",
+            tillMode: true,
+            title: "Process Donation",
             donationsActive: true,
             till: till
           });

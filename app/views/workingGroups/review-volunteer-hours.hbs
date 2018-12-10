@@ -4,41 +4,51 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
-<div class="row">
-   <h1>Review Volunteer Hours</h1>
-</div>
+<div class="row mt-4">
 
-{{#ifGreaterThan user.working_groups.length 1}}
-<div class="row">
-  <div class="form-group form-inline">
-    <select class="form-control" id="working_groups">
-      <option disabled selected>Select a working group...</option>
-        {{#each user.working_groups}}
-          <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
-        {{/each}}
-    </select>
+  <div class="col-lg-8 mx-auto">
+
+  {{#ifGreaterThan user.working_groups.length 1}}
+  <div class="row">
+    <div class="container">
+      <div class="form-group form-inline">
+        <select class="form-control" id="working_groups">
+          <option disabled selected>Select a working group...</option>
+            {{#each user.working_groups}}
+              <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+            {{/each}}
+        </select>
+      </div>
+    </div>
+  </div>
+  {{else}}
+  <div class="row">
+    <div class="card">
+      <div class="card-body">
+        <h3>{{group.name}}</h3>
+      </div>
+    </div>
+  </div>
+  {{/ifGreaterThan}}
+
+  <div id="vol_hours_info" class="row"></div>
+
+  <div class="row">
+    <div class="col-lg-12">
+     <table id="vol_hours" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/working-groups/volunteer-hours/{{group.group_id}}">
+     	<thead>
+     		<th data-field="name">Name</th>
+     		<th data-sortable="true" data-field="date">Date</th>
+     		<th data-field="duration">Duration (hours)</th>
+        <th data-field="tokens">Tokens</th>
+     		<th data-field="options"></th>
+     	</thead>
+     	<tbody>
+     	</tbody>
+     </table>
+   </div>
   </div>
 </div>
-{{else}}
-<div class="row">
-  <h3>{{group.name}}</h3>
-</div>
-{{/ifGreaterThan}}
-
-<div id="vol_hours_info" class="row"></div>
-
-<div class="row">
-   <table id="vol_hours" class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-url="/api/get/working-groups/volunteer-hours/{{group.group_id}}">
-   	<thead>
-   		<th data-sortable="true" data-field="name">Name</th>
-   		<th data-sortable="true" data-field="date">Date</th>
-   		<th data-sortable="true" data-field="duration">Duration (hours)</th>
-      <th data-sortable="true" data-field="tokens">Tokens</th>
-   		<th data-sortable="true" data-field="options"></th>
-   	</thead>
-   	<tbody>
-   	</tbody>
-   </table>
 </div>
 
 <script>
@@ -47,7 +57,7 @@ function volunteerHoursAjax(url){
       type: "GET",
       url: url,
       success: function(response){
-        
+
       	if(response.status == "ok"){
         	$("#vol_hours_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#vol_hours_info\')">' + response.msg + '</div>');
 			    $("#vol_hours").bootstrapTable('refresh');

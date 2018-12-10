@@ -1,31 +1,44 @@
-<center>
-	<h2>Open Till</h2>
-	<hr />
-	<h3>{{till.name}}</h3>
-</center>
+<div class="row mt-5 mb-5">
+	<div class="col-md-4 offset-md-4">
+			<div class="card">
+					<div class="card-body">
 
-<br />
+						<center>
+							<h2>Open Till</h2>
+							<hr />
+							<h3>{{till.name}}</h3>
+						</center>
 
-<form action="/till/open/{{till.till_id}}" method="post">
-	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-			<p><b>Opening Float</b></p>
-			<div class="input-group">
-				<span class="input-group-addon">£</span>
-				<input class="form-inline form-control" type="text" placeholder="0.00" name="counted_float" />
-			</div>
-		</div>
+						<br />
+
+						<form action="{{public_address}}/till/open/{{till.till_id}}" method="post">
+							<div class="row">
+								<div class="col-md-10 mx-auto">
+									<p><b>Opening Float</b></p>
+									<div class="input-group">
+										<span class="input-group-prepend">
+											<span class="input-group-text">£</span>
+										</span>
+										<input class="form-inline form-control" type="text" placeholder="0.00" name="counted_float" />
+									</div>
+								</div>
+							</div>
+
+
+							<br />
+							<div class="row">
+								<div class="col-md-10 mx-auto">
+									<textarea name="note" placeholder="Note (optional)" class="form-control"></textarea>
+								</div>
+							</div>
+							<br />
+							<div class="row">
+								<div class="col-md-10 mx-auto">
+									<input type="submit" class="form-control btn btn-primary" value="Open Till">
+								</div>
+							</div>
+					</form>
+				</div>
+		 </div>
 	</div>
-	<br />
-	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-			<textarea name="note" placeholder="Note (optional)" class="form-control"></textarea>
-		</div>
-	</div>
-	<br />
-	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-			<input type="submit" class="form-control btn btn-primary" value="Open Till">
-		</div>
-	</div>
-</form>
+</div>

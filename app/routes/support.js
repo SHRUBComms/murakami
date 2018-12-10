@@ -8,7 +8,7 @@ var Mail = require(rootDir + "/app/configs/mail");
 
 router.get("/", function(req, res) {
   res.render("support", {
-    layout: "login-layout",
+    supportActive: true,
     title: "Support"
   });
 });

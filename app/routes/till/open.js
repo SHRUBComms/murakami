@@ -17,8 +17,9 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           WorkingGroups.getAll(function(err, allWorkingGroups) {
             var group = allWorkingGroups[till.group_id];
             res.render("till/open", {
-              title: "Open " + till.name + " - " + group.name,
-              layout: "login-layout",
+              tillMode: true,
+              openTillActive: true,
+              title: "Open Till",
               till: till,
               allWorkingGroups: allWorkingGroups,
               working_group: group

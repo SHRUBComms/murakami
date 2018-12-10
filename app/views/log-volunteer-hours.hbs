@@ -1,138 +1,174 @@
-<div class="row">
-  <h1>Log Volunteer Hours</h1>
-</div>
 
-<div class="row">
 
-  <div class="col-lg-5 nopadding">
-    <div id="hours_logged_info" class="row"></div>
-    <h3>Log A Shift!</h3>
-    {{#if user}}
-      <p>Search for your membership</p>
+{{#if user}}
 
-      <div class="row hidden">
-        <div class="g-recaptcha" data-sitekey="6Le9vEUUAAAAAItUqpLpm2tNEl2rsTqqnbRK5_L1"></div>
+  <div class="page-help d-none">
+    <div class="row mt-5 mb-5">
+    	<div class="col-md-5 mx-auto">
+    			<div class="card hints-and-tips">
+    					<div class="card-body">
+                <div class="row mb-2">
+                  <div class="col-md-12 text-center">
+                    <h3>How To Log Hours</h3>
+                  </div>
+                </div>
+                <div class="row mt-2 mb-1">
+                  <div class="col-md-10 offset-md-1">
+                    <ol>
+                      <li>
+                        <p>Search for the member using the text box below</p>
+                      </li>
+                      <li>
+                        <p>Select the relevant working group</p>
+                      </li>
+                      <li>
+                        <p>Select how many hours they have volunteered</p>
+                      </li>
+                      <li>
+                        <p>Click the "Log Hours" button</p>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-10 offset-md-1">
+                    <small>Note: if you are logged in as a till user, your hours won't go through until they are approved.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
       </div>
-
-      <div class="form-group">
-        <input type="text" id="memberInput" class="form-control" placeholder="Name" oninput="search()" />
-      </div>
-
-      <div class="row">
-        <div class='col-lg-offset-1'>
-          <div id="searchOutput"></div>
-        </div>
-      </div>
-
-    {{else}}
-      <p>Enter your unique membership ID, the hours you worked and select a working group</p>
-      <form action="/working-groups/log-volunteer-hours" method="post">
-
-        <div class="row">
-          <div class="col-md-5">
-            <div class="form-group">
-              <div class="g-recaptcha" data-sitekey="6Le9vEUUAAAAAItUqpLpm2tNEl2rsTqqnbRK5_L1"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-5">
-            <div class="form-group">
-              <input type="text" class="form-control" name="member_id" id="member_id" placeholder="Membership ID" value="{{member_id}}" />
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-10">
-            <div class="form-group">
-              <select class="form-control" name="working_group">
-                <option value="">Select a working group...</option>
-                {{#each working_groups}}
-                  <option value="{{group_id}}">{{name}}</option>
-                {{/each}}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <p class="center-block"><b>Duration</b></p>
-              <input type="range" id="duration" oninput="updateDuration('generic')" name="duration" min="0.25" max="24" step="0.25" value="0" />
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group center-block">
-              <p><b><span id="duration_value">0</span> hour(s)</b></p>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="form-group form-inline">
-            <div class="form-group pull-right">
-              <button type="submit" class="btn btn-primary form-control">Log Hours</button>
-            </div>
-          </div>
-        </div>
-
-      </form>
-    {{/if}}
-  </div>
-
-  <div class="col-lg-5 col-lg-offset-1">
-
-    <div class="row">
-      <div id="add_by_mail_info" class="row"></div>
-      <h3>Need help logging your hours?</h3>
-      <p>Please get in touch with <a href="/support">support</a> :)</p>
-    </div>
-
-    <div class="row hidden-xs hidden-sm hidden-md fadeIn">
-      <div class="stats-wrapper">
-        <h3>This Month:</h3>
-        <p><span id="total_hours_volunteered_this_month">0</span> hour(s) volunteered</p>
-        <p><span id="new_volunteers">0</span> member(s) volunteered for the first time</p>
-        <hr />
-        <p><b><span id="total_volunteers">0</span> total volunteers</b></p>
-        <h3>You're all wonderful - thank you!</h3>
-      </div>
-    </div>
 
   </div>
 
-</div>
+  <div class="row mt-5">
+  	<div class="col-md-6 offset-md-3">
 
+
+          <div class="container">
+
+            <div class="row">
+              <div id="hours_logged_info" class="col-md-12">
+              </div>
+            </div>
+
+            <div class="row d-none">
+              {{{captcha}}}
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="memberInput" class="form-control" placeholder="Search for member" oninput="search()" />
+            </div>
+          </div>
+
+      </div>
+  </div>
+
+  <div id="search-results">
+
+  </div>
+
+{{else}}
+
+<div class="row mt-4 mb-5">
+  <div class="col-md-6 offset-md-3">
+      <div class="card">
+          <div class="card-body">
+              <div class="row mb-4">
+                <div class="col-md-6 mx-auto">
+  							    <h2>Log Your Hours</h2>
+                </div>
+  						</div>
+
+              <form action="/working-groups/log-volunteer-hours" method="post">
+
+                <div class="row">
+                  <div class="col-md-8">
+                    <div class="form-group">
+                      <input type="text" class="form-control" name="member_id" id="member_id" placeholder="Membership ID" value="{{member_id}}" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-8 mx-auto mb-1">
+                    <div class="form-group">
+                      <select class="form-control" name="working_group">
+                        <option value="">Select a working group...</option>
+                        {{#each working_groups}}
+                          <option value="{{group_id}}">{{name}}</option>
+                        {{/each}}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 mx-auto">
+                    <input type="number" class="form-control" id="duration" name="duration" min="0.25" max="1000" step="0.25" value="0" />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="container">
+                    <div class="mx-auto">
+                      {{{captcha}}}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-8 mx-auto">
+                    <div class="form-group">
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-block btn-primary form-control">Log Hours</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}
 
 <script>
 function search(){
   $.ajax({
       type: "POST",
       url: "/api/post/members/search",
-      data: { 
+      data: {
           'term': $('#memberInput').val()
-      },    
+      },
       success: function(response){
 
         if(response.status == "ok"){
           updateSearchOutput(response.results);
         } else {
-          $('#searchOutput').html("Something went wrong!");
-        }  
+          $('#search-results').html("Something went wrong!");
+        }
       }
   });
 }
 
 function updateSearchOutput(results){
-  $('#searchOutput').html("<br />");
+
+  $('#search-results').html("");
+
+  var resultStart = '<div class="row mt-5 mb-5">' +
+      	               '<div class="col-md-6 offset-md-3">' +
+      			              '<div class="card">' +
+      					              '<div class="card-body">';
+
+  var resultEnd = '</div></div></div></div>'
 
   if(results.length == 0) {
-    $('#searchOutput').html($('#searchOutput').html() + "<div class='member-result'>" +
-      "<p class='text-center'>Nothing found :'(" +
-      "</div>");
+    $('#search-results').html($('#search-results').html() +
+
+        resultStart +
+                "<p>You don\'t exist :'(</p>" +
+        resultEnd
+     );
   } else {
     for(let i=0;i<results.length;i++){
 
@@ -141,80 +177,56 @@ function updateSearchOutput(results){
     	for(let j=0;j<results[i].working_groups.length;j++){
 			workingGroupSelectMarkup += "<option value='" + results[i].working_groups[j].group_id + "'>" + results[i].working_groups[j].name + "</option>";
     	}
-		
+
     	workingGroupSelectMarkup += '</select>';
-      var logHoursBtn = "<a class='btn btn-primary' onclick='logHours(" + results[i].id +  ")'>Log Hours</a>"
+      var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].id +  ")'>Log Hours</a>"
     	if(results[i].working_groups.length > 0){
 	      	var shiftLogger =   '<div class="row">' +
-		      						'<div class="col-lg-8 col-lg-offset-2">' +
-		      							workingGroupSelectMarkup +
-		      						'</div>' +
-		      					'</div>' +
-		      					'<br />' +
-		      					'<div class="row">' +
-		                          '<div class="col-lg-6">' +
-		                            '<label>Duration</label>' +
-		                            '<input type="range" id="duration_' + results[i].id + '" oninput="updateDuration(' + results[i].id + ')" name="duration" min="0.25" max="24" step="0.25" value="0" />' +
-		                          '</div>' +
-		                          '<div class="col-lg-6">' +
-		                            '<p><b><span id="duration_' + results[i].id + '_value">0</span> hour(s)</b></p>' +
-		                          '</div>' +                          
-		                        '</div>'  + 
-                            "<br />" +       
-                          "<center>" +
-                            logHoursBtn +
-                          "</center>" 
+          		      						'<div class="col-lg-8 mx-auto mb-4">' +
+          		      							workingGroupSelectMarkup +
+          		      						'</div>' +
+                                '<div class="col-lg-4 mx-auto">' +
+                                  '<input type="number" class="form-control" id="duration_' + results[i].id + '" name="duration" min="0.25" max="1000" step="0.25" value="0" />' +
+                                '</div>' +
+                              '</div>'  +
+
+                              '<div class="row">' +
+                                '<div class="col-lg-8 mx-auto">' +
+                                      logHoursBtn +
+                                "</div>" +
+                              "</div>"
     	} else {
     		var shiftLogger = '<div class="row">' +
-		      						'<div class="col-lg-8 col-lg-offset-2">' +
+		      						'<div class="col-lg-8 mx-auto">' +
 		      							'<p>Not a member of any working groups!</p>' +
 		      						'</div>' +
 		      					'</div>'
     	}
 
 
-      $('#searchOutput').html($('#searchOutput').html() + 
-        "<div class='member-result text-center'>" +
-          "<a href='/members/view/" + results[i].id + "'><p><b>" + 
-            results[i].name + 
+      $('#search-results').html($('#search-results').html() +
+        resultStart +
+          "<a href='/members/view/" + results[i].id + "'><p><b>" +
+            results[i].name +
           "</p></b></a>" +
 
-          "<p>" + 
-            results[i].email + 
+          "<p>" +
+            results[i].email +
           "</p>" +
           "<hr />" +
           shiftLogger +
-        "</div>"
+        resultEnd
       );
-
-      if((i + 1) != results.length){
-        $('#searchOutput').html($('#searchOutput').html() + "<hr />")
-      }
 
       var found = false;
     }
   }
 }
 
-function updateDuration(member){
-  if(member == "generic"){
-    var duration = $("#duration").val()
-    $("#duration_value").html(duration);
-  } else {
-    var duration = $("#duration_" + member).val()
-    $("#duration_" + member + "_value").html(duration);
-  }
-}
-
-$('#working_groups').on('change', function () {
-  var url = "/working-groups/log-volunteer-hours/" + $(this).val();
-  window.location = url;
-});
-
 function logHours(member_id){
   var duration = $("#duration_" + member_id).val();
   var working_group = $("#working_group_select_" + member_id).val();
-  
+
    $.ajax({
       type: "POST",
       url: "/working-groups/log-volunteer-hours",
@@ -224,23 +236,17 @@ function logHours(member_id){
           duration: duration,
           working_group: working_group
         },
-        recaptcha: grecaptcha.getResponse()
+        recaptcha: {{#if user}}null{{else}}grecaptcha.getResponse();{{/if}}
       },
       success: function(response){
         if(response.status == "ok"){
-          $("#hours_logged_info").html('<div class="alert alert-success" onclick="dismiss(\'#hours_logged_info\')">' + response.msg + '</div>');
+          $("#hours_logged_info").html('<div class="alert alert-success alert-dismissible fade show p-3" role="alert">' + response.msg + '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
           search();
         } else {
-          $("#hours_logged_info").html('<div class="alert alert-danger" onclick="dismiss(\'#hours_logged_info\')">' + response.msg + '</div>');
+          $("#hours_logged_info").html('<div class="alert alert-danger alert-dismissible fade show p-3" role="alert">' + response.msg + '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
         }
       }
    });
 }
-
-$(document).ready(function(){
-  getStat('/api/get/reports/this-month/hours-volunteered', '#total_hours_volunteered_this_month')
-  getStat('/api/get/reports/this-month/new-volunteers', '#new_volunteers')
-  getStat('/api/get/reports/all-time/current-volunteers', '#total_volunteers')
-})
 
 </script>

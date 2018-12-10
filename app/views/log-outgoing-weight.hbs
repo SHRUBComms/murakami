@@ -1,74 +1,68 @@
-<div class="row">
-	<h1>Log Outgoing Weight</h1>
-</div>
-
-<br />
+<div id="transaction_info" class="row pl-3 mt-4 mb-4"></div>
 
 
-<div id="transaction_info" class="row"></div>
+<div class="row mb-2">
+	<div class="col-md-6 offset-md-1">
+		<div class="form-inline">
 
-
-<div class="row form-inline">
-
-    <div class="form-group">
-      <select class="form-control" id="working_group">
-      		<option disabled selected>Select a working group...</option>
-	      	{{#each working_groups}}
-	        	<option value="{{group_id}}">{{name}}</option>
-	        {{/each}}
-      </select>
-    </div>
-    <div class="form-group">
-      <select class="form-control" id="method">
-        <option value="recycled" selected>Recycled</option>
-        <option value="landfilled">Landfilled</option>
-        <option value="generated">Generated</option>
-        <option value="incinerated">Incinerated</option>
-        <option value="composted">Composted</option>
-        <option value="reused">Reused</option>
-        <option value="stored">Stored</option>
-        <option value="other">Other</option>
-      </select>
-    </div>	
-</div>
-
-<div class="row">
-
-	<div class="row">
-		<div class="col-md-7">
-			{{#groupedEach 3 carbonCategories}}
-			  <div class="row">
-			    {{#each this}}
-
-			      <div class="col-sm-3 item-options" onclick="addToTrans('{{carbon_id}}', '{{name}}')">
-			      		<center>
-							<span>{{name}}</span>
-						</center>
-			      </div>
-			    {{/each}}
-			  </div>
-			{{/groupedEach}}
-		</div>
-
-		<div class="col-md-5" id="transaction-list">
-
-			<table class="table table-striped">
-			  <thead>
-			    <tr>
-			      <th scope="col">Category</th>
-			      <th scope="col">Weight (g)</th>
-			      <th scope="col"></th>
-			    </tr>
-			  </thead>
-			  <tbody id="transaction-info">
-			    
-			  </tbody>
-			</table>
-			<div id="transaction_btns" class="hidden">
-				<a class="btn btn-success" onclick="completeTrans()">Log Weight</a>
-			</div>
+		    <div class="form-group">
+		      <select class="form-control" id="working_group">
+		      		<option disabled selected>Select a working group...</option>
+			      	{{#each working_groups}}
+			        	<option value="{{group_id}}">{{name}}</option>
+			        {{/each}}
+		      </select>
+		    </div>
+		    <div class="form-group">
+		      <select class="form-control" id="method">
+		        <option value="recycled" selected>Recycled</option>
+		        <option value="landfilled">Landfilled</option>
+		        <option value="generated">Generated</option>
+		        <option value="incinerated">Incinerated</option>
+		        <option value="composted">Composted</option>
+		        <option value="reused">Reused</option>
+		        <option value="stored">Stored</option>
+		        <option value="other">Other</option>
+		      </select>
+		    </div>
 		</div>
 	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-6 offset-md-1">
+		{{#groupedEach 3 carbonCategories}}
+		  <div class="row">
+		    {{#each this}}
+
+		      <div class="col-sm-3 item-options" onclick="addToTrans('{{carbon_id}}', '{{name}}')">
+		      		<center>
+						<span>{{name}}</span>
+					</center>
+		      </div>
+		    {{/each}}
+		  </div>
+		{{/groupedEach}}
+	</div>
+	<div class="col-md-4 mt-2" id="transaction-list">
+
+		<table class="table table-striped table-light">
+		  <thead>
+		    <tr>
+		      <th scope="col">Category</th>
+		      <th scope="col">Weight (g)</th>
+		      <th scope="col"></th>
+		    </tr>
+		  </thead>
+		  <tbody id="transaction-info">
+
+		  </tbody>
+		</table>
+		<div id="transaction_btns" class="d-none">
+			<a class="btn btn-block btn-success mt-4" onclick="completeTrans()">Log Weight</a>
+		</div>
+	</div>
+
 </div>
 
 <script>
@@ -96,24 +90,24 @@ function update(){
 	for(let i=0;i<transaction.length;i++){
 		weight_total += +transaction[i].weight;
 		$('<tr>',{
-		    html:"<td>" + transaction[i].category + "</td>" +  
-		    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" + 
+		    html:"<td>" + transaction[i].category + "</td>" +
+		    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" +
 		    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
 		}).appendTo('#transaction-info');
 	}
 
 	if(transaction.length > 0){
 		$('<tr>',{
-		    html:"<td><b>TOTAL:</b></td>" + 
+		    html:"<td><b>TOTAL:</b></td>" +
 		    "<td id='weight_total'>" + weight_total + "</td>" +
 		    "<td></td>"
 		}).appendTo('#transaction-info');
-	} 
+	}
 
 	if(transaction.length > 0) {
-		$("#transaction_btns").removeClass("hidden");
+		$("#transaction_btns").removeClass("d-none");
 	} else {
-		$("#transaction_btns").addClass("hidden");
+		$("#transaction_btns").addClass("d-none");
 	}
 }
 
@@ -153,17 +147,17 @@ function completeTrans(){
         	'working_group': $("#working_group").val(),
         	'method': $("#method").val(),
             'transaction': transaction
-        },    
+        },
         success: function(response){
 
         	if(response.status == "ok"){
 	            transaction = [];
 	            update();
-	            $("#transaction_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
-	            $("#transaction_history").bootstrapTable('refresh');   
+	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+	            $("#transaction_history").bootstrapTable('refresh');
 	        } else {
-	        	$("#transaction_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#transaction_info\')">' + response.msg + '</div>');
-	        }  
+	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+	        }
         }
     });
 }

@@ -23,8 +23,9 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
               function(total_sales) {
                 total_sales = total_sales || 0;
                 res.render("till/close", {
-                  title: "Close " + till.name,
-                  layout: "login-layout",
+                  tillMode: true,
+                  closeTillActive: true,
+                  title: "Close Till",
                   till: till,
                   allWorkingGroups: allWorkingGroups,
                   working_group: group,
@@ -68,10 +69,7 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
                       req.flash("error", "Something went wrong!");
                       res.redirect("/till/close/" + req.params.till_id);
                     } else {
-                      req.flash(
-                        "success_msg",
-                        "Till closed. <a href='/logout'>Logout</a>"
-                      );
+                      req.flash("success_msg", "Till closed.");
                       res.redirect("/till");
                     }
                   }

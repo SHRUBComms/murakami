@@ -4,76 +4,25 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
-<div class="row">
-	<h1>Members</h1>
-</div>
+<div class="row mt-4 mb-4">
 
-<div class="col-lg-3 col-lg-push-9">
-    <div class="row">
-        <div class="form-group">
-          <select id="membership_status_filter" class="form-control">
-            <option value="all" selected>Members & Non-members</option>
-            <option value="members">Members Only</option>
-            <option value="non-members">Non-members Only</option>
-          </select>
-        </div>
-    </div>
-    <div class="row hidden-xs hidden-sm hidden-md fadeIn">
-      <div class="stats-wrapper">
-        <h3>Today:</h3>
-        <p><span id="new_members">0</span> new member(s)</p>
-        <p><span id="swaps_today">0</span> swap(s)</p>
-        <hr />
-        <p><b><span id="total_current_members">0</span> total members!</b></p>
-      </div>
-    </div>
-</div>
-
-<div class="col-lg-8 col-lg-pull-3">
-	<div class="row">
-		<table id="members_table" class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true">
-			<thead>
-				<th data-sortable="true">Name</th>
-				<th data-sortable="true" class="hidden-xs hidden-sm" data-field="membership_status">Membership</th>
-				<th data-sortable="true">Tokens</th>
-			</thead>
-			<tbody>
-			{{#each members}}
-				<tr>
-					<td><a href="/members/view/{{id.text}}">{{full_name.text}}</a></td>
-					<td>{{status.text}}</td>
-					<td>{{balance.text}}</td>
-				</tr>
-			{{/each}}
-			</tbody>
-		</table>
+	<div class="col-lg-6 col-md-8 mx-auto">
+			<table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+				<thead>
+					<th>Name</th>
+					<th>Status</th>
+					<th></th>
+				</thead>
+				<tbody>
+				{{#each members}}
+					<tr>
+						<td>{{full_name.text}}</td>
+						<td>{{status.text}}</td>
+						<td><a href="/members/view/{{id.text}}" class="btn btn-block btn-primary">View/Update</a></td>
+					</tr>
+				{{/each}}
+				</tbody>
+			</table>
 	</div>
+
 </div>
-
-<script>
-
-var filter = {
-  membership_status: ["Current member, paid", "Current member, free", "No longer a member"]
-};
-
-$(document).ready(function(){
-  $('#members_table').bootstrapTable('filterBy', filter);
-  getStat('/api/get/reports/today/new-members', '#new_members')
-  getStat('/api/get/reports/today/swaps', '#swaps_today')
-  getStat('/api/get/reports/all-time/current-members', '#total_current_members')
-})
-
-$('#membership_status_filter').on('change', function () {
-    var selection = $(this).val();
-    if(selection == "all"){
-      filter.membership_status = ["Current member, paid", "Current member, free", "No longer a member"];
-    } else if(selection == "members") {
-      filter.membership_status = ["Current member, paid", "Current member, free"];
-    } else if(selection == "non-members"){
-      filter.membership_status = ["No longer a member"];
-    }
-
-    $('#members_table').bootstrapTable('filterBy', filter);
-});
-
-</script>

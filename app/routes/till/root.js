@@ -14,8 +14,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
     Tills.getAllTills(function(err, tills) {
       if (tills.length > 1) {
         res.render("till/root", {
-          title: "Tills",
-          layout: "login-layout",
+          title: "Select A Till",
           tills: tills,
           allWorkingGroups: allWorkingGroups
         });
@@ -39,8 +38,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
               categories
             ) {
               res.render("till/root", {
-                title: till.name,
-                layout: "till",
+                tillMode: true,
+                title: "Transaction",
                 transactionsActive: true,
                 till: till,
                 allWorkingGroups: allWorkingGroups,

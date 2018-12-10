@@ -23,7 +23,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
         },
         function(err) {
           res.render("members/all", {
-            title: "Members",
+            title: "Manage Members",
             members: members,
             membersActive: true
           });

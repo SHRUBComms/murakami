@@ -42,7 +42,9 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     formattedTransaction.summary = JSON.stringify(
                       formattedTransaction.summary
                     );
-
+                    member.balance = +member.balance + +tokens;
+                    member.name = member.first_name + " " + member.last_name;
+                    member.membership_expires = member.current_exp_membership;
                     Tills.addTransaction(formattedTransaction, function(err) {
                       Mail.sendGeneral(
                         member.first_name +
@@ -58,7 +60,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           "<p>Your recent donation has been processed and <b>" +
                           tokens +
                           " tokens</b> have been credited to your account, leaving you with a total of " +
-                          (+member.balance + +tokens) +
+                          member.balance +
                           " tokens which you can spend in <a href='https://goo.gl/maps/L5WCe6ji1Xr'>our swapshop</a>.</p>" +
                           "<p>Thanks so much for your donation, we hope to see you soon!</p>" +
                           "<p>Shrub Co-op</p>",
@@ -69,6 +71,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           } else {
                             response.status = "ok";
                             response.msg = "Tokens added and member notified!";
+                            response.member = member;
                             res.send(response);
                           }
                         }

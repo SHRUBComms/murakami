@@ -1,8 +1,17 @@
-<h1>Uh-oh!</h1>
-{{#if notFound}}
-	<h3>The page you were looking for doesn't exist :'(</h3>
-	<a onclick="window.history.back()" href="#"><h4>Go back</h4></a>
-{{else}}
-	<h3>Something went wrong while processing your request.</h3>
-	<h4>Please try again</h4>
-{{/if}}
+<div class="row mt-5 mb-5">
+  <div class="col-12">
+      <div class="card">
+          <div class="card-body">
+						<h1>Uh-oh!</h1>
+
+						{{#if notFound}}
+							<h5 class="mt-2">The page you were looking for doesn't exist :'(</h3>
+							<p><a onclick="window.history.back()" href="#">Go back</a></p>
+						{{else}}
+							<h5 class="mt-2">Something went wrong while processing your request.</h5>
+							<p>Please try again</p>
+						{{/if}}
+					</div>
+			</div>
+	</div>
+</div>

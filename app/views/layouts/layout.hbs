@@ -1,243 +1,504 @@
-<!DOCTYPE html>
-<html lang="en-gb">
+<!doctype html>
+<html class="no-js" lang="en">
+
 <head>
-  <title>{{title}}</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Murakami | {{title}}</title>
+    <link rel="shortcut icon" type="image/png" href="{{public_address}}/assets/images/icon/favicon.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="{{public_address}}/assets/images/icon/favicon.ico">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/themify-icons.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/metisMenu.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/slicknav.min.css">
+    <!-- amchart css -->
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+    <!-- others css -->
+    <link rel="stylesheet" href="{{public_address}}/assets/css/typography.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/default-css.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/styles.css">
+    <link rel="stylesheet" href="{{public_address}}/assets/css/responsive.css">
+    <!-- modernizr css -->
+    <script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>
 
-  <!-- include jQuery -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- jquery latest version -->
+    <script src="{{public_address}}/assets/js/vendor/jquery-2.2.4.min.js"></script>
 
-  <!-- include Bootstrap -->
-  <link rel="stylesheet" href="/css/bootstrap.css">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-  <!-- include custom stylesheet -->
-  <link rel="stylesheet" href="/css/style.css" />
-
-  <!-- include local jQuery effects -->
-  <script src="/js/jquery-effects.js"></script>
-
-  <!-- reCAPTCHA -->
-  <script src='https://www.google.com/recaptcha/api.js'></script>
-
-  <!-- favicon -->
-  <link rel="icon" type="image/png" href="/images/favicon.png" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
+
 <body>
-  <div id="bootstrap-menu" class="navbar navbar-default navbar-expand-lg navbar-static-top" role="navigation">
-    <div class="container">
-      <div class="row">
+    <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <!-- preloader area start -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+    <!-- preloader area end -->
+    <!-- page container area start -->
+    <div class="page-container">
+        <!-- sidebar menu area start -->
+        <div class="sidebar-menu">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <a href="{{public_address}}/"><img src="{{public_address}}/assets/images/icon/logo.png" alt="logo"></a>
+                </div>
+            </div>
+            <div class="main-menu">
+                <div class="menu-inner">
+                    <nav>
+                        <ul class="metismenu" id="menu">
+                          {{#if user}}
+                              {{#unless tillMode}}
+                                <li {{#if membersActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Members</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/members">Manage Members</a></li>
+                                        <li><a href="{{public_address}}/members/add">Add Member</a></li>
+                                    </ul>
+                                </li>
+                                <li {{#if volunteersActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Volunteers</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/log-volunteer-hours">Log Volunteer Hours</a></li>
+                                        <li><a href="{{public_address}}/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
+                                        <li><a href="{{public_address}}/working-groups/induct-volunteers">Manage Volunteers</a></li>
+                                        <li><a href="{{public_address}}/working-groups/find-a-volunteer">Find Volunteers</a></li>
+                                    </ul>
+                                </li>
+                                <li {{#if tillsActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Tills</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/settings/tills">Manage Tills</a></li>
+                                    </ul>
+                                </li>
+                                <li {{#if carbonActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Carbon Accounting</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/log-outgoing-weight">Log Outgoing Weight</a></li>
+                                        <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
+                                        <li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>
+                                    </ul>
+                                </li>
+                                <li {{#if usersActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Users</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/users">Manage Users</a></li>
+                                        <li><a href="{{public_address}}/users/add">Add User</a></li>
+                                    </ul>
+                                </li>
+                                <li {{#if settingsActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Settings</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/settings/working-groups">Working Groups</a></li>
+                                        <li><a href="{{public_address}}/settings/email-templates">Email Templates</a></li>
+                                    </ul>
+                                </li>
+                              {{else}}
+                                <li {{#if transactionsActive}}class="active"{{/if}}>
+                                    <a href="/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                </li>
+                                <li {{#if donationsActive}}class="active"{{/if}}>
+                                    <a href="/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
+                                </li>
+                                <li {{#if carbonActive}}class="active"{{/if}}>
+                                    <a href="/log-outgoing-weight?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
+                                </li>
+                                <li {{#if addMemberActive}}class="active"{{/if}}>
+                                    <a href="/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
+                                </li>
+                                <li {{#if logVolunteerHoursActive}}class="active"{{/if}}>
+                                    <a href="/log-volunteer-hours?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
+                                </li>
+                                <li {{#if closeTillActive}}class="active"{{/if}}>
+                                    <a href="/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                </li>
+                              {{/unless}}
+                            {{/if}}
 
-          <div class="navbar-header">
-            <a class="navbar-brand" href="/">
-              <img class="navbar-logo" src="/images/logo.png" />
-            </a>
+                            {{#unless user}}
+                              <li {{#if loginActive}}class="active"{{/if}}>
+                                  <a href="{{public_address}}/login" aria-expanded="true"><i class="ti-help-alt"></i><span>Login</span></a>
+                              </li>
+                            {{/unless}}
+
+                            <li {{#if supportActive}}class="active"{{/if}}>
+                                <a href="{{public_address}}/support" aria-expanded="true"><i class="ti-help-alt"></i><span>Support</span></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- sidebar menu area end -->
+
+        <div class="modal" id="notificationsModal" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Notifications</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                {{#each notifications.new}}
+
+                {{else}}
+                  <p class="text-muted text-center">Nothing to see here...</p>
+                {{/each}}
+
+                {{#if notifications.old}}
+                  <hr />
+                  {{#each notifications.old}}
+                    <h4>{{title}} - {{time}}</h4>
+                    <p>{{{text}}}</p>
+                  {{/each}}
+                  <p class="text-center mt-4">
+                    <small>
+                      <a href="/notifications">view more</a>
+                    </small>
+                  </p>
+                {{/if}}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary"{{#unless notifications.new}} disabled{{/unless}}>Mark All As Read</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- main content area start -->
+        <div class="main-content">
+            <!-- header area start -->
+            <div class="header-area">
+                <div class="row align-items-center no-gutters">
+                    <!-- nav and search button -->
+                    <div class="col-md-6 col-sm-8 mt-3 mt-xs-3 mt-sm-3 mt-md-3 mt-lg-0 mt-xl-0 clearfix">
+                        <div class="nav-btn pull-left ml-4">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        {{#if user}}
+                        <div class="search-box pull-left">
+                            <form action="#">
+                                <input type="text" name="search" placeholder="Search for someone...">
+                                <i class="ti-search"></i>
+                            </form>
+                        </div>
+                        {{/if}}
+                    </div>
+                    <!-- profile info & task notification -->
+                    {{#if user}}
+
+                      <div class="col-md-3 offset-md-3 mt-3 mt-xs-3 mt-sm-3 mt-md-3 mt-lg-0 mt-xl-0">
+                        <div class="user-profile mx-auto">
+                            <div class="d-flex flex-row">
+
+
+                              <div class="mr-3">
+                                <button type="button" class="btn btn-bell" data-toggle="modal" data-target="#notificationsModal">
+                                  <i class="ti-bell" style="font-size: 30px;"></i>
+                                  {{#if notifications.new}}
+                                    <span class="badge badge-light my-auto" style="font-size: 12px;">{{notifications.new.length}}</span>
+                                  {{/if}}
+                                </button>
+                              </div>
+
+
+                              <img class="avatar user-thumb flex-fill my-auto" src="{{public_address}}{{#if user.avatar}}{{user.avatar}}{{else}}/assets/images/avatars/default.png{{/if}}" alt="Avatar">
+
+                              <h4 class="user-name dropdown-toggle flex-fill my-auto" data-toggle="dropdown">{{user.name}} <i class="fa fa-angle-down"></i></h4>
+
+
+                              <div class="dropdown-menu" style="width: 100%;">
+                                  <a class="dropdown-item" href="{{public_address}}/users/update/{{user.id}}">Manage Your Account</a>
+                                  <a class="dropdown-item" href="{{public_address}}/logout">Log Out</a>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+
+                    {{/if}}
+                </div>
+            </div>
+            <!-- header area end -->
+            <!-- page title area start -->
             {{#if user}}
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-menubuilder">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
+              <div class="page-title-area">
+                  <div class="row align-items-center">
+                      <div class="col-sm-6">
+                          <div class="breadcrumbs-area clearfix">
+                              <h4 class="page-title pull-left">{{title}}
+                                  <i class="fa fa-life-ring toggle-help" alt="Show tips for using this page"></i>
+                              </h4>
+                              <ul class="breadcrumbs pull-left">
+                                  {{#each breadcrumbs}}
+                                    <li>
+                                      {{#if link}}
+                                        <a href="{{public_address}}{{link}}">{{title}}</a>
+                                      {{else}}
+                                        <span>{{title}}</span>
+                                      {{/if}}
+                                    </li>
+                                  {{/each}}
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+              </div>
             {{/if}}
-          </div>
-          {{#if user}}
-          <div class="collapse navbar-collapse navbar-menubuilder">
-              <ul class="nav navbar-nav navbar-left">
-                <li class="dropdown">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if membersActive}}id="active"{{/if}}>Members
-                  <span class="caret"></span></a>
-                  <ul class="dropdown-menu">
-                    <li><a href="/members">View All Members</a></li>
-                    <li><a href="/members/add">Add Member</a></li>
+            <!-- page title area end -->
+            <div class="main-content-inner">
+              {{#if error_msg}}
+                <div class="row mt-4">
+                  <div class="col-md-6 mx-auto">
+                    <div class="alert alert-danger alert-dismissible fade show p-3" role="alert">
+                      {{{error_msg}}}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
 
-                    {{#ifUserClass user.class '["staff", "admin"]'}}
-                      {{#if user.working_groups}}
-                        <li><a href="/working-groups/members">{{#ifCond user.working_groups.length '==' 1}}{{user.working_groups.0.name}}{{else}}Your Working Groups{{/ifCond}}</a></li>
-                      {{/if}}
-                    {{/ifUserClass}}
+              {{#if error}}
+                <div class="row mt-4">
+                  <div class="col-md-6 mx-auto">
+                    <div class="alert alert-danger alert-dismissible fade show p-3" role="alert">
+                      {{{error}}}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
 
-                    {{#ifUserClass user.class '["staff", "admin"]'}}
-                    <!--
-                      <li role="separator" class="divider"></li>
-                      <li><a href="#">Export Members</a></li>
-                      -->
-                    {{/ifUserClass}}
+              {{#if success_msg}}
+                <div class="row mt-4">
+                  <div class="col-md-6 mx-auto">
+                    <div class="alert alert-success alert-dismissible fade show p-3" role="alert">
+                      {{{success_msg}}}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
 
-                  </ul>
-                </li>
+              {{{body}}}
 
-                  <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if volunteersActive}}id="active"{{/if}}>Volunteers
-                    <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="/log">Log Volunteer Hours</a></li>
-                      {{#ifUserClass user.class '["staff", "admin", "volunteer"]'}}
-                        <li><a href="/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
-
-                        <li role="separator" class="divider"></li>
-
-                        <li><a href="/working-groups/induct-volunteers">Manage Volunteers</a></li>
-                        <li><a href="/working-groups/find-a-volunteer?group_id={{user.working_groups.0.group_id}}">Find Volunteers</a></li>
-                      {{/ifUserClass}}
-                      {{#ifUserClass user.class '["staff", "admin"]'}}
-                      <!--
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Export Volunteer Hours</a></li>
-                      -->
-                      {{/ifUserClass}}
-                    </ul>
-                  </li>
-
-                  {{#ifUserClass user.class '["staff", "admin"]'}}
-
-                    <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if tillsActive}}id="active"{{/if}}>Tills
-                      <span class="caret"></span></a>
-                      <ul class="dropdown-menu">
-                        <li><a href="/settings/tills">Manage Tills</a></li>
-                        <!--<li><a href="/settings/tills/add">Add Till</a></li>-->
-                        <!--
-                        <li role="separator" class="divider"></li>
-
-                        <li><a href="#">Export Transactions</a></li>
-                        -->
-                      </ul>
-                    </li>
-
-                  {{/ifUserClass}}
-
-                  <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if carbonActive}}id="active"{{/if}}>Carbon
-                    <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-
-                      <li><a href="/log-outgoing-weight">Log Outgoing Weight</a></li>
-
-                      {{#ifUserClass user.class '["admin"]'}}
-                        <li><a href="/settings/carbon-factors">Settings</a></li>
-                      {{/ifUserClass}}
-                      {{#ifUserClass user.class '["admin", "staff"]'}}
-                        <li role="separator" class="divider"></li>
-                        <li><a href="/reports/carbon">Export Carbon</a></li>
-                      {{/ifUserClass}}
-                    </ul>
-                  </li>
-
-                  {{#ifUserClass user.class '["admin", "staff"]'}}
-                  <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if usersActive}}id="active"{{/if}}>Users
-                    <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="/users/update/{{user.id}}">Your Account</a></li>
-                      <li role="separator" class="divider"></li>
-                      <li><a href="/users/">View Users</a></li>
-                      <li><a href="/users/add">Add User</a></li>
-                    </ul>
-                  </li>
-                  {{/ifUserClass}}
-
-                  {{#ifUserClass user.class '["admin"]'}}
-                  <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" {{#if settingsActive}}id="active"{{/if}}>Settings
-                    <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="/settings/working-groups">Working Groups</a></li>
-                      <li><a href="/settings/email-templates">Email Templates</a></li>
-                    </ul>
-                  </li>
-                  {{/ifUserClass}}
-
-                  <li class="hidden-md hidden-lg"><a href="/logout">Logout</a></li>
-
-              </ul>
-          </div>
-          {{/if}}
-
-      </div>
+            </div>
+        </div>
+        <!-- main content area end -->
+        <!-- footer area start-->
+        <footer>
+            <div class="footer-area">
+                <p>Murakami is open source, licenced under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL 3.0</a>. Check out the source on <a href="https://github.com/honeypieio/diode" target="_blank">GitHub</a>.</p>
+            </div>
+        </footer>
+        <!-- footer area end-->
     </div>
-  </div>
-  <div class="container">
-    <div class="row">
-      <div id="page-content">
-
-        {{#if success_msg}}
-        <div class="row">
-          <div id="success_msg" class="col-md-6 alert alert-success" onclick="dismiss('#success_msg')">{{{success_msg}}}</div>
+    <!-- page container area end -->
+    <!-- offset area start -->
+    <div class="offset-area">
+        <div class="offset-close"><i class="ti-close"></i></div>
+        <ul class="nav offset-menu-tab">
+            <li><a class="active" data-toggle="tab" href="#activity">Activity</a></li>
+            <li><a data-toggle="tab" href="#settings">Settings</a></li>
+        </ul>
+        <div class="offset-content tab-content">
+            <div id="activity" class="tab-pane fade in show active">
+                <div class="recent-activity">
+                    <div class="timeline-task">
+                        <div class="icon bg1">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Rashed sent you an email</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg2">
+                            <i class="fa fa-check"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Added</h4>
+                            <span class="time"><i class="ti-time"></i>7 Minutes Ago</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg2">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>You missed you Password!</h4>
+                            <span class="time"><i class="ti-time"></i>09:20 Am</span>
+                        </div>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg3">
+                            <i class="fa fa-bomb"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Member waiting for you Attention</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg3">
+                            <i class="ti-signal"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>You Added Kaji Patha few minutes ago</h4>
+                            <span class="time"><i class="ti-time"></i>01 minutes ago</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg1">
+                            <i class="fa fa-envelope"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Ratul Hamba sent you an email</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                        <p>Hello sir , where are you, i am egerly waiting for you.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg2">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Rashed sent you an email</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg2">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Rashed sent you an email</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg3">
+                            <i class="fa fa-bomb"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Rashed sent you an email</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
+                        </p>
+                    </div>
+                    <div class="timeline-task">
+                        <div class="icon bg3">
+                            <i class="ti-signal"></i>
+                        </div>
+                        <div class="tm-title">
+                            <h4>Rashed sent you an email</h4>
+                            <span class="time"><i class="ti-time"></i>09:35</span>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="settings" class="tab-pane fade">
+                <div class="offset-settings">
+                    <h4>General Settings</h4>
+                    <div class="settings-list">
+                        <div class="s-settings">
+                            <div class="s-sw-title">
+                                <h5>Notifications</h5>
+                                <div class="s-swtich">
+                                    <input type="checkbox" id="switch1" />
+                                    <label for="switch1">Toggle</label>
+                                </div>
+                            </div>
+                            <p>Keep it 'On' When you want to get all the notification.</p>
+                        </div>
+                        <div class="s-settings">
+                            <div class="s-sw-title">
+                                <h5>Show recent activity</h5>
+                                <div class="s-swtich">
+                                    <input type="checkbox" id="switch2" />
+                                    <label for="switch2">Toggle</label>
+                                </div>
+                            </div>
+                            <p>The for attribute is necessary to bind our custom checkbox with the input.</p>
+                        </div>
+                        <div class="s-settings">
+                            <div class="s-sw-title">
+                                <h5>Show your emails</h5>
+                                <div class="s-swtich">
+                                    <input type="checkbox" id="switch3" />
+                                    <label for="switch3">Toggle</label>
+                                </div>
+                            </div>
+                            <p>Show email so that easily find you.</p>
+                        </div>
+                        <div class="s-settings">
+                            <div class="s-sw-title">
+                                <h5>Show Task statistics</h5>
+                                <div class="s-swtich">
+                                    <input type="checkbox" id="switch4" />
+                                    <label for="switch4">Toggle</label>
+                                </div>
+                            </div>
+                            <p>The for attribute is necessary to bind our custom checkbox with the input.</p>
+                        </div>
+                        <div class="s-settings">
+                            <div class="s-sw-title">
+                                <h5>Notifications</h5>
+                                <div class="s-swtich">
+                                    <input type="checkbox" id="switch5" />
+                                    <label for="switch5">Toggle</label>
+                                </div>
+                            </div>
+                            <p>Use checkboxes when looking for yes or no answers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        {{/if}}
-
-        {{#if error_msg}}
-        <div class="row">
-          <div id="error_msg" class="col-md-6 alert alert-danger" onclick="dismiss('#error_msg')">{{{error_msg}}}</div>
-        </div>
-        {{/if}}
-
-        {{#if error}}
-        <div class="row">
-          <div id="error" class="col-md-6 alert alert-danger" onclick="dismiss('#error')">{{{error}}}</div>
-        </div>
-        {{/if}}
-
-        {{#if errors}}
-        <div class="row">
-          <div id="errors" class="col-md-6 alert alert-danger" onclick="dismiss('#errors')">{{{error.0.msg}}}</div>
-        </div>
-        {{/if}}
-
-        {{#if user}}
-          <a href="/logout" class="btn btn-lg pull-right hidden-xs hidden-sm">Logout</a>
-        {{/if}}
-
-        <div class="container">
-          {{{body}}}
-        </div>
-
-
-      </div>
     </div>
-    <div class="row">
-      <div class="container">
-        <div class="footer">
-          <p>Murakami is open source, licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL (v3.0)</a></p>
-        </div>
-      </div>
-    </div>
+    <!-- offset area end -->
 
-  </div>
-<script>
-$(document).ready(function(){
-  $('.fadeIn').fadeIn();
-});
-function reveal(id){
-  $(id).toggleClass("hidden");
-}
-function dismiss(id){
-  $(id).fadeOut();
-}
+    <!-- bootstrap 4 js -->
+    <script src="{{public_address}}/assets/js/popper.min.js"></script>
+    <script src="{{public_address}}/assets/js/bootstrap.min.js"></script>
+    <script src="{{public_address}}/assets/js/owl.carousel.min.js"></script>
+    <script src="{{public_address}}/assets/js/metisMenu.min.js"></script>
+    <script src="{{public_address}}/assets/js/jquery.slimscroll.min.js"></script>
+    <script src="{{public_address}}/assets/js/jquery.slicknav.min.js"></script>
 
+    <!-- others plugins -->
+    <script src="{{public_address}}/assets/js/plugins.js"></script>
+    <script src="{{public_address}}/assets/js/scripts.js"></script>
 
-function simpleAjaxGetRequest(url, elem){
-   $.ajax({
-      type: "GET",
-      url: url,
-      success: function(msg){
-          document.getElementById(elem).innerHTML = msg;
-
-      }
-   });
-}
-
-function getStat(url, elem){
-   $.ajax({
-      type: "GET",
-      url: url,
-      success: function(stat){
-          $(elem).text(stat)
-      }
-   });
-}
-</script>
 </body>
+
 </html>

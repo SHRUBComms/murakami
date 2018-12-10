@@ -18,29 +18,23 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   AccessTokens.get(req.query.token, "add_member", function(tokenValid) {
     if (req.user || tokenValid) {
       WorkingGroups.getAll(function(err, allWorkingGroups) {
-        if (["admin", "volunteer"].includes(req.user.class)) {
-          res.render("members/add", {
-            title: "Add Member",
-            membersActive: true,
-            token: req.query.token,
-            allWorkingGroups: allWorkingGroups,
-            working_groups: {}
-          });
-        } else {
-          var till_id = req.query.till_id;
-          res.render("members/add", {
-            layout: "till",
-            title: "Add Member",
-            addMemberActive: true,
-            allWorkingGroups: allWorkingGroups,
-            token: req.query.token,
-            working_groups: {},
-            membership_length: req.query.membership_length,
-            till: {
-              till_id: till_id
-            }
-          });
+        var tillMode;
+        var till_id = req.query.till_id || null;
+        if (till_id) {
+          tillMode = true;
         }
+        res.render("members/add", {
+          tillMode: tillMode,
+          title: "Add Member",
+          addMemberActive: true,
+          allWorkingGroups: allWorkingGroups,
+          token: req.query.token,
+          working_groups: {},
+          membership_length: req.query.membership_length,
+          till: {
+            till_id: till_id
+          }
+        });
       });
     } else {
       res.redirect("/");
@@ -169,17 +163,6 @@ router.post("/", function(req, res) {
         var earliest_membership_date = new Date(dt.setMonth(dt.getMonth()));
         var current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-        if (working_groups) {
-          if (Object.keys(working_groups).length !== 0) {
-            var formattedWorkingGroups = {};
-            Object.keys(working_groups).forEach(function(key) {
-              if (allWorkingGroups[key]) {
-                formattedWorkingGroups[key] = allWorkingGroups[key].group_id;
-              }
-            });
-          }
-        }
-
         // Parse request's body
         var errors = req.validationErrors();
 
@@ -206,7 +189,6 @@ router.post("/", function(req, res) {
             address: address,
             token: req.query.token,
             allWorkingGroups: allWorkingGroups,
-            working_groups: working_groups,
             shrubExplained: shrubExplained,
             safeSpace: safeSpace,
             contactConsent: contactConsent,
@@ -234,30 +216,6 @@ router.post("/", function(req, res) {
           Members.add(newMember, function(err, member) {
             if (err) throw err;
             member = member[0];
-
-            var formattedWorkingGroups = [];
-
-            Object.keys(working_groups).forEach(function(key) {
-              if (allWorkingGroups[key]) {
-                formattedWorkingGroups.push(key);
-              }
-            });
-
-            if (["admin", "volunteer"].includes(req.user.class)) {
-              Members.updateWorkingGroups(
-                member.member_id,
-                JSON.stringify(formattedWorkingGroups.sort()),
-                function() {}
-              );
-            } else {
-              for (let i=0; i < formattedWorkingGroups.length; i++) {
-                WorkingGroups.createJoinRequest(
-                  member.member_id,
-                  formattedWorkingGroups[i],
-                  function() {}
-                );
-              }
-            }
 
             var shrubMailchimp = new Mailchimp(
               process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
