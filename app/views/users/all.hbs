@@ -5,11 +5,8 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
 <div class="row">
-	<h1>Users</h1>
-</div>
-
-<div class="row">
-	<table class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-formatNoMatches="No users found!">
+	<div class="mx-auto">
+		<table class="fadeIn table-light" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-formatNoMatches="No users found!">
 		<thead>
 			<th data-sortable="true">Name</th>
 			<th data-sortable="true">Email</th>
@@ -23,17 +20,22 @@
 				<td><a href="/users/update/{{id}}">{{full_name}}</a></td>
 				<td>{{email}}</td>
 				<td>{{username}}</td>
-				<td>{{#if admin}}
-						Staff Admin
-					{{else}}
-						{{#if volunteer}}
-							Volunteer Admin
-						{{else}}
-							Till User
-						{{/if}}
-					{{/if}}
+				<td>
+					{{#ifCond class '==' 'admin'}}
+						Administrator
+					{{/ifCond}}
+					{{#ifCond class '==' 'staff'}}
+						Staff Co-ordinator
+					{{/ifCond}}
+					{{#ifCond class '==' 'volunteer'}}
+						Volunteer Co-ordinator
+					{{/ifCond}}
+					{{#ifCond class '==' 'till'}}
+						Till User
+					{{/ifCond}}
 				</td>
-				<td>{{#if last_login}}
+				<td>
+					{{#if last_login}}
 						{{last_login}}
 					{{else}}
 						Never logged in
@@ -42,4 +44,5 @@
 		{{/each}}
 		</tbody>
 	</table>
+		</div>
 </div>

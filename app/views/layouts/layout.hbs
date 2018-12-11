@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="{{public_address}}/assets/css/metisMenu.css">
     <link rel="stylesheet" href="{{public_address}}/assets/css/owl.carousel.min.css">
     <link rel="stylesheet" href="{{public_address}}/assets/css/slicknav.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
     <!-- amchart css -->
     <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
     <!-- others css -->
@@ -54,14 +56,14 @@
                           {{#if user}}
                               {{#unless tillMode}}
                                 <li {{#if membersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Members</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/members">Manage Members</a></li>
                                         <li><a href="{{public_address}}/members/add">Add Member</a></li>
                                     </ul>
                                 </li>
                                 <li {{#if volunteersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Volunteers</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/log-volunteer-hours">Log Volunteer Hours</a></li>
                                         <li><a href="{{public_address}}/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
@@ -70,13 +72,13 @@
                                     </ul>
                                 </li>
                                 <li {{#if tillsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Tills</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/settings/tills">Manage Tills</a></li>
                                     </ul>
                                 </li>
                                 <li {{#if carbonActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Carbon Accounting</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/log-outgoing-weight">Log Outgoing Weight</a></li>
                                         <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
@@ -84,14 +86,14 @@
                                     </ul>
                                 </li>
                                 <li {{#if usersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Users</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i></i><span>Users</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/users">Manage Users</a></li>
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
                                     </ul>
                                 </li>
                                 <li {{#if settingsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="ti-user"></i><span>Settings</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/settings/working-groups">Working Groups</a></li>
                                         <li><a href="{{public_address}}/settings/email-templates">Email Templates</a></li>
@@ -148,19 +150,12 @@
                 {{#each notifications.new}}
 
                 {{else}}
-                  <p class="text-muted text-center">Nothing to see here...</p>
+                  <p class="mt-2 text-muted text-center">Nothing to see here...</p>
                 {{/each}}
 
                 {{#if notifications.old}}
-                  <hr />
-                  {{#each notifications.old}}
-                    <h4>{{title}} - {{time}}</h4>
-                    <p>{{{text}}}</p>
-                  {{/each}}
                   <p class="text-center mt-4">
-                    <small>
-                      <a href="/notifications">view more</a>
-                    </small>
+                    <a href="/notifications">view older notifications</a>
                   </p>
                 {{/if}}
               </div>
@@ -178,7 +173,7 @@
             <div class="header-area">
                 <div class="row align-items-center no-gutters">
                     <!-- nav and search button -->
-                    <div class="col-md-6 col-sm-8 mt-3 mt-xs-3 mt-sm-3 mt-md-3 mt-lg-0 mt-xl-0 clearfix">
+                    <div class="col-md-6 col-sm-8 {{#unless user}} mt-3 mb-md-4 mb-sm-4 mb-xs-4 mb-4{{else}} mt-3 mt-md-0 mt-lg-0 mt-xl-0{{/unless}} clearfix">
                         <div class="nav-btn pull-left ml-4">
                             <span></span>
                             <span></span>
@@ -196,12 +191,10 @@
                     <!-- profile info & task notification -->
                     {{#if user}}
 
-                      <div class="col-md-3 offset-md-3 mt-3 mt-xs-3 mt-sm-3 mt-md-3 mt-lg-0 mt-xl-0">
+                      <div class="col-md-4 offset-md-2 mt-1 mt-xs-3 mt-sm-3 mt-md-3 mt-lg-0 mt-xl-0">
                         <div class="user-profile mx-auto">
-                            <div class="d-flex flex-row">
 
-
-                              <div class="mr-3">
+                              <div class="">
                                 <button type="button" class="btn btn-bell" data-toggle="modal" data-target="#notificationsModal">
                                   <i class="ti-bell" style="font-size: 30px;"></i>
                                   {{#if notifications.new}}
@@ -210,17 +203,14 @@
                                 </button>
                               </div>
 
-
-                              <img class="avatar user-thumb flex-fill my-auto" src="{{public_address}}{{#if user.avatar}}{{user.avatar}}{{else}}/assets/images/avatars/default.png{{/if}}" alt="Avatar">
-
-                              <h4 class="user-name dropdown-toggle flex-fill my-auto" data-toggle="dropdown">{{user.name}} <i class="fa fa-angle-down"></i></h4>
+                              <h5 class="user-name dropdown-toggle flex-fill my-auto mx-auto" data-toggle="dropdown">{{user.name}} <i class="fa fa-angle-down"></i></h5>
 
 
                               <div class="dropdown-menu" style="width: 100%;">
                                   <a class="dropdown-item" href="{{public_address}}/users/update/{{user.id}}">Manage Your Account</a>
                                   <a class="dropdown-item" href="{{public_address}}/logout">Log Out</a>
                               </div>
-                            </div>
+
                         </div>
                       </div>
 

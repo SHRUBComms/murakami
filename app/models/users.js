@@ -204,7 +204,7 @@ Users.makeNice = function(user, working_groups, callback) {
   beautifulUser.email = user.email;
 
   // Admin status
-  if (["admin", "till"].includes(user.class)) {
+  if (["admin", "till", "volunteer", "staff"].includes(user.class)) {
     beautifulUser.class = user.class;
   }
 
