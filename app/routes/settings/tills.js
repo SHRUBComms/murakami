@@ -39,15 +39,14 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           err,
           categories
         ) {
-          var layout;
-          if (["admin"].includes(req.user.class)) {
-            layout = "layout";
-          } else {
-            layout = "till";
+          var till_id = req.query.till_id || null;
+          var tillMode = false;
+          if (till_id) {
+            tillMode = true;
           }
           Carbon.getCategories(function(err, carbonCategories) {
             res.render("settings/tills/view", {
-              layout: layout,
+              tillMode: true,
               title: "View Till",
               tillsActive: true,
               till: till,

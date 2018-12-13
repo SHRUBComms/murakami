@@ -165,4 +165,10 @@ Helpers.flatten = function(array) {
   return result;
 };
 
+Helpers.hasOneInCommon = function(haystack, arr) {
+  return arr.some(function(v) {
+    return haystack.indexOf(v) >= 0;
+  });
+};
+
 module.exports = Helpers;

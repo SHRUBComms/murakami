@@ -4,58 +4,75 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
-<div class="row">
-	<h1>{{group.name}} Volunteers</h1>
+<div class="row mt-4">
+
+  <div class="col-lg-10 mx-auto">
+
+		{{#ifGreaterThan user.working_groups.length 1}}
+		<div class="row">
+			<div class="container">
+				<div class="form-group form-inline">
+					<select class="form-control" id="working_groups">
+						<option disabled selected>Select a working group...</option>
+							{{#each user.working_groups}}
+								<option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+							{{/each}}
+					</select>
+				</div>
+			</div>
+		</div>
+		{{else}}
+		<div class="row">
+			<div class="card">
+				<div class="card-body">
+					<h3>{{group.name}}</h3>
+				</div>
+			</div>
+		</div>
+		{{/ifGreaterThan}}
+
+
+		<div class="row">
+		  <div class="col-lg-6">
+
+		    <h3>Existing Volunteers</h3>
+
+		    <table id="group_members" class="fadeIn table-light" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-url="/api/get/working-groups/volunteers/{{group.group_id}}" data-show-export="true" data-export-options='{
+		                                  "fileName": "{{working_group.name}} members",
+		                                  "ignoreColumn": [2]
+		                                }'>
+		      <thead>
+		        <th data-sortable="true" data-field="name">Name</th>
+		        <th data-sortable="true" data-field="volunteerInfoLastUpdated" class="hidden-xs hidden-sm">Last Updated</th>
+		        <th data-field="options"></th>
+		      </thead>
+		      <tbody>
+
+		      </tbody>
+		    </table>
+		  </div>
+
+		  <div class="col-lg-5 col-lg-offset-1">
+		    <h3>Induct Volunteers</h3>
+		    <div class="form-group">
+		      <input type="text" id="memberInput" class="form-control" placeholder="Search for a member..." oninput="search()" />
+		    </div>
+
+		    <div class="row">
+		      <div class='col'>
+		        <div id="searchOutput"></div>
+		      </div>
+		    </div>
+		  </div>
+
+		</div>
+
+
+	</div>
 </div>
 
-{{#ifGreaterThan user.working_groups.length 1}}
-<div class="row">
-  <div class="form-group form-inline">
-    <select class="form-control" id="working_groups">
-      <option disabled selected>Select a working group...</option>
-        {{#each user.working_groups}}
-          <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}}selected{{/ifCond}}>{{name}}</option>
-        {{/each}}
-    </select>
-  </div>
-</div>
-{{/ifGreaterThan}}
 
 
-<div class="row">  
-  <div class="col-lg-6 nopadding">
-
-    <h3>Existing Volunteers</h3>
-
-    <table id="group_members" class="fadeIn" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-url="/api/get/working-groups/volunteers/{{group.group_id}}" data-show-export="true" data-export-options='{
-                                  "fileName": "{{working_group.name}} members", 
-                                  "ignoreColumn": [2]
-                                }'>
-      <thead>
-        <th data-sortable="true" data-field="name">Name</th>
-        <th data-sortable="true" data-field="volunteerInfoLastUpdated" class="hidden-xs hidden-sm">Last Updated</th>
-        <th data-field="options"></th>
-      </thead>
-      <tbody>
-
-      </tbody>
-    </table>
-  </div>
-
-  <div class="col-lg-5 col-lg-offset-1">
-    <h3>Induct Volunteers</h3>
-    <div class="form-group">
-      <input type="text" id="memberInput" class="form-control" placeholder="Search for a member..." oninput="search()" />
-    </div>
-
-    <div class="row">
-      <div class='col'>
-        <div id="searchOutput"></div>
-      </div>
-    </div>    
-  </div>
-
-</div>
 
 <script>
 $('#working_groups').on('change', function () {
@@ -75,28 +92,28 @@ function updateSearchOutput(results){
 
       var membershipBtn = "<a class='btn btn-success' target='_blank' href='/members/volunteer-info/" + results[i].id + "'>Make " + results[i].first_name + " A Volunteer</a>"
 
-      
-      $('#searchOutput').html($('#searchOutput').html() + 
-        "<div class='member-result text-center'>" +
-          "<p><b>" + 
-          "<a href='/members/view/" + results[i].id + "' target='_blank'>" +
-            results[i].name + 
-          "</a>" +
-          "</p></b>" +
 
-          "<p>" + 
-            results[i].email + 
-          "</p>" +
+      $('#searchOutput').html($('#searchOutput').html() +
+			"<div class='card mb-4'>" +
+				"<div class='card-body'>" +
+	        "<div class='member-result text-center'>" +
+	          "<p><b>" +
+	          "<a href='/members/view/" + results[i].id + "' target='_blank'>" +
+	            results[i].name +
+	          "</a>" +
+	          "</p></b>" +
 
-          "<center>" + 
-            membershipBtn +
-          "</center>" +
-        "</div>"
+	          "<p class='mb-2'>" +
+	            results[i].email +
+	          "</p>" +
+
+	          "<center>" +
+	            membershipBtn +
+	          "</center>" +
+	        "</div>" +
+				"</div>" +
+			"</div>"
       );
-
-      if((i + 1) != results.length){
-        $('#searchOutput').html($('#searchOutput').html() + "<hr />")
-      }
 
       var found = false;
     }
@@ -106,17 +123,17 @@ function search(){
   $.ajax({
       type: "POST",
       url: "/api/post/working-groups/search",
-      data: { 
+      data: {
           'term': $('#memberInput').val(),
           'group_id': "{{{group.group_id}}}"
-      },    
+      },
       success: function(response){
 
         if(response.status == "ok"){
           updateSearchOutput(response.results);
         } else {
           $('#searchOutput').html("Something went wrong!");
-        }  
+        }
       }
   });
 }

@@ -77,15 +77,7 @@ router.post(
     failureFlash: true
   }),
   function(req, res) {
-    if (["admin"].includes(req.user.class)) {
-      if (req.user.working_groups) {
-        res.redirect("/working-groups/members");
-      } else {
-        res.redirect("/members");
-      }
-    } else {
-      res.redirect("/till");
-    }
+    res.redirect("/");
   }
 );
 

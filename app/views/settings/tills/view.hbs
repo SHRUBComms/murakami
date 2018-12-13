@@ -27,18 +27,20 @@
 		</div>
 	</div>
 
-	<div class="col-lg-3 col-lg-offset-1">
+	{{#ifCond user.class '!==' 'till'}}
+		<div class="col-lg-3 col-lg-offset-1">
 
-		<div class="card">
-			<div class="card-body">
+			<div class="card">
+				<div class="card-body">
 
-	    <h3 class="mb-3">Settings</h3>
+		    <h3 class="mb-3">Settings</h3>
 
-	    <input type="text" class="form-control mb-4" placeholder="Till Name" id="till_name" value="{{till.name}}">
+		    <input type="text" class="form-control mb-4" placeholder="Till Name" id="till_name" value="{{till.name}}">
 
-	    <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
-		</div>
-  </div>
+		    <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
+			</div>
+	  </div>
+	{{/ifCond}}
 
 	</div>
 </div>

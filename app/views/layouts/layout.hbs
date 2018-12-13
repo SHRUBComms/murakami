@@ -55,6 +55,7 @@
                         <ul class="metismenu" id="menu">
                           {{#if user}}
                               {{#unless tillMode}}
+
                                 <li {{#if membersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
                                     <ul class="collapse">
@@ -68,7 +69,7 @@
                                         <li><a href="{{public_address}}/log-volunteer-hours">Log Volunteer Hours</a></li>
                                         <li><a href="{{public_address}}/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
                                         <li><a href="{{public_address}}/working-groups/induct-volunteers">Manage Volunteers</a></li>
-                                        <li><a href="{{public_address}}/working-groups/find-a-volunteer">Find Volunteers</a></li>
+                                        <!--<li><a href="{{public_address}}/working-groups/find-a-volunteer">Find Volunteers</a></li>-->
                                     </ul>
                                 </li>
                                 <li {{#if tillsActive}}class="active"{{/if}}>
@@ -82,9 +83,18 @@
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/log-outgoing-weight">Log Outgoing Weight</a></li>
                                         <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
-                                        <li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>
+                                        <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
                                     </ul>
                                 </li>
+                                {{#ifUserClass user.class '["admin"]'}}
+                                <li {{#if workingGroupsActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
+                                    <ul class="collapse">
+                                        <li><a href="{{public_address}}/settings/working-groups">Manage Working Groups</a></li>
+                                        <!--<li><a href="{{public_address}}/members/add">Add Working Group</a></li>-->
+                                    </ul>
+                                </li>
+                                {{/ifUserClass}}
                                 <li {{#if usersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i></i><span>Users</span></a>
                                     <ul class="collapse">
@@ -93,10 +103,10 @@
                                     </ul>
                                 </li>
                                 <li {{#if settingsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Email Templates</span></a>
                                     <ul class="collapse">
-                                        <li><a href="{{public_address}}/settings/working-groups">Working Groups</a></li>
-                                        <li><a href="{{public_address}}/settings/email-templates">Email Templates</a></li>
+                                        <li><a href="{{public_address}}/settings/email-templates">Manage Templates</a></li>
+                                        <!--<li><a href="{{public_address}}/settings/email-templates">Add Template</a></li>-->
                                     </ul>
                                 </li>
                               {{else}}
@@ -118,18 +128,28 @@
                                 <li {{#if closeTillActive}}class="active"{{/if}}>
                                     <a href="/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
                                 </li>
+
                               {{/unless}}
                             {{/if}}
 
                             {{#unless user}}
                               <li {{#if loginActive}}class="active"{{/if}}>
-                                  <a href="{{public_address}}/login" aria-expanded="true"><i class="ti-help-alt"></i><span>Login</span></a>
+                                  <a href="{{public_address}}/login" aria-expanded="true"><i class="fas fa-sign-in-alt"></i><span>Login</span></a>
                               </li>
                             {{/unless}}
 
                             <li {{#if supportActive}}class="active"{{/if}}>
-                                <a href="{{public_address}}/support" aria-expanded="true"><i class="ti-help-alt"></i><span>Support</span></a>
+                                <a href="{{public_address}}/support?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-help-alt"></i><span>Support</span></a>
                             </li>
+                            {{#if tillMode}}
+                              {{#ifUserClass user.class '["admin", "staff"]'}}
+                                <hr />
+                                <li>
+                                    <a href="/settings/tills" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
+                                </li>
+                              {{/ifUserClass}}
+                            {{/if}}
+
                         </ul>
                     </nav>
                 </div>
@@ -182,8 +202,8 @@
                         {{#if user}}
                         <div class="search-box pull-left">
                             <form action="#">
-                                <input type="text" name="search" placeholder="Search for someone...">
-                                <i class="ti-search"></i>
+                                <!--<input type="text" name="search" placeholder="Search for someone...">
+                                <i class="ti-search"></i>-->
                             </form>
                         </div>
                         {{/if}}
@@ -263,6 +283,19 @@
                   <div class="col-md-6 mx-auto">
                     <div class="alert alert-danger alert-dismissible fade show p-3" role="alert">
                       {{{error}}}
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {{/if}}
+
+              {{#if errors}}
+                <div class="row mt-4">
+                  <div class="col-md-6 mx-auto">
+                    <div class="alert alert-danger alert-dismissible fade show p-3" role="alert">
+                      {{{errors.0.msg}}}
                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
@@ -413,63 +446,6 @@
                         </div>
                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Esse distinctio itaque at.
                         </p>
-                    </div>
-                </div>
-            </div>
-            <div id="settings" class="tab-pane fade">
-                <div class="offset-settings">
-                    <h4>General Settings</h4>
-                    <div class="settings-list">
-                        <div class="s-settings">
-                            <div class="s-sw-title">
-                                <h5>Notifications</h5>
-                                <div class="s-swtich">
-                                    <input type="checkbox" id="switch1" />
-                                    <label for="switch1">Toggle</label>
-                                </div>
-                            </div>
-                            <p>Keep it 'On' When you want to get all the notification.</p>
-                        </div>
-                        <div class="s-settings">
-                            <div class="s-sw-title">
-                                <h5>Show recent activity</h5>
-                                <div class="s-swtich">
-                                    <input type="checkbox" id="switch2" />
-                                    <label for="switch2">Toggle</label>
-                                </div>
-                            </div>
-                            <p>The for attribute is necessary to bind our custom checkbox with the input.</p>
-                        </div>
-                        <div class="s-settings">
-                            <div class="s-sw-title">
-                                <h5>Show your emails</h5>
-                                <div class="s-swtich">
-                                    <input type="checkbox" id="switch3" />
-                                    <label for="switch3">Toggle</label>
-                                </div>
-                            </div>
-                            <p>Show email so that easily find you.</p>
-                        </div>
-                        <div class="s-settings">
-                            <div class="s-sw-title">
-                                <h5>Show Task statistics</h5>
-                                <div class="s-swtich">
-                                    <input type="checkbox" id="switch4" />
-                                    <label for="switch4">Toggle</label>
-                                </div>
-                            </div>
-                            <p>The for attribute is necessary to bind our custom checkbox with the input.</p>
-                        </div>
-                        <div class="s-settings">
-                            <div class="s-sw-title">
-                                <h5>Notifications</h5>
-                                <div class="s-swtich">
-                                    <input type="checkbox" id="switch5" />
-                                    <label for="switch5">Toggle</label>
-                                </div>
-                            </div>
-                            <p>Use checkboxes when looking for yes or no answers.</p>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -1,111 +1,136 @@
-<div class="row">
-  <h2>{{first_name}} {{last_name}}</h2>
-  <span>{{username}} | {{email}}</span>
-  <p>Last login:
-    {{#if last_login}}
-      {{last_login}}
-    {{else}}
-      never</p>
-    {{/if}}
-</div>
-
-<div class="row">
-  <div class="form-group form-inline">
-    {{#ifCond user_id '!=' user.id}}
-      <a href="/users/deactivate/{{user_id}}" class="btn btn-danger">Deactivate User</a>
-    {{ else }}
-      <a href="/users/deactivate/{{user_id}}" class="btn btn-danger">Deactivate User (you)</a>
-    {{/ifCond}}
-    {{#ifCond user_id '==' user.id}}
-      <a href="/users/change-password" class="btn btn-primary">Change Password (you will be logged out)</a>
-    {{/ifCond}}
+<div class="row m-2 mt-4 mb-4">
+  <div class="card mx-auto">
+    <div class="card-body">
+      <h2>{{first_name}} {{last_name}}</h2>
+      <span>{{username}} | {{email}}</span>
+      <p>Last login:
+        {{#if last_login}}
+          {{last_login}}
+        {{else}}
+          never
+        {{/if}}
+      </p>
+    </div>
   </div>
 </div>
 
-<br />
-
-{{#if errors}}
-<div class="row">
-  <div class="alert alert-danger">{{{errors.0.msg}}}</div>
+<div class="row m-2">
+    <div class="form-group form-inline mx-auto">
+      {{#ifCond user_id '!=' user.id}}
+        <a href="{{public_address}}/users/deactivate/{{user_id}}" class="btn btn-danger">Deactivate User</a>
+      {{ else }}
+        <a href="{{public_address}}/users/deactivate/{{user_id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to deactivate yourself? This is irreversible.');">Deactivate User</a>
+      {{/ifCond}}
+      {{#ifCond user_id '==' user.id}}
+        &emsp;<a href="/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
+      {{/ifCond}}
+    </div>
 </div>
-{{/if}}
 
-<div class="container">
-  <form method="post" action="/users/update/{{user_id}}" class="form-group">
 
-    <div class="row">
-      <div class="form-group form-inline">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}}>
-        </div>
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}}>
-        </div>
-      </div>
-    </div>
+<form method="post" action="/users/update/{{user_id}}" class="form-group">
 
-    <div class="row">
-      <p>Want to change your username or email address? Please <a href="/support">contact support</a>.</p>
-    </div>
-
-    <div class="row">
-      <h4>Permissions</h4>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <select class="form-control" name="class">
-          <option value="till"{{#ifCond class '==' 'till'}} selected{{/ifCond}}>Till User</option>
-          <!--<option value="volunteer"{{#ifCond class '==' 'volunteer'}} selected{{/ifCond}}>Volunteer Co-ordinator</option>
-          <option value="staff"{{#ifCond class '==' 'staff'}} selected{{/ifCond}}>Staff Member</option>-->
-          <option value="admin"{{#ifCond class '==' 'admin'}} selected{{/ifCond}}>Admin</option>
-        </select>
-      </div>
-    </div>
-
-  <div id="working_groups">
-    <div class="row">
-      <h4>Working Groups</h4>
-    </div>
-
-    <div class="row">
-      <div class="form-group form-inline">
+  <div class="row m-2">
+    <div class="card mx-auto p-4">
+      <div class="card-body">
+        <h5 class="mb-2">Basic Details</h5>
+        <div class="form-group form-inline">
           <div class="form-group">
-            <select id="workingGroupSelect" class="form-control">
-              {{#each allWorkingGroups}}
-                <option value='{"{{group_id}}":"{{name}}"}'>{{name}}</option>
-              {{/each}}
+            <input type="text" class="form-control" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}}>
+          </div>
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}}>
+          </div>
+        </div>
+        <small>If you would like to change your username or email address, please <a href="{{public_address}}/support">contact support</a>.</small>
+
+        {{#ifCond user.class '==' 'admin'}}
+
+          <div class="form-group form-inline mt-3">
+            <select class="form-control" name="class">
+
+                <option value="till"{{#ifCond class '==' 'till'}} selected{{/ifCond}}>Till User</option>
+                <option value="volunteer"{{#ifCond class '==' 'volunteer'}} selected{{/ifCond}}>Volunteer Co-ordinator</option>
+                <option value="staff"{{#ifCond class '==' 'staff'}} selected{{/ifCond}}>Staff Co-ordinator</option>
+                <option value="admin"{{#ifCond class '==' 'admin'}} selected{{/ifCond}}>Administrator</option>
+
             </select>
           </div>
-          <div class="form-group">
-              <a class="form-control btn btn-primary" onclick="addToJoinList()">Add</a>
+
+          <h5 class="mt-3 mb-2">Working Groups</h5>
+
+          <div class="form-group form-inline">
+            <div class="form-group">
+              <select id="workingGroupSelect" class="form-control">
+                {{#each allWorkingGroups}}
+                  <option value='{"{{group_id}}":"{{name}}"}'>{{name}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="form-group">
+                <a class="form-control btn btn-primary" onclick="addToJoinList()">Add</a>
+            </div>
           </div>
-      </div>
-    </div>
 
-    <div class="row">
-      <div id="wgInfo">
-        <p>User is assigned to:</p>
-      </div>
-      <ul id="workingGroupJoinSummary"></ul>
-    </div>
-    <input type="hidden" name="working_groups" id="working_groups_json" value="" />
+          <div id="wgInfo">
+            <p>User is assigned to:</p>
+          </div>
+          <ul id="workingGroupJoinSummary" class="list-group ml-md-4 mr-md-4 ml-lg-4 mr-lg-4 ml-xl-4 mr-xl-4 mt-3"></ul>
 
+          <input type="hidden" name="working_groups" id="working_groups_json" value="" />
+
+        {{/ifCond}}
+
+        {{#ifCond user.class '==' 'staff'}}
+
+          {{#ifCond user.id '!=' user_id}}
+            <h5 class="mt-3 mb-2">User Type</h5>
+            <div class="form-group form-inline">
+              <select class="form-control" name="class">
+
+                  <option value="till"{{#ifCond class '==' 'till'}} selected{{/ifCond}}>Till User</option>
+                  <option value="volunteer"{{#ifCond class '==' 'volunteer'}} selected{{/ifCond}}>Volunteer Co-ordinator</option>
+
+              </select>
+            </div>
+          {{/ifCond}}
+
+          <h5 class="mt-3 mb-2">Working Groups</h5>
+
+          <div class="form-group form-inline">
+            <div class="form-group">
+              <select id="workingGroupSelect" class="form-control">
+                {{#each user.working_groups}}
+                  <option value='{"{{group_id}}":"{{name}}"}'>{{name}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="form-group">
+                <a class="form-control btn btn-primary" onclick="addToJoinList()">Add</a>
+            </div>
+          </div>
+
+          <div id="wgInfo">
+            <p>User is assigned to:</p>
+          </div>
+
+          <ul id="workingGroupJoinSummary"></ul>
+
+          <input type="hidden" name="working_groups" id="working_groups_json" value="" />
+
+        {{/ifCond}}
+
+      </div>
+
+    </div>
   </div>
 
-    <hr />
-
-    <div class="row">
-      <div class="form-group form-inline">
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary form-control">Update User</button>
-          </div>
-      </div>
+  <div class="row m-4 mt-4">
+    <div class="col-md-4 mx-auto">
+      <button type="submit" class="btn btn-block btn-primary">Update User</button>
     </div>
-
-
-  </form>
-</div>
+  </div>
+</form>
 
 <script>
 var joinList = {{{json working_groups}}}
@@ -133,7 +158,7 @@ function updateSummary(){
 
   $("#workingGroupJoinSummary").html("");
   Object.keys(joinList).forEach(function(key) {
-    $("#workingGroupJoinSummary").html($("#workingGroupJoinSummary").html() + "<li id='" + key + "'>" + joinList[key] + " - <a onclick='removeFromJoinList(\"" + key + "\")' class='clickable'>remove</a></li>");
+    $("#workingGroupJoinSummary").html($("#workingGroupJoinSummary").html() + "<li id='" + key + "' class='list-group-item'>" + joinList[key] + " - <a onclick='removeFromJoinList(\"" + key + "\")' class='clickable text-info'>remove</a></li>");
   });
 
 }

@@ -7,7 +7,16 @@ var rootDir = process.env.CWD;
 var Mail = require(rootDir + "/app/configs/mail");
 
 router.get("/", function(req, res) {
+  var till_id = req.query.till_id;
+  var tillMode = false;
+  if (till_id) {
+    tillMode = true;
+  }
   res.render("support", {
+    tillMode: tillMode,
+    till: {
+      till_id: till_id
+    },
     supportActive: true,
     title: "Support"
   });

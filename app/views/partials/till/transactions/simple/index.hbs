@@ -1,24 +1,23 @@
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
-<div class="row m-4">
+<div class="row m-2 m-md-4 m-lg-4 m-xl-4">
 
 		<div class="card">
 			<div class="card-body">
-				<h3>{{till.name}} <span class="text-success">&#9679;</span></h3>
+				<h3 class="mb-3">{{till.name}} <span class="text-success">&#9679;</span></h3>
+				<a href="/settings/tills/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
 			</div>
 		</div>
 
 </div>
 
-<div class="row mt-2 mt-4 ml-4 mb-4">
-		<div class="col-md-3">
+<div class="row mt-4 mb-3">
+		<div class="col-md-3 ml-2 ml-md-4 ml-lg-4 ml-xl-4">
 
 			<input type="hidden" id="member_id" value="{{member.id.text}}" />
 
-			<div class="btn-group-toggle" data-toggle="buttons">
-			  <label class="btn btn-info">
-			    <input type="checkbox" id="memberToggle" autocomplete="off"> Customer Is A Member
-			  </label>
-			</div>
+			<input type="checkbox" id="memberToggle" data-toggle="toggle" data-on="Customer Is A Member" data-off="Customer Is Not A Member">
 
 			<div class="d-none" id="memberOptions">
 
@@ -86,7 +85,7 @@
 		      		<div class="form-group d-none" id="selectPaymentMethod">
 		      			<a class="btn btn-primary btn-lg form-inline" id="cashOption" onclick="selectPaymentMethod('cash')">Cash</a>
 		      			&nbsp;
-		      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')">Card</a>
+		      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')" href="sumupmerchant://pay/1.0?affiliate-key={{sumup_affiliate_key}}&app-id={{sumup_app_id}}&total=1.00&currency=GBP&title=Taxi Ride&receipt-mobilephone=+3531234567890&receipt-email=hello@rosshudson.co.uk&callback={{public_address}}/till/{{till.till_id}}">Card</a>
 		      		</div>
 		    	</center>
 				</div>
@@ -180,6 +179,13 @@
 </div>
 
 <script>
+
+$('#isMemberCheck').click(function () {
+		var checked = $('input', this).is(':checked');
+		$('span', this).text(checked ? 'Customer Is A Member' : 'Customer Is Not A Member');
+});
+
+
 var transaction = [];
 
 var tokens_total = 0;
@@ -408,8 +414,8 @@ function updateButtons(){
 		weight_total += +transaction[i].weight;
 	}
 
-	$("#tokens_total").html(tokens_total + money_total);
-	$("#weight_total").html(weight_total);
+	$("#tokens_total").html((tokens_total + money_total).toFixed(2));
+	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0){
 		$("#changeCalc").addClass("d-none");

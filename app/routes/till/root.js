@@ -14,6 +14,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
     Tills.getAllTills(function(err, tills) {
       if (tills.length > 1) {
         res.render("till/root", {
+          tillMode: true,
           title: "Select A Till",
           tills: tills,
           allWorkingGroups: allWorkingGroups

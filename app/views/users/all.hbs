@@ -16,31 +16,33 @@
 		</thead>
 		<tbody>
 		{{#each users}}
-			<tr>
-				<td><a href="/users/update/{{id}}">{{full_name}}</a></td>
-				<td>{{email}}</td>
-				<td>{{username}}</td>
-				<td>
-					{{#ifCond class '==' 'admin'}}
-						Administrator
-					{{/ifCond}}
-					{{#ifCond class '==' 'staff'}}
-						Staff Co-ordinator
-					{{/ifCond}}
-					{{#ifCond class '==' 'volunteer'}}
-						Volunteer Co-ordinator
-					{{/ifCond}}
-					{{#ifCond class '==' 'till'}}
-						Till User
-					{{/ifCond}}
-				</td>
-				<td>
-					{{#if last_login}}
-						{{last_login}}
-					{{else}}
-						Never logged in
-					{{/if}}</td>
-			</tr>
+			{{#if this}}
+				<tr>
+					<td><a href="/users/update/{{id}}">{{full_name}}</a></td>
+					<td>{{email}}</td>
+					<td>{{username}}</td>
+					<td>
+						{{#ifCond class '==' 'admin'}}
+							Administrator
+						{{/ifCond}}
+						{{#ifCond class '==' 'staff'}}
+							Staff Co-ordinator
+						{{/ifCond}}
+						{{#ifCond class '==' 'volunteer'}}
+							Volunteer Co-ordinator
+						{{/ifCond}}
+						{{#ifCond class '==' 'till'}}
+							Till User
+						{{/ifCond}}
+					</td>
+					<td>
+						{{#if last_login}}
+							{{last_login}}
+						{{else}}
+							Never logged in
+						{{/if}}</td>
+				</tr>
+			{{/if}}
 		{{/each}}
 		</tbody>
 	</table>

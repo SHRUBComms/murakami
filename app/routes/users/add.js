@@ -115,47 +115,47 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
         formattedWorkingGroups.push(key);
       }
     });
+
+    // Parse request's body asynchronously
+    req
+      .asyncValidationErrors()
+      .then(function() {
+        var newUser = {
+          id: null,
+          first_name: first_name,
+          last_name: last_name,
+          username: username,
+          email: email,
+          class: userClass,
+          working_groups: JSON.stringify(formattedWorkingGroups.sort()),
+          password: password,
+          passwordConfirm: passwordConfirm
+        };
+
+        Users.add(newUser, function(err, user) {
+          if (err) throw err;
+          user = user[0];
+          req.flash("success_msg", "New user added!");
+          res.redirect("/users/update/" + user.id);
+        });
+      })
+      .catch(function(errors) {
+        res.render("users/add", {
+          errors: errors,
+          title: "Add User",
+          usersActive: true,
+          first_name: first_name,
+          last_name: last_name,
+          username: username,
+          email: email,
+          class: userClass,
+          password: password,
+          passwordConfirm: passwordConfirm,
+          allWorkingGroups: allWorkingGroups,
+          working_groups: working_groups
+        });
+      });
   });
-
-  // Parse request's body asynchronously
-  req
-    .asyncValidationErrors()
-    .then(function() {
-      var newUser = {
-        id: null,
-        first_name: first_name,
-        last_name: last_name,
-        username: username,
-        email: email,
-        class: userClass,
-        working_groups: JSON.stringify(formattedWorkingGroups.sort()),
-        password: password,
-        passwordConfirm: passwordConfirm
-      };
-
-      Users.add(newUser, function(err, user) {
-        if (err) throw err;
-        user = user[0];
-        req.flash("success_msg", "New user added!");
-        res.redirect("/users/update/" + user.id);
-      });
-    })
-    .catch(function(errors) {
-      res.render("users/add", {
-        errors: errors,
-        title: "Add User",
-        usersActive: true,
-        first_name: first_name,
-        last_name: last_name,
-        username: username,
-        email: email,
-        class: userClass,
-        password: password,
-        passwordConfirm: passwordConfirm,
-        allWorkingGroups: allWorkingGroups,
-        working_groups: working_groups
-      });
-    });
 });
 
 module.exports = router;

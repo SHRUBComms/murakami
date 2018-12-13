@@ -273,12 +273,12 @@ router.post("/", function(req, res) {
                   res.redirect("/success");
                 });
               } else {
-                if (["admin", "volunteer"].includes(req.user.class)) {
+                if (!req.query.till_id) {
                   res.redirect("/members/view/" + member.member_id);
                 } else {
                   var till_id = req.query.till_id;
                   req.flash("success", "Member added!");
-                  res.redirect("/till/" + till_id);
+                  res.redirect("/till/" + req.query.till_id);
                 }
               }
             });

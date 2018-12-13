@@ -10,45 +10,81 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
-  req,
-  res
-) {
-  Users.getById(req.params.user_id, function(err, user) {
-    if (err || !user[0]) {
-      req.flash("error_msg", "User not found!");
-      res.redirect("/users");
-    } else {
-      if (user[0].deactivated == 0) {
-        WorkingGroups.getAll(function(err, workingGroups) {
-          var userClass = "till";
-
-          Users.makeNice(user[0], workingGroups, function(user) {
-            userClass = user.class;
-
-            res.render("users/update", {
-              title: "Update User",
-              usersActive: true,
-              user_id: req.params.user_id,
-              full_name: user.full_name,
-              first_name: user.first_name,
-              last_name: user.last_name,
-              email: user.email,
-              username: user.username,
-              class: userClass,
-              working_groups: user.working_groups,
-              last_login: user.last_login,
-              allWorkingGroups: workingGroups
-            });
-          });
-        });
-      } else {
-        req.flash("error", "User not found!");
+router.get(
+  "/:user_id",
+  Auth.isLoggedIn,
+  Auth.isOfClass(["admin", "staff"]),
+  function(req, res) {
+    Users.getById(req.params.user_id, function(err, user) {
+      if (err || !user[0]) {
+        req.flash("error_msg", "User not found!");
         res.redirect("/users");
+      } else {
+        if (user[0].deactivated == 0) {
+          WorkingGroups.getAll(function(err, workingGroups) {
+            if (req.user.class == "staff") {
+              if (
+                ((user[0].class == "volunteer" || user.class == "till") &&
+                  Helpers.hasOneInCommon(
+                    JSON.parse(user[0].working_groups),
+                    req.user.working_groups
+                  )) ||
+                req.user.id == user[0].id
+              ) {
+                Users.makeNice(user[0], workingGroups, function(user) {
+                  userClass = user.class;
+
+                  res.render("users/update", {
+                    title: "Update User",
+                    usersActive: true,
+                    user_id: req.params.user_id,
+                    full_name: user.full_name,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    email: user.email,
+                    username: user.username,
+                    class: userClass,
+                    working_groups: user.working_groups,
+                    last_login: user.last_login,
+                    allWorkingGroups: workingGroups
+                  });
+                });
+              } else {
+                req.flash(
+                  "error_msg",
+                  "You don't have permission to view this user!"
+                );
+                res.redirect("/users");
+              }
+            } else {
+              Users.makeNice(user[0], workingGroups, function(user) {
+                userClass = user.class;
+
+                res.render("users/update", {
+                  title: "Update User",
+                  usersActive: true,
+                  user_id: req.params.user_id,
+                  full_name: user.full_name,
+                  first_name: user.first_name,
+                  last_name: user.last_name,
+                  email: user.email,
+                  username: user.username,
+                  class: userClass,
+                  working_groups: user.working_groups,
+                  last_login: user.last_login,
+                  allWorkingGroups: workingGroups
+                });
+              });
+            }
+          });
+        } else {
+          req.flash("error", "User not found!");
+          res.redirect("/users");
+        }
       }
-    }
-  });
-});
+    });
+  }
+);
 
 router.post("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
   req,
