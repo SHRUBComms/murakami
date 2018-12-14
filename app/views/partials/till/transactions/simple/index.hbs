@@ -12,6 +12,29 @@
 
 </div>
 
+<div id="transaction_info" class="row pl-3 mt-4 mb-4">
+	{{#if murakamiMsg}}
+		{{#ifCond smpStatus '==' 'failed'}}
+			<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
+				{{smpMsg}}
+				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+			</div>
+		{{else}}
+			{{#ifCond murakamiStatus '==' 'ok'}}
+				<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto">
+					{{murakamiMsg}}
+					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+				</div>
+			{{else}}
+				<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
+					{{murakamiMsg}}
+					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+				</div>
+			{{/ifCond}}
+		{{/ifCond}}
+	{{/if}}
+</div>
+
 <div class="row mt-4 mb-3">
 		<div class="col-md-3 ml-2 ml-md-4 ml-lg-4 ml-xl-4">
 
@@ -36,6 +59,8 @@
 				<div class="col-md-12 mx-auto" id="options"></div>
 
 	</div>
+
+
 
 	<div class="col-12 col-md-6 col-lg-5 col-xl-5 mx-auto mt-4 mt-lg-0 mt-xl-0" id="transaction-list">
 				<table class="table table-light table-striped">
@@ -62,8 +87,6 @@
 	</div>
 </div>
 
-<div id="transaction_info" class="row pl-3 mt-4 mb-4"></div>
-
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -85,7 +108,7 @@
 		      		<div class="form-group d-none" id="selectPaymentMethod">
 		      			<a class="btn btn-primary btn-lg form-inline" id="cashOption" onclick="selectPaymentMethod('cash')">Cash</a>
 		      			&nbsp;
-		      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')" href="sumupmerchant://pay/1.0?affiliate-key={{sumup_affiliate_key}}&app-id={{sumup_app_id}}&total=1.00&currency=GBP&title=Taxi Ride&receipt-mobilephone=+3531234567890&receipt-email=hello@rosshudson.co.uk&callback={{public_address}}/till/{{till.till_id}}">Card</a>
+		      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')">Card</a>
 		      		</div>
 		    	</center>
 				</div>
@@ -179,6 +202,12 @@
 </div>
 
 <script>
+
+var uri = window.location.toString();
+if (uri.indexOf("?") > 0) {
+    var clean_uri = uri.substring(0, uri.indexOf("?"));
+    window.history.replaceState({}, document.title, clean_uri);
+}
 
 $('#isMemberCheck').click(function () {
 		var checked = $('input', this).is(':checked');
@@ -471,7 +500,8 @@ function updateButtons(){
 	} else {
 		$("#transaction_btns").addClass("d-none");
 	}
-	console.log(global_money_total);
+
+	$("#cardOption").attr("href", sumupSummon)
 }
 
 function workingGroupJoin(){
@@ -651,7 +681,8 @@ function completeTrans(type){
 								$("#transaction_history").bootstrapTable('refresh');
 							}, 750)
 
-
+					} else if(response.status = "redirect") {
+						window.location.href = response.url;
 	        } else {
 	        	$("#transaction_info").removeClass("d-none")
 	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");

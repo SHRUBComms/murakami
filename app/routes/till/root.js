@@ -46,7 +46,11 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                 allWorkingGroups: allWorkingGroups,
                 working_group: group,
                 categories: categories,
-                diode_api_key: process.env.DIODE_API_KEY
+                diode_api_key: process.env.DIODE_API_KEY,
+                murakamiMsg: req.query.murakamiMsg || null,
+                murakamiStatus: req.query.murakamiStatus || null,
+                smpStatus: req.query['smp-status'] || null,
+                smpMsg: req.query['smp-failure-cause'] || null
               });
             });
           });

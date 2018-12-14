@@ -295,7 +295,25 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     member_id,
                                     returnedMember.balance,
                                     function(err) {
-                                      res.send(response);
+                                      if(paymentMethod == "card"){
+                                        var sumupSummon = "sumupmerchant://pay/1.0?affiliate-key=" + process.env.SUMUP_AFFILIATE_KEY + "&app-id=" + process.env.SUMUP_APP_ID + "&total=" + totals.money + "&currency=GBP&callback=" + encodeURIComponent(process.env.PUBLIC_ADDRESS + "/till/" + till.till_id + "/?murakamiStatus=" + response.status + "&murakamiMsg=" + response.msg);
+                                        if(member){
+                                          if(member.email){
+                                            sumupSummon += "&receipt-email=" + member.email;
+                                          }
+                                          if(member.phone_no) {
+                                            sumupSummon += "&receipt-mobilephone=" + member.phone_no;
+                                          }
+                                        }
+                                        console.log(sumupSummon);
+                                        if(response.status == "ok"){
+                                          res.send({status: "redirect", url: sumupSummon})
+                                        } else {
+                                          res.send(response);
+                                        }
+                                      } else {
+                                        res.send(response);
+                                      }
                                     }
                                   );
                                 }
@@ -382,8 +400,18 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 Math.abs(carbonSaved.toFixed(2)) +
                                 "kg of carbon saved!";
                             }
+                            if(paymentMethod == "card"){
+                              var sumupSummon = "sumupmerchant://pay/1.0?affiliate-key=" + process.env.SUMUP_AFFILIATE_KEY + "&app-id=" + process.env.SUMUP_APP_ID + "&total=" + totals.money + "&currency=GBP&callback=" + encodeURIComponent(process.env.PUBLIC_ADDRESS + "/till/" + till.till_id + "/?murakamiStatus=" + response.status + "&murakamiMsg=" + response.msg)
 
-                            res.send(response);
+                              console.log(sumupSummon);
+                              if(response.status == "ok"){
+                                res.send({status: "redirect", url: sumupSummon})
+                              } else {
+                                res.send(response);
+                              }
+                            } else {
+                              res.send(response);
+                            }
                           }
                         );
                       });
