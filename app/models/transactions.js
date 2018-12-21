@@ -51,7 +51,9 @@ Transactions.add = function(transaction, callback) {
 
         var sql = mysql.format(query, inserts);
 
-        con.query(sql, callback);
+        con.query(sql, function(err) {
+          callback(err, transaction.transaction_id);
+        });
       });
     });
   } else {

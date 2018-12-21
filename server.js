@@ -16,6 +16,8 @@ var back = require("express-back");
 var validator = require("express-validator");
 var async = require("async");
 
+var Notifications = require(process.env.CWD + "/app/models/notifications");
+
 if (process.env.NODE_ENV != "development") {
   process.on("uncaughtException", function(err) {
     console.error(err);
@@ -142,9 +144,10 @@ app.use(function(req, res, next) {
   res.locals.error = req.flash("error");
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
   if (req.user) {
-    res.locals.notifications = {
-      old: [{ title: "Murakami update", text: "Blah blah blah", time: "now" }]
-    };
+    Notifications.getNew(req.user.id, function(err, notifications) {
+      res.locals.notifications = { new: notifications };
+    });
+
     res.locals.user = req.user;
     if (req.user.deactivated == 0) {
       if (req.user.class == "admin") {
@@ -205,6 +208,7 @@ var reportsRouter = require("./app/routes/reports/root");
 var settingsRouter = require("./app/routes/settings/root");
 var workingGroupsRouter = require("./app/routes/working-groups/root");
 var usersRouter = require("./app/routes/users/root");
+var volunteersRouter = require("./app/routes/volunteers/root");
 
 // Use routers
 app.use("/members", membersRouter);
@@ -212,8 +216,9 @@ app.use("/api", apiRouter);
 app.use("/reports", reportsRouter);
 app.use("/till", tillRouter);
 app.use("/settings", settingsRouter);
-app.use("/working-groups", workingGroupsRouter);
+//app.use("/working-groups", workingGroupsRouter);
 app.use("/users", usersRouter);
+app.use("/volunteers", volunteersRouter);
 app.use("/", appRouter); // *ALWAYS* PLACE THIS ROUTER LAST
 
 // Start server

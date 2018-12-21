@@ -1,0 +1,36 @@
+<div class="row m-4">
+  <div class="col-md-6 mx-auto">
+
+
+    <form method="post" action="{{public_address}}/volunteers/roles/add" class="form-group">
+
+      <div class="card p-4">
+        <div class="card-body">
+
+
+          <input type="text" class="form-control mb-2" placeholder="Role Title" name="role_title"{{#if role.title}} value="{{role.title}}"{{/if}} required>
+
+          <textarea class="form-control mb-2" placeholder="Short Description" name="short_description"{{#if role.short_description}} value="{{role.short_description}}"{{/if}} max="150" required></textarea>
+
+          <textarea class="form-control mb-2" placeholder="Experience Required" name="experience_required"{{#if role.experience_required}} value="{{role.experience_required}}"{{/if}} max="150" required></textarea>
+
+          <textarea class="form-control mb-2" placeholder="Experience Gained" name="experience_gained"{{#if role.experience_gained}} value="{{role.experience_required}}"{{/if}} max="150" required></textarea>
+
+          <div class="form-inline">
+            <label class="form-inline ml-1 mr-2">Required Hours (per week)</label>
+            <input type="number" name="hours_per_week" class="form-control form-inline" max=15 min=1 step=0.5 value="{{#if role.hours_per_week}}{{role.hours_per_week}}{{else}}0{{/if}}" />
+          </div>
+
+
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-8 mx-auto">
+          <button type="submit" class="btn btn-success btn-block btn-lg form-control">Add Role</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

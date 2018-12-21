@@ -7,9 +7,9 @@ var rootDir = process.env.CWD;
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
-  res.redirect("/working-groups/members");
+  res.redirect("/volunteers/dashboard");
 });
 
-router.use("/members", require("./members"));
+router.use("/add", require("./add"));
 
 module.exports = router;

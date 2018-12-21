@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{{public_address}}/assets/css/styles.css">
     <link rel="stylesheet" href="{{public_address}}/assets/css/responsive.css">
     <!-- modernizr css -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
     <script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>
 
     <!-- jquery latest version -->
@@ -66,10 +67,23 @@
                                 <li {{#if volunteersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
                                     <ul class="collapse">
-                                        <li><a href="{{public_address}}/log-volunteer-hours">Log Volunteer Hours</a></li>
-                                        <li><a href="{{public_address}}/working-groups/review-volunteer-hours">Review Volunteer Hours</a></li>
-                                        <li><a href="{{public_address}}/working-groups/induct-volunteers">Manage Volunteers</a></li>
-                                        <!--<li><a href="{{public_address}}/working-groups/find-a-volunteer">Find Volunteers</a></li>-->
+
+                                      <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
+                                      <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
+
+                                      <li class="mt-1"><a href="{{public_address}}/volunteers/check-in">Conduct A Check-in</a></li>
+
+                                      <li class="mt-1"><a href="{{public_address}}/volunteer-hours/log">Log Hours</a></li>
+                                      <li><a href="{{public_address}}/volunteer-hours/review">Review Hours</a></li>
+
+                                    </ul>
+                                </li>
+
+                                <li {{#if volunteerRolesActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteer Roles</span></a>
+                                    <ul class="collapse">
+                                      <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
+                                      <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
                                     </ul>
                                 </li>
                                 <li {{#if tillsActive}}class="active"{{/if}}>
@@ -167,11 +181,35 @@
                 </button>
               </div>
               <div class="modal-body">
-                {{#each notifications.new}}
+                <ol>
+                  {{#each notifications.new}}
+                    {{#if @last}}
+                      <div class="pr-5 pl-5 pb-3">
+                      {{else}}
+                        {{#if @first}}
+                            <div class="pr-5 pl-5 pt-3">
+                          {{else}}
+                            <div class="pr-5 pl-5">
+                        {{/if}}
+                    {{/if}}
+                      <li>
+                        <h6>{{title}}</h6>
+                        <small><script>document.write(moment("{{timestamp}}").fromNow());</script></small>
+                        {{#ifCond body.length '>' '100'}}
+                          <p><a href="{{../public_address}}/notifications/{{notification_id}}">See details</a></p>
+                        {{else}}
+                          <p>{{{body}}}</p>
+                        {{/ifCond}}
+                      </li>
+                      {{#unless @last}}
+                        <hr />
+                      {{/unless}}
+                    </div>
 
-                {{else}}
-                  <p class="mt-2 text-muted text-center">Nothing to see here...</p>
-                {{/each}}
+                  {{else}}
+                    <p class="mt-2 text-muted text-center">Nothing to see here...</p>
+                  {{/each}}
+                </ol>
 
                 {{#if notifications.old}}
                   <p class="text-center mt-4">

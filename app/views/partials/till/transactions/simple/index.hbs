@@ -202,6 +202,13 @@
 </div>
 
 <script>
+if (navigator.appVersion.includes("Android")){
+    $("#cardOption").removeClass("d-none");
+} else if(navigator.appVersion.includes("iOS")) {
+		$("#cardOption").removeClass("d-none");
+} else {
+	$("#cardOption").addClass("d-none");
+}
 
 var uri = window.location.toString();
 if (uri.indexOf("?") > 0) {
@@ -501,7 +508,6 @@ function updateButtons(){
 		$("#transaction_btns").addClass("d-none");
 	}
 
-	$("#cardOption").attr("href", sumupSummon)
 }
 
 function workingGroupJoin(){

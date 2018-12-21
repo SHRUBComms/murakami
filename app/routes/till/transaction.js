@@ -264,7 +264,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         );
 
                         Tills.addTransaction(formattedTransaction, function(
-                          err
+                          err,
+                          transaction_id
                         ) {
                           if (err) {
                             res.send({
@@ -272,6 +273,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               msg: "Something has gone terribly wrong!"
                             });
                           } else {
+                            console.log(transaction_id);
                             var carbon = {
                               member_id: member_id,
                               user_id: req.user.id,
@@ -295,19 +297,48 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     member_id,
                                     returnedMember.balance,
                                     function(err) {
-                                      if(paymentMethod == "card"){
-                                        var sumupSummon = "sumupmerchant://pay/1.0?affiliate-key=" + process.env.SUMUP_AFFILIATE_KEY + "&app-id=" + process.env.SUMUP_APP_ID + "&total=" + totals.money + "&currency=GBP&callback=" + encodeURIComponent(process.env.PUBLIC_ADDRESS + "/till/" + till.till_id + "/?murakamiStatus=" + response.status + "&murakamiMsg=" + response.msg);
-                                        if(member){
-                                          if(member.email){
-                                            sumupSummon += "&receipt-email=" + member.email;
+                                      if (paymentMethod == "card") {
+                                        var sumupSummon =
+                                          "sumupmerchant://pay/1.0?affiliate-key=" +
+                                          process.env.SUMUP_AFFILIATE_KEY +
+                                          "&app-id=" +
+                                          process.env.SUMUP_APP_ID +
+                                          "&total=" +
+                                          totals.money +
+                                          "&currency=GBP&callback=" +
+                                          encodeURIComponent(
+                                            process.env.PUBLIC_ADDRESS +
+                                              "/api/get/tills/smp-callback"
+                                          ) +
+                                          "&murakami-callback=" +
+                                          encodeURIComponent(
+                                            process.env.PUBLIC_ADDRESS +
+                                              "/till/" +
+                                              till.till_id +
+                                              "/?murakamiStatus=" +
+                                              response.status +
+                                              "&murakamiMsg=" +
+                                              response.msg
+                                          ) +
+                                          "&foreign-tx-id=" +
+                                          transaction_id;
+                                        if (member) {
+                                          if (member.email) {
+                                            sumupSummon +=
+                                              "&receipt-email=" + member.email;
                                           }
-                                          if(member.phone_no) {
-                                            sumupSummon += "&receipt-mobilephone=" + member.phone_no;
+                                          if (member.phone_no) {
+                                            sumupSummon +=
+                                              "&receipt-mobilephone=" +
+                                              member.phone_no;
                                           }
                                         }
                                         console.log(sumupSummon);
-                                        if(response.status == "ok"){
-                                          res.send({status: "redirect", url: sumupSummon})
+                                        if (response.status == "ok") {
+                                          res.send({
+                                            status: "redirect",
+                                            url: sumupSummon
+                                          });
                                         } else {
                                           res.send(response);
                                         }
@@ -374,7 +405,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     formattedTransaction.summary
                   );
 
-                  Tills.addTransaction(formattedTransaction, function(err) {
+                  Tills.addTransaction(formattedTransaction, function(
+                    err,
+                    transaction_id
+                  ) {
                     if (err) {
                       res.send({
                         status: "fail",
@@ -400,12 +434,38 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 Math.abs(carbonSaved.toFixed(2)) +
                                 "kg of carbon saved!";
                             }
-                            if(paymentMethod == "card"){
-                              var sumupSummon = "sumupmerchant://pay/1.0?affiliate-key=" + process.env.SUMUP_AFFILIATE_KEY + "&app-id=" + process.env.SUMUP_APP_ID + "&total=" + totals.money + "&currency=GBP&callback=" + encodeURIComponent(process.env.PUBLIC_ADDRESS + "/till/" + till.till_id + "/?murakamiStatus=" + response.status + "&murakamiMsg=" + response.msg)
+                            if (paymentMethod == "card") {
+                              var sumupSummon =
+                                "sumupmerchant://pay/1.0?affiliate-key=" +
+                                process.env.SUMUP_AFFILIATE_KEY +
+                                "&app-id=" +
+                                process.env.SUMUP_APP_ID +
+                                "&total=" +
+                                totals.money +
+                                "&currency=GBP&callback=" +
+                                encodeURIComponent(
+                                  process.env.PUBLIC_ADDRESS +
+                                    "/api/get/tills/smp-callback"
+                                ) +
+                                "&murakami-callback=" +
+                                encodeURIComponent(
+                                  process.env.PUBLIC_ADDRESS +
+                                    "/till/" +
+                                    till.till_id +
+                                    "/?murakamiStatus=" +
+                                    response.status +
+                                    "&murakamiMsg=" +
+                                    response.msg
+                                ) +
+                                "&foreign-tx-id=" +
+                                transaction_id;
 
                               console.log(sumupSummon);
-                              if(response.status == "ok"){
-                                res.send({status: "redirect", url: sumupSummon})
+                              if (response.status == "ok") {
+                                res.send({
+                                  status: "redirect",
+                                  url: sumupSummon
+                                });
                               } else {
                                 res.send(response);
                               }

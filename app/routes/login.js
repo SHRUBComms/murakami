@@ -82,13 +82,17 @@ router.post(
 );
 
 router.get("/", function(req, res) {
-  Settings.getAll(function(err, settings) {
-    res.render("login", {
-      loginActive: true,
-      title: "Login",
-      settings: settings[0]
+  if (!req.user) {
+    Settings.getAll(function(err, settings) {
+      res.render("login", {
+        loginActive: true,
+        title: "Login",
+        settings: settings[0]
+      });
     });
-  });
+  } else {
+    res.redirect("/");
+  }
 });
 
 module.exports = router;

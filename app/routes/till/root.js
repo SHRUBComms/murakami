@@ -47,10 +47,12 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                 working_group: group,
                 categories: categories,
                 diode_api_key: process.env.DIODE_API_KEY,
+                sumup_affiliate_key: process.env.SUMUP_AFFILIATE_KEY,
+                sumup_app_id: process.env.SUMUP_APP_ID,
                 murakamiMsg: req.query.murakamiMsg || null,
                 murakamiStatus: req.query.murakamiStatus || null,
-                smpStatus: req.query['smp-status'] || null,
-                smpMsg: req.query['smp-failure-cause'] || null
+                smpStatus: req.query["smp-status"] || null,
+                smpMsg: req.query["smp-failure-cause"] || null
               });
             });
           });
