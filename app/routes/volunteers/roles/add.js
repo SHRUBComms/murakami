@@ -28,6 +28,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   var public = req.body.public;
 
   // Validate role.
+  
 
   // Fomat public variable.
   if (public == "on") {

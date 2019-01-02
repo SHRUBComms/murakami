@@ -224,6 +224,7 @@ app.use("/", appRouter); // *ALWAYS* PLACE THIS ROUTER LAST
 // Start server
 app.listen(port);
 console.log("### " + process.env.NODE_ENV.toUpperCase() + " ###");
-console.log("Server started on port " + port);
+console.log("Server started on local port " + port);
+console.log("Running on public address " + process.env.PUBLIC_ADDRESS)
 
 module.exports.getApp = app;

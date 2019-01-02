@@ -1,0 +1,46 @@
+<div class="row mt-4">
+
+  <div class="col-lg-10 mx-auto">
+
+    {{#ifUserClass user.class '["admin"]'}}
+
+      <div class="row">
+        <div class="container">
+          <div class="form-group form-inline">
+            <select class="form-control" id="working_groups">
+              <option disabled selected>Select a working group...</option>
+                {{#each allWorkingGroups}}
+                  <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+                {{/each}}
+            </select>
+          </div>
+        </div>
+      </div>
+
+    {{else}}
+  		{{#ifGreaterThan user.working_groups.length 1}}
+  		<div class="row">
+  			<div class="container">
+  				<div class="form-group form-inline">
+  					<select class="form-control" id="working_groups">
+  						<option disabled selected>Select a working group...</option>
+  							{{#each user.working_groups}}
+  								<option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+  							{{/each}}
+  					</select>
+  				</div>
+  			</div>
+  		</div>
+  		{{else}}
+  		<div class="row">
+  			<div class="card">
+  				<div class="card-body">
+  					<h3>{{user.working_groups.0.name}}</h3>
+  				</div>
+  			</div>
+  		</div>
+  		{{/ifGreaterThan}}
+    {{/ifUserClass}}
+
+  </div>
+</div>
