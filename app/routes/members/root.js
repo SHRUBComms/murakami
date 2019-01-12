@@ -12,24 +12,22 @@ var Auth = require(rootDir + "/app/configs/auth");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
   Members.getAll(function(err, members) {
-    WorkingGroups.getAll(function(err, allWorkingGroups) {
-      async.eachOf(
-        members,
-        function(member, i, callback) {
-          Members.makeNice(members[i], allWorkingGroups, function(member) {
-            members[i] = member;
-            callback();
-          });
-        },
-        function(err) {
-          res.render("members/all", {
-            title: "Manage Members",
-            members: members,
-            membersActive: true
-          });
-        }
-      );
-    });
+    async.eachOf(
+      members,
+      function(member, i, callback) {
+        Members.sanitizeMember(members[i], req.user, function(err, member) {
+          members[i] = member;
+          callback();
+        });
+      },
+      function(err) {
+        res.render("members/all", {
+          title: "Manage Members",
+          members: members,
+          membersActive: true
+        });
+      }
+    );
   });
 });
 

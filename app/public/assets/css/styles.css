@@ -2920,4 +2920,9 @@ table.dataTable thead td {
   border-radius: 15px;
 }
 
+.check-mark:before {
+  content: "✔";
+  font-size: 16px;
+}
+
 /*-------------------- END Bootstrap Overrides ------------------- */

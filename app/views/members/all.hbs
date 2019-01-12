@@ -9,16 +9,27 @@
 	<div class="col-lg-6 col-md-8 mx-auto">
 			<table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
 				<thead>
-					<th>Name</th>
+					<th data-sortable="true">Name</th>
 					<th>Status</th>
 					<th></th>
 				</thead>
 				<tbody>
 				{{#each members}}
 					<tr>
-						<td>{{full_name.text}}</td>
-						<td>{{status.text}}</td>
-						<td><a href="/members/view/{{id.text}}" class="btn btn-block btn-primary">View/Update</a></td>
+						<td>{{first_name}} {{last_name}}</td>
+						<td>
+							{{#if is_member}}
+								Current member,
+								{{#ifCond free '==' 1}}
+									free
+								{{else}}
+									paid
+								{{/ifCond}}
+							{{else}}
+								No longer a member.
+							{{/if}}
+						</td>
+						<td><a href="{{public_address}}/members/view/{{member_id}}" class="btn btn-block btn-primary">View/Update</a></td>
 					</tr>
 				{{/each}}
 				</tbody>

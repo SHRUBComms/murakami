@@ -21,9 +21,11 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
       Tills.getStatusById(till_id, function(status) {
         if (status.opening == 1) {
           if (tokens > 0 && tokens <= 50 && tokens % 1 == 0) {
-            Members.getById(member_id, function(err, member) {
-              if (member[0]) {
-                member = member[0];
+            Members.getById(member_id, { class: "admin" }, function(
+              err,
+              member
+            ) {
+              if (member) {
                 Members.updateBalance(
                   member_id,
                   +member.balance + +tokens,

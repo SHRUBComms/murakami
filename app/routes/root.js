@@ -4,11 +4,7 @@ var router = require("express").Router();
 router.get("/", function(req, res) {
   if (req.user) {
     if (["admin", "staff", "volunteer"].includes(req.user.class)) {
-      if (req.user.working_groups) {
-        res.redirect("/working-groups/induct-volunteers/");
-      } else {
-        res.redirect("/members");
-      }
+      res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
     } else {
       res.redirect("/till");
     }

@@ -4,8 +4,43 @@ var mysql = require("mysql");
 var Helpers = require("../configs/helpful_functions");
 
 var async = require("async");
+var moment = require("moment");
 
 var Members = {};
+
+Members.sanitizeMember = function(member, user, callback) {
+  member.working_groups = JSON.parse(member.working_groups);
+  member.userHasPermission = false;
+  if (user.class == "till") {
+    member.email = null;
+    member.phone_no = null;
+    member.address = null;
+  } else if (user.class == "volunteer") {
+    if (
+      !Helpers.hasOneInCommon(member.working_groups, user.working_groups_arr)
+    ) {
+      member.email = null;
+      member.phone_no = null;
+      member.address = null;
+    } else {
+      member.userHasPermission = true;
+    }
+  } else if (user.class == "staff") {
+    if (
+      !Helpers.hasOneInCommon(member.working_groups, user.working_groups_arr) &&
+      member.contactSharingConsent == 0
+    ) {
+      member.email = null;
+      member.phone_no = null;
+      member.address = null;
+    } else {
+      member.userHasPermission = true;
+    }
+  } else if (user.class == "admin") {
+    member.userHasPermission = true;
+  }
+  callback(null, member);
+};
 
 Members.getAll = function(callback) {
   var query =
@@ -42,12 +77,18 @@ Members.searchByNameAndGroup = function(search, group_id, callback) {
   con.query(sql, callback);
 };
 
-Members.getById = function(id, callback) {
+Members.getById = function(id, user, callback) {
   var query = "SELECT * FROM members WHERE member_id = ?";
   var inserts = [id];
   var sql = mysql.format(query, inserts);
 
-  con.query(sql, callback);
+  con.query(sql, function(err, member) {
+    if (!err && member[0]) {
+      Members.sanitizeMember(member[0], user, callback);
+    } else {
+      callback(err, null);
+    }
+  });
 };
 
 Members.getVolInfoById = function(id, callback) {
@@ -106,7 +147,7 @@ Members.getFreeVols = function(callback) {
 
 Members.add = function(member, callback) {
   var query =
-    "INSERT INTO members (member_id, first_name, last_name, email, phone_no, address, is_member, free, volunteer_status, first_volunteered, last_volunteered, working_groups, active_swapper, balance, earliest_membership_date, current_init_membership, current_exp_membership) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO members (member_id, first_name, last_name, email, phone_no, address, is_member, free, balance, earliest_membership_date, current_init_membership, current_exp_membership) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
   // Generate ID!
   Helpers.uniqueIntId(11, "members", "member_id", function(id) {
@@ -120,21 +161,17 @@ Members.add = function(member, callback) {
       member.phone_no,
       member.address,
       1,
+      0,
       member.free,
-      member.volunteer_status,
-      null,
-      null,
-      null,
-      0,
-      0,
       member.earliest_membership_date,
       member.current_init_membership,
       member.current_exp_membership
     ];
     var sql = mysql.format(query, inserts);
-
-    con.query(sql);
-    Members.getById(member.member_id, callback);
+    console.log(id);
+    con.query(sql, function(err) {
+      callback(err, id);
+    });
   });
 };
 
@@ -309,18 +346,80 @@ Members.delete = function(member_id, callback) {
   con.query(sql, callback);
 };
 
-Members.getVolunteerInfoByGroupId = function(group_id, callback) {
-  var query = `SELECT * FROM volunteer_info
-        INNER JOIN members ON volunteer_info.member_id=members.member_id and working_groups LIKE ?`;
-  var inserts = ["%" + group_id + "%"];
-  var sql = mysql.format(query, inserts);
+Members.getVolunteersByGroupId = function(group_id, user, callback) {
+  var working_groups = user.working_groups_arr;
+
+  if (group_id) {
+    var query = `SELECT * FROM volunteer_info
+          INNER JOIN members ON volunteer_info.member_id=members.member_id AND working_groups LIKE ?`;
+    var inserts = ["%" + group_id + "%"];
+    var sql = mysql.format(query, inserts);
+  } else {
+    if (user.class == "admin") {
+      var sql = `SELECT * FROM volunteer_info
+            INNER JOIN members ON volunteer_info.member_id=members.member_id`;
+    } else {
+      var query = `SELECT * FROM volunteer_info
+            INNER JOIN members ON volunteer_info.member_id=members.member_id AND (working_groups LIKE ?`;
+      for (i = 0; i < working_groups.length; i++) {
+        working_groups[i] = "%" + working_groups[i] + "%";
+        if (i + 1 != working_groups.length) {
+          query += " OR working_groups LIKE ?";
+        }
+      }
+
+      query += ")";
+
+      var inserts = working_groups;
+      var sql = mysql.format(query, inserts);
+      console.log(sql);
+    }
+  }
 
   con.query(sql, function(err, volunteers) {
+    //console.log(volunteers);
     async.each(
       volunteers,
       function(volunteer, callback) {
+        volunteer.roles = JSON.parse(volunteer.roles);
         volunteer.survey = JSON.parse(volunteer.survey);
         volunteer.availability = JSON.parse(volunteer.availability);
+
+        //volunteer.lastUpdated = moment(volunteer.lastUpdated).format("l");
+        //volunteer.lastUpdatedRelative = moment(volunteer.lastUpdated).fromNow();
+
+        volunteer.lastVolunteered = moment(volunteer.last_volunteered).format(
+          "DD/MM/YYYY"
+        );
+        volunteer.lastVolunteeredRelative = moment(
+          volunteer.last_volunteered
+        ).fromNow();
+
+        var now = new Date();
+
+        if (
+          moment(volunteer.last_volunteered).isBefore(
+            moment(now).subtract(2, "months")
+          )
+        ) {
+          console.log("Needs to volunteer now");
+          console.log(now);
+          volunteer.needsToVolunteer = "now";
+        } else if (
+          moment(volunteer.last_volunteered).isBefore(
+            moment(now).subtract(1, "months")
+          )
+        ) {
+          console.log("Needs to volunteer soon");
+          console.log("Last volunteered:", volunteer.last_volunteered);
+          console.log("1 month ago:", now);
+          volunteer.needsToVolunteer = "soon";
+        } else {
+          console.log(now);
+          console.log("Doesn't need to volunteer soon.");
+          volunteer.needsToVolunteer = false;
+        }
+
         volunteer.contact = "";
         let commMethods = volunteer.survey.preferredCommMethod;
         if (commMethods.email) {
@@ -492,202 +591,6 @@ Members.makeSearchNice = function(member, settings, callback) {
   }
 
   callback(beautifulSearch);
-};
-
-Members.makeNice = function(member, allWorkingGroups, callback) {
-  var beautifulMember = {
-    id: {
-      text: null,
-      class: null
-    },
-    first_name: {
-      text: null,
-      class: null
-    },
-    last_name: {
-      text: null,
-      class: null
-    },
-    full_name: {
-      text: null,
-      class: null
-    },
-    status: {
-      text: null,
-      class: null
-    },
-    isMember: {
-      text: null,
-      class: null
-    },
-    balance: {
-      text: null,
-      class: null
-    },
-    email: {
-      text: null,
-      class: null
-    },
-    phone_no: {
-      text: null,
-      class: null
-    },
-    address: {
-      text: null,
-      class: null
-    },
-    volunteer_status: {
-      text: null,
-      class: null
-    },
-    active_swapper: {
-      text: null,
-      class: null
-    },
-    working_groups: [],
-    last_volunteered: {
-      text: {
-        nice: null,
-        normal: null
-      },
-      class: null
-    },
-    earliest_membership_date: {
-      text: {
-        nice: null,
-        normal: null
-      },
-      class: null
-    },
-    current_init_membership: {
-      text: {
-        nice: null,
-        normal: null
-      },
-      class: null
-    },
-    current_exp_membership: {
-      text: {
-        nice: null,
-        normal: null
-      },
-      class: null
-    }
-  };
-
-  beautifulMember.id.text = member.member_id;
-
-  // First name
-  beautifulMember.first_name.text = member.first_name;
-
-  // Last name
-  beautifulMember.last_name.text = member.last_name;
-
-  // Full name
-  beautifulMember.full_name.text = member.first_name + " " + member.last_name;
-
-  // Status
-  if (member.is_member == 1) {
-    beautifulMember.status.text = "Current member";
-    beautifulMember.status.class = "text-success";
-    if (member.free == 0) {
-      beautifulMember.status.text += ", paid";
-    } else {
-      beautifulMember.status.text += ", free";
-    }
-  } else {
-    beautifulMember.status.text = "No longer a member";
-    beautifulMember.status.class = "text-danger";
-  }
-
-  beautifulMember.isMember.text = member.is_member;
-
-  // Tokens
-  beautifulMember.balance.text = member.balance;
-
-  // Contact
-  beautifulMember.email.text = member.email;
-  beautifulMember.phone_no.text = member.phone_no;
-  beautifulMember.address.text = member.address;
-
-  // Membership info
-  if (member.volunteer_status == 2) {
-    beautifulMember.volunteer_status.text = "doesn't volunteer";
-  } else if (member.volunteer_status == 1) {
-    beautifulMember.volunteer_status.text = "volunteers occasionally";
-  } else {
-    beautifulMember.volunteer_status.text = "volunteers regularly";
-  }
-
-  if (member.active_swapper == 1) {
-    beautifulMember.active_swapper.text = "an active swapper";
-  } else {
-    beautifulMember.active_swapper.text = "not an active swapper";
-  }
-
-  // Working groups
-
-  if (member.working_groups) {
-    member.working_groups = JSON.parse(member.working_groups);
-
-    async.eachOf(
-      member.working_groups,
-      function(working_group, i, callback) {
-        if (allWorkingGroups[member.working_groups[i]]) {
-          beautifulMember.working_groups[i] = {};
-          beautifulMember.working_groups[i].group_id =
-            allWorkingGroups[member.working_groups[i]].group_id;
-          beautifulMember.working_groups[i].name =
-            allWorkingGroups[member.working_groups[i]].name;
-          beautifulMember.working_groups[i].isMember = true;
-        }
-        callback();
-      },
-      function(err) {}
-    );
-  }
-
-  beautifulMember.working_groups = beautifulMember.working_groups || [];
-
-  // Nice dates
-  var options = { year: "numeric", month: "long", day: "numeric" };
-  beautifulMember.earliest_membership_date.text.nice = new Date(
-    member.earliest_membership_date
-  ).toLocaleDateString("en-GB", options);
-
-  beautifulMember.current_init_membership.text.nice = new Date(
-    member.current_init_membership
-  ).toLocaleDateString("en-GB", options);
-
-  beautifulMember.current_exp_membership.text.nice = new Date(
-    member.current_exp_membership
-  ).toLocaleDateString("en-GB", options);
-
-  // Normal dates
-  beautifulMember.earliest_membership_date.text.normal = new Date(
-    member.earliest_membership_date
-  ).toLocaleDateString("en-GB");
-
-  beautifulMember.current_init_membership.text.normal = new Date(
-    member.current_init_membership
-  ).toLocaleDateString("en-GB");
-
-  beautifulMember.current_exp_membership.text.normal = new Date(
-    member.current_exp_membership
-  ).toLocaleDateString("en-GB");
-
-  // Volunteer dates
-
-  if (member.last_volunteered) {
-    beautifulMember.last_volunteered.text.nice = new Date(
-      member.last_volunteered
-    ).toLocaleDateString("en-GB", options);
-    beautifulMember.last_volunteered.text.normal = new Date(
-      member.last_volunteered
-    ).toLocaleDateString("en-GB");
-  }
-
-  callback(beautifulMember);
 };
 
 module.exports = Members;

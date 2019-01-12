@@ -1,0 +1,267 @@
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h3 class="mb-2">Personal Details</h3>
+
+    <div class="form-inline mb-3">
+
+        <input type="text" class="form-control mr-2" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+
+        <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+
+    </div>
+
+    <p class="mb-1"><b>Date of Birth</b> (must be 16 or over) <span class="text-danger">*</span></p>
+    <div class="form-group col-md-5" style="padding: 0;">
+      <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
+    </div>
+ </div>
+</div>
+<div class="card mb-4">
+ <div class="card-body">
+    <h3 class="mb-2">Contact Details</h3>
+    <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}} required />
+
+    <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+
+    <textarea type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
+
+    <p class="pt-3">Shrub may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
+    <div class="form-check form-check-inline mt-2">
+      <input class="form-check-input" type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}}>
+      <label class="form-check-label">Consent given <span class="text-danger">*</span></label>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h3 class="mb-2">Membership</h3>
+
+    {{#unless addingVolunteer}}
+      <select class="form-control" name="membership_length">
+        <option value="year" {{#ifCond membership_length '==' 'year'}}selected{{/ifCond}}>12 months</option>
+        <option value="half_year" {{#ifCond membership_length '==' 'half_year'}}selected{{/ifCond}}>6 months</option>
+        <option value="3_months" {{#ifCond membership_length '==' '3_months'}}selected{{/ifCond}}>3 months</option>
+        {{#ifUserClass user.class '["admin"]'}}
+          <option value="eternal" {{#ifCond membership_length '==' 'eternal'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
+        {{/ifUserClass}}
+      </select>
+    {{/unless}}
+
+    <div class="row mt-3 no-gutters">
+      <div class="col-md-5 p-2 mx-auto">
+        <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#ourVision">
+          Our Vision
+        </button>
+      </div>
+      <div class="col-md-5 p-2 mx-auto">
+        <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#saferSpacesPolicy">
+          Safer Spaces Policy
+        </button>
+      </div>
+    </div>
+    <div class="row no-gutters">
+      <div class="col-md-6 p-2 mx-auto">
+        <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#membershipBenefitsModal">
+          Membership Benefits
+        </button>
+      </div>
+    </div>
+
+    <div class="form-check form-check-inline mt-3">
+      <input class="form-check-input" type="checkbox" id="shrubExplained" name="shrubExplained" required {{#if shrubExplained}}checked{{/if}}>
+      <label class="form-check-label">Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings <span class="text-danger">*</span></label>
+    </div>
+
+    <div class="form-check form-check-inline mt-4">
+      <input class="form-check-input" type="checkbox" id="safeSpace" name="safeSpace" required {{#if safeSpace}}checked{{/if}}>
+      <label class="form-check-label">Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure <span class="text-danger">*</span></label>
+    </div>
+
+    <div class="form-check form-check-inline mt-4">
+      <input class="form-check-input" type="checkbox" id="membershipBenefits" name="membershipBenefits" required {{#if membershipBenefits}}checked{{/if}}>
+      <label class="form-check-label">Explained membership benefits <span class="text-danger">*</span></label>
+    </div>
+
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+
+    <h4>Newsletters</h4>
+
+    <small>Optionally subscribe to our newsletters (via Mailchimp). You can unsubscribe at any time.</small>
+
+    <p class="pt-3 font-weight-bold">SHRUB Co-op newsletter - every 2 weeks</p>
+    <p class="mt-1">To keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
+    <div class="form-check form-check-inline mt-2">
+      <input class="form-check-input" type="checkbox" name="generalNewsletterConsent" {{#if generalNewsLetterConsent}}checked{{/if}}>
+      <label class="form-check-label">Consent given to subscribe to general Shrub newsletter</label>
+    </div>
+
+    <p class="pt-3 font-weight-bold">Food Sharing Edinburgh newsletter - every 2 weeks</p>
+    <div class="form-check form-check-inline mt-2">
+      <input class="form-check-input" type="checkbox" name="fseNewsletterConsent" {{#if fseNewsLetterConsent}}checked{{/if}}>
+      <label class="form-check-label">Consent given to subscribe to FSE's newletter</label>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h3 class="mb-2">Data Protection</h3>
+
+    <div class="form-check mt-4 {{#if addingVolunteer}}mb-3{{/if}}">
+      <input class="form-check-input" type="checkbox" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}} >
+      <label class="form-check-label">Agreed to our <a href="#" target="_blank">privacy policy</a>  <span class="text-danger">*</span></label>
+    </div>
+
+    {{#if addingVolunteer}}
+      <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
+      <div class="mt-1">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="canShareEmail" required {{#if canShareEmail}}checked{{/if}} >
+          <label class="form-check-label">Email</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="canSharePhone" required {{#if canSharePhone}}checked{{/if}} >
+          <label class="form-check-label">Phone</label>
+        </div>
+      </div>
+
+      <p class="mt-3">Would you like to be contacted about other volunteer opportunities that may be relevant to you? (optional)</p>
+
+      <div class="form-check form-check-inline mt-1">
+        <input class="form-check-input" type="checkbox" name="suggestedRoles" required {{#if suggestedRoles}}checked{{/if}} >
+        <label class="form-check-label">Yes</label>
+      </div>
+
+    {{/if}}
+
+
+
+  </div>
+</div>
+
+
+<div class="modal fade" id="ourVision" tabindex="-1" role="dialog" aria-labelledby="ourVisionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Our Vision</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto">
+            <p>SHRUB Swap & Reuse Hub is a community-led co-operative working for a world without waste.</p>
+
+            <h5 class="mt-3 mb-1">Our Purpose (Aims & Objectives)</h5>
+            <div class="container">
+              <ol>
+
+                <li>To provide a welcoming space for rethinking our relationship to waste, reducing consumption and developing effective use of resources</li>
+
+                <li>To support community empowerment in Edinburgh, learning and sharing skills to make a practical difference to the world we share</li>
+
+                <li>To deliver innovative waste prevention, creative reuse and repair practices in a living laboratory of Circular Economy</li>
+              </ol>
+            </div>
+            <h5 class="mt-4 mb-1">Our Values</h5>
+            <div class="container">
+              <ul style="list-style-type: disc;">
+                <li>We value inclusivity and work with others to provide a welcoming community for all</li>
+
+                <li>We act with integrity and strive to be sustainable in everything we do</li>
+
+                <li>We live by co-operative values of self-help, self-responsibility, democracy, equality, equity and solidarity.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#shrubExplained').prop('checked', 'true')">Explained Our Vision</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="saferSpacesPolicy" tabindex="-1" role="dialog" aria-labelledby="saferSpacesPolicyLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="saferSpacesPolicy">Safer Spaces Policy</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto">
+
+            <p class="mt-2">SHRUB aims to provide a safe environment, which is welcoming, engaging and supportive for everyone. By becoming a member, you agree to behave in accordance with this policy when at SHRUB, during SHRUB events, and through SHRUB’s social media, emails or other messages with those involved with SHRUB!</p>
+
+            <p class="mt-2">You will find a full verstion of the safer spaces policy in your welcome email, please take a look!</p>
+
+            <p class="mt-2">You can also contact the welfare working group if you have any problems or require support: <a href="shrubwelfare@gmail.com">shrubwelfare@gmail.com</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#safeSpace').prop('checked', 'true')">Explained Safer Spaces Policy</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="membershipBenefitsModal" tabindex="-1" role="dialog" aria-labelledby="membershipBenefitsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="membershipBenefitsModalLabel">Membership Benefits</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto">
+            <p class="mt-2">As a member of SHRUB you're now part of our community, have an equal voice in the co-op and the right to take part in decision making!</p>
+            <p class="mt-2 mb-1">You also get:</p>
+            <div class="container">
+              <ul style="list-style-type: disc;">
+                <li>Access to swap at the swapshop!</li>
+                <li>Use of the freeshop!</li>
+                <li>Use of the food sharing hub!</li>
+                <li>Discounts at paid events and workshops!</li>
+                <li>Discount on bike parts at the Wee Spoke Hub!</li>
+                <li>Discounted booking of our lovely spaces for personal use!</li></li>
+                <li>Come to our members parties!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#membershipBenefits').prop('checked', 'true')">Explained Membership Benefits</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+var date = new Date();
+$('#dob').prop('max', (date.getFullYear()-16)+"-"+
+                      ('0' + (date.getMonth()+ +1)).slice(-2)+"-"+
+                      ('0' + date.getDate()).slice(-2));
+
+</script>

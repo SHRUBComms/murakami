@@ -26,9 +26,9 @@ Transactions.getByMemberId = function(member_id, callback) {
   con.query(sql, callback);
 };
 
-Transactions.add = function(transaction, callback) {
+Transactions.add = function(transaction, user, callback) {
   if (transaction.amount > 0) {
-    Members.getById(transaction.member_id, function(err, member) {
+    Members.getById(transaction.member_id, user, function(err, member) {
       if (err || !member[0]) throw err;
 
       var query =

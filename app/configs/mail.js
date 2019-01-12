@@ -1,6 +1,7 @@
 var nodemailer = require("nodemailer");
 var htmlToText = require("nodemailer-html-to-text").htmlToText;
 var sanitizeHtml = require("sanitize-html");
+var moment = require("moment");
 
 var Members = require("../models/members");
 var Settings = require("../models/settings");
@@ -48,49 +49,43 @@ Mail.sendSupport = function(from_name, from_address, subject, html, callback) {
 };
 
 Mail.sendAutomated = function(mail_id, member_id, callback) {
-  Members.getById(member_id, function(err, member) {
-    WorkingGroups.getAll(function(err, working_groups) {
-      if (err || !member[0]) throw err;
+  Members.getById(member_id, { class: "admin" }, function(err, member) {
+    Settings.getEmailTemplateById(mail_id, function(err, template) {
+      if (err || !template[0]) throw err;
+      mail = template[0];
 
-      Members.makeNice(member[0], working_groups, function(beautifulMember) {
-        Settings.getEmailTemplateById(mail_id, function(err, template) {
-          if (err || !template[0]) throw err;
-          mail = template[0];
+      if (mail.active) {
+        mail.markup = sanitizeHtml(mail.markup);
 
-          if (mail.active) {
-            mail.markup = sanitizeHtml(mail.markup);
+        mail.markup = mail.markup
+          .replace("|first_name|", member.first_name)
+          .replace("|last_name|", member.last_name)
+          .replace("|fullname|", member.first_name + " " + member.last_name)
+          .replace(
+            "|exp_date|",
+            moment(member.current_exp_membership).format("YYYY-MM-DD")
+          )
+          .replace("|membership_id|", member.member_id);
 
-            mail.markup = mail.markup
-              .replace("|first_name|", beautifulMember.first_name.text)
-              .replace("|last_name|", beautifulMember.last_name.text)
-              .replace("|fullname|", beautifulMember.full_name.text)
-              .replace(
-                "|exp_date|",
-                beautifulMember.current_exp_membership.text.nice
-              )
-              .replace("|membership_id|", beautifulMember.id.text);
+        var message = {
+          html: mail.markup,
+          from: "Shrub Co-op <shrub@murakami.org.uk>",
+          to:
+            member.first_name +
+            " " +
+            member.last_name +
+            " <" +
+            member.email +
+            ">",
+          subject: mail.subject
+        };
 
-            var message = {
-              html: mail.markup,
-              from: "Shrub Co-op <shrub@murakami.org.uk>",
-              to:
-                beautifulMember.full_name.text +
-                " <" +
-                beautifulMember.email.text +
-                ">",
-              subject: mail.subject
-            };
-
-            var transporter = nodemailer.createTransport(
-              Mail.supportSmtpConfig
-            );
-            transporter.use("compile", htmlToText());
-            transporter.sendMail(message, callback);
-          } else {
-            callback("Email template not active!", null);
-          }
-        });
-      });
+        var transporter = nodemailer.createTransport(Mail.supportSmtpConfig);
+        transporter.use("compile", htmlToText());
+        transporter.sendMail(message, callback);
+      } else {
+        callback("Email template not active!", null);
+      }
     });
   });
 };

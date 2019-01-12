@@ -143,6 +143,7 @@ app.use(function(req, res, next) {
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
+
   if (req.user) {
     Notifications.getNew(req.user.id, function(err, notifications) {
       res.locals.notifications = { new: notifications };
@@ -154,11 +155,15 @@ app.use(function(req, res, next) {
         req.user.admin = 1;
       } else {
         req.user.admin = 0;
+        if (req.user.class == "till") {
+          res.locals.tillMode = true;
+        }
       }
       req.user.name = req.user.first_name + " " + req.user.last_name;
       req.user.working_groups = JSON.parse(req.user.working_groups);
       WorkingGroups.getAll(function(err, working_groups_arr) {
         var working_groups = {};
+        res.locals.allWorkingGroups = working_groups_arr;
         async.each(
           working_groups_arr,
           function(group, callback) {
@@ -166,6 +171,8 @@ app.use(function(req, res, next) {
             callback();
           },
           function() {
+            req.user.allWorkingGroupsObj = working_groups;
+
             async.eachOf(
               req.user.working_groups,
               function(wg, i, callback) {
@@ -178,6 +185,10 @@ app.use(function(req, res, next) {
                 callback();
               },
               function(err) {
+                var working_groups = req.user.working_groups;
+                req.user.working_groups_arr = working_groups.map(function(obj) {
+                  return obj.group_id;
+                });
                 next();
               }
             );
@@ -225,6 +236,6 @@ app.use("/", appRouter); // *ALWAYS* PLACE THIS ROUTER LAST
 app.listen(port);
 console.log("### " + process.env.NODE_ENV.toUpperCase() + " ###");
 console.log("Server started on local port " + port);
-console.log("Running on public address " + process.env.PUBLIC_ADDRESS)
+console.log("Running on public address " + process.env.PUBLIC_ADDRESS);
 
 module.exports.getApp = app;

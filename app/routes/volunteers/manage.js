@@ -9,37 +9,41 @@ var Members = require(rootDir + "/app/models/members");
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff", "volunteer"]), function(req, res){
-  if(req.user.working_groups){
-    if(req.user.working_groups.length > 0){
-      res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage/" + req.user.working_groups[0].group_id);
-    } else {
-      res.redirect("/");
-    }
-  } else {
-    res.redirect("/");
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  function(req, res) {
+    Members.getVolunteersByGroupId(
+      req.query.group_id || null,
+      req.user,
+      function(err, volunteers) {
+        userBelongsToGroup = Helpers.hasOneInCommon(
+          req.user.working_groups_arr,
+          [req.query.group_id]
+        );
+
+        if (
+          (req.query.group_id && userBelongsToGroup) ||
+          !req.query.group_id ||
+          req.user.class == "admin"
+        ) {
+          res.render("volunteers/manage", {
+            title: "Manage Volunteers",
+            volunteers: volunteers,
+            group: {
+              group_id: req.query.group_id
+            }
+          });
+        } else {
+          req.flash("error", "You don't belong to that working group.");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
+        }
+      }
+    );
   }
-})
-
-router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff", "volunteer"]), function(req, res){
-  Members.getVolunteerInfoByGroupId(req.params.group_id, function(err, volunteers){
-    if(req.user.class == "admin"){
-      WorkingGroups.getAll(function(err, allWorkingGroups){
-        res.render("volunteers/manage", {
-          title: "Manage Volunteers",
-          volunteers: volunteers,
-          allWorkingGroups: allWorkingGroups
-        })
-      })
-    } else {
-      // Censor info according to class.
-      res.render("volunteers/manage", {
-        title: "Manage Volunteers",
-        volunteers: volunteers
-      })
-    }
-  })
-})
+);
 
 module.exports = router;

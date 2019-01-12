@@ -69,28 +69,7 @@
               </div>
             </div>
 
-            <div class="card mt-4">
-    					<div class="card-body">
 
-                <h4 class="mb-2">Emergency Contact <span class="text-danger">*</span></h4>
-
-                <div class="form-group form-inline">
-                  <input type="text" class="form-control mr-md-2 mr-lg-2 mr-xl-2" placeholder="Relation" name="volInfo[emergencyContactRelation]"{{#if volInfo.emergencyContactRelation}} value="{{volInfo.emergencyContactRelation}}"{{/if}}>
-                  <input type="text" class="form-control" placeholder="Name" name="volInfo[emergencyContactName]"{{#if volInfo.emergencyContactName}} value="{{volInfo.emergencyContactName}}"{{/if}}>
-                </div>
-
-
-                <div class="form-group col-sm-8" style="padding: 0;">
-                  <input type="text" class="form-control" placeholder="Phone Number" name="volInfo[emergencyContactPhoneNo]"{{#if volInfo.emergencyContactPhoneNo}} value="{{volInfo.emergencyContactPhoneNo}}"{{/if}}>
-                </div>
-
-                <div class="form-group form-inline">
-
-                  <p><input type="checkbox" name="medicalDisclosed" required /> We aim to make SHRUB as inclusive as possible, do you have any disabilities, health needs or extra support needs that you would like us to be aware of? - if so please let your staff coordinator know, you can also get extra support from <a href="mailto:shrubwelfare@gmail.com">SHRUB Welfare</a> <span class="text-danger">*</span></p>
-
-                </div>
-              </div>
-            </div>
           </div>
 
     			<div class="col-lg-6">
@@ -126,11 +105,9 @@
                   <table id="availabilityTable" class="table">
                     <tr>
                       <td></td>
-                      <td>Morning (10-12)</td>
-                      <td>Early Afternoon (12-2)</td>
-                      <td>Afternoon (2-4)</td>
-                      <td>Late Afternoon (4-6)</td>
-                      <td>Evening (6-8)</td>
+                      <td>Morning (9-12)</td>
+                      <td>Afternoon (12-5)</td>
+                      <td>Evening (5-8)</td>
                     </tr>
                     <tr>
                       <td>Monday</td>
@@ -138,13 +115,7 @@
                         <input type="checkbox" name="volInfo[availability][mon_m]" {{#if volInfo.availability.mon_m}}checked{{/if}} />
                       </td>
                       <td>
-                        <input type="checkbox" name="volInfo[availability][mon_ea]" {{#if volInfo.availability.mon_ea}}checked{{/if}} />
-                      </td>
-                      <td>
                         <input type="checkbox" name="volInfo[availability][mon_a]" {{#if volInfo.availability.mon_a}}checked{{/if}} />
-                      </td>
-                      <td>
-                        <input type="checkbox" name="volInfo[availability][mon_la]" {{#if volInfo.availability.mon_la}}checked{{/if}} />
                       </td>
                       <td>
                         <input type="checkbox" name="volInfo[availability][mon_e]" {{#if volInfo.availability.mon_e}}checked{{/if}} />
@@ -156,13 +127,7 @@
                         <input type="checkbox" name="volInfo[availability][tue_m]" {{#if volInfo.availability.tue_m}}checked{{/if}} />
                       </td>
                       <td>
-                        <input type="checkbox" name="volInfo[availability][tue_ea]" {{#if volInfo.availability.tue_ea}}checked{{/if}} />
-                      </td>
-                      <td>
                         <input type="checkbox" name="volInfo[availability][tue_a]" {{#if volInfo.availability.tue_a}}checked{{/if}} />
-                      </td>
-                      <td>
-                        <input type="checkbox" name="volInfo[availability][tue_la]" {{#if volInfo.availability.tue_la}}checked{{/if}} />
                       </td>
                       <td>
                         <input type="checkbox" name="volInfo[availability][tue_e]" {{#if volInfo.availability.tue_e}}checked{{/if}} />
@@ -174,13 +139,7 @@
                         <input type="checkbox" name="volInfo[availability][wed_m]" {{#if volInfo.availability.wed_m}}checked{{/if}} />
                       </td>
                       <td>
-                        <input type="checkbox" name="volInfo[availability][wed_ea]" {{#if volInfo.availability.wed_ea}}checked{{/if}} />
-                      </td>
-                      <td>
                         <input type="checkbox" name="volInfo[availability][wed_a]" {{#if volInfo.availability.wed_a}}checked{{/if}} />
-                      </td>
-                      <td>
-                        <input type="checkbox" name="volInfo[availability][wed_la]" {{#if volInfo.availability.wed_la}}checked{{/if}} />
                       </td>
                       <td>
                         <input type="checkbox" name="volInfo[availability][wed_e]" {{#if volInfo.availability.wed_e}}checked{{/if}} />
@@ -192,13 +151,7 @@
                         <input type="checkbox" name="volInfo[availability][thu_m]" {{#if volInfo.availability.thu_m}}checked{{/if}} />
                       </td>
                       <td>
-                        <input type="checkbox" name="volInfo[availability][thu_ea]" {{#if volInfo.availability.thu_ea}}checked{{/if}} />
-                      </td>
-                      <td>
                         <input type="checkbox" name="volInfo[availability][thu_a]" {{#if volInfo.availability.thu_a}}checked{{/if}} />
-                      </td>
-                      <td>
-                        <input type="checkbox" name="volInfo[availability][thu_la]" {{#if volInfo.availability.thu_la}}checked{{/if}} />
                       </td>
                       <td>
                         <input type="checkbox" name="volInfo[availability][thu_e]" {{#if volInfo.availability.thu_e}}checked{{/if}} />
@@ -210,13 +163,7 @@
                         <input type="checkbox" name="volInfo[availability][fri_m]" {{#if volInfo.availability.fri_m}}checked{{/if}} />
                       </td>
                       <td>
-                        <input type="checkbox" name="volInfo[availability][fri_ea]" {{#if volInfo.availability.fri_ea}}checked{{/if}} />
-                      </td>
-                      <td>
                         <input type="checkbox" name="volInfo[availability][fri_a]" {{#if volInfo.availability.fri_a}}checked{{/if}} />
-                      </td>
-                      <td>
-                        <input type="checkbox" name="volInfo[availability][fri_la]" {{#if volInfo.availability.fri_la}}checked{{/if}} />
                       </td>
                       <td>
                         <input type="checkbox" name="volInfo[availability][fri_e]" {{#if volInfo.availability.fri_e}}checked{{/if}} />
@@ -276,95 +223,7 @@
 
   <div class="row">
   	<div class="col-md-8 mx-auto">
-      <div class="card p-4">
-        <div class="card-body">
-          <h2>Volunteer Survey</h2>
-            <ol>
 
-              <li>
-
-                <p class="mb-2">What would you like to achieve through your voluntary work at SHRUB? <span class="text-danger">*</span></p>
-                <textarea class="form-control" name="volInfo[survey][goals]" required>{{#if volInfo.survey.goals}}{{volInfo.survey.goals}}{{/if}}</textarea>
-
-              </li>
-
-              <br />
-
-              <li>
-
-                <p class="mb-2">Tell us about any hobbies or interests you have that might be relevant to the role(s) you have applied for</p>
-                <textarea class="form-control" name="volInfo[survey][interests]">{{#if volInfo.survey.interests}}{{volInfo.survey.interests}}{{/if}}</textarea>
-
-              </li>
-
-              <br />
-
-              <li>
-
-                <p class="mb-2">Tell us about paid/voluntary work experience you have that may be relevant to this role</p>
-                <textarea class="form-control" name="volInfo[survey][experience]">{{#if volInfo.survey.experience}}{{volInfo.survey.experience}}{{/if}}</textarea>
-
-              </li>
-
-              <br />
-
-              <li>
-
-                <p class="mb-2">Please tick any skills that apply to you from the list below, if any</p>
-
-                <div class="row">
-                  <div class="col-md-6">
-                    <p><input type="checkbox" name="volInfo[survey][skills][social_media]" {{#if volInfo.survey.skills.social_media}}checked{{/if}}> Social Media</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][customer_service]" {{#if volInfo.survey.skills.customer_service}}checked{{/if}}> Customer Service</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][retail]" {{#if volInfo.survey.skills.retail}}checked{{/if}}> Retail</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][cooking]" {{#if volInfo.survey.skills.cooking}}checked{{/if}}> Cooking</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][research]" {{#if volInfo.survey.skills.research}}checked{{/if}}> Research</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][finance]" {{#if volInfo.survey.skills.finance}}checked{{/if}}> Finance</p>
-                  </div>
-                  <div class="col-md-6">
-                    <p><input type="checkbox" name="volInfo[survey][skills][events_planning]" {{#if volInfo.survey.skills.events_planning}}checked{{/if}}> Events Planning</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][human_resources]" {{#if volInfo.survey.skills.human_resources}}checked{{/if}}> Human Resources</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][bike_maintenance]" {{#if volInfo.survey.skills.bike_maintenance}}checked{{/if}}> Bike Maintenance</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][strategic_planning]" {{#if volInfo.survey.skills.strategic_planning}}checked{{/if}}> Strategic Planning</p>
-                    <p><input type="checkbox" name="volInfo[survey][skills][admin]" {{#if volInfo.survey.skills.social_media.admin}}checked{{/if}}> Admin</p>
-                    <p><input type="checkbox" name="" id="other" onclick="toggleOtherInput()" {{#if volInfo.survey.skills.other}}checked{{/if}}> Other</p>
-                    <textarea id="otherInput" class="form-control {{#unless volInfo.survey.skills.other}}hidden{{/unless}}" name="volInfo[survey][skills][other]">{{#if volInfo.survey.skills.other}}{{volInfo.survey.skills.other}}{{/if}}</textarea>
-                  </div>
-                </div>
-
-              </li>
-
-              <br />
-
-              <li>
-
-                <p class="mb-2">Any training you’d like to share with us?</p>
-                <textarea class="form-control" name="volInfo[survey][training]"></textarea>
-
-              </li>
-
-              <br />
-
-              <li>
-
-                <p class="mb-2">What is your preferred method of communication? <span class="text-danger">*</span></p>
-
-                <div>
-
-                  <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][email]" {{#if volInfo.survey.preferredCommMethod.email}}checked{{/if}}> Email</p>
-                  <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][sms]" {{#if volInfo.survey.preferredCommMethod.sms}}checked{{/if}}> Text</p>
-                  <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][whatsapp]" {{#if volInfo.survey.preferredCommMethod.whatsapp}}checked{{/if}}> WhatsApp</p>
-                  <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][fb_messenger]" {{#if volInfo.survey.preferredCommMethod.fb_messenger}}checked{{/if}}> Facebook Messenger</p>
-                  <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][phone_call]" {{#if volInfo.survey.preferredCommMethod.phone_call}}checked{{/if}}> Phone Call</p>
-                </div>
-
-              </li>
-
-            </ol>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="row mt-4">
       <div class="col-md-8 mx-auto">
@@ -423,9 +282,7 @@ function updateSummary(){
 
 }
 
-function toggleOtherInput() {
-  $("#otherInput").toggleClass("d-none");
-}
+
 
 updateSummary();
 </script>

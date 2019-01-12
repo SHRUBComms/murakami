@@ -102,6 +102,13 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                   "Tokens added for volunteering: " +
                                   transaction.summary.bill[i].tokens;
                               } else if (
+                                transaction.summary.bill[i].item_id ==
+                                "membership"
+                              ) {
+                                bill +=
+                                  "Tokens added for becoming a member: " +
+                                  transaction.summary.bill[i].tokens;
+                              } else if (
                                 flatCategoriesAsObj[
                                   transaction.summary.bill[i].item_id
                                 ]

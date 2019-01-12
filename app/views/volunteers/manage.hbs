@@ -1,46 +1,161 @@
-<div class="row mt-4">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
 
-  <div class="col-lg-10 mx-auto">
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row mt-4 ml-1">
+  <div class="col-md-12">
 
     {{#ifUserClass user.class '["admin"]'}}
 
       <div class="row">
-        <div class="container">
-          <div class="form-group form-inline">
-            <select class="form-control" id="working_groups">
-              <option disabled selected>Select a working group...</option>
-                {{#each allWorkingGroups}}
-                  <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
-                {{/each}}
-            </select>
-          </div>
+        <div class="form-group form-inline">
+          <select class="form-control" id="working_groups">
+            <option disabled selected>Select a working group...</option>
+              {{#each allWorkingGroups}}
+                <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+              {{/each}}
+          </select>
         </div>
       </div>
 
     {{else}}
-  		{{#ifGreaterThan user.working_groups.length 1}}
-  		<div class="row">
-  			<div class="container">
-  				<div class="form-group form-inline">
-  					<select class="form-control" id="working_groups">
-  						<option disabled selected>Select a working group...</option>
-  							{{#each user.working_groups}}
-  								<option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
-  							{{/each}}
-  					</select>
-  				</div>
-  			</div>
-  		</div>
-  		{{else}}
-  		<div class="row">
-  			<div class="card">
-  				<div class="card-body">
-  					<h3>{{user.working_groups.0.name}}</h3>
-  				</div>
-  			</div>
-  		</div>
-  		{{/ifGreaterThan}}
+    	{{#ifGreaterThan user.working_groups.length 1}}
+    	<div class="row">
+    		<div class="form-group form-inline">
+    			<select class="form-control" id="working_groups">
+            <option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>
+    					{{#each user.working_groups}}
+    						<option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+    					{{/each}}
+    			</select>
+    		</div>
+    	</div>
+    	{{else}}
+    	<div class="row">
+    		<div class="card">
+    			<div class="card-body">
+    				<h3>{{user.working_groups.0.name}}</h3>
+    			</div>
+    		</div>
+    	</div>
+    	{{/ifGreaterThan}}
     {{/ifUserClass}}
 
   </div>
 </div>
+
+
+<div class="row mt-4 mt-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="mb-1">Your Volunteers</h3>
+        <table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+          <thead>
+            <th data-sortable="true">Name</th>
+            <th>Roles</th>
+            <th data-sortable="true">Last Volunteered</th>
+            <th data-sortable="true">Last Check-in</th>
+            <th></th>
+          </thead>
+          <tbody>
+          {{#each volunteers}}
+            <tr>
+              <td>{{first_name}} {{last_name}}</td>
+              <td>
+                {{#each roles}}
+                  <p>{{name}}<p>
+                {{/each}}
+              </td>
+              <td>
+                <span
+                  class="
+                    {{#ifCond needsToVolunteer '==' 'now'}}
+                      text-danger
+                    {{/ifCond}}
+                    {{#ifCond needsToVolunteer '==' 'soon'}}
+                      text-warning
+                    {{/ifCond}}
+                    "
+                  >
+                  {{#if last_volunteered}}
+                    <b>
+                      {{lastVolunteeredRelative}}
+                    </b>
+                    ({{lastVolunteered}})
+                  {{else}}
+                    Never
+                  {{/if}}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  class="
+                    {{#ifCond needsToVolunteer '==' 'now'}}
+                      text-danger
+                    {{/ifCond}}
+                    {{#ifCond needsToVolunteer '==' 'soon'}}
+                      text-warning
+                    {{/ifCond}}
+                    "
+                  >
+                  {{#if last_volunteered}}
+                    <b>
+                      {{lastVolunteeredRelative}}
+                    </b>
+                    ({{lastVolunteered}})
+                  {{else}}
+                    Never
+                  {{/if}}
+                </span>
+              </td>
+
+              <td>
+                <div class="btn-group d-flex">
+                  {{#ifCond needsToVolunteer '==' 'soon'}}
+                    <a class="btn btn-warning w-100" href="">Prompt To Volunteer</a>
+                  {{/ifCond}}
+                  {{#ifCond needsToVolunteer '==' 'now'}}
+                    <a class="btn btn-danger w-100" href="">Prompt To Volunteer</a>
+                  {{/ifCond}}
+
+                  {{#ifCond needsToVolunteer '==' 'soon'}}
+                    <a class="btn btn-warning w-100" href="">Conduct Check-in</a>
+                  {{/ifCond}}
+                  {{#ifCond needsToVolunteer '==' 'now'}}
+                    <a class="btn btn-danger w-100" href="">Conduct Check-in</a>
+                  {{/ifCond}}
+
+                  <a class="btn btn-info w-100" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
+                </div>
+
+              </td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4 mt-4">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        Volunteer hours need approving.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+$('#working_groups').on('change', function () {
+  var url = "/volunteers/manage?group_id=" + $(this).val();
+  window.location = url;
+});
+</script>

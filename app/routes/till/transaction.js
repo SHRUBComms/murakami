@@ -126,10 +126,11 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
               if (member_id) {
                 // TODO: Update balance.
-                Members.getById(member_id, function(err, member) {
-                  if (member[0] && !err) {
-                    member = member[0];
-
+                Members.getById(member_id, { class: "admin" }, function(
+                  err,
+                  member
+                ) {
+                  if (member && !err) {
                     if (member.is_member == 1 || membershipBought) {
                       let totals = {};
 
