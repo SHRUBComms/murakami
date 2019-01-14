@@ -12,6 +12,18 @@ Tills.getAllTills = function(callback) {
   con.query(query, callback);
 };
 
+Tills.removeTransaction = function(transaction_id, group_id, callback){
+  var query = "SELECT date FROM transactions WHERE transaction_id = ?";
+  var inserts = [transaction_id];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, function(err, transaction){
+    query = "DELETE FROM transactions WHERE transaction_id = ?; DELETE FROM carbon WHERE (trans_date >= ? AND trans_date <= DATE_ADD(?, INTERVAL 2 SECOND)) AND group_id = ?"
+    inserts = [transaction_id, transaction.date, transaction.date, group_id]
+    sql = mysql.format(query, inserts);
+    con.query(sql, callback);
+  });
+}
+
 Tills.updateTill = function(till, callback) {
   var query = "UPDATE tills SET name = ?, stockControl = ? WHERE till_id = ?";
   var inserts = [till.name, 0, till.till_id];

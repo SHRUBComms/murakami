@@ -201,12 +201,6 @@ router.post("/", function(req, res) {
     };
 
     Members.add(newMember, function(err, member_id) {
-      var shrubMailchimp = new Mailchimp(
-        process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-      );
-      var fseMailchimp = new Mailchimp(
-        process.env.FSE_MAILCHIMP_SECRET_API_KEY
-      );
 
       var subscribeBody = {
         email_address: email,
@@ -217,6 +211,9 @@ router.post("/", function(req, res) {
         }
       };
       if (generalNewsletterConsent == "on") {
+        var shrubMailchimp = new Mailchimp(
+          process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
+        );
         shrubMailchimp.put(
           "/lists/" +
             process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
@@ -227,6 +224,9 @@ router.post("/", function(req, res) {
       }
 
       if (fseNewsletterConsent == "on") {
+        var fseMailchimp = new Mailchimp(
+          process.env.FSE_MAILCHIMP_SECRET_API_KEY
+        );
         fseMailchimp.put(
           "/lists/" +
             process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +

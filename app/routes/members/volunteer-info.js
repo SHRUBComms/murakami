@@ -78,82 +78,6 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"
       WorkingGroups.getAll(function(err, allWorkingGroups) {
         var volInfo = req.body.volInfo;
 
-        req
-          .checkBody(
-            "volInfo.emergencyContactRelation",
-            "Please enter the emergency contact's relation to the member"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "volInfo.emergencyContactRelation",
-            "Emergency contact's relation to the member must be <= 25 characters long"
-          )
-          .isLength({ max: 25 });
-
-        req
-          .checkBody(
-            "volInfo.emergencyContactName",
-            "Please enter the emergency contact's name to the member"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "volInfo.emergencyContactName",
-            "Emergency contact's name must be <= 25 characters long"
-          )
-          .isLength({ max: 25 });
-
-        req
-          .checkBody(
-            "volInfo.emergencyContactPhoneNo",
-            "Please enter the emergency contact's phone number"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "volInfo.emergencyContactPhoneNo",
-            "Please enter a shorter phone number (<= 15)"
-          )
-          .isLength({ max: 15 });
-
-        req
-          .checkBody(
-            "volInfo.hoursPerWeek",
-            "Please enter the agreed hours to be volunteer per week"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "volInfo.hoursPerWeek",
-            "Please enter a valid integer of hours per week (>= 1 and <= 15)"
-          )
-          .isInt({ gt: 0, lt: 16 });
-
-        req
-          .checkBody(
-            "rolesExplained",
-            "Please make sure the role(s) have been explained"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "medicalDisclosed",
-            "Please make sure the member has disclosed any medical conditions"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "volunteerAgreement",
-            "Please make sure the member has agreed to the role(s)"
-          )
-          .notEmpty();
-        req
-          .checkBody(
-            "benefitsExplained",
-            "Please make sure you have explained membership benefits."
-          )
-          .notEmpty();
 
         var errors = req.validationErrors();
 
@@ -202,55 +126,15 @@ router.post("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"
           errors.push(error);
         }
 
-        var days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-        var periods = ["m", "ea", "a", "la", "e"];
 
-        var validTimes = 0;
-
-        if (volInfo.availability) {
-          Object.keys(volInfo.availability).forEach(function(key) {
-            var validDay = false;
-            var validPeriod = false;
-            for (let i = 0; i < days.length; i++) {
-              if (key.substring(0, 3) == days[i]) {
-                validDay = true;
-              }
-            }
-
-            for (let i = 0; i < periods.length; i++) {
-              if (
-                key.substring(4, 5) == periods[i] ||
-                key.substring(4, 6) == periods[i]
-              ) {
-                validPeriod = true;
-              }
-            }
-            if (validDay && key.substring(3, 4) == "_" && validPeriod) {
-              validTimes++;
-            } else {
-              delete volInfo.availability[key];
-            }
-          });
-        }
-
-        if (!errors && validTimes == 0) {
-          let error = {
-            param: "availability",
-            msg: "Please tick at least one box in the availability matrix",
-            value: req.body.volInfo.availability
-          };
-          errors = [];
-          errors.push(error);
-        }
 
         if (errors) {
-          res.render("members/volunteer-info", {
+          res.render("volunteers/add", {
             errors: errors,
             volunteersActive: true,
-            title: "Volunteer Info",
-            allWorkingGroups: allWorkingGroups,
-            volInfo: volInfo,
-            member: member[0]
+            title: "Add Volunteer",
+            roles: roles,
+            volInfo: volInfo
           });
         } else {
           if (!volInfo.survey.skills.other) {

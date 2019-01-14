@@ -33,7 +33,6 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
         if (status.opening == "1") {
           WorkingGroups.getAll(function(err, allWorkingGroups) {
             var group = allWorkingGroups[till.group_id];
-
             Tills.getCategoriesByTillId(req.params.till_id, "tree", function(
               err,
               categories

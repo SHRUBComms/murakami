@@ -4,18 +4,15 @@
 <div class="row m-4">
   <div class="col-md-6 mx-auto">
 
-
-    <form method="post" action="{{public_address}}/volunteers/roles/add" class="form-group" autocomplete="off">
-
+    <form method="post" action="{{public_address}}/volunteers/roles/update/{{role.role_id}}" class="form-group" autocomplete="off">
       {{>volunteers/roles/add}}
-
-
       <div class="row mt-4">
         <div class="col-md-8 mx-auto">
-          <button type="submit" class="btn btn-success btn-block btn-lg form-control">Add Role</button>
+          <button type="submit" class="btn btn-success btn-block btn-lg form-control">Update Role</button>
         </div>
       </div>
 
     </form>
+
   </div>
 </div>

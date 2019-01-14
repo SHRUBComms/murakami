@@ -315,14 +315,16 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                           encodeURIComponent(
                                             process.env.PUBLIC_ADDRESS +
                                               "/till/" +
-                                              till.till_id +
+                                              till_id +
                                               "/?murakamiStatus=" +
                                               response.status +
                                               "&murakamiMsg=" +
-                                              response.msg
+                                              response.msg +
+                                              "&till_id=" + till.till_id
                                           ) +
                                           "&foreign-tx-id=" +
                                           transaction_id;
+
                                         if (member) {
                                           if (member.email) {
                                             sumupSummon +=
@@ -443,23 +445,21 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 process.env.SUMUP_APP_ID +
                                 "&total=" +
                                 totals.money +
-                                "&currency=GBP&callback=" +
-                                encodeURIComponent(
-                                  process.env.PUBLIC_ADDRESS +
-                                    "/api/get/tills/smp-callback"
-                                ) +
-                                "&murakami-callback=" +
-                                encodeURIComponent(
-                                  process.env.PUBLIC_ADDRESS +
-                                    "/till/" +
-                                    till.till_id +
-                                    "/?murakamiStatus=" +
-                                    response.status +
-                                    "&murakamiMsg=" +
-                                    response.msg
-                                ) +
+                                "&currency=GBP" +
+
                                 "&foreign-tx-id=" +
-                                transaction_id;
+                                transaction_id +
+
+                                "&callback=" +
+                                encodeURIComponent(
+                                  process.env.PUBLIC_ADDRESS +
+                                  "/api/get/tills/smp-callback" +
+                                  "/?murakamiStatus=" +
+                                  response.status +
+                                  "&murakamiMsg=" +
+                                  response.msg +
+                                  "&till_id=" + till.till_id
+                                )
 
                               console.log(sumupSummon);
                               if (response.status == "ok") {

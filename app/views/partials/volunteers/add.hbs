@@ -34,11 +34,19 @@
     <h3 class="mb-2">Roles <span class="text-danger">*</span></h3>
 
     <div class="row-fluid">
-      <select class="selectpicker show-tick form-control" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple>
+      <select class="selectpicker show-tick form-control" name="volInfo[roles]" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple>
+        <optgroup label="SHRUB-wide">
+          {{#each (lookup roles "na")}}
+            <option>{{details.title}}</option>
+          {{else}}
+            <option disabled>This group has no roles.</option>
+          {{/each}}
+        </optgroup>
+
         {{#each user.working_groups}}
         <optgroup label="{{name}}">
           {{#each (lookup ../roles group_id)}}
-            <option>{{name}}</option>
+            <option>{{details.title}}</option>
           {{else}}
             <option disabled>This group has no roles.</option>
           {{/each}}
@@ -81,102 +89,8 @@
 <div class="card mt-4">
   <div class="card-body">
     <h3 class="mb-2">Availability <span class="text-danger">*</span></h3>
-
     <div class="row">
-
-      <table id="availabilityTable" class="table">
-        <tr>
-          <td></td>
-          <td>Morning</td>
-          <td>Afternoon</td>
-          <td>Evening</td>
-        </tr>
-        <tr>
-          <td>Monday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][mon_m]" {{#if volInfo.availability.mon_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][mon_a]" {{#if volInfo.availability.mon_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][mon_e]" {{#if volInfo.availability.mon_e}}checked{{/if}} />
-          </td>
-        </tr>
-        <tr>
-          <td>Tuesday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][tue_m]" {{#if volInfo.availability.tue_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][tue_a]" {{#if volInfo.availability.tue_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][tue_e]" {{#if volInfo.availability.tue_e}}checked{{/if}} />
-          </td>
-        </tr>
-        <tr>
-          <td>Wednesday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][wed_m]" {{#if volInfo.availability.wed_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][wed_a]" {{#if volInfo.availability.wed_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][wed_e]" {{#if volInfo.availability.wed_e}}checked{{/if}} />
-          </td>
-        </tr>
-        <tr>
-          <td>Thursday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][thu_m]" {{#if volInfo.availability.thu_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][thu_a]" {{#if volInfo.availability.thu_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][thu_e]" {{#if volInfo.availability.thu_e}}checked{{/if}} />
-          </td>
-        </tr>
-        <tr>
-          <td>Friday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][fri_m]" {{#if volInfo.availability.fri_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][fri_a]" {{#if volInfo.availability.fri_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][fri_e]" {{#if volInfo.availability.fri_e}}checked{{/if}} />
-          </td>
-        </tr>
-        <tr>
-          <td>Saturday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][sat_m]" {{#if volInfo.availability.sat_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][sat_a]" {{#if volInfo.availability.sat_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][sat_e]" {{#if volInfo.availability.sat_e}}checked{{/if}} />
-          </td>
-        </tr>
-        <tr>
-          <td>Sunday</td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][sun_m]" {{#if volInfo.availability.sun_m}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][sun_a]" {{#if volInfo.availability.sun_a}}checked{{/if}} />
-          </td>
-          <td>
-            <input type="checkbox" name="volInfo[availability][sun_e]" {{#if volInfo.availability.sun_e}}checked{{/if}} />
-          </td>
-        </tr>
-      </table>
-
+      {{>volunteers/availability availability=volInfo.availability}}
     </div>
   </div>
 </div>
@@ -188,7 +102,7 @@
 
       <li>
 
-        <p class="mb-2">What would you like to achieve through your voluntary work at SHRUB? Are there any skills you want to develop?<span class="text-danger">*</span></p>
+        <p class="mb-2">What would you like to achieve through your voluntary work at SHRUB? Are there any skills you want to develop? <span class="text-danger">*</span></p>
         <textarea class="form-control" name="volInfo[survey][goals]" required>{{#if volInfo.survey.goals}}{{volInfo.survey.goals}}{{/if}}</textarea>
 
       </li>

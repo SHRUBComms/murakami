@@ -1,0 +1,54 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row mt-4 mb-4">
+
+	<div class="col-lg-6 col-md-8 mx-auto">
+			<table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+				<thead>
+					<th data-sortable="true">Role Title</th>
+          <th data-sortable="true">Working Group</th>
+          <th data-sortable="true">Privacy Status</th>
+          <th data-sortable="true">Active</th>
+					<th></th>
+				</thead>
+				<tbody>
+				{{#each roles}}
+					<tr>
+            <td>{{details.title}}</td>
+            <td>
+              {{#if group_id}}
+                {{lookup (lookup ../user.allWorkingGroupsObj group_id) 'name'}}
+              {{else}}
+                Not Applicable
+              {{/if}}
+            </td>
+            <td>
+              {{#if public}}
+                Public
+              {{else}}
+                {{#if removed}}
+                  -
+                {{else}}
+                  Private
+                {{/if}}
+              {{/if}}
+            </td>
+            <td>
+              {{#if removed}}
+                <span class="text-danger">Inactive</span>
+              {{else}}
+                <span class="text-success">Active</span>
+              {{/if}}
+            </td>
+						<td><a href="{{public_address}}/volunteers/roles/view/{{role_id}}" class="btn btn-block btn-primary">View/Update</a></td>
+					</tr>
+				{{/each}}
+				</tbody>
+			</table>
+	</div>
+
+</div>

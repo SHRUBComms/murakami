@@ -1,0 +1,93 @@
+<div class="row mt-4">
+  <div class="col-md-6 mx-auto">
+    <div class="row mt-2">
+      <div class="col-md-4 mx-auto">
+        <a class="btn btn-block btn-success" href="{{public_address}}/volunteers/roles/update/{{role.role_id}}">Update</a>
+      </div>
+      <div class="col-md-4 mx-auto">
+          <button class="btn btn-block btn-primary" href="{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}" {{#if role.removed}}disabled{{/if}}>
+            {{#if role.public}}
+              Make Private
+            {{else}}
+              Make Public
+            {{/if}}
+          </button>
+
+      </div>
+      <div class="col-md-4 mx-auto">
+        {{#if role.removed}}
+          <a class="btn btn-block btn-info" href="{{public_address}}/api/get/volunteers/roles/activate/{{role.role_id}}">Reactivate</a>
+        {{else}}
+          <a class="btn btn-block btn-danger" href="{{public_address}}/api/get/volunteers/roles/remove/{{role.role_id}}">Deactivate</a>
+        {{/if}}
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <table class="table-light mt-4 mx-auto" style="width: 100%;">
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Role ID</b></p>
+            </td>
+            <td class="p-3">
+              <p>{{role.role_id}}</p>
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Privacy Status</b></p>
+            </td>
+            <td class="p-3">
+              <p>
+                {{#if role.public}}
+                  Public
+                {{else}}
+                  Private
+                {{/if}}
+              </p>
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Working Group</b></p>
+            </td>
+            <td class="p-3">
+              <p>
+                {{#if role.group_id}}
+                  {{lookup (lookup user.allWorkingGroupsObj role.group_id) 'name'}}
+                {{else}}
+                  Not Applicable
+                {{/if}}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <table class="table-light mt-4 mx-auto" style="width: 100%;">
+
+          {{#each role.details}}
+            <tr class="p-2">
+              <td class="p-3">
+                <p>
+                  <b>
+                    {{formToPlain @key}}
+                  </b>
+                </p>
+              </td>
+              <td class="p-3">
+                <p>{{this}}</p>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

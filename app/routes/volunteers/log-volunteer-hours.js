@@ -16,11 +16,10 @@ router.post("/", function(req, res) {
   if (req.user) {
     var shift = req.body.shift;
 
-    Members.getById(shift.member_id, function(err, member) {
-      if (err || !member[0]) {
+    Members.getById(shift.member_id, req.user, function(err, member) {
+      if (err || !member) {
         res.send({ status: "fail", msg: "Please select a valid member!" });
       } else {
-        member = member[0];
         if (
           !isNaN(shift.duration) &&
           shift.duration <= 24 &&
@@ -273,9 +272,8 @@ router.post("/", function(req, res) {
     if (duration >= 0.25 && duration <= 24) {
       WorkingGroups.getAll(function(err, allWorkingGroups) {
         if (allWorkingGroups[working_group]) {
-          Members.getById(member_id, function(err, member) {
-            if (member[0]) {
-              member = member[0];
+          Members.getById(member_id, req.user, function(err, member) {
+            if (member) {
               member.working_groups = JSON.parse(member.working_groups);
 
               var isMemberOfWG = false;

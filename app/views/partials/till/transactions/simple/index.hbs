@@ -16,7 +16,7 @@
 	{{#if murakamiMsg}}
 		{{#ifCond smpStatus '==' 'failed'}}
 			<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
-				{{smpMsg}}
+				Transaction failed! (error status: {{smpMsg}})
 				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
 			</div>
 		{{else}}
@@ -106,11 +106,13 @@
 		      		<p id="memberStatement"></p>
 		      		<br />
 		      		<div class="form-group d-none" id="selectPaymentMethod">
-		      			<a class="btn btn-primary btn-lg form-inline" id="cashOption" onclick="selectPaymentMethod('cash')">Cash</a>
+		      			<button class="btn btn-primary btn-lg form-inline" id="cashOption" onclick="selectPaymentMethod('cash')">Cash</button>
 		      			&nbsp;
-		      			<a class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')">Card</a>
+		      			<button class="btn btn-primary btn-lg form-inline" id="cardOption" onclick="selectPaymentMethod('card')">Card</button>
 		      		</div>
-		    	</center>
+							<small id="minimumCardTransaction" class="d-none">To pay with card, please spend a minimum of £1.00.</small>
+					</center>
+					<br />
 				</div>
 				</div>
 				<div class="row">
@@ -274,12 +276,14 @@ categories.options = {{{json categories}}}
 categories.parent = null
 
 function calculateChange(e){
-	let cashGiven = e.value;
+	let cashGiven = parseFloat(e.value);
 	let change = 0;
-
+	console.log("Cash given: " + cashGiven);
+	console.log("Cost: " + global_money_total);
 	if(isNumeric(cashGiven)){
 		if(cashGiven > global_money_total){
 			change = cashGiven - global_money_total;
+			console.log("Change: " + change);
 		}
 	}
 	$("#change").val(change.toFixed(2));
@@ -502,6 +506,15 @@ function updateButtons(){
 			$("#transaction_btns").removeClass("d-none");
 		} else {
 			$("#transaction_btns").addClass("d-none");
+		}
+
+		if(global_money_total < 1){
+			console.log("Money less than £1.00");
+			$("#cardOption").prop("disabled", true)
+			$("#minimumCardTransaction").removeClass("d-none");
+		} else {
+			$("#cardOption").prop("disabled", false)
+			$("#minimumCardTransaction").addClass("d-none");
 		}
 
 	} else {
