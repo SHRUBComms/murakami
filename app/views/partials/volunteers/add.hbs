@@ -8,19 +8,19 @@
     <h4 class="mb-2">Emergency Contact <span class="text-danger">*</span></h4>
 
     <div class="form-group form-inline">
-      <input type="text" class="form-control mr-md-2 mr-lg-2 mr-xl-2" placeholder="Relation" name="volInfo[emergencyContactRelation]"{{#if volInfo.emergencyContactRelation}} value="{{volInfo.emergencyContactRelation}}"{{/if}}>
-      <input type="text" class="form-control" placeholder="Name" name="volInfo[emergencyContactName]"{{#if volInfo.emergencyContactName}} value="{{volInfo.emergencyContactName}}"{{/if}}>
+      <input type="text" class="form-control mr-md-2 mr-lg-2 mr-xl-2" placeholder="Relation" name="volInfo[emergencyContactRelation]"{{#if volInfo.emergencyContactRelation}} value="{{volInfo.emergencyContactRelation}}"{{/if}} required />
+      <input type="text" class="form-control" placeholder="Name" name="volInfo[emergencyContactName]"{{#if volInfo.emergencyContactName}} value="{{volInfo.emergencyContactName}}"{{/if}} required />
     </div>
 
 
     <div class="form-group col-sm-8" style="padding: 0;">
-      <input type="text" class="form-control" placeholder="Phone Number" name="volInfo[emergencyContactPhoneNo]"{{#if volInfo.emergencyContactPhoneNo}} value="{{volInfo.emergencyContactPhoneNo}}"{{/if}}>
+      <input type="text" class="form-control" placeholder="Phone Number" name="volInfo[emergencyContactPhoneNo]"{{#if volInfo.emergencyContactPhoneNo}} value="{{volInfo.emergencyContactPhoneNo}}"{{/if}} required />
     </div>
 
     <p class="mt-3">We aim to make SHRUB as inclusive as possible. Do you have any disabilities, health needs or extra support needs that you would like us to be aware of?</p>
 
     <div class="form-check form-check-inline mt-1">
-      <input class="form-check-input" type="checkbox" name="medicalDisclosed" required {{#if medicalDisclosed}}checked{{/if}} >
+      <input class="form-check-input" type="checkbox" name="volInfo[medicalDisclosed]" required {{#if volInfo.medicalDisclosed}}checked{{/if}} >
       <label class="form-check-label">Additional support needs have been disclosed, if any <span class="text-danger">*</span></label>
     </div>
 
@@ -33,11 +33,11 @@
 
     <h3 class="mb-2">Roles <span class="text-danger">*</span></h3>
 
-    <div class="row-fluid">
-      <select class="selectpicker show-tick form-control" name="volInfo[roles]" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple>
+    <div class="row-fluid mb-3">
+      <select class="selectpicker show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
         <optgroup label="SHRUB-wide">
           {{#each (lookup roles "na")}}
-            <option>{{details.title}}</option>
+            <option value="{{role_id}}" {{#if (lookupArray ../volInfo.roles role_id)}}selected{{/if}}>{{details.title}}</option>
           {{else}}
             <option disabled>This group has no roles.</option>
           {{/each}}
@@ -46,7 +46,7 @@
         {{#each user.working_groups}}
         <optgroup label="{{name}}">
           {{#each (lookup ../roles group_id)}}
-            <option>{{details.title}}</option>
+            <option value="{{role_id}}" {{#if (lookupArray ../../volInfo.roles role_id)}}selected{{/if}}>{{details.title}}</option>
           {{else}}
             <option disabled>This group has no roles.</option>
           {{/each}}
@@ -55,6 +55,15 @@
       </select>
     </div>
 
+    <div class="row-fluid">
+      <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
+
+        {{#each coordinators}}
+            <option value="{{id}}" {{#if (lookupArray ../volInfo.assignedCoordinators id)}}selected{{/if}}>{{first_name}} {{last_name}}</option>
+        {{/each}}
+
+      </select>
+    </div>
 
     <div class="row mt-3">
       <div class="col-md-6">
@@ -67,21 +76,10 @@
 
     <div class="form-group form-inline">
       <div class="form-check form-check-inline mt-3">
-        <input class="form-check-input" type="checkbox" id="volunteerAgreementAgreed" name="volunteerAgreementAgreed" required {{#if volunteerAgreementAgreed}}checked{{/if}}>
+        <input class="form-check-input" type="checkbox" id="volunteerAgreementAgreed" name="volInfo[volunteerAgreementAgreed]" required {{#if volInfo.volunteerAgreementAgreed}}checked{{/if}}>
         <label class="form-check-label">Agreed to the SHRUB volunteer agreement <span class="text-danger">*</span></label>
       </div>
     </div>
-
-    <select name="assignedCoordinator" class="form-control">
-      <option value="" disabled>Assign staff co-ordinator</option>
-      {{#each coordinators}}
-        {{#ifUserClass ../user.class '["admin", "staff"]'}}
-          <option value="{{id}}"{{#ifCond id '==' ../user.id}} selected{{/ifCond}}>{{first_name}} {{last_name}}</option>
-        {{else}}
-          <option value="{{id}}">{{first_name}} {{last_name}}</option>
-        {{/ifUserClass}}
-      {{/each}}
-    </select>
 
   </div>
 </div>
@@ -90,7 +88,7 @@
   <div class="card-body">
     <h3 class="mb-2">Availability <span class="text-danger">*</span></h3>
     <div class="row">
-      {{>volunteers/availability availability=volInfo.availability}}
+      {{>volunteers/availability formPrefix="volInfo[availability]" availability=volInfo.availability}}
     </div>
   </div>
 </div>
@@ -123,10 +121,10 @@
         <p class="mb-2">Please tick any skills that apply to you from the list below, if any</p>
 
         <div class="row-fluid">
-          <select class="selectpicker show-tick form-control" data-style="btn-info" data-size="auto" data-live-search="true" multiple>
+          <select class="selectpicker show-tick form-control" name=volInfo[survey][skills] data-style="btn-info" data-size="auto" data-live-search="true" multiple>
 
               {{#each skills}}
-                <option>{{this}}</option>
+                <option value="{{this}}">{{this}}</option>
               {{/each}}
 
           </select>
@@ -139,14 +137,14 @@
       <li>
         <p class="mb-2">What are your preferred communication methods? <span class="text-danger">*</span></p>
 
-        <div>
+        <select class="selectpicker show-tick form-control" title="Select one or more communication methods" name="volInfo[survey][preferredCommMethods]" data-style="btn-info" data-size="auto" multiple required>
 
-          <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][email]" {{#if volInfo.survey.preferredCommMethod.email}}checked{{/if}}> Email</p>
-          <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][sms]" {{#if volInfo.survey.preferredCommMethod.sms}}checked{{/if}}> Text</p>
-          <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][whatsapp]" {{#if volInfo.survey.preferredCommMethod.whatsapp}}checked{{/if}}> WhatsApp</p>
-          <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][fb_messenger]" {{#if volInfo.survey.preferredCommMethod.fb_messenger}}checked{{/if}}> Facebook Messenger</p>
-          <p><input type="checkbox" name="volInfo[survey][preferredCommMethod][phone_call]" {{#if volInfo.survey.preferredCommMethod.phone_call}}checked{{/if}}> Phone Call</p>
-        </div>
+            {{#each contactMethods}}
+              <option value="{{this}}" {{#if (lookupArray ../volInfo.survey.preferredCommMethods this)}}selected{{/if}}>{{this}}</option>
+            {{/each}}
+
+        </select>
+
       </li>
 
       <br />
@@ -161,6 +159,39 @@
   </div>
 </div>
 
+{{#if convertingMember}}
+  <div class="card mt-4">
+    <div class="card-body">
+      <h2 class="mb-1">Data Protection</h2>
+
+
+        <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
+        <div class="mt-1">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="volInfo[canShareEmail]" {{#if volInfo.canShareEmail}}checked{{/if}} >
+            <label class="form-check-label">Email</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="volInfo[canSharePhone]" {{#if volInfo.canSharePhone}}checked{{/if}} >
+            <label class="form-check-label">Phone</label>
+          </div>
+        </div>
+
+        <!--
+
+        <p class="mt-3">Would you like to be contacted about other volunteer opportunities that may be relevant to you? (optional)</p>
+
+        <div class="form-check form-check-inline mt-1">
+          <input class="form-check-input" type="checkbox" name="suggestedRoles" {{#if suggestedRoles}}checked{{/if}} >
+          <label class="form-check-label">Yes</label>
+        </div>
+
+        -->
+
+
+    </div>
+  </div>
+{{/if}}
 
 <div class="modal fade" id="volunteerAgreement" tabindex="-1" role="dialog" aria-labelledby="volunteerAgreementLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">

@@ -5,7 +5,7 @@
         <a class="btn btn-block btn-success" href="{{public_address}}/volunteers/roles/update/{{role.role_id}}">Update</a>
       </div>
       <div class="col-md-4 mx-auto">
-          <button class="btn btn-block btn-primary" href="{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}" {{#if role.removed}}disabled{{/if}}>
+          <button class="btn btn-block btn-primary" onclick="location.href='{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}'" {{#if role.removed}}disabled{{/if}}>
             {{#if role.public}}
               Make Private
             {{else}}

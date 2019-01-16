@@ -5,9 +5,9 @@
 
     <div class="form-inline mb-3">
 
-        <input type="text" class="form-control mr-2" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+        <input type="text" class="form-control mr-2" placeholder="First Name" oninput="checkExistence()" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
 
-        <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+        <input type="text" class="form-control" placeholder="Last Name" oninput="checkExistence()" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
 
     </div>
 
@@ -20,7 +20,7 @@
 <div class="card mb-4">
  <div class="card-body">
     <h3 class="mb-2">Contact Details</h3>
-    <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}} required />
+    <input type="email" class="form-control mb-2" placeholder="Email" oninput="checkExistence()" name="email"{{#if email}} value="{{email}}"{{/if}} required />
 
     <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
 
@@ -122,11 +122,11 @@
       <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
       <div class="mt-1">
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" name="canShareEmail" required {{#if canShareEmail}}checked{{/if}} >
+          <input class="form-check-input" type="checkbox" name="volInfo[canShareEmail]" {{#if canShareEmail}}checked{{/if}} >
           <label class="form-check-label">Email</label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" name="canSharePhone" required {{#if canSharePhone}}checked{{/if}} >
+          <input class="form-check-input" type="checkbox" name="volInfo[canSharePhone]" {{#if canSharePhone}}checked{{/if}} >
           <label class="form-check-label">Phone</label>
         </div>
       </div>
@@ -134,7 +134,7 @@
       <!--<p class="mt-3">Would you like to be contacted about other volunteer opportunities that may be relevant to you? (optional)</p>
 
       <div class="form-check form-check-inline mt-1">
-        <input class="form-check-input" type="checkbox" name="suggestedRoles" required {{#if suggestedRoles}}checked{{/if}} >
+        <input class="form-check-input" type="checkbox" name="suggestedRoles" {{#if suggestedRoles}}checked{{/if}} >
         <label class="form-check-label">Yes</label>
       </div>
     -->
@@ -258,11 +258,97 @@
   </div>
 </div>
 
+<div class="modal fade" id="memberExists" tabindex="-1" role="dialog" aria-labelledby="memberExistsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="memberExistsLabel">This Member Already Exists!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto">
+            <p class="mt-2">This member already exists!</p>
+            <p class="mt-2 mb-1">Would you like to make the existing member into a volunteer?</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="goToMemberPage();">Use Existing Member</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No Thanks</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="volunteerExists" tabindex="-1" role="dialog" aria-labelledby="volunteerExistsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="volunteerExistsLabel">This Volunteer Already Exists!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto">
+            <p class="mt-2">This volunteer already exists!</p>
+            <p class="mt-2 mb-1">Would you like to update the existing volunteer profile?</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="goToVolunteerPage();">Use Existing Volunteer</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No Thanks!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 
 var date = new Date();
 $('#dob').prop('max', (date.getFullYear()-16)+"-"+
                       ('0' + (date.getMonth()+ +1)).slice(-2)+"-"+
                       ('0' + date.getDate()).slice(-2));
+
+{{#if addingVolunteer}}
+
+var member_id;
+
+function checkExistence(){
+  $.ajax({
+    url: "{{public_address}}/api/post/volunteers/existence",
+    method: "POST",
+    data: {
+      first_name: $("input[name=first_name]").val(),
+      last_name: $("input[name=last_name]").val(),
+      email: $("input[name=email]").val()
+    },
+  }).done(function(response) {
+    if(response.status == "ok"){
+      member_id = response.member_id;
+      if(response.msg == "member"){
+        $("#memberExists").modal("show");
+      } else if(response.msg == "volunteer") {
+        console.log("volunteer exists");
+        $("#volunteerExists").modal("show");
+      }
+    }
+  });
+}
+
+function goToVolunteerPage(){
+  location.href = "{{public_address}}/volunteers/view/" + member_id;
+}
+
+function goToMemberPage(){
+  location.href = "{{public_address}}/members/make-volunteer/" + member_id;
+}
+
+{{/if}}
 
 </script>

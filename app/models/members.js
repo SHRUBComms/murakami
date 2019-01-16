@@ -4,7 +4,7 @@ var mysql = require("mysql");
 var Helpers = require("../configs/helpful_functions");
 
 var async = require("async");
-var moment = require("moment");
+var moment = require("moment"); moment.locale("en-gb");
 
 var Members = {};
 
@@ -62,6 +62,16 @@ Members.searchByName = function(search, callback) {
   var inserts = ["%" + search + "%"];
 
   var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
+Members.searchByNameAndEmail = function(info, callback) {
+  var query =
+    "SELECT * FROM members WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND email = ?";
+  var inserts = ["%" + info.name + "%", info.email];
+
+  var sql = mysql.format(query, inserts);
+  console.log(sql);
   con.query(sql, callback);
 };
 
@@ -385,7 +395,7 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
         volunteer.survey = JSON.parse(volunteer.survey);
         volunteer.availability = JSON.parse(volunteer.availability);
 
-        //volunteer.lastUpdated = moment(volunteer.lastUpdated).format("l");
+        //volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
         //volunteer.lastUpdatedRelative = moment(volunteer.lastUpdated).fromNow();
 
         volunteer.lastVolunteered = moment(volunteer.last_volunteered).format(

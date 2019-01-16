@@ -46,7 +46,15 @@ Users.getCoordinators = function(user, callback) {
     callback("Not permitted.", null);
   }
 
-  con.query(sql, callback);
+  con.query(sql, function(err, coordinators) {
+    var kv = {};
+    var flat = [];
+    coordinators.forEach(function(coordinator) {
+      kv[coordinator.id] = coordinator;
+      flat.push(coordinator.id);
+    });
+    callback(err, coordinators, kv, flat);
+  });
 };
 
 Users.getByUsernameOrEmail = function(email, callback) {

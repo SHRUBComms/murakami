@@ -10,8 +10,13 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-
-var allLocations = ["At home", "22 Bread Street", "17 Guthrie Street", "13 Guthrie Street", "Out and about in Edinburgh"];
+var allLocations = [
+  "At home",
+  "22 Bread Street",
+  "17 Guthrie Street",
+  "13 Guthrie Street",
+  "Out and about in Edinburgh"
+];
 var allActivities = [
   "Administration/office work",
   "Events",
@@ -57,13 +62,25 @@ var allActivities = [
   "Equality and Diversity",
   "Youth work"
 ];
-var commitmentLengths = ["Fixed term", "Ongoing", "One off", "Christmas", "Summer"];
+var commitmentLengths = [
+  "Fixed term",
+  "Ongoing",
+  "One off",
+  "Christmas",
+  "Summer"
+];
 
-
-router.get("/:role_id", function(req, res){
-  Volunteers.getRoleById(req.params.role_id, function(err, role){
-    if(role){
+router.get("/:role_id", function(req, res) {
+  Volunteers.getRoleById(req.params.role_id, function(err, role) {
+    if (role) {
       role.details.role_id = role.role_id;
+      role.details.working_group = role.group_id;
+      if (!Array.isArray(role.details.activities)) {
+        role.details.activities = [role.details.activities];
+      }
+      if (!Array.isArray(role.details.locations)) {
+        role.details.locations = [role.details.locations];
+      }
       res.render("volunteers/roles/update", {
         title: "Update Volunter Role",
         volunteerRolesActive: true,
@@ -71,17 +88,16 @@ router.get("/:role_id", function(req, res){
         locations: allLocations,
         commitmentLengths: commitmentLengths,
         activities: allActivities
-      })
+      });
     } else {
       res.redirect(process.enc.PUBLIC_ADDRESS + "/volunteers/roles/manage");
     }
-  })
-})
+  });
+});
 
-router.post("/:role_id", function(req, res){
-  Volunteers.getRoleById(req.params.role_id, function(err, roleExists){
-    if(roleExists){
-
+router.post("/:role_id", function(req, res) {
+  Volunteers.getRoleById(req.params.role_id, function(err, roleExists) {
+    if (roleExists) {
       var role = {};
       var public = req.body.public;
 
@@ -98,7 +114,9 @@ router.post("/:role_id", function(req, res){
       role.working_group = req.body.working_group;
 
       // Validation
-      req.checkBody("role_title", "Please enter a title for this role.").notEmpty();
+      req
+        .checkBody("role_title", "Please enter a title for this role.")
+        .notEmpty();
       req
         .checkBody(
           "role_title",
@@ -106,7 +124,12 @@ router.post("/:role_id", function(req, res){
         )
         .isLength({ max: 50 });
 
-      req.checkBody("short_description", "Please enter a short description for this role.").notEmpty();
+      req
+        .checkBody(
+          "short_description",
+          "Please enter a short description for this role."
+        )
+        .notEmpty();
       req
         .checkBody(
           "short_description",
@@ -114,7 +137,12 @@ router.post("/:role_id", function(req, res){
         )
         .isLength({ max: 150 });
 
-      req.checkBody("experience_required", "Please enter the experience required for this role.").notEmpty();
+      req
+        .checkBody(
+          "experience_required",
+          "Please enter the experience required for this role."
+        )
+        .notEmpty();
       req
         .checkBody(
           "experience_required",
@@ -122,7 +150,12 @@ router.post("/:role_id", function(req, res){
         )
         .isLength({ max: 150 });
 
-      req.checkBody("experience_gained", "Please enter the experience gained for this role.").notEmpty();
+      req
+        .checkBody(
+          "experience_gained",
+          "Please enter the experience gained for this role."
+        )
+        .notEmpty();
       req
         .checkBody(
           "experience_gained",
@@ -130,9 +163,19 @@ router.post("/:role_id", function(req, res){
         )
         .isLength({ max: 150 });
 
-      req.checkBody("hours_per_week", "Please enter the hours per week requried for this role.").notEmpty();
+      req
+        .checkBody(
+          "hours_per_week",
+          "Please enter the hours per week requried for this role."
+        )
+        .notEmpty();
 
-      req.checkBody("commitment_length", "Please enter the commitment length for this role.").notEmpty();
+      req
+        .checkBody(
+          "commitment_length",
+          "Please enter the commitment length for this role."
+        )
+        .notEmpty();
       req
         .checkBody(
           "commitment_length",
@@ -143,7 +186,7 @@ router.post("/:role_id", function(req, res){
       var working_groups = req.user.allWorkingGroupsObj;
 
       var errors = req.validationErrors();
-      if(errors){
+      if (errors) {
         res.render("volunteers/roles/update", {
           title: "Update Volunteer Role",
           volunteerRolesActive: true,
@@ -154,8 +197,7 @@ router.post("/:role_id", function(req, res){
           commitmentLengths: commitmentLengths
         });
       } else {
-
-        if(role.hours_per_week < 1 || role.hours_per_week > 15){
+        if (role.hours_per_week < 1 || role.hours_per_week > 15) {
           var error = {
             param: "working_group",
             msg: "Please enter a valid number of hours per week (>=1 and <=15)",
@@ -164,8 +206,8 @@ router.post("/:role_id", function(req, res){
           errors = [error];
         }
 
-        if(role.working_group){
-          if(!working_groups[role.working_group]){
+        if (role.working_group) {
+          if (!working_groups[role.working_group]) {
             var error = {
               param: "working_group",
               msg: "Please select a valid working group.",
@@ -175,7 +217,7 @@ router.post("/:role_id", function(req, res){
           }
         }
 
-        if(Helpers.allBelongTo(role.locations, allLocations) == false){
+        if (Helpers.allBelongTo(role.locations, allLocations) == false) {
           var error = {
             param: "locations",
             msg: "Please make sure you have selected valid locations.",
@@ -184,7 +226,7 @@ router.post("/:role_id", function(req, res){
           errors = [error];
         }
 
-        if(Helpers.allBelongTo(role.activities, allActivities) == false){
+        if (Helpers.allBelongTo(role.activities, allActivities) == false) {
           var error = {
             param: "activities",
             msg: "Please make sure you have selected valid activities.",
@@ -193,7 +235,7 @@ router.post("/:role_id", function(req, res){
           errors = [error];
         }
 
-        if(errors){
+        if (errors) {
           res.render("volunteers/roles/update", {
             title: "Update Volunteer Role",
             volunteerRolesActive: true,
@@ -204,25 +246,28 @@ router.post("/:role_id", function(req, res){
             role: role
           });
         } else {
-          Volunteers.updateRole(req.params.role_id, role, function(err, role_id){
-            if(err){
+          Volunteers.updateRole(req.params.role_id, role, function(
+            err,
+            role_id
+          ) {
+            if (err) {
               req.flash("error_msg", "Something went wrong!");
             } else {
               req.flash("success_msg", "Role updated!");
             }
-            res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/view/" + req.params.role_id);
-          })
+            res.redirect(
+              process.env.PUBLIC_ADDRESS +
+                "/volunteers/roles/view/" +
+                req.params.role_id
+            );
+          });
         }
-
       }
-
-
     } else {
       req.flash("error_msg", "Role does not exist!");
       res.redirect(process.enc.PUBLIC_ADDRESS + "/volunteers/roles/manage");
     }
-  })
-})
-
+  });
+});
 
 module.exports = router;

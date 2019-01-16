@@ -1,7 +1,7 @@
 // /reports/carbon
 
 var router = require("express").Router();
-var moment = require("moment");
+var moment = require("moment"); moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 

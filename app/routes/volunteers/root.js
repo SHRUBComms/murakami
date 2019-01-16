@@ -17,5 +17,6 @@ router.use("/log-volunteer-hours", require("./log-volunteer-hours"));
 router.use("/roles", require("./roles/root"));
 router.use("/manage", require("./manage"));
 router.use("/add", require("./add"));
+router.use("/view", require("./view"));
 
 module.exports = router;

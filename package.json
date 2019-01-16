@@ -28,10 +28,10 @@
     "express-back": "*",
     "express-handlebars": "^3.0.0",
     "express-recaptcha": "^4.1.1",
-    "express-validator": "^5.3.0",
+    "express-validator": "^5.3.1",
     "mailchimp-api-v3": "^1.12.1",
     "md5": "^2.2.1",
-    "moment": "^2.22.2",
+    "moment": "^2.23.0",
     "mysql": "^2.16.0",
     "nodemailer": "^4.7.0",
     "nodemailer-html-to-text": "^2.1.0",
@@ -39,6 +39,6 @@
     "passport-local": "*",
     "path": "*",
     "request": "^2.88.0",
-    "sanitize-html": "^1.19.3"
+    "sanitize-html": "^1.20.0"
   }
 }

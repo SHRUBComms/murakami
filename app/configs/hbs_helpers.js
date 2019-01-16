@@ -98,12 +98,32 @@ var register = function(Handlebars) {
       }
     },
     slugify: function(str) {
-      return str.toString().toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '');
+      return str
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w\-]+/g, "")
+        .replace(/\-\-+/g, "-")
+        .replace(/^-+/, "")
+        .replace(/-+$/, "");
+    },
+    lookupArray: function(array, value) {
+      if (Array.isArray(array)) {
+        if (array.indexOf(value) != -1) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return;
+      }
+    },
+    not: function(value) {
+      if (value) {
+        return false;
+      } else {
+        return true;
+      }
     }
   };
 

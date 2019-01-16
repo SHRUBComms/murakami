@@ -46,9 +46,9 @@
 				<div class="card">
 					<div class="card-body">
 						<h4 class="mb-1">Membership</h4>
-						<p>Expires: <b><script>document.write(moment("{{member.current_exp_membership}}").format("l"));</script></b></p>
+						<p>Expires: <b><script>document.write(moment("{{member.current_exp_membership}}").format("L"));</script></b></p>
 
-						<p>Since: <script>document.write(moment("{{member.earliest_membership_date}}").format("l"));</script></p>
+						<p>Since: <script>document.write(moment("{{member.earliest_membership_date}}").format("L"));</script></p>
 
 						<p><span id="carbon">0</span> kilos of carbon saved!</p>
 
@@ -92,9 +92,9 @@
 										 {{/each}}
 
 									 </ul>
-								   <a class='btn btn-success form-control' href="/members/volunteer-info/{{member.member_id}}">View Volunteer Profile</a>
+								   <a class='btn btn-success form-control' href="{{public_address}}/volunteers/view/{{member.member_id}}">View Full Volunteer Profile</a>
 								{{else}}
-								   <p><a href="/members/volunteer-info/{{member.member_id}}">Make {{member.first_name.text}} A Volunteer</a></p>
+								   <p><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}">Make {{member.first_name.text}} A Volunteer</a></p>
 								{{/if}}
 						</div>
 					</div>

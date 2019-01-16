@@ -10,54 +10,6 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-var allLocations = ["At home", "22 Bread Street", "17 Guthrie Street", "13 Guthrie Street", "Out and about in Edinburgh"];
-var allActivities = [
-  "Administration/office work",
-  "Events",
-  "Adults",
-  "Advice/Information giving",
-  "Families",
-  "Finance/Accounting",
-  "Advocacy/Human Rights",
-  "Health and social care",
-  "Animals	Heritage",
-  "Art and culture: music, drama, crafts, galleries and museums",
-  "Homeless and housing",
-  "Befriending/Mentoring",
-  "Kitchen/Catering",
-  "Campaigning/Lobbying",
-  "Languages/translating",
-  "Care/Support work",
-  "LGBT+",
-  "Charity shops/Retail",
-  "Management/Business",
-  "Children",
-  "Mental health",
-  "Community",
-  "Library/Information Management",
-  "Computing/Technical",
-  "Marketing/PR/Media",
-  "Counselling",
-  "Politics",
-  "Disability",
-  "Practical/DIY",
-  "Education",
-  "Research and policy work",
-  "Domestic violence",
-  "Sport and recreation",
-  "Drugs and addiction",
-  "Students'Association",
-  "Elderly",
-  "Wheelchair accessible",
-  "Driving/escorting",
-  "Trustee and committee roles",
-  "Environment/conservation/outdoors",
-  "Tutoring",
-  "Equality and Diversity",
-  "Youth work"
-];
-var commitmentLengths = ["Fixed term", "Ongoing", "One off", "Christmas", "Summer"];
-
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   req,
   res
@@ -75,7 +27,6 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   req,
   res
 ) {
-
   var role = {};
   var public = req.body.public;
 
@@ -101,7 +52,12 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     )
     .isLength({ max: 50 });
 
-  req.checkBody("short_description", "Please enter a short description for this role.").notEmpty();
+  req
+    .checkBody(
+      "short_description",
+      "Please enter a short description for this role."
+    )
+    .notEmpty();
   req
     .checkBody(
       "short_description",
@@ -109,7 +65,12 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     )
     .isLength({ max: 150 });
 
-  req.checkBody("experience_required", "Please enter the experience required for this role.").notEmpty();
+  req
+    .checkBody(
+      "experience_required",
+      "Please enter the experience required for this role."
+    )
+    .notEmpty();
   req
     .checkBody(
       "experience_required",
@@ -117,7 +78,12 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     )
     .isLength({ max: 150 });
 
-  req.checkBody("experience_gained", "Please enter the experience gained for this role.").notEmpty();
+  req
+    .checkBody(
+      "experience_gained",
+      "Please enter the experience gained for this role."
+    )
+    .notEmpty();
   req
     .checkBody(
       "experience_gained",
@@ -125,14 +91,21 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     )
     .isLength({ max: 150 });
 
-  req.checkBody("hours_per_week", "Please enter the hours per week requried for this role.").notEmpty();
+  req
+    .checkBody(
+      "hours_per_week",
+      "Please enter the hours per week requried for this role."
+    )
+    .notEmpty();
 
-  req.checkBody("commitment_length", "Please enter the commitment length for this role.").notEmpty();
   req
     .checkBody(
       "commitment_length",
-      "Please enter a valid commitment length."
+      "Please enter the commitment length for this role."
     )
+    .notEmpty();
+  req
+    .checkBody("commitment_length", "Please enter a valid commitment length.")
     .isIn(commitmentLengths);
 
   // Fomat public variable.
@@ -145,7 +118,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   var working_groups = req.user.allWorkingGroupsObj;
 
   var errors = req.validationErrors();
-  if(errors){
+  if (errors) {
     res.render("volunteers/roles/add", {
       title: "Add Volunteer Role",
       volunteerRolesActive: true,
@@ -156,8 +129,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       commitmentLengths: commitmentLengths
     });
   } else {
-
-    if(role.hours_per_week < 1 || role.hours_per_week > 15){
+    if (role.hours_per_week < 1 || role.hours_per_week > 15) {
       var error = {
         param: "working_group",
         msg: "Please enter a valid number of hours per week (>=1 and <=15)",
@@ -166,8 +138,8 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       errors = [error];
     }
 
-    if(role.working_group){
-      if(!working_groups[role.working_group]){
+    if (role.working_group) {
+      if (!working_groups[role.working_group]) {
         var error = {
           param: "working_group",
           msg: "Please select a valid working group.",
@@ -177,7 +149,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       }
     }
 
-    if(Helpers.allBelongTo(role.locations, allLocations) == false){
+    if (Helpers.allBelongTo(role.locations, allLocations) == false) {
       var error = {
         param: "locations",
         msg: "Please make sure you have selected valid locations.",
@@ -186,7 +158,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       errors = [error];
     }
 
-    if(Helpers.allBelongTo(role.activities, allActivities) == false){
+    if (Helpers.allBelongTo(role.activities, allActivities) == false) {
       var error = {
         param: "activities",
         msg: "Please make sure you have selected valid activities.",
@@ -195,7 +167,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       errors = [error];
     }
 
-    if(errors){
+    if (errors) {
       res.render("volunteers/roles/add", {
         title: "Add Volunteer Role",
         volunteerRolesActive: true,
@@ -206,18 +178,18 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         role: role
       });
     } else {
-      Volunteers.addRole(role, function(err, role_id){
-        if(err){
+      Volunteers.addRole(role, function(err, role_id) {
+        if (err) {
           req.flash("error_msg", "Something went wrong!");
         } else {
           req.flash("success_msg", "Role added!");
         }
-        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/view/" + role_id);
-      })
+        res.redirect(
+          process.env.PUBLIC_ADDRESS + "/volunteers/roles/view/" + role_id
+        );
+      });
     }
-
   }
-
 });
 
 module.exports = router;

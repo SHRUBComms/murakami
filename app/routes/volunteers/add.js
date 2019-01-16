@@ -2,6 +2,7 @@
 
 var router = require("express").Router();
 var async = require("async");
+var moment = require("moment"); moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -12,94 +13,47 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
-  function(req, res) {
-    Users.getCoordinators(req.user, function(err, coordinators) {
-      Volunteers.getAllRoles(function(err, roles){
-
-        var formattedRoles = [];
-
-        async.each(roles, function(role, callback){
-          if(!role.group_id) role.group_id = "na";
-          if (!formattedRoles[role.group_id]){
-            formattedRoles[role.group_id] = [role]
-          } else {
-            formattedRoles[role.group_id].push(role);
-          }
-          callback();
-        }, function(){
-
-          res.render("volunteers/add", {
-            title: "Add Volunteer",
-            volunteersActive: true,
-            coordinators: coordinators,
-            roles: formattedRoles,
-            skills: [
-              "Administration/office work",
-              "Events",
-              "Adults",
-              "Advice/Information giving",
-              "Families",
-              "Finance/Accounting",
-              "Advocacy/Human Rights",
-              "Health and social care",
-              "Animals	Heritage",
-              "Art and culture: music, drama, crafts, galleries and museums",
-              "Homeless and housing",
-              "Befriending/Mentoring",
-              "Kitchen/Catering",
-              "Campaigning/Lobbying	",
-              "Languages/translating",
-              "Care/Support work",
-              "LGBT+",
-              "Charity shops/Retail	",
-              "Management/Business",
-              "Children",
-              "Mental health",
-              "Community",
-              "Library/Information Management",
-              "Computing/Technical",
-              "Marketing/PR/Media",
-              "Counselling",
-              "Politics",
-              "Disability",
-              "Practical/DIY",
-              "Education",
-              "Research and policy work",
-              "Domestic violence",
-              "Sport and recreation",
-              "Drugs and addiction",
-              "Students'Association",
-              "Elderly",
-              "Wheelchair accessible",
-              "Driving/escorting",
-              "Trustee and committee roles",
-              "Environment/conservation/outdoors",
-              "Tutoring",
-              "Equality and Diversity",
-              "Youth work"
-            ]
-          });
-
-        })
-
-      })
-    });
-  }
-);
-
-router.post("/", function(req, res){
+router.get("/", Auth.isLoggedIn, function(req, res) {
   Users.getCoordinators(req.user, function(err, coordinators) {
-    Volunteers.getAllRoles(function(err, roles){
+    Volunteers.getSignUpInfo(function(
+      skills,
+      contactMethods,
+      roles,
+      rolesGroupedByGroup,
+      rolesGroupedById
+    ) {
+      res.render("volunteers/add", {
+        title: "Add Volunteer",
+        membersActive: true,
+        coordinators: coordinators,
+        roles: rolesGroupedByGroup,
+        skills: skills,
+        contactMethods: contactMethods
+      });
+    });
+  });
+});
+
+router.post("/", Auth.isLoggedIn, function(req, res) {
+  Users.getCoordinators(req.user, function(
+    err,
+    coordinators,
+    coordinatorsObj,
+    coordinatorsFlat
+  ) {
+    Volunteers.getSignUpInfo(function(
+      skills,
+      contactMethods,
+      roles,
+      rolesGroupedByGroup,
+      rolesGroupedById
+    ) {
+      // Membership validation
       var first_name = req.body.first_name.trim();
       var last_name = req.body.last_name.trim();
       var email = req.body.email.trim();
       var phone_no = req.body.phone_no.trim();
       var address = req.body.address.trim();
-      var membership_length = req.body.membership_length.trim();
 
       var shrubExplained = req.body.shrubExplained;
       var safeSpace = req.body.safeSpace;
@@ -110,12 +64,10 @@ router.post("/", function(req, res){
       var fseNewsletterConsent = req.body.fseNewsletterConsent;
       var generalNewsletterConsent = req.body.generalNewsletterConsent;
 
-      var volInfo = req.body.volInfo;
-
-      var assignedCoordinator = req.body.assignedCoordinator;
+      var till_id = req.query.till_id;
 
       // Validation
-      req.checkBody("dob", "Please enter a date of birth").notEmpty();
+      req.checkBody("first_name", "Please enter a date of birth").notEmpty();
 
       req.checkBody("first_name", "Please enter a first name").notEmpty();
       req
@@ -175,18 +127,26 @@ router.post("/", function(req, res){
         )
         .notEmpty();
 
-        req
-          .checkBody(
-            "assignedCoordinator",
-            "Please assign a staff co-ordinator"
-          )
-          .notEmpty();
-
       if (phone_no) {
         req
           .checkBody("phone_no", "Please enter a shorter phone number (<= 30)")
           .isLength({ max: 30 });
       }
+
+      var dob = new Date(req.body.dob);
+      var today = new Date();
+
+      var over16 = (today - dob) / (1000 * 3600 * 24 * 365) >= 16;
+
+      current_exp_membership = moment(today)
+        .add(3, "months")
+        .format("YYYY-MM-DD");
+
+      var earliest_membership_date = moment(today).format("YYYY-MM-DD");
+      var current_init_membership = earliest_membership_date;
+
+      //Volunteer Validation
+      var volInfo = req.body.volInfo;
 
       req
         .checkBody(
@@ -230,56 +190,47 @@ router.post("/", function(req, res){
 
       req
         .checkBody(
-          "volInfo.hoursPerWeek",
-          "Please enter the agreed hours to be volunteer per week"
-        )
-        .notEmpty();
-
-      req
-        .checkBody(
-          "medicalDisclosed",
+          "volInfo.medicalDisclosed",
           "Please make sure the member has disclosed any medical conditions"
         )
         .notEmpty();
       req
         .checkBody(
-          "volunteerAgreement",
-          "Please make sure the member has agrred to the volunteer agreement"
+          "volInfo.volunteerAgreementAgreed",
+          "Please agree to the volunteer agreement"
         )
         .notEmpty();
 
-      volInfo.contactConsent = {phone:0, email:0}
-      if(req.body.canShareEmail == "on"){
-        volInfo.contactConsent.email = 1;
-      }
+      req
+        .checkBody("volInfo.roles", "Please select at least one role")
+        .notEmpty();
 
-      if(req.body.canSharePhone == "on"){
-        volInfo.contactConsent.phone = 1;
-      }
+      req
+        .checkBody(
+          "volInfo.survey.goals",
+          "Please enter what the volunteer wants to achieve through their work with Shrub"
+        )
+        .notEmpty();
 
-      var dob = new Date(req.body.dob);
-      var today = new Date();
+      req
+        .checkBody(
+          "volInfo.survey.preferredCommMethods",
+          "Please select at least one preferred contact method"
+        )
+        .notEmpty();
 
-      var over16 = (today - dob) / (1000 * 3600 * 24 * 365) >= 16;
+      var errors = req.validationErrors() || [];
 
-      var earliest_membership_date = moment(today).format("YYYY-MM-DD");
-      var current_init_membership = earliest_membership_date;
-
-      // Parse request's body
-      var errors = req.validationErrors();
-
-      if (!errors && !over16) {
-        var error = {
-          param: "dob",
-          msg: "Must be over 16 to be a member",
-          value: req.body.dob
-        };
-        errors = [];
-        errors.push(error);
-      }
-
-      var days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-      var periods = ["m", "a", "e"];
+      var days = {
+        mon: true,
+        tue: true,
+        wed: true,
+        thu: true,
+        fri: true,
+        sat: true,
+        sun: true
+      };
+      var periods = { m: true, a: true, e: true };
 
       var validTimes = 0;
 
@@ -287,19 +238,15 @@ router.post("/", function(req, res){
         Object.keys(volInfo.availability).forEach(function(key) {
           var validDay = false;
           var validPeriod = false;
-          for (let i = 0; i < days.length; i++) {
-            if (key.substring(0, 3) == days[i]) {
-              validDay = true;
-            }
+
+          if (days[key.substring(0, 3)]) {
+            validDay = true;
           }
 
-          for (let i = 0; i < periods.length; i++) {
-            if (
-              key.substring(4, 5) == periods[i]
-            ) {
-              validPeriod = true;
-            }
+          if (periods[key.substring(4, 5)]) {
+            validPeriod = true;
           }
+
           if (validDay && key.substring(3, 4) == "_" && validPeriod) {
             validTimes++;
           } else {
@@ -308,31 +255,112 @@ router.post("/", function(req, res){
         });
       }
 
-      if (!errors && validTimes == 0) {
+      if (validTimes == 0) {
         let error = {
-          param: "availability",
+          param: "volInfo.availability",
           msg: "Please tick at least one box in the availability matrix",
           value: req.body.volInfo.availability
         };
-        errors = [];
         errors.push(error);
       }
 
-      if(!errors && !Helpers.hasOneInCommon(coordinators, assignedCoordinator){
-        let error = {
-          param: "assignedCoordinator",
-          msg: "Please assign a valid staff coordinator",
-          value: req.body.staffCoordinator
+      if (!over16) {
+        var error = {
+          param: "dob",
+          msg: "Must be over 16 to be a member",
+          value: req.body.dob
         };
-        errors = [];
         errors.push(error);
       }
 
-      if (errors) {
-        res.render("volunteers/add", {
+      if (!Array.isArray(volInfo.assignedCoordinators)) {
+        volInfo.assignedCoordinators = [volInfo.assignedCoordinators];
+      }
+
+      if (
+        !Helpers.allBelongTo(volInfo.assignedCoordinators, coordinatorsFlat)
+      ) {
+        let error = {
+          param: "volInfo.assignedCoordinators",
+          msg: "Please select a valid staff coordinators",
+          value: req.body.volInfo.assignedCoordinators
+        };
+
+        errors.push(error);
+      }
+
+      if (volInfo.survey.skills) {
+        if (!Array.isArray(volInfo.survey.skills)) {
+          volInfo.survey.skills = [volInfo.survey.skills];
+        }
+        if (!Helpers.allBelongTo(volInfo.survey.skills, skills)) {
+          let error = {
+            param: "volInfo.survey.skills",
+            msg: "Please select valid skills",
+            value: req.body.volInfo.survey.skills
+          };
+
+          errors.push(error);
+        }
+      }
+
+      if (!Array.isArray(volInfo.survey.preferredCommMethods)) {
+        volInfo.survey.preferredCommMethods = [
+          volInfo.survey.preferredCommMethods
+        ];
+      }
+
+      if (
+        !Helpers.allBelongTo(
+          volInfo.survey.preferredCommMethods,
+          contactMethods
+        )
+      ) {
+        let error = {
+          param: "volInfo.survey.preferredCommMethods",
+          msg: "Please select valid contact methods",
+          value: req.body.volInfo.survey.preferredCommMethods
+        };
+
+        errors.push(error);
+      }
+
+      var rolesValid = true;
+      if (!Array.isArray(volInfo.roles)) {
+        volInfo.roles = [volInfo.roles];
+      }
+      async.each(
+        volInfo.roles,
+        function(role, callback) {
+          if (!rolesGroupedById[role]) {
+            rolesValid = false;
+          }
+          callback();
+        },
+        function() {
+          if (rolesValid == false) {
+            let error = {
+              param: "volInfo.roles",
+              msg: "Please select valid roles",
+              value: req.body.volInfo.roles
+            };
+
+            errors.push(error);
+          }
+        }
+      );
+
+      if (errors[0]) {
+        res.render("members/make-volunteer", {
           errors: errors,
-          volunteersActive: true,
-          title: "Add Volunteer",
+          title: "Induct Volunteer",
+          membersActive: true,
+          volInfo: volInfo,
+          member: member,
+          coordinators: coordinators,
+          roles: rolesGroupedByGroup,
+          skills: skills,
+          contactMethods: contactMethods,
           first_name: first_name,
           last_name: last_name,
           email: email,
@@ -353,55 +381,79 @@ router.post("/", function(req, res){
           email: email,
           phone_no: phone_no,
           address: address,
-          free: 0,
+          free: 1,
           earliest_membership_date: earliest_membership_date,
           current_init_membership: current_init_membership,
           current_exp_membership: current_exp_membership
         };
 
         Members.add(newMember, function(err, member_id) {
-          Volunteers.addVolunteer(volInfo, function(err){
-
-            var subscribeBody = {
-              email_address: email,
-              status: "subscribed",
-              merge_fields: {
-                FNAME: first_name,
-                LNAME: last_name
+          Volunteers.addExistingMember(member_id, volInfo, function(err) {
+            if (err) {
+              console.log(err);
+              res.render("volunteers/add", {
+                errors: [{ msg: "Something went wrong!" }],
+                title: "Induct Volunteer",
+                membersActive: true,
+                volInfo: volInfo,
+                member: member,
+                coordinators: coordinators,
+                roles: rolesGroupedByGroup,
+                skills: skills,
+                contactMethods: contactMethods,
+                first_name: first_name,
+                last_name: last_name,
+                email: email,
+                phone_no: phone_no,
+                address: address,
+                shrubExplained: shrubExplained,
+                safeSpace: safeSpace,
+                membershipBenefits: membershipBenefits,
+                contactConsent: contactConsent,
+                gdprConsent: gdprConsent,
+                dob: dob
+              });
+            } else {
+              var subscribeBody = {
+                email_address: email,
+                status: "subscribed",
+                merge_fields: {
+                  FNAME: first_name,
+                  LNAME: last_name
+                }
+              };
+              if (generalNewsletterConsent == "on") {
+                var shrubMailchimp = new Mailchimp(
+                  process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
+                );
+                shrubMailchimp.put(
+                  "/lists/" +
+                    process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+                    "/members/" +
+                    md5(email),
+                  subscribeBody
+                );
               }
-            };
-            if (generalNewsletterConsent == "on") {
-              var shrubMailchimp = new Mailchimp(
-                process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-              );
-              shrubMailchimp.put(
-                "/lists/" +
-                  process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                  "/members/" +
-                  md5(email),
-                subscribeBody
-              );
-            }
 
-            if (fseNewsletterConsent == "on") {
-              var fseMailchimp = new Mailchimp(
-                process.env.FSE_MAILCHIMP_SECRET_API_KEY
-              );
-              fseMailchimp.put(
-                "/lists/" +
-                  process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
-                  "/members/" +
-                  md5(email),
-                subscribeBody
+              if (fseNewsletterConsent == "on") {
+                var fseMailchimp = new Mailchimp(
+                  process.env.FSE_MAILCHIMP_SECRET_API_KEY
+                );
+                fseMailchimp.put(
+                  "/lists/" +
+                    process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
+                    "/members/" +
+                    md5(email),
+                  subscribeBody
+                );
+              }
+              console.log("Success!");
+              req.flash("success_msg", "Volunteer successfully added!");
+              res.redirect(
+                process.env.PUBLIC_ADDRESS + "/volunteers/view/" + member_id
               );
             }
-
-            Mail.sendAutomated("hello_volunteer", member_id, function(err) {});
-
-            req.flash("success_msg", "New volunteer added!");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/view/" + member_id);
-
-          })
+          });
         });
       }
     });

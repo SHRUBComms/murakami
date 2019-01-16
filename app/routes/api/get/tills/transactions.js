@@ -2,7 +2,7 @@
 
 var router = require("express").Router();
 var async = require("async");
-var moment = require("moment");
+var moment = require("moment"); moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 

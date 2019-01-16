@@ -1,0 +1,21 @@
+<form method="post" action="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="form-group" autocomplete="off">
+
+  <div class="row mt-4 mb-4">
+    <div class="col-lg-5 mx-auto">
+
+      <div class="card mt-4 mb-4">
+        <div class="card-body">
+          <h4 class="p-2 text-center"><b>{{member.first_name}} {{member.last_name}}</b></h4>
+        </div>
+      </div>
+
+      {{> volunteers/add convertingMember="true"}}
+
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <input type="submit" class="btn btn-block btn-lg btn-success" value="Make {{member.first_name}} A Volunteer">
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

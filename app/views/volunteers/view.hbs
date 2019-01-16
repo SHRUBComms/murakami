@@ -1,0 +1,159 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+	<div class="col-md-8 mx-auto">
+
+		<div class="row mt-4 mb-2 mx-auto">
+			<div class="card">
+				<div class="card-body">
+						<h1>{{member.first_name}} {{member.last_name}}
+							{{#ifCond user.class '==' 'admin'}}
+								<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="h4 text-primary">edit</a>
+							{{else}}
+								{{#if (lookupArray volInfo.assignedCoordinators user.id)}}
+									<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="h4 text-primary">edit</a>
+								{{/if}}
+							{{/ifCond}}
+						</h1>
+            <p class="{{#if member.is_member}}text-success{{else}}text-danger{{/if}}">
+							{{#if member.is_member}}
+								Current member
+							{{else}}
+								No longer a member.
+							{{/if}}
+						</p>
+				</div>
+			</div>
+		</div>
+
+
+			<!--
+
+			-->
+			<!--
+			{{#if user.admin}}
+			    <div class="form-group col-md-3" style="padding: 0px;">
+			      	<a class='btn btn-success form-control' href="/members/id-remind/{{member.member_id}}">Email Member ID</a>
+			    </div>
+			{{/if}}
+			-->
+
+		<div class="row mt-4 mb-4">
+			<div class="col-lg-6">
+				<div class="card">
+					<div class="card-body">
+            <h4 class="mb-1">Volunteering</h4>
+						{{#if volInfo.assignedCoordinators}}
+							{{#ifCond volInfo.assignedCoordinators.length '==' 1}}
+								<p>Assigned Staff Coordinator: {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'first_name'}} {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'last_name'}}</p>
+							{{else}}
+								<p>Assigned staff coordinators:</p>
+								<ul>
+									{{#each volInfo.assignedCoordinators}}
+										<li>{{lookup (lookup ../coordinators this) 'first_name'}} {{lookup (lookup ../coordinators this) 'last_name'}}</li>
+									{{/each}}
+								</ul>
+							{{/ifCond}}
+						{{else}}
+							<p class="text-danger">No assigned coordinator!</p>
+						{{/if}}
+						<p>Profile last updated:
+							<span class="text-{{#ifCond volInfo.needsToUpdate '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToUpdate '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToUpdate '==' false}}success{{/ifCond}}">{{volInfo.lastUpdated}}</span>
+						</p>
+						<p>Last volunteered:
+							<span class="text-{{#ifCond volInfo.needsToVolunteer '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' false}}success{{/ifCond}}">{{volInfo.lastVolunteered}}</span>
+						</p>
+
+						<hr />
+
+						<p>Registered as a volunteer: {{volInfo.dateCreated}}</p>
+						<p>First volunteered: {{volInfo.firstVolunteered}}</p>
+          </div>
+				</div>
+			</div>
+			<div class="col-lg-6">
+				<div class="card">
+					<div class="card-body">
+						<h4>Contact</h4>
+						{{#if (lookupArray volInfo.assignedCoordinators user.id)}}
+							<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+							<p>{{member.phone_no}}</p>
+							{{#ifUserOfClass user.class '["admin"]'}}
+								<p>{{member.address}}</p>
+							{{/ifUserOfClass}}
+						{{else}}
+							{{#ifCond volInfo.gdpr.email '||' volInfo.gdpr.phone}}
+								{{#if volInfo.gdpr.email}}
+									<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+								{{/if}}
+								{{#if volInfo.gdpr.phone}}
+									<p>{{member.phone_no}}</p>
+								{{/if}}
+							{{/ifCond}}
+							{{#ifCond (not volInfo.gdpr.email) '&&' (not volInfo.gdpr.phone)}}
+								<p>You don't have permission to see this information.</p>
+							{{/ifCond}}
+						{{/if}}
+
+					</div>
+				</div>
+				{{#if volInfo.survey.note}}
+					<div class="card mt-4">
+						<div class="card-body">
+							<h4>Note</h4>
+							<p>{{volInfo.survey.note}}</p>
+						</div>
+					</div>
+				{{/if}}
+
+			</div>
+		</div>
+
+		<div class="row mb-4">
+			<div class="col-lg-6">
+				<div class="card">
+					<div class="card-body">
+						<h4 class="mb-1">Roles</h4>
+
+						{{#unless volInfo.roles.0.name}}
+							<div class="container">
+		            <ul style="list-style-type: disc;">
+		              {{#each volInfo.roles}}
+										{{#if (lookup ../roles this)}}
+											<li>
+				                {{lookup (lookup (lookup ../roles this) 'details') 'title'}}
+
+												{{#ifCond (lookup (lookup ../roles this) 'group_id') '==' 'na'}}
+													(SHRUB-wide)
+												{{else}}
+													with {{lookup (lookup ../user.allWorkingGroupsObj (lookup (lookup ../roles this) 'group_id')) 'name'}}
+												{{/ifCond}}
+											</li>
+										{{/if}}
+		              {{/each}}
+		            </ul>
+							</div>
+						{{else}}
+							<p class="text-danger">Has not been assigned any roles!</p>
+						{{/unless}}
+					</div>
+				</div>
+			</div>
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="mb-1">Membership</h4>
+            <p>Expires: <b><script>document.write(moment("{{member.current_exp_membership}}").format("L"));</script></b></p>
+            <p>Since: <script>document.write(moment("{{member.earliest_membership_date}}").format("L"));</script></p>
+            <a href="{{public_address}}/members/view/{{member.member_id}}" class="btn btn-block btn-success mt-2">View Full Membership Profile</a>
+          </div>
+        </div>
+      </div>
+		</div>
+
+  </div>
+</div>
