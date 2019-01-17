@@ -112,13 +112,15 @@
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
                                     </ul>
                                 </li>
+                                <!--
                                 <li {{#if settingsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Email Templates</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/settings/email-templates">Manage Templates</a></li>
-                                        <!--<li><a href="{{public_address}}/settings/email-templates">Add Template</a></li>-->
+                                        <li><a href="{{public_address}}/settings/email-templates">Add Template</a></li>
                                     </ul>
                                 </li>
+                                -->
                               {{else}}
                                 <li {{#if transactionsActive}}class="active"{{/if}}>
                                     <a href="/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>

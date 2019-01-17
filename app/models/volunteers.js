@@ -41,60 +41,87 @@ Volunteers.getAllRoles = function(callback) {
   });
 };
 
+Volunteers.getAllPublicRoles = function(callback) {
+  var query = "SELECT * FROM volunteer_roles WHERE public = 1 AND removed = 0";
+  con.query(query, function(err, roles){
+    async.each(roles, function(role, callback){
+      role.details = JSON.parse(role.details);
+      callback()
+    }, function(){
+      callback(err, roles)
+    })
+  });
+};
+
 Volunteers.sanitizeVolunteer = function(volInfo, callback) {
   async.each(
     volInfo,
     function(volunteer, callback) {
-      if (volunteer.lastVolunteered) {
-        volunteer.lastVolunteered = moment(volunteer.lastVolunteered).format(
-          "l"
-        );
-        if (volunteer.lastVolunteered < moment().diff(1, "months")) {
-          volunteer.needsToVolunteer = "now";
-        } else if (volunteer.lastVolunteered < moment().diff(2, "weeks")) {
-          volunteer.needsToVolunteer = "soon";
+      if(volunteer){
+        if (volunteer.lastVolunteered) {
+          volunteer.lastVolunteered = moment(volunteer.lastVolunteered).format(
+            "l"
+          );
+          if (volunteer.lastVolunteered < moment().diff(1, "months")) {
+            volunteer.needsToVolunteer = "now";
+          } else if (volunteer.lastVolunteered < moment().diff(2, "weeks")) {
+            volunteer.needsToVolunteer = "soon";
+          } else {
+            volunteer.needsToVolunteer = false;
+          }
         } else {
-          volunteer.needsToVolunteer = false;
+          volunteer.lastVolunteered = "Never!";
+          if (volunteer.createdAt < moment().diff(2, "weeks")) {
+            volunteer.needsToVolunteer = "now";
+          } else {
+            volunteer.needsToVolunteer = "soon";
+          }
         }
-      } else {
-        volunteer.lastVolunteered = "Never!";
-        if (volunteer.createdAt < moment().diff(2, "weeks")) {
-          volunteer.needsToVolunteer = "now";
+
+        if (volunteer.firstVolunteered) {
+          volunteer.firstVolunteered = moment(volunteer.firstVolunteered).format(
+            "l"
+          );
+        }
+
+        if (volunteer.roles) {
+          volunteer.roles = JSON.parse(volunteer.roles);
         } else {
-          volunteer.needsToVolunteer = "soon";
+          volunteer.roles = [];
         }
-      }
 
-      if (volunteer.firstVolunteered) {
-        volunteer.firstVolunteered = moment(volunteer.firstVolunteered).format(
-          "l"
-        );
-      }
+        if (volunteer.assignedCoordinators) {
+          volunteer.assignedCoordinators = JSON.parse(
+            volunteer.assignedCoordinators
+          );
+        } else {
+          volunteer.assignedCoordinators = [];
+        }
 
-      if (volunteer.roles) {
-        volunteer.roles = JSON.parse(volunteer.roles);
+        if(volunteer.survey){
+            volunteer.survey = JSON.parse(volunteer.survey);
+        } else {
+          volunteer.survey = {};
+        }
+
+        if(volunteer.availability){
+          volunteer.availability = JSON.parse(volunteer.availability);
+        } else {
+          volunteer.availability = {};
+        }
+
+        if (volunteer.gdpr) {
+          volunteer.gdpr = JSON.parse(volunteer.gdpr);
+        } else {
+          volunteer.gdpr = {};
+        }
+        volunteer.dateCreated = moment(volunteer.dateCreated).format("L");
+        volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
+        callback();
       } else {
-        volunteer.roles = [];
+        callback();
       }
 
-      if (volunteer.assignedCoordinators) {
-        volunteer.assignedCoordinators = JSON.parse(
-          volunteer.assignedCoordinators
-        );
-      } else {
-        volunteer.assignedCoordinators = [];
-      }
-
-      volunteer.survey = JSON.parse(volunteer.survey);
-      volunteer.availability = JSON.parse(volunteer.availability);
-      if (volunteer.gdpr) {
-        volunteer.gdpr = JSON.parse(volunteer.gdpr);
-      } else {
-        volunteer.gdpr = {};
-      }
-      volunteer.dateCreated = moment(volunteer.dateCreated).format("L");
-      volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
-      callback();
     },
     function() {
       callback(volInfo);

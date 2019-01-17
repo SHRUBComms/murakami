@@ -57,7 +57,6 @@
             <th data-sortable="true">Name</th>
             <th>Roles</th>
             <th data-sortable="true">Last Volunteered</th>
-            <th data-sortable="true">Last Check-in</th>
             <th></th>
           </thead>
           <tbody>
@@ -65,30 +64,27 @@
             <tr>
               <td>{{first_name}} {{last_name}}</td>
               <td>
-                {{#each roles}}
-                  <p>{{name}}<p>
-                {{/each}}
-              </td>
-              <td>
-                <span
-                  class="
-                    {{#ifCond needsToVolunteer '==' 'now'}}
-                      text-danger
-                    {{/ifCond}}
-                    {{#ifCond needsToVolunteer '==' 'soon'}}
-                      text-warning
-                    {{/ifCond}}
-                    "
-                  >
-                  {{#if last_volunteered}}
-                    <b>
-                      {{lastVolunteeredRelative}}
-                    </b>
-                    ({{lastVolunteered}})
-                  {{else}}
-                    Never
-                  {{/if}}
-                </span>
+                {{#unless roles.0.name}}
+                  <div class="container">
+                    <ul style="list-style-type: disc;">
+                      {{#each roles}}
+                        {{#if (lookup ../../roles this)}}
+                          <li>
+                            {{lookup (lookup (lookup ../../roles this) 'details') 'title'}}
+
+                            {{#ifCond (lookup (lookup ../../roles this) 'group_id') '==' 'na'}}
+                              (SHRUB-wide)
+                            {{else}}
+                              with {{lookup (lookup ../../user.allWorkingGroupsObj (lookup (lookup ../../roles this) 'group_id')) 'name'}}
+                            {{/ifCond}}
+                          </li>
+                        {{/if}}
+                      {{/each}}
+                    </ul>
+                  </div>
+                {{else}}
+                  <span class="text-danger">Not assigned any roles</span>
+                {{/unless}}
               </td>
 
               <td>
@@ -102,11 +98,10 @@
                     {{/ifCond}}
                     "
                   >
-                  {{#if last_volunteered}}
+                  {{#if lastVolunteered}}
                     <b>
-                      {{lastVolunteeredRelative}}
+                      {{lastVolunteered}}
                     </b>
-                    ({{lastVolunteered}})
                   {{else}}
                     Never
                   {{/if}}

@@ -1,10 +1,13 @@
 var con = require("./index");
 var mysql = require("mysql");
-
-var Helpers = require("../configs/helpful_functions");
-
 var async = require("async");
 var moment = require("moment"); moment.locale("en-gb");
+
+var rootDir = process.env.CWD;
+
+var Helpers = require(rootDir + "/app/configs/helpful_functions");
+
+var Volunteers = require(rootDir + "/app/models/volunteers");
 
 var Members = {};
 
@@ -382,7 +385,6 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
 
       var inserts = working_groups;
       var sql = mysql.format(query, inserts);
-      console.log(sql);
     }
   }
 
@@ -391,78 +393,9 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
     async.each(
       volunteers,
       function(volunteer, callback) {
-        volunteer.roles = JSON.parse(volunteer.roles);
-        volunteer.survey = JSON.parse(volunteer.survey);
-        volunteer.availability = JSON.parse(volunteer.availability);
-
-        //volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
-        //volunteer.lastUpdatedRelative = moment(volunteer.lastUpdated).fromNow();
-
-        volunteer.lastVolunteered = moment(volunteer.last_volunteered).format(
-          "DD/MM/YYYY"
-        );
-        volunteer.lastVolunteeredRelative = moment(
-          volunteer.last_volunteered
-        ).fromNow();
-
-        var now = new Date();
-
-        if (
-          moment(volunteer.last_volunteered).isBefore(
-            moment(now).subtract(2, "months")
-          )
-        ) {
-          console.log("Needs to volunteer now");
-          console.log(now);
-          volunteer.needsToVolunteer = "now";
-        } else if (
-          moment(volunteer.last_volunteered).isBefore(
-            moment(now).subtract(1, "months")
-          )
-        ) {
-          console.log("Needs to volunteer soon");
-          console.log("Last volunteered:", volunteer.last_volunteered);
-          console.log("1 month ago:", now);
-          volunteer.needsToVolunteer = "soon";
-        } else {
-          console.log(now);
-          console.log("Doesn't need to volunteer soon.");
-          volunteer.needsToVolunteer = false;
-        }
-
-        volunteer.contact = "";
-        let commMethods = volunteer.survey.preferredCommMethod;
-        if (commMethods.email) {
-          volunteer.contact += volunteer.email;
-        }
-        if (commMethods.sms || commMethods.phone_call || commMethods.whatsapp) {
-          if (volunteer.contact) {
-            volunteer.contact += "<br />";
-          }
-          volunteer.contact += volunteer.phone_no + " (";
-          methods = [];
-          if (commMethods.sms) {
-            methods.push("text");
-          }
-          if (commMethods.phone_call) {
-            methods.push("phone call");
-          }
-          if (commMethods.whatsapp) {
-            methods.push("WhatsApp");
-          }
-
-          volunteer.contact += methods.join(", ");
-
-          volunteer.contact += ")";
-        }
-        if (commMethods.fb_messenger) {
-          if (volunteer.contact) {
-            volunteer.contact += "<br />";
-          }
-          volunteer.contact += "Facebook Messenger";
-        }
-
-        callback();
+        Volunteers.sanitizeVolunteer(volunteer, function(err, sanitizedVolunter){
+          callback();
+        })
       },
       function() {
         callback(err, volunteers);

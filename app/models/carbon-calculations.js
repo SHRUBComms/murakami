@@ -30,7 +30,7 @@ Carbon.getCategoryById = function(carbon_id, callback) {
 };
 
 Carbon.getAll = function(callback) {
-  var query = "SELECT * FROM carbon";
+  var query = "SELECT * FROM carbon LIMIT 100000";
   con.query(query, callback);
 };
 
