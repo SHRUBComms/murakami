@@ -3,7 +3,7 @@
 var router = require("express").Router();
 
 router.get("/", function(req, res) {
-  res.redirect("/api/get/reports/this-year/carbon-saved");
+  res.redirect("/api/get/reports/all-time/carbon-saved");
 });
 
 module.exports = router;

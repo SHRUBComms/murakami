@@ -9,6 +9,7 @@ var Members = require(rootDir + "/app/models/members");
 var Volunteers = require(rootDir + "/app/models/volunteers");
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get(
   "/:member_id",
@@ -25,28 +26,41 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            Users.getCoordinators({ class: "admin" }, function(
-              err,
-              coordinators,
-              coordinatorsObj
+            if (
+              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
+                req.user.id
+              ]) ||
+              req.user.class == "admin"
             ) {
-              Volunteers.getAllRoles(function(
+              Users.getCoordinators({ class: "admin" }, function(
                 err,
-                roles,
-                rolesGroupedByGroup,
-                rolesGroupedById
+                coordinators,
+                coordinatorsObj
               ) {
-                console.log(volInfo.assignedCoordinators);
-                res.render("volunteers/view", {
-                  title: "View Volunteer",
-                  volunteersActive: true,
-                  member: member,
-                  volInfo: volInfo,
-                  coordinators: coordinatorsObj,
-                  roles: rolesGroupedById
+                Volunteers.getAllRoles(function(
+                  err,
+                  roles,
+                  rolesGroupedByGroup,
+                  rolesGroupedById
+                ) {
+                  console.log(volInfo.assignedCoordinators);
+                  res.render("volunteers/view", {
+                    title: "View Volunteer",
+                    volunteersActive: true,
+                    member: member,
+                    volInfo: volInfo,
+                    coordinators: coordinatorsObj,
+                    roles: rolesGroupedById
+                  });
                 });
               });
-            });
+            } else {
+              req.flash(
+                "error_msg",
+                "You don't have permission to view this volunteer!"
+              );
+              res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
+            }
           } else {
             req.flash("error_msg", "Member is not a volunteer!");
             res.redirect(

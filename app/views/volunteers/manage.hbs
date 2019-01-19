@@ -12,7 +12,7 @@
       <div class="row">
         <div class="form-group form-inline">
           <select class="form-control" id="working_groups">
-            <option disabled selected>Select a working group...</option>
+            <option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>
               {{#each allWorkingGroups}}
                 <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
               {{/each}}
@@ -46,13 +46,10 @@
   </div>
 </div>
 
-
-<div class="row mt-4 mt-4">
+<div class="row">
   <div class="col-md-12">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="mb-1">Your Volunteers</h3>
-        <table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+
+    <table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
           <thead>
             <th data-sortable="true">Name</th>
             <th>Roles</th>
@@ -62,28 +59,30 @@
           <tbody>
           {{#each volunteers}}
             <tr>
-              <td>{{first_name}} {{last_name}}</td>
+              <td>{{first_name}} {{last_name}} {{isAssignedCoordinator}}</td>
               <td>
                 {{#unless roles.0.name}}
-                  <div class="container">
-                    <ul style="list-style-type: disc;">
+
+                    <ul>
                       {{#each roles}}
                         {{#if (lookup ../../roles this)}}
-                          <li>
-                            {{lookup (lookup (lookup ../../roles this) 'details') 'title'}}
+                          <li {{#if (not @last)}}class="mb-1"{{/if}}>
+                            <b>{{lookup (lookup (lookup ../../roles this) 'details') 'title'}}</b>
 
-                            {{#ifCond (lookup (lookup ../../roles this) 'group_id') '==' 'na'}}
-                              (SHRUB-wide)
-                            {{else}}
-                              with {{lookup (lookup ../../user.allWorkingGroupsObj (lookup (lookup ../../roles this) 'group_id')) 'name'}}
-                            {{/ifCond}}
+                            <small>
+                              {{#ifCond (lookup (lookup ../../roles this) 'group_id') '==' 'na'}}
+                                (SHRUB-wide)
+                              {{else}}
+                                with {{lookup (lookup ../../user.allWorkingGroupsObj (lookup (lookup ../../roles this) 'group_id')) 'name'}}
+                              {{/ifCond}}
+                            </small>
                           </li>
                         {{/if}}
                       {{/each}}
                     </ul>
-                  </div>
+
                 {{else}}
-                  <span class="text-danger">Not assigned any roles</span>
+                  <span class="text-danger">Not assigned to any roles!</span>
                 {{/unless}}
               </td>
 
@@ -95,6 +94,9 @@
                     {{/ifCond}}
                     {{#ifCond needsToVolunteer '==' 'soon'}}
                       text-warning
+                    {{/ifCond}}
+                    {{#ifCond needsToVolunteer '==' false}}
+                      text-success
                     {{/ifCond}}
                     "
                   >
@@ -110,19 +112,20 @@
 
               <td>
                 <div class="btn-group d-flex">
+                  <!--
                   {{#ifCond needsToVolunteer '==' 'soon'}}
                     <a class="btn btn-warning w-100" href="">Prompt To Volunteer</a>
                   {{/ifCond}}
                   {{#ifCond needsToVolunteer '==' 'now'}}
                     <a class="btn btn-danger w-100" href="">Prompt To Volunteer</a>
-                  {{/ifCond}}
+                  {{/ifCond}}-->
 
-                  {{#ifCond needsToVolunteer '==' 'soon'}}
+                  <!--{{#ifCond needsToVolunteer '==' 'soon'}}
                     <a class="btn btn-warning w-100" href="">Conduct Check-in</a>
                   {{/ifCond}}
                   {{#ifCond needsToVolunteer '==' 'now'}}
                     <a class="btn btn-danger w-100" href="">Conduct Check-in</a>
-                  {{/ifCond}}
+                  {{/ifCond}}-->
 
                   <a class="btn btn-info w-100" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
                 </div>
@@ -132,18 +135,7 @@
           {{/each}}
           </tbody>
         </table>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="row mt-4 mt-4">
-  <div class="col-md-12">
-    <div class="card">
-      <div class="card-body">
-        Volunteer hours need approving.
-      </div>
-    </div>
   </div>
 </div>
 

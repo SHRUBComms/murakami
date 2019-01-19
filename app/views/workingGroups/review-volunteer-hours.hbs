@@ -59,17 +59,17 @@ function volunteerHoursAjax(url){
       success: function(response){
 
       	if(response.status == "ok"){
-        	$("#vol_hours_info").html('<div class="alert alert-success col-md-6" onclick="dismiss(\'#vol_hours_info\')">' + response.msg + '</div>');
+        	$("#vol_hours_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 			    $("#vol_hours").bootstrapTable('refresh');
       	} else {
-      		$("#vol_hours_info").html('<div class="alert alert-danger col-md-6" onclick="dismiss(\'#vol_hours_info\')">' + response.msg + '</div>');
+      		$("#vol_hours_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
       	}
       }
    });
 }
 
 $('#working_groups').on('change', function () {
-  var url = "/working-groups/review-volunteer-hours/" + $(this).val();
+  var url = "/volunteers/review-hours/" + $(this).val();
   window.location = url;
 });
 

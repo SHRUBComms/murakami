@@ -26,7 +26,7 @@ router.get("/", function(req, res) {
           till_id: till_id
         },
         title: "Log Volunteer Hours",
-        volunteersActive: true,
+        volunteerHoursActive: true,
         captcha: recaptcha.render(),
         working_groups: working_groups
       });

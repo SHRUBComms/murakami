@@ -4,7 +4,7 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Helpers = require(rootDir + "/app/configs/helpful_functions")
+var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 var WorkingGroups = {};
 
@@ -255,10 +255,10 @@ WorkingGroups.getAllApprovedVolunteerHoursByGroupId = function(
 WorkingGroups.makeJoinRequestNice = function(request, callback) {
   var Members = require("./members");
 
-  Members.getById(request.member_id, function(err, member) {
-    if (member[0] && !err) {
+  Members.getById(request.member_id, { class: "admin" }, function(err, member) {
+    if (member && !err) {
       var beautifulRequest = {};
-      beautifulRequest.name = member[0].first_name + " " + member[0].last_name;
+      beautifulRequest.name = member.first_name + " " + member.last_name;
       beautifulRequest.id = request.request_id;
       beautifulRequest.member_id = request.member_id;
 
@@ -281,12 +281,12 @@ WorkingGroups.makeVolunteerHoursNice = function(
 ) {
   var Members = require("./members");
 
-  Members.getById(hours.member_id, function(err, member) {
+  Members.getById(hours.member_id, { class: "admin" }, function(err, member) {
     if (err) {
       callback(null);
     } else {
       var beautifulHours = {};
-      beautifulHours.name = member[0].first_name + " " + member[0].last_name;
+      beautifulHours.name = member.first_name + " " + member.last_name;
       beautifulHours.id = hours.id;
       beautifulHours.member_id = hours.member_id;
 

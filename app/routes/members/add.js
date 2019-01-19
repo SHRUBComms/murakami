@@ -3,7 +3,8 @@
 var router = require("express").Router();
 var Mailchimp = require("mailchimp-api-v3");
 var md5 = require("md5");
-var moment = require("moment"); moment.locale("en-gb");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -201,7 +202,6 @@ router.post("/", function(req, res) {
     };
 
     Members.add(newMember, function(err, member_id) {
-
       var subscribeBody = {
         email_address: email,
         status: "subscribed",
@@ -265,7 +265,11 @@ router.post("/", function(req, res) {
       Mail.sendAutomated("hello", member_id, function(err) {});
 
       req.flash("success_msg", "New member added!");
-      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+      if (till_id) {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + till_id);
+      } else {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+      }
     });
   }
 });

@@ -1,0 +1,19 @@
+<form method="post" action="{{public_address}}/volunteers/update/{{member.member_id}}" class="form-group" autocomplete="off">
+
+    <div class="row mt-4 mb-4">
+      <div class="col-xl-5 col-lg-6 mx-auto">
+
+        {{> members/add updatingVolunteer='true'}}
+      </div>
+      <div class="col-xl-5 col-lg-6 mx-auto">
+        {{> volunteers/add updatingVolunteer='true'}}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8 mx-auto">
+        <input type="submit" class="btn btn-block btn-lg btn-success" value="Update Volunteer">
+      </div>
+    </div>
+
+</form>

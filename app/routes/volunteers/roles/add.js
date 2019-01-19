@@ -14,12 +14,18 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   req,
   res
 ) {
-  res.render("volunteers/roles/add", {
-    volunteerRolesActive: true,
-    title: "Add Volunteer Role",
-    locations: allLocations,
-    commitmentLengths: commitmentLengths,
-    activities: allActivities
+  Volunteers.getRoleSignUpInfo(function(
+    allLocations,
+    commitmentLengths,
+    allActivities
+  ) {
+    res.render("volunteers/roles/add", {
+      volunteerRolesActive: true,
+      title: "Add Volunteer Role",
+      locations: allLocations,
+      commitmentLengths: commitmentLengths,
+      activities: allActivities
+    });
   });
 });
 

@@ -22,15 +22,14 @@ router.get(
 
     WorkingGroups.getAll(function(err, allWorkingGroups) {
       if (allWorkingGroups[req.params.working_group]) {
-        Members.getById(req.params.member_id, function(err, member) {
+        Members.getById(req.params.member_id, req.user, function(err, member) {
           if (err) {
             message.status = "fail";
             message.msg = "Something went wrong!";
             res.send(message);
           } else {
-            member = member[0];
             member.working_groups = JSON.parse(member.working_groups);
-            for (let i=0; i < member.working_groups.length; i++) {
+            for (let i = 0; i < member.working_groups.length; i++) {
               if (
                 member.working_groups[i] == req.params.working_group ||
                 req.params.working_group ==

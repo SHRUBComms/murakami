@@ -145,8 +145,8 @@ app.use(function(req, res, next) {
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
 
   if (req.user) {
-    Notifications.getNew(req.user.id, function(err, notifications) {
-      res.locals.notifications = { new: notifications };
+    Notifications.getAll(req.user.id, function(err, notifications) {
+      res.locals.notifications = notifications;
     });
 
     res.locals.user = req.user;
@@ -185,7 +185,7 @@ app.use(function(req, res, next) {
                 callback();
               },
               function(err) {
-                var working_groups = req.user.working_groups;
+                var working_groups = req.user.working_groups || [];
                 req.user.working_groups_arr = working_groups.map(function(obj) {
                   return obj.group_id;
                 });

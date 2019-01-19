@@ -153,10 +153,10 @@ function completeTrans(){
         	if(response.status == "ok"){
 	            transaction = [];
 	            update();
-	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 	            $("#transaction_history").bootstrapTable('refresh');
 	        } else {
-	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 	        }
         }
     });

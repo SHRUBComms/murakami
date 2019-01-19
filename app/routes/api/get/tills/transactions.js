@@ -2,7 +2,8 @@
 
 var router = require("express").Router();
 var async = require("async");
-var moment = require("moment"); moment.locale("en-gb");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -60,6 +61,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                               formattedTransaction.customer.name =
                                 "Member (<a href='/members/view/" +
                                 formattedTransaction.customer.id +
+                                "?till_id=" +
+                                req.params.till_id +
                                 "' target='_blank'>view profile</a>)";
                             } else {
                               formattedTransaction.customer.name = "Non-member";

@@ -1,4 +1,4 @@
-// /api/get/reports/this-year/carbon-saved
+// /api/get/reports/all-time/carbon-saved
 
 var router = require("express").Router();
 
@@ -9,7 +9,7 @@ var Carbon = require(rootDir + "/app/models/carbon-calculations");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get("/", function(req, res) {
-  Carbon.getAllThisYear(function(err, carbon) {
+  Carbon.getAll(function(err, carbon) {
     if (err || carbon.length == 0) {
       var totalCarbon = 0;
       res.send(totalCarbon.toFixed(3));

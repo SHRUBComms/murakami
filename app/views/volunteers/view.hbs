@@ -49,13 +49,15 @@
             <h4 class="mb-1">Volunteering</h4>
 						{{#if volInfo.assignedCoordinators}}
 							{{#ifCond volInfo.assignedCoordinators.length '==' 1}}
-								<p>Assigned Staff Coordinator: {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'first_name'}} {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'last_name'}}</p>
+								<p class="mb-1">Assigned Staff Coordinator: {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'first_name'}} {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'last_name'}}</p>
 							{{else}}
 								<p>Assigned staff coordinators:</p>
-								<ul>
-									{{#each volInfo.assignedCoordinators}}
-										<li>{{lookup (lookup ../coordinators this) 'first_name'}} {{lookup (lookup ../coordinators this) 'last_name'}}</li>
-									{{/each}}
+								<ul style="list-style-type: disc;">
+									<div class="container ml-3 mb-1">
+										{{#each volInfo.assignedCoordinators}}
+											<li>{{lookup (lookup ../coordinators this) 'first_name'}} {{lookup (lookup ../coordinators this) 'last_name'}} {{#ifCond (lookup (lookup ../coordinators this) 'id') '==' ../user.id}} (you){{/ifCond}}</li>
+										{{/each}}
+									</div>
 								</ul>
 							{{/ifCond}}
 						{{else}}
@@ -82,9 +84,9 @@
 						{{#if (lookupArray volInfo.assignedCoordinators user.id)}}
 							<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
 							<p>{{member.phone_no}}</p>
-							{{#ifUserOfClass user.class '["admin"]'}}
+							{{#ifUserClass user.class '["admin"]'}}
 								<p>{{member.address}}</p>
-							{{/ifUserOfClass}}
+							{{/ifUserClass}}
 						{{else}}
 							{{#ifCond volInfo.gdpr.email '||' volInfo.gdpr.phone}}
 								{{#if volInfo.gdpr.email}}

@@ -225,7 +225,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                       if (membershipBought == "MEM-FY") {
                         Members.renew(member_id, "full_year", function() {});
-                        response.msg += " Membership renewed for one year.";
+                        response.msg += " Membership renewed for 12 years.";
                         returnedMember.is_member = true;
                         var dt = new Date();
                         returnedMember.membership_expires = new Date(
@@ -233,11 +233,19 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         );
                       } else if (membershipBought == "MEM-HY") {
                         Members.renew(member_id, "half_year", function() {});
-                        response.msg += " Membership renewed for half a year.";
+                        response.msg += " Membership renewed for 6 months.";
                         returnedMember.is_member = true;
                         var dt = new Date();
                         returnedMember.membership_expires = new Date(
                           dt.setMonth(dt.getMonth() + 6)
+                        );
+                      } else if (membershipBought == "MEM-QY") {
+                        Members.renew(member_id, "3_months", function() {});
+                        response.msg += " Membership renewed for 3 months.";
+                        returnedMember.is_member = true;
+                        var dt = new Date();
+                        returnedMember.membership_expires = new Date(
+                          dt.setMonth(dt.getMonth() + 3)
                         );
                       }
 
@@ -304,26 +312,27 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                           process.env.SUMUP_AFFILIATE_KEY +
                                           "&app-id=" +
                                           process.env.SUMUP_APP_ID +
+                                          "&title=" +
+                                          req.user.allWorkingGroupsObj[
+                                            till.group_id
+                                          ].name +
+                                          " purchase" +
                                           "&total=" +
                                           totals.money +
-                                          "&currency=GBP&callback=" +
+                                          "&currency=GBP" +
+                                          "&foreign-tx-id=" +
+                                          transaction_id +
+                                          "&callback=" +
                                           encodeURIComponent(
                                             process.env.PUBLIC_ADDRESS +
-                                              "/api/get/tills/smp-callback"
-                                          ) +
-                                          "&murakami-callback=" +
-                                          encodeURIComponent(
-                                            process.env.PUBLIC_ADDRESS +
-                                              "/till/" +
-                                              till_id +
+                                              "/api/get/tills/smp-callback" +
                                               "/?murakamiStatus=" +
                                               response.status +
                                               "&murakamiMsg=" +
                                               response.msg +
-                                              "&till_id=" + till.till_id
-                                          ) +
-                                          "&foreign-tx-id=" +
-                                          transaction_id;
+                                              "&till_id=" +
+                                              till.till_id
+                                          );
 
                                         if (member) {
                                           if (member.email) {
@@ -336,6 +345,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                               member.phone_no;
                                           }
                                         }
+
                                         console.log(sumupSummon);
                                         if (response.status == "ok") {
                                           res.send({
@@ -401,6 +411,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         " Half a year of membership purchased - <a href='/members/add?membership_length=half_year&till_id=" +
                         till_id +
                         "' target='_blank'>add new member</a>";
+                    } else if (membershipBought == "MEM-QY") {
+                      response.status = "ok";
+                      response.msg +=
+                        " 3 months a year of membership purchased - <a href='/members/add?membership_length=3_months&till_id=" +
+                        till_id +
+                        "' target='_blank'>add new member</a>";
                     }
                   }
 
@@ -443,23 +459,25 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 process.env.SUMUP_AFFILIATE_KEY +
                                 "&app-id=" +
                                 process.env.SUMUP_APP_ID +
+                                "&title=" +
+                                req.user.allWorkingGroupsObj[till.group_id]
+                                  .name +
                                 "&total=" +
                                 totals.money +
                                 "&currency=GBP" +
-
                                 "&foreign-tx-id=" +
                                 transaction_id +
-
                                 "&callback=" +
                                 encodeURIComponent(
                                   process.env.PUBLIC_ADDRESS +
-                                  "/api/get/tills/smp-callback" +
-                                  "/?murakamiStatus=" +
-                                  response.status +
-                                  "&murakamiMsg=" +
-                                  response.msg +
-                                  "&till_id=" + till.till_id
-                                )
+                                    "/api/get/tills/smp-callback" +
+                                    "/?murakamiStatus=" +
+                                    response.status +
+                                    "&murakamiMsg=" +
+                                    response.msg +
+                                    "&till_id=" +
+                                    till.till_id
+                                );
 
                               console.log(sumupSummon);
                               if (response.status == "ok") {

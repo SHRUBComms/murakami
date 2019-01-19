@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{public_address}}/assets/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{public_address}}/assets/css/themify-icons.css">
     <link rel="stylesheet" href="{{public_address}}/assets/css/metisMenu.css">
-    <link rel="stylesheet" href="{{public_address}}/assets/css/owl.carousel.min.css">
+    <!--<link rel="stylesheet" href="{{public_address}}/assets/css/owl.carousel.min.css">-->
     <link rel="stylesheet" href="{{public_address}}/assets/css/slicknav.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 
@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{{public_address}}/assets/css/responsive.css">
     <!-- modernizr css -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
-    <script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>
+    <!--<script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>-->
 
     <!-- jquery latest version -->
     <script src="{{public_address}}/assets/js/vendor/jquery-2.2.4.min.js"></script>
@@ -70,7 +70,6 @@
 
                                       <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
                                       <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
-                                      <li><a href="{{public_address}}/volunteer-hours/log">Log Hours</a></li>
 
                                     </ul>
                                 </li>
@@ -82,6 +81,15 @@
                                       <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
                                     </ul>
                                 </li>
+
+                                <li {{#if volunteerHoursActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
+                                    <ul class="collapse">
+                                      <li><a href="{{public_address}}/log">Log Hours</a></li>
+                                      <li><a href="{{public_address}}/volunteers/review-hours">Review Hours</a></li>
+                                    </ul>
+                                </li>
+
                                 <li {{#if tillsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
                                     <ul class="collapse">
@@ -180,46 +188,28 @@
               </div>
               <div class="modal-body mx-auto">
 
-                  {{#each notifications.new}}
-                    {{#if @last}}
-                      <div class="mx-auto pb-3">
-                      {{else}}
-                        {{#if @first}}
-                            <div class="mx-auto pt-3">
-                          {{else}}
-                            <div class="mx-auto pl-5">
-                        {{/if}}
+                  {{#each notifications}}
+                    {{#if @first}}
+                      <br />
                     {{/if}}
-
-                      <div class="timeline-task">
-                          <div class="icon bg1">
-                              <i class="fa fa-envelope"></i>
-                          </div>
-                          <div class="tm-title">
-                              <h4>{{title}}</h4>
-                              <span class="time"><i class="ti-time"></i><script>document.write(moment("{{timestamp}}").fromNow());</script></span>
-                          </div>
-                          {{#ifCond body.length '>' '100'}}
-                            <p class="mb-2"><a href="{{../public_address}}/notifications/{{notification_id}}">See details</a></p>
-                          {{else}}
-                            <p class="mb-2">{{{body}}}</p>
-                          {{/ifCond}}
-                      </div>
-                    </div>
-
+                    <span class="time"><i class="ti-time"></i> {{timestamp}}</span>
+                    <p class="font-weight-bold">{{title}}</p>
+                    <p><a href="{{public_address}}{{destination}}" onclick="markAsRead('{{notification_id}}');">See details</a></p>
+                    <hr />
                   {{else}}
                     <p class="mt-2 text-muted text-center">Nothing to see here...</p>
                   {{/each}}
 
 
-
-                <p class="text-center mt-4">
-                  <a href="/notifications">view older notifications</a>
-                </p>
+                {{#ifCond notifications.old.length '>' 0}}
+                  <p class="text-center mt-4">
+                    <a href="/notifications">view older notifications</a>
+                  </p>
+                {{/ifCond}}
 
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="{{public_address}}/api/get/notifications/read-all" {{#unless notifications.new}} disabled{{/unless}}>Mark All As Read</button>
+                <button type="button" class="btn btn-primary" onclick="{{public_address}}/api/get/notifications/read-all" {{#unless notifications}} disabled{{/unless}}>Mark All As Read</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -256,8 +246,8 @@
                               <div class="">
                                 <button type="button" class="btn btn-bell" data-toggle="modal" data-target="#notificationsModal">
                                   <i class="ti-bell" style="font-size: 30px;"></i>
-                                  {{#if notifications.new}}
-                                    <span class="badge badge-light my-auto" style="font-size: 12px;">{{notifications.new.length}}</span>
+                                  {{#if notifications}}
+                                    <span class="badge badge-light my-auto" style="font-size: 12px;">{{notifications.length}}</span>
                                   {{/if}}
                                 </button>
                               </div>
@@ -386,3 +376,9 @@
 </body>
 
 </html>
+
+<script>
+function markAsRead(notification_id){
+  $.get("{{public_address}}/api/get/notifications/read/" + notification_id, function(){});
+}
+</script>

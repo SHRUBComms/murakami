@@ -1,7 +1,8 @@
 var nodemailer = require("nodemailer");
 var htmlToText = require("nodemailer-html-to-text").htmlToText;
 var sanitizeHtml = require("sanitize-html");
-var moment = require("moment"); moment.locale("en-gb");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var Members = require("../models/members");
 var Settings = require("../models/settings");

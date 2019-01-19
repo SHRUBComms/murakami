@@ -10,90 +10,35 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-var allLocations = [
-  "At home",
-  "22 Bread Street",
-  "17 Guthrie Street",
-  "13 Guthrie Street",
-  "Out and about in Edinburgh"
-];
-var allActivities = [
-  "Administration/office work",
-  "Events",
-  "Adults",
-  "Advice/Information giving",
-  "Families",
-  "Finance/Accounting",
-  "Advocacy/Human Rights",
-  "Health and social care",
-  "Animals	Heritage",
-  "Art and culture: music, drama, crafts, galleries and museums",
-  "Homeless and housing",
-  "Befriending/Mentoring",
-  "Kitchen/Catering",
-  "Campaigning/Lobbying",
-  "Languages/translating",
-  "Care/Support work",
-  "LGBT+",
-  "Charity shops/Retail",
-  "Management/Business",
-  "Children",
-  "Mental health",
-  "Community",
-  "Library/Information Management",
-  "Computing/Technical",
-  "Marketing/PR/Media",
-  "Counselling",
-  "Politics",
-  "Disability",
-  "Practical/DIY",
-  "Education",
-  "Research and policy work",
-  "Domestic violence",
-  "Sport and recreation",
-  "Drugs and addiction",
-  "Students'Association",
-  "Elderly",
-  "Wheelchair accessible",
-  "Driving/escorting",
-  "Trustee and committee roles",
-  "Environment/conservation/outdoors",
-  "Tutoring",
-  "Equality and Diversity",
-  "Youth work"
-];
-var commitmentLengths = [
-  "Fixed term",
-  "Ongoing",
-  "One off",
-  "Christmas",
-  "Summer"
-];
-
-router.get("/:role_id", function(req, res) {
-  Volunteers.getRoleById(req.params.role_id, function(err, role) {
-    if (role) {
-      role.details.role_id = role.role_id;
-      role.details.working_group = role.group_id;
-      if (!Array.isArray(role.details.activities)) {
-        role.details.activities = [role.details.activities];
+router.get(
+  "/:role_id",
+  Auth.isLoggedIn,
+  Auth.isOfClass(["admin", "staff"]),
+  function(req, res) {
+    Volunteers.getRoleById(req.params.role_id, function(err, role) {
+      if (role) {
+        role.details.role_id = role.role_id;
+        role.details.working_group = role.group_id;
+        if (!Array.isArray(role.details.activities)) {
+          role.details.activities = [role.details.activities];
+        }
+        if (!Array.isArray(role.details.locations)) {
+          role.details.locations = [role.details.locations];
+        }
+        res.render("volunteers/roles/update", {
+          title: "Update Volunter Role",
+          volunteerRolesActive: true,
+          role: role.details,
+          locations: allLocations,
+          commitmentLengths: commitmentLengths,
+          activities: allActivities
+        });
+      } else {
+        res.redirect(process.enc.PUBLIC_ADDRESS + "/volunteers/roles/manage");
       }
-      if (!Array.isArray(role.details.locations)) {
-        role.details.locations = [role.details.locations];
-      }
-      res.render("volunteers/roles/update", {
-        title: "Update Volunter Role",
-        volunteerRolesActive: true,
-        role: role.details,
-        locations: allLocations,
-        commitmentLengths: commitmentLengths,
-        activities: allActivities
-      });
-    } else {
-      res.redirect(process.enc.PUBLIC_ADDRESS + "/volunteers/roles/manage");
-    }
-  });
-});
+    });
+  }
+);
 
 router.post("/:role_id", function(req, res) {
   Volunteers.getRoleById(req.params.role_id, function(err, roleExists) {

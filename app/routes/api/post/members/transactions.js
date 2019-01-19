@@ -25,8 +25,8 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
     useTokens = false;
   }
 
-  Members.getById(req.params.member_id, function(err, member) {
-    if (!err && member[0]) {
+  Members.getById(req.params.member_id, req.user, function(err, member) {
+    if (!err && member) {
       if (req.params.type == "add" || req.params.type == "ded") {
         if (useTokens) {
           //
@@ -45,7 +45,7 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
           formattedWeights.trans_object = {};
           formattedWeights.amount = 0;
 
-          for (let i=0; i < transaction.length; i++) {
+          for (let i = 0; i < transaction.length; i++) {
             if (
               !isNaN(parseFloat(transaction[i].tokens)) &&
               transaction[i].tokens > 0
@@ -87,9 +87,9 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
 
           if (formattedTransaction.amount > 0) {
             if (req.params.type == "ded") {
-              var balance = member[0].balance - formattedTransaction.amount;
+              var balance = member.balance - formattedTransaction.amount;
             } else if (req.params.type == "add") {
-              var balance = +member[0].balance + +formattedTransaction.amount;
+              var balance = +member.balance + +formattedTransaction.amount;
             }
 
             if (balance >= 0) {
@@ -143,7 +143,7 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
                                         formattedWeights.trans_object
                                       ).forEach(function(key) {
                                         for (
-                                          let j=0;
+                                          let j = 0;
                                           j < settings.definitions.items.length;
                                           j++
                                         ) {
@@ -190,8 +190,7 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
               }
             } else {
               message.status = "fail";
-              message.msg =
-                member[0].first_name + " doesn't have enough tokens!";
+              message.msg = member.first_name + " doesn't have enough tokens!";
               res.send(message);
             }
           } else {
@@ -208,7 +207,7 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
           formattedWeights.trans_object = {};
           formattedWeights.amount = 0;
 
-          for (let i=0; i < transaction.length; i++) {
+          for (let i = 0; i < transaction.length; i++) {
             if (
               !isNaN(parseFloat(transaction[i].weight)) &&
               transaction[i].weight > 0
@@ -249,7 +248,11 @@ router.post("/:member_id/:type", Auth.isLoggedIn, function(req, res) {
                   Object.keys(formattedWeights.trans_object).forEach(function(
                     key
                   ) {
-                    for (let j=0; j < settings.definitions.items.length; j++) {
+                    for (
+                      let j = 0;
+                      j < settings.definitions.items.length;
+                      j++
+                    ) {
                       if (key == settings.definitions.items[j].id) {
                         totalCarbon +=
                           formattedWeights.trans_object[key] *

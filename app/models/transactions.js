@@ -29,7 +29,7 @@ Transactions.getByMemberId = function(member_id, callback) {
 Transactions.add = function(transaction, user, callback) {
   if (transaction.amount > 0) {
     Members.getById(transaction.member_id, user, function(err, member) {
-      if (err || !member[0]) throw err;
+      if (err || !member) throw err;
 
       var query =
         "INSERT INTO transactions (transaction_id, member_id, transaction_type, categories, amount, comment, transaction_date) VALUES (?,?,?,?,?,?,?)";

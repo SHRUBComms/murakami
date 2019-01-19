@@ -21,7 +21,10 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
             title: "View Member",
             membersActive: true,
             member: member,
-            volInfo: volInfo
+            volInfo: volInfo,
+            till: {
+              till_id: req.query.till_id
+            }
           });
         });
       });

@@ -25,7 +25,6 @@ router.use("/log-outgoing-weight", require("./log-outgoing-weight"));
 router.use("/carbon-calculations", require("./carbon-calculations"));
 router.use("/get-carbon-calculations", require("./get-carbon-calculations"));
 router.use("/logout", require("./logout"));
-router.use("/notifications", require("./notifications"));
 
 router.get("*", function(req, res) {
   res.render("error", {

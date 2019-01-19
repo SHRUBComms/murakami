@@ -1,7 +1,8 @@
 var con = require("./index");
 var mysql = require("mysql");
 var async = require("async");
-var moment = require("moment"); moment.locale("en-gb");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -20,7 +21,10 @@ Members.sanitizeMember = function(member, user, callback) {
     member.address = null;
   } else if (user.class == "volunteer") {
     if (
-      !Helpers.hasOneInCommon(member.working_groups, user.working_groups_arr)
+      !Helpers.hasOneInCommon(
+        member.working_groups || [],
+        user.working_groups_arr
+      )
     ) {
       member.email = null;
       member.phone_no = null;
@@ -74,7 +78,7 @@ Members.searchByNameAndEmail = function(info, callback) {
   var inserts = ["%" + info.name + "%", info.email];
 
   var sql = mysql.format(query, inserts);
-  console.log(sql);
+
   con.query(sql, callback);
 };
 
@@ -181,7 +185,7 @@ Members.add = function(member, callback) {
       member.current_exp_membership
     ];
     var sql = mysql.format(query, inserts);
-    console.log(id);
+
     con.query(sql, function(err) {
       callback(err, id);
     });
@@ -287,14 +291,13 @@ Members.redact = function(member_id, callback) {
 
 Members.updateBasic = function(member, callback) {
   var query =
-    "UPDATE members SET first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ?, free = ? WHERE member_id = ?";
+    "UPDATE members SET first_name = ?, last_name = ?, email = ?, phone_no = ?, address = ? WHERE member_id = ?";
   var inserts = [
     member.first_name,
     member.last_name,
     member.email,
     member.phone_no,
     member.address,
-    member.free,
     member.member_id
   ];
   var sql = mysql.format(query, inserts);
@@ -305,7 +308,7 @@ Members.updateBasic = function(member, callback) {
 Members.renew = function(member_id, length, callback) {
   var query =
     "UPDATE members SET current_init_membership = ?, current_exp_membership = ?, is_member = 1 WHERE member_id = ?";
-  Members.getById(member_id, function(err, member) {
+  Members.getById(member_id, { class: "till" }, function(err, member) {
     if (length == "full_year") {
       var dt = new Date();
       member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
@@ -363,17 +366,26 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
   var working_groups = user.working_groups_arr;
 
   if (group_id) {
-    var query = `SELECT * FROM volunteer_info
-          INNER JOIN members ON volunteer_info.member_id=members.member_id AND working_groups LIKE ?`;
+    var query = `SELECT *
+                FROM volunteer_info volunteers
+                INNER JOIN members ON volunteers.member_id=members.member_id AND members.working_groups LIKE ?
+                LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours
+                ON volunteers.member_id=hours.hours_member_id`;
     var inserts = ["%" + group_id + "%"];
     var sql = mysql.format(query, inserts);
   } else {
     if (user.class == "admin") {
-      var sql = `SELECT * FROM volunteer_info
-            INNER JOIN members ON volunteer_info.member_id=members.member_id`;
+      var sql = `SELECT *
+                FROM volunteer_info volunteers
+                INNER JOIN members ON volunteers.member_id=members.member_id
+                LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours
+                ON volunteers.member_id=hours.hours_member_id`;
     } else {
-      var query = `SELECT * FROM volunteer_info
-            INNER JOIN members ON volunteer_info.member_id=members.member_id AND (working_groups LIKE ?`;
+      var query = `SELECT *
+                  FROM volunteer_info volunteers
+                  INNER JOIN members ON volunteers.member_id=members.member_id AND (members.working_groups LIKE ?
+                  LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours
+                  ON volunteers.member_id=hours.hours_member_id`;
       for (i = 0; i < working_groups.length; i++) {
         working_groups[i] = "%" + working_groups[i] + "%";
         if (i + 1 != working_groups.length) {
@@ -389,18 +401,9 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
   }
 
   con.query(sql, function(err, volunteers) {
-    //console.log(volunteers);
-    async.each(
-      volunteers,
-      function(volunteer, callback) {
-        Volunteers.sanitizeVolunteer(volunteer, function(err, sanitizedVolunter){
-          callback();
-        })
-      },
-      function() {
-        callback(err, volunteers);
-      }
-    );
+    Volunteers.sanitizeVolunteer(volunteers, function(sanitizedVolunteers) {
+      callback(err, sanitizedVolunteers);
+    });
   });
 };
 

@@ -10,11 +10,12 @@
         <input type="text" class="form-control" placeholder="Last Name" oninput="checkExistence()" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
 
     </div>
-
-    <p class="mb-1"><b>Date of Birth</b> (must be 16 or over) <span class="text-danger">*</span></p>
-    <div class="form-group col-md-5" style="padding: 0;">
-      <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
-    </div>
+    {{#unless updatingVolunteer}}
+      <p class="mb-1"><b>Date of Birth</b> (must be 16 or over) <span class="text-danger">*</span></p>
+      <div class="form-group col-md-5" style="padding: 0;">
+        <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
+      </div>
+    {{/unless}}
  </div>
 </div>
 <div class="card mb-4">
@@ -26,27 +27,32 @@
 
     <textarea type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
 
-    <p class="pt-3">Shrub may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
-    <div class="form-check form-check-inline mt-2">
-      <input class="form-check-input" type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}}>
-      <label class="form-check-label">Consent given <span class="text-danger">*</span></label>
-    </div>
+    {{#unless updatingVolunteer}}
+      <p class="pt-3">Shrub may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
+      <div class="form-check form-check-inline mt-2">
+        <input class="form-check-input" type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}}>
+        <label class="form-check-label">Consent given <span class="text-danger">*</span></label>
+      </div>
+    {{/unless}}
   </div>
 </div>
 
+{{#unless updatingVolunteer}}
 <div class="card mb-4">
   <div class="card-body">
     <h3 class="mb-2">Membership</h3>
 
     {{#unless addingVolunteer}}
-      <select class="form-control" name="membership_length">
-        <option value="year" {{#ifCond membership_length '==' 'year'}}selected{{/ifCond}}>12 months</option>
-        <option value="half_year" {{#ifCond membership_length '==' 'half_year'}}selected{{/ifCond}}>6 months</option>
-        <option value="3_months" {{#ifCond membership_length '==' '3_months'}}selected{{/ifCond}}>3 months</option>
-        {{#ifUserClass user.class '["admin"]'}}
-          <option value="eternal" {{#ifCond membership_length '==' 'eternal'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
-        {{/ifUserClass}}
-      </select>
+
+        <select class="form-control" name="membership_length">
+          <option value="year" {{#ifCond membership_length '==' 'year'}}selected{{/ifCond}}>12 months</option>
+          <option value="half_year" {{#ifCond membership_length '==' 'half_year'}}selected{{/ifCond}}>6 months</option>
+          <option value="3_months" {{#ifCond membership_length '==' '3_months'}}selected{{/ifCond}}>3 months</option>
+          {{#ifUserClass user.class '["admin"]'}}
+            <option value="eternal" {{#ifCond membership_length '==' 'eternal'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
+          {{/ifUserClass}}
+        </select>
+
     {{/unless}}
 
     <div class="row mt-3 no-gutters">
@@ -86,6 +92,7 @@
 
   </div>
 </div>
+{{/unless}}
 
 <div class="card mb-4">
   <div class="card-body">
@@ -113,12 +120,12 @@
   <div class="card-body">
     <h3 class="mb-2">Data Protection</h3>
 
-    <div class="form-check mt-4 {{#if addingVolunteer}}mb-3{{/if}}">
+    <div class="form-check mt-4 {{#ifCond addingVolunteer '||' updatingVolunteer}}mb-3{{/ifCond}}">
       <input class="form-check-input" type="checkbox" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}} >
       <label class="form-check-label">Agreed to our <a href="#" target="_blank">privacy policy</a>  <span class="text-danger">*</span></label>
     </div>
 
-    {{#if addingVolunteer}}
+    {{#ifCond addingVolunteer '||' updatingVolunteer}}
       <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
       <div class="mt-1">
         <div class="form-check form-check-inline">
@@ -139,7 +146,7 @@
       </div>
     -->
 
-    {{/if}}
+    {{/ifCond}}
 
 
 

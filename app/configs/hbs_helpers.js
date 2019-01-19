@@ -124,6 +124,9 @@ var register = function(Handlebars) {
       } else {
         return true;
       }
+    },
+    setVariable: function(varName, varValue, options) {
+      options.data.root[varName] = varValue;
     }
   };
 

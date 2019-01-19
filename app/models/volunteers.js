@@ -43,13 +43,17 @@ Volunteers.getAllRoles = function(callback) {
 
 Volunteers.getAllPublicRoles = function(callback) {
   var query = "SELECT * FROM volunteer_roles WHERE public = 1 AND removed = 0";
-  con.query(query, function(err, roles){
-    async.each(roles, function(role, callback){
-      role.details = JSON.parse(role.details);
-      callback()
-    }, function(){
-      callback(err, roles)
-    })
+  con.query(query, function(err, roles) {
+    async.each(
+      roles,
+      function(role, callback) {
+        role.details = JSON.parse(role.details);
+        callback();
+      },
+      function() {
+        callback(err, roles);
+      }
+    );
   });
 };
 
@@ -57,21 +61,31 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
   async.each(
     volInfo,
     function(volunteer, callback) {
-      if(volunteer){
+      if (volunteer) {
         if (volunteer.lastVolunteered) {
-          volunteer.lastVolunteered = moment(volunteer.lastVolunteered).format(
-            "l"
-          );
-          if (volunteer.lastVolunteered < moment().diff(1, "months")) {
+          if (
+            moment(volunteer.lastVolunteered).isBefore(
+              moment().subtract(1, "months")
+            )
+          ) {
             volunteer.needsToVolunteer = "now";
-          } else if (volunteer.lastVolunteered < moment().diff(2, "weeks")) {
+          } else if (
+            moment(volunteer.lastVolunteered).isBetween(
+              moment().subtract(1, "months"),
+              moment().subtract(2, "weeks")
+            )
+          ) {
             volunteer.needsToVolunteer = "soon";
           } else {
             volunteer.needsToVolunteer = false;
           }
+
+          volunteer.lastVolunteered = moment(volunteer.lastVolunteered).format(
+            "l"
+          );
         } else {
-          volunteer.lastVolunteered = "Never!";
-          if (volunteer.createdAt < moment().diff(2, "weeks")) {
+          volunteer.lastVolunteered = "Never";
+          if (volunteer.createdAt < moment().diff(-2, "weeks")) {
             volunteer.needsToVolunteer = "now";
           } else {
             volunteer.needsToVolunteer = "soon";
@@ -79,9 +93,18 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
         }
 
         if (volunteer.firstVolunteered) {
-          volunteer.firstVolunteered = moment(volunteer.firstVolunteered).format(
-            "l"
-          );
+          volunteer.firstVolunteered = moment(
+            volunteer.firstVolunteered
+          ).format("l");
+        }
+
+        volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
+        if (volunteer.lastUpdated < moment().diff(-4, "months")) {
+          volunteer.needsToUpdate = "now";
+        } else if (volunteer.lastUpdated < moment().diff(-6, "months")) {
+          volunteer.needsToUpdate = "soon";
+        } else {
+          volunteer.needsToUpdate = false;
         }
 
         if (volunteer.roles) {
@@ -98,13 +121,13 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
           volunteer.assignedCoordinators = [];
         }
 
-        if(volunteer.survey){
-            volunteer.survey = JSON.parse(volunteer.survey);
+        if (volunteer.survey) {
+          volunteer.survey = JSON.parse(volunteer.survey);
         } else {
           volunteer.survey = {};
         }
 
-        if(volunteer.availability){
+        if (volunteer.availability) {
           volunteer.availability = JSON.parse(volunteer.availability);
         } else {
           volunteer.availability = {};
@@ -116,12 +139,11 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
           volunteer.gdpr = {};
         }
         volunteer.dateCreated = moment(volunteer.dateCreated).format("L");
-        volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
+
         callback();
       } else {
         callback();
       }
-
     },
     function() {
       callback(volInfo);
@@ -130,7 +152,10 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
 };
 
 Volunteers.getVolunteerById = function(member_id, callback) {
-  var query = `SELECT volunteer_info.*, MAX(volunteer_hours.date) AS lastVolunteered, MIN(volunteer_hours.date) AS firstVolunteered FROM volunteer_info, volunteer_hours WHERE volunteer_info.member_id = ?`;
+  var query = `SELECT * FROM volunteer_info volunteers
+  INNER JOIN members ON volunteers.member_id=members.member_id AND members.member_id = ?
+  LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered, MIN(date) firstVolunteered
+  FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id`;
   var inserts = [member_id];
   var sql = mysql.format(query, inserts);
   con.query(sql, function(err, volInfo) {
@@ -160,6 +185,27 @@ Volunteers.addExistingMember = function(member_id, volInfo, callback) {
       email: volInfo.canShareEmail,
       phone: volInfo.canSharePhone
     })
+  ];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
+Volunteers.updateVolunteer = function(member_id, volInfo, callback) {
+  var query =
+    "UPDATE volunteer_info SET emergencyContactRelation = ?, emergencyContactName = ?, emergencyContactPhoneNo = ?, roles = ?, assignedCoordinators = ?, survey = ?, availability = ?, gdpr = ? WHERE member_id = ?";
+  var inserts = [
+    volInfo.emergencyContactRelation,
+    volInfo.emergencyContactName,
+    volInfo.emergencyContactPhoneNo,
+    JSON.stringify(volInfo.roles),
+    JSON.stringify(volInfo.assignedCoordinators),
+    JSON.stringify(volInfo.survey),
+    JSON.stringify(volInfo.availability),
+    JSON.stringify({
+      email: volInfo.canShareEmail,
+      phone: volInfo.canSharePhone
+    }),
+    member_id
   ];
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
@@ -232,6 +278,13 @@ Volunteers.getRoleById = function(role_id, callback) {
   });
 };
 
+var contactMethods = [
+  "Email",
+  "Phone call",
+  "Text message",
+  "WhatsApp",
+  "Facebook Messenger"
+];
 var allLocations = [
   "At home",
   "22 Bread Street",
@@ -292,14 +345,6 @@ var allActivities = [
   "Youth work"
 ];
 
-var contactMethods = [
-  "Email",
-  "Text",
-  "WhatsApp",
-  "Facebook Messenger",
-  "Phone Call"
-];
-
 Volunteers.getRoleSignUpInfo = function(callback) {
   callback(allLocations, allActivities, commitmentLengths);
 };
@@ -319,6 +364,10 @@ Volunteers.getSignUpInfo = function(callback) {
       rolesGroupedById
     );
   });
+};
+
+Volunteers.getRoleSignUpInfo = function(callback) {
+  callback(allLocations, commitmentLengths, allActivities);
 };
 
 module.exports = Volunteers;

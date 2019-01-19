@@ -1,6 +1,26 @@
 
 <div class="row mt-4">
 
+  {{#ifUserClass user.class '["admin"]'}}
+
+  <div class="col-md-4 mx-auto">
+	  <div class="row">
+	    <div class="container">
+	      <div class="form-group form-inline">
+	        <select class="form-control" id="working_groups">
+	          <option disabled selected>Select a working group...</option>
+	            {{#each user.allWorkingGroupsObj}}
+	              <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+	            {{/each}}
+	        </select>
+	      </div>
+	    </div>
+	  </div>
+
+	</div>
+
+  {{else}}
+
   <div class="col-md-4 mx-auto">
 		{{#ifGreaterThan user.working_groups.length 1}}
 	  <div class="row">
@@ -25,6 +45,7 @@
 	  </div>
 	  {{/ifGreaterThan}}
 	</div>
+  {{/ifUserClass}}
 </div>
 
 <form action="{{public_address}}/settings/working-groups/{{group.group_id}}" method="POST">
@@ -48,7 +69,7 @@
 			  </div>
 			  <input type="number" min="0" max="5" step="1" class="form-control" placeholder="Rate" name="rate" id="rate" value="{{group.rate}}" required>
 				<div class="input-group-append">
-			    <span class="input-group-text">tokens per hour.</span>
+			    <span class="input-group-text">tokens per hour</span>
 			  </div>
 			</div>
 
