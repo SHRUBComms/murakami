@@ -4,6 +4,8 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
+var Auth = require(rootDir + "/app/configs/auth");
+
 var Volunteers = require(rootDir + "/app/models/volunteers");
 
 router.get("/:role_id", Auth.isLoggedIn, function(req, res) {
