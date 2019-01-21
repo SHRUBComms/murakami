@@ -100,10 +100,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
       .equals(req.body.password);
   }
 
-  var admin = 0;
-  var volunteer = 0;
-
-  if (!["admin", "till"].includes(userClass)) {
+  if (!["admin", "till", "staff", "volunteer"].includes(userClass)) {
     userClass = "till";
   }
 

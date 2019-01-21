@@ -401,7 +401,7 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
   }
 
   con.query(sql, function(err, volunteers) {
-    Volunteers.sanitizeVolunteer(volunteers, function(sanitizedVolunteers) {
+    Volunteers.sanitizeVolunteer(volunteers, user, function(sanitizedVolunteers) {
       callback(err, sanitizedVolunteers);
     });
   });

@@ -24,29 +24,8 @@ Users.getByUsername = function(username, callback) {
 
 Users.getCoordinators = function(user, callback) {
   var query = "SELECT * FROM login WHERE (class = 'admin' OR class = 'staff')";
-  var sql;
-  var inserts = user.working_groups_arr;
-  if (user.class == "admin") {
-    sql = query;
-  } else if (["staff", "volunteer"].includes(user.class)) {
-    query += " AND (working_groups LIKE ?";
 
-    for (i = 0; i < working_groups.length; i++) {
-      working_groups[i] = "%" + working_groups[i] + "%";
-      if (i + 1 != working_groups.length) {
-        query += " OR working_groups LIKE ?";
-      }
-    }
-
-    query += ")";
-
-    inserts = working_groups;
-    sql = mysql.format(query, inserts);
-  } else {
-    callback("Not permitted.", null);
-  }
-
-  con.query(sql, function(err, coordinators) {
+  con.query(query, function(err, coordinators) {
     var kv = {};
     var flat = [];
     coordinators.forEach(function(coordinator) {

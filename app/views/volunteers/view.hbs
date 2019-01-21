@@ -81,25 +81,12 @@
 				<div class="card">
 					<div class="card-body">
 						<h4>Contact</h4>
-						{{#if (lookupArray volInfo.assignedCoordinators user.id)}}
+
 							<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
 							<p>{{member.phone_no}}</p>
 							{{#ifUserClass user.class '["admin"]'}}
 								<p>{{member.address}}</p>
 							{{/ifUserClass}}
-						{{else}}
-							{{#ifCond volInfo.gdpr.email '||' volInfo.gdpr.phone}}
-								{{#if volInfo.gdpr.email}}
-									<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-								{{/if}}
-								{{#if volInfo.gdpr.phone}}
-									<p>{{member.phone_no}}</p>
-								{{/if}}
-							{{/ifCond}}
-							{{#ifCond (not volInfo.gdpr.email) '&&' (not volInfo.gdpr.phone)}}
-								<p>You don't have permission to see this information.</p>
-							{{/ifCond}}
-						{{/if}}
 
 					</div>
 				</div>

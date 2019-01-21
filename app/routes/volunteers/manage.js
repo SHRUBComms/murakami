@@ -18,7 +18,10 @@ router.get(
   Auth.isLoggedIn,
   Auth.isOfClass(["admin", "staff", "volunteer"]),
   function(req, res) {
-    Members.getVolunteersByGroupId(
+    if(!req.query.group_id){
+      res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage/?group_id=" + req.user.working_groups[0].group_id);
+    } else {
+      Members.getVolunteersByGroupId(
       req.query.group_id || null,
       req.user,
       function(err, volunteers) {
@@ -60,6 +63,7 @@ router.get(
         }
       }
     );
+    }
   }
 );
 

@@ -124,7 +124,7 @@ router.post("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
       var admin = 0;
       var volunteer = 0;
 
-      if (!["admin", "till"].includes(userClass)) {
+      if (!["admin", "till", "volunteer", "staff"].includes(userClass)) {
         userClass = "till";
       }
 

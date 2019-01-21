@@ -57,7 +57,7 @@ Volunteers.getAllPublicRoles = function(callback) {
   });
 };
 
-Volunteers.sanitizeVolunteer = function(volInfo, callback) {
+Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
   async.each(
     volInfo,
     function(volunteer, callback) {
@@ -140,6 +140,23 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
         }
         volunteer.dateCreated = moment(volunteer.dateCreated).format("L");
 
+        if(user.class != "admin"){
+          //Redact info if common working group
+          volunteer.address = null;
+          console.log(volunteer.working_groups, user.working_groups_arr);
+          if(!Helpers.hasOneInCommon(
+            JSON.parse(volunteer.working_groups) || [],
+            user.working_groups_arr
+          )){
+            if(volunteer.survey.gdpr.email != "on"){
+              volunteer.email = null;
+            }
+            if(volunteer.survey.gdpr.phone != "on"){
+              volunteer.phone_no = null;
+            }
+          }
+        }
+
         callback();
       } else {
         callback();
@@ -151,7 +168,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, callback) {
   );
 };
 
-Volunteers.getVolunteerById = function(member_id, callback) {
+Volunteers.getVolunteerById = function(member_id, user, callback) {
   var query = `SELECT * FROM volunteer_info volunteers
   INNER JOIN members ON volunteers.member_id=members.member_id AND members.member_id = ?
   LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered, MIN(date) firstVolunteered
@@ -160,7 +177,7 @@ Volunteers.getVolunteerById = function(member_id, callback) {
   var sql = mysql.format(query, inserts);
   con.query(sql, function(err, volInfo) {
     if (volInfo && !err) {
-      Volunteers.sanitizeVolunteer([volInfo[0]], function(volInfoClean) {
+      Volunteers.sanitizeVolunteer([volInfo[0]], user, function(volInfoClean) {
         callback(null, volInfoClean[0]);
       });
     } else {
