@@ -15,19 +15,15 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
       req.flash("error_msg", "Member not found!");
       res.redirect(process.env.PUBLIC_ADDRESS + "/members");
     } else {
-      Members.getVolInfoById(req.params.member_id, function(err, volInfo) {
-        WorkingGroups.getAll(function(err, allWorkingGroups) {
-          res.render("members/view", {
-            title: "View Member",
-            membersActive: true,
-            member: member,
-            volInfo: volInfo,
-            till: {
-              till_id: req.query.till_id
-            }
-          });
-        });
+      res.render("members/view", {
+        title: "View Member",
+        membersActive: true,
+        member: member,
+        till: {
+          till_id: req.query.till_id
+        }
       });
+
     }
   });
 });

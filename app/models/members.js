@@ -14,44 +14,31 @@ var Members = {};
 
 Members.sanitizeMember = function(member, user, callback) {
   member.working_groups = JSON.parse(member.working_groups);
-  member.userHasPermission = false;
+
   if (user.class == "till") {
     member.email = null;
     member.phone_no = null;
     member.address = null;
-  } else if (user.class == "volunteer") {
-    if (
-      !Helpers.hasOneInCommon(
-        member.working_groups || [],
-        user.working_groups_arr
-      )
-    ) {
+  } else if (user.class == "volunteer" || user.class == "staff") {
+    member.address = null;
+    try {
+      member.gdpr = JSON.parse(member.gdpr);
+      if(!member.gdpr.email){
+        member.email = null;
+      }
+      if(!member.gdpr.phone){
+        member.phone_no = null;
+      }
+    } catch(err){
       member.email = null;
       member.phone_no = null;
-      member.address = null;
-    } else {
-      member.userHasPermission = true;
     }
-  } else if (user.class == "staff") {
-    if (
-      !Helpers.hasOneInCommon(member.working_groups, user.working_groups_arr) &&
-      member.contactSharingConsent == 0
-    ) {
-      member.email = null;
-      member.phone_no = null;
-      member.address = null;
-    } else {
-      member.userHasPermission = true;
-    }
-  } else if (user.class == "admin") {
-    member.userHasPermission = true;
   }
   callback(null, member);
 };
 
 Members.getAll = function(callback) {
-  var query =
-    "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
+  var query = "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
   con.query(query, callback);
 };
 
@@ -95,7 +82,10 @@ Members.searchByNameAndGroup = function(search, group_id, callback) {
 };
 
 Members.getById = function(id, user, callback) {
-  var query = "SELECT * FROM members WHERE member_id = ?";
+  var query = `SELECT * FROM members
+                LEFT JOIN (SELECT member_id volunteer_id, gdpr
+                FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
+                WHERE members.member_id = ?`;
   var inserts = [id];
   var sql = mysql.format(query, inserts);
 

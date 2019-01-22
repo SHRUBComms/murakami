@@ -60,13 +60,23 @@
 				<div class="card">
 					<div class="card-body">
 						<h4>Contact</h4>
-						{{#if member.userHasPermission}}
-							<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-							<p>{{member.phone_no}}</p>
-							<p>{{member.address}}</p>
-						{{else}}
-							<p>You don't have permission to access this information!</p>
-						{{/if}}
+							{{#ifCond user.class '==' 'admin'}}
+								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+								<p>{{member.phone_no}}</p>
+								<p>{{member.address}}</p>
+							{{else}}
+								{{#ifCond member.gdpr.email '&&' member.email}}
+									<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+								{{else}}
+									<p>You can't view this member's email address</p>
+								{{/ifCond}}
+								{{#ifCond member.gdpr.phone '&&' member.phone_no}}
+									<p>{{member.phone_no}}</p>
+								{{else}}
+									<p>You can't view this member's phone number</p>
+								{{/ifCond}}
+							{{/ifCond}}
+
 
 					</div>
 				</div>
