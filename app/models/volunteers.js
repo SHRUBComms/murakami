@@ -147,7 +147,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           if (
             !Helpers.hasOneInCommon(
               JSON.parse(volunteer.working_groups) || [],
-              user.working_groups_arr
+              user.working_groups_arr || !Helpers.hasOneInCommon(volunteer.assignedCoordinators, [user.id])
             )
           ) {
             if (volunteer.survey.gdpr) {
@@ -161,7 +161,11 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
               volunteer.email = null;
               volunteer.phone_no = null;
             }
+          } else {
+            volunteer.canUpdate = true;
           }
+        } else {
+          volunteer.canUpdate = true;
         }
 
         callback();
@@ -237,12 +241,15 @@ Volunteers.updateVolunteer = function(member_id, volInfo, callback) {
 
 Volunteers.addRole = function(role, callback) {
   var query =
-    "INSERT INTO volunteer_roles (role_id,group_id,details,public) VALUES (?,?,?,0)";
+    "INSERT INTO volunteer_roles (role_id,group_id,details,availability,public) VALUES (?,?,?,?,0)";
   Helpers.uniqueBase64Id(10, "volunteer_roles", "role_id", function(role_id) {
     var inserts = [role_id];
     inserts.push(role.working_group);
     delete role.working_group;
+    var availability = JSON.stringify(role.availability)
+    delete role.availability;
     inserts.push(JSON.stringify(role));
+    inserts.push(availability)
     var sql = mysql.format(query, inserts);
     con.query(sql, function(err) {
       callback(err, role_id);
@@ -253,11 +260,12 @@ Volunteers.addRole = function(role, callback) {
 Volunteers.updateRole = function(role_id, role, callback) {
   var group_id = role.working_group || null;
   delete role.working_group;
+  var availability = JSON.stringify(role.availability);
+  delete role.availability;
   var query =
-    "UPDATE volunteer_roles SET group_id = ?, details = ? WHERE role_id = ?";
-  var inserts = [group_id, JSON.stringify(role), role_id];
+    "UPDATE volunteer_roles SET group_id = ?, details = ?, availability = ? WHERE role_id = ?";
+  var inserts = [group_id, JSON.stringify(role), availability, role_id];
 
-  inserts.push();
   var sql = mysql.format(query, inserts);
   con.query(sql, function(err) {
     callback(err, role.role_id);
@@ -294,6 +302,7 @@ Volunteers.getRoleById = function(role_id, callback) {
   con.query(sql, function(err, role) {
     if (role[0]) {
       role = role[0];
+      role.availability = JSON.parse(role.availability) || {};
       role.details = JSON.parse(role.details);
       callback(err, role);
     } else {

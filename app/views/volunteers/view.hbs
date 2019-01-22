@@ -10,15 +10,7 @@
 		<div class="row mt-4 mb-2 mx-auto">
 			<div class="card">
 				<div class="card-body">
-						<h1>{{member.first_name}} {{member.last_name}}
-							{{#ifCond user.class '==' 'admin'}}
-								<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="h4 text-primary">edit</a>
-							{{else}}
-								{{#if (lookupArray volInfo.assignedCoordinators user.id)}}
-									<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="h4 text-primary">edit</a>
-								{{/if}}
-							{{/ifCond}}
-						</h1>
+						<h1>{{member.first_name}} {{member.last_name}}</h1>
             <p class="{{#if member.is_member}}text-success{{else}}text-danger{{/if}}">
 							{{#if member.is_member}}
 								Current member
@@ -29,6 +21,14 @@
 				</div>
 			</div>
 		</div>
+
+		{{#if volInfo.canUpdate}}
+			<div class="row mt-4">
+				<div class="col-md-5">
+					<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="btn btn-block btn-primary">Update Volunteer</a>
+				</div>
+			</div>
+		{{/if}}
 
 
 			<!--
