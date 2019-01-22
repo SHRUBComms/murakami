@@ -2,16 +2,23 @@ var con = require("./index");
 var mysql = require("mysql");
 var bcrypt = require("bcrypt-nodejs");
 var async = require("async");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var Helpers = require("../configs/helpful_functions");
 var Attempts = require("./attempts");
 
 var Users = {};
 
-Users.getAll = function(callback) {
-  var query =
-    "SELECT * FROM login WHERE deactivated = 0 ORDER BY CONCAT(first_name, last_name) ASC ";
-  con.query(query, callback);
+Users.getAll = function(loggedInUser, callback) {
+  var query = `SELECT * FROM login
+    LEFT JOIN (SELECT user_id login_user_id, MAX(login_timestamp) lastLogin
+    FROM attempts GROUP BY user_id) attempts ON login.id=attempts.login_user_id`;
+  con.query(query, function(err, users) {
+    Users.sanitizeUser(users, loggedInUser, function(sanitizedUsers) {
+      callback(err, sanitizedUsers);
+    });
+  });
 };
 
 Users.getByUsername = function(username, callback) {
@@ -53,12 +60,20 @@ Users.getByEmail = function(email, callback) {
   con.query(sql, callback);
 };
 
-Users.getById = function(id, callback) {
-  var query = "SELECT * FROM login WHERE id = ?";
+Users.getById = function(id, loggedInUser, callback) {
+  var query = `SELECT * FROM login
+              LEFT JOIN (SELECT user_id login_user_id, MAX(login_timestamp) lastLogin
+              FROM attempts GROUP BY user_id) attempts ON login.id=attempts.login_user_id
+
+              WHERE login.id = ?`;
   var inserts = [id];
   var sql = mysql.format(query, inserts);
-
-  con.query(sql, callback);
+  console.log(sql);
+  con.query(sql, function(err, user) {
+    Users.sanitizeUser(user, loggedInUser, function(user) {
+      callback(err, user);
+    });
+  });
 };
 
 Users.addPasswordReset = function(user_id, ip_address, callback) {
@@ -129,7 +144,7 @@ Users.add = function(user, callback) {
         var sql = mysql.format(query, inserts);
 
         con.query(sql);
-        Users.getById(user.id, callback);
+        Users.getById(user.id, { class: "admin" }, callback);
       });
     });
   });
@@ -187,82 +202,48 @@ Users.comparePassword = function(candidatePassword, hash, callback) {
   });
 };
 
-Users.makeNice = function(user, working_groups, callback) {
-  var beautifulUser = {
-    id: null,
-    username: null,
-    first_name: null,
-    last_name: null,
-    full_name: null,
-    class: null,
-    working_groups: {},
-    last_login: null
-  };
+Users.sanitizeUser = function(users, loggedInUser, callback) {
+  async.eachOf(
+    users,
+    function(user, i, callback) {
+      var hasPermission = false;
+      if (loggedInUser.class == "admin" || user.id == loggedInUser.id) {
+        hasPermission = true;
+      } else {
+        if (
+          Helpers.hasOneInCommon(
+            user.working_groups,
+            loggedInUser.working_groups_arr
+          ) &&
+          ["till", "volunteer"].includes(user.class)
+        ) {
+          hasPermission = true;
+        }
+      }
 
-  // User id
-  beautifulUser.id = user.id;
+      if (hasPermission) {
+        // Full name
+        user.full_name = user.first_name + " " + user.last_name;
 
-  // Username
-  beautifulUser.username = user.username;
+        if (user.working_groups) {
+          user.working_groups = JSON.parse(user.working_groups) || [];
+        }
 
-  // First name
-  beautifulUser.first_name = user.first_name;
-
-  // Last name
-  beautifulUser.last_name = user.last_name;
-
-  // Full name
-  beautifulUser.full_name = user.first_name + " " + user.last_name;
-
-  // Email
-  beautifulUser.email = user.email;
-
-  // Admin status
-  if (["admin", "till", "volunteer", "staff"].includes(user.class)) {
-    beautifulUser.class = user.class;
-  }
-
-  if (user.volunteer == 1 && user.admin == 0) {
-    beautifulUser.volunteer = true;
-  }
-
-  // Working groups
-  if (user.working_groups) {
-    user.working_groups = JSON.parse(user.working_groups);
-
-    async.eachOf(
-      user.working_groups,
-      function(working_group, i, callback) {
-        if (working_groups[user.working_groups[i]]) {
-          beautifulUser.working_groups[
-            working_groups[user.working_groups[i]].group_id
-          ] = working_groups[user.working_groups[i]].name;
+        if (user.lastLogin) {
+          user.lastLogin = moment(user.lastLogin).format("L");
+        } else {
+          user.lastLogin = "Never";
         }
         callback();
-      },
-      function(err) {
-        Attempts.getLastLogin(user.id, function(err, logins) {
-          if (logins[0]) {
-            beautifulUser.last_login = new Date(
-              logins[0].login_timestamp
-            ).toLocaleDateString("en-GB");
-          }
-
-          callback(beautifulUser);
-        });
+      } else {
+        users[i] = {};
+        callback();
       }
-    );
-  } else {
-    Attempts.getLastLogin(user.id, function(err, logins) {
-      if (logins[0]) {
-        beautifulUser.last_login = new Date(
-          logins[0].login_timestamp
-        ).toLocaleDateString("en-GB");
-      }
-
-      callback(beautifulUser);
-    });
-  }
+    },
+    function() {
+      callback(users);
+    }
+  );
 };
 
 module.exports = Users;

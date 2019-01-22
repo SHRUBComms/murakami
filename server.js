@@ -160,7 +160,7 @@ app.use(function(req, res, next) {
         }
       }
       req.user.name = req.user.first_name + " " + req.user.last_name;
-      req.user.working_groups = JSON.parse(req.user.working_groups);
+
       WorkingGroups.getAll(function(err, working_groups_arr) {
         var working_groups = {};
         res.locals.allWorkingGroups = working_groups_arr;

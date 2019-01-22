@@ -13,12 +13,13 @@
 			<th data-sortable="true" class="hidden-xs hidden-sm">Username</th>
 			<th data-sortable="true" class="hidden-xs hidden-sm">Class</th>
 			<th data-sortable="true" class="hidden-xs hidden-sm">Last Login</th>
+			<th></th>
 		</thead>
 		<tbody>
 		{{#each users}}
-			{{#if this}}
+			{{#ifCond deactivated '==' 0}}
 				<tr>
-					<td><a href="/users/update/{{id}}">{{full_name}}</a></td>
+					<td>{{full_name}}</td>
 					<td>{{email}}</td>
 					<td>{{username}}</td>
 					<td>
@@ -36,13 +37,17 @@
 						{{/ifCond}}
 					</td>
 					<td>
-						{{#if last_login}}
-							{{last_login}}
+						{{#if lastLogin}}
+							{{lastLogin}}
 						{{else}}
 							Never logged in
-						{{/if}}</td>
+						{{/if}}
+					</td>
+					<td>
+						<a href="{{public_address}}/users/update/{{id}}" class="btn btn-primary">View/Update</a>
+					</td>
 				</tr>
-			{{/if}}
+			{{/ifCond}}
 		{{/each}}
 		</tbody>
 	</table>

@@ -5,22 +5,21 @@ var router = require("express").Router();
 var rootDir = process.env.CWD;
 
 var Users = require(rootDir + "/app/models/users");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
-  WorkingGroups.getAll(function(err, workingGroups) {
-    res.render("users/add", {
-      title: "Add User",
-      usersActive: true,
-      allWorkingGroups: workingGroups,
-      working_groups: {}
-    });
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+  req,
+  res
+) {
+  res.render("users/add", {
+    title: "Add User",
+    usersActive: true
   });
 });
 
-router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   req,
   res
 ) {
@@ -31,8 +30,21 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
   var userClass = req.body.class;
   var password = req.body.password;
   var passwordConfirm = req.body.passwordConfirm;
-  if (req.body.working_groups) {
-    var working_groups = JSON.parse(req.body.working_groups);
+
+  var working_groups = req.body.working_groups;
+
+  if (!Array.isArray(working_groups)) {
+    working_groups = [working_groups];
+  }
+
+  if (req.user.class == "admin") {
+    validClasses = ["admin", "till", "volunteer", "staff"];
+  } else {
+    validClasses = ["till", "volunteer"];
+  }
+
+  if (!validClasses.includes(userClass)) {
+    userClass = null;
   }
 
   // Validation
@@ -100,59 +112,53 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
       .equals(req.body.password);
   }
 
-  if (!["admin", "till", "staff", "volunteer"].includes(userClass)) {
-    userClass = "till";
+  req
+    .checkBody("working_groups", "Please select at least one working group")
+    .notEmpty();
+
+  if (!Helpers.allBelongTo(working_groups, req.user.working_groups_arr)) {
+    req
+      .checkBody("placeholder", "Please select valid working groups")
+      .notEmpty();
   }
 
-  var formattedWorkingGroups = [];
+  // Parse request's body asynchronously
+  req
+    .asyncValidationErrors()
+    .then(function() {
+      var newUser = {
+        id: null,
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        email: email,
+        class: userClass,
+        working_groups: JSON.stringify(working_groups.sort()),
+        password: password,
+        passwordConfirm: passwordConfirm
+      };
 
-  WorkingGroups.getAll(function(err, allWorkingGroups) {
-    Object.keys(working_groups).forEach(function(key) {
-      if (allWorkingGroups[key]) {
-        formattedWorkingGroups.push(key);
-      }
-    });
-
-    // Parse request's body asynchronously
-    req
-      .asyncValidationErrors()
-      .then(function() {
-        var newUser = {
-          id: null,
-          first_name: first_name,
-          last_name: last_name,
-          username: username,
-          email: email,
-          class: userClass,
-          working_groups: JSON.stringify(formattedWorkingGroups.sort()),
-          password: password,
-          passwordConfirm: passwordConfirm
-        };
-
-        Users.add(newUser, function(err, user) {
-          if (err) throw err;
-          user = user[0];
-          req.flash("success_msg", "New user added!");
-          res.redirect("/users/update/" + user.id);
-        });
-      })
-      .catch(function(errors) {
-        res.render("users/add", {
-          errors: errors,
-          title: "Add User",
-          usersActive: true,
-          first_name: first_name,
-          last_name: last_name,
-          username: username,
-          email: email,
-          class: userClass,
-          password: password,
-          passwordConfirm: passwordConfirm,
-          allWorkingGroups: allWorkingGroups,
-          working_groups: working_groups
-        });
+      Users.add(newUser, function(err, user) {
+        if (err) throw err;
+        user = user[0];
+        req.flash("success_msg", "New user added!");
+        res.redirect("/users/update/" + user.id);
       });
-  });
+    })
+    .catch(function(errors) {
+      res.render("users/add", {
+        errors: errors,
+        title: "Add User",
+        usersActive: true,
+        first_name: first_name,
+        last_name: last_name,
+        username: username,
+        email: email,
+        class: userClass,
+        password: password,
+        passwordConfirm: passwordConfirm
+      });
+    });
 });
 
 module.exports = router;

@@ -9,8 +9,11 @@ var Attempts = require(rootDir + "/app/models/attempts");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
-  Users.getById(req.params.user_id, function(err, user) {
+router.get("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
+  Users.getById(req.params.user_id, req.user, function(err, user) {
     if (!err && user[0]) {
       Attempts.getLastLogin(req.params.user_id, function(err, lastLogin) {
         if (!err && lastLogin[0]) {

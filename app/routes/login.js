@@ -61,7 +61,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  Users.getById(id, function(err, user) {
+  Users.getById(id, { class: "admin" }, function(err, user) {
     if (err) {
       return done(null, err);
     }

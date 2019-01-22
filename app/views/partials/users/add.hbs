@@ -1,0 +1,79 @@
+<script src="{{public_address}}/assets/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="{{public_address}}/assets/css/bootstrap-select.min.css" />
+
+<div class="row m-4">
+  <div class="col-md-6 mx-auto">
+
+    <div class="card p-4">
+      <div class="card-body">
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <input type="text" class="form-control mr-sm-2 mr-md-2 mb-sm-1 mb-md-1" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+          </div>
+          <div class="col-md-6">
+            <input type="text" class="form-control" placeholder="Last Name"name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+          </div>
+        </div>
+
+        {{#if addingUser}}
+
+          <div class="row mb-3">
+            <div class="form-group col-md-8">
+              <input type="text" class="form-control" placeholder="Username" name="username"{{#if username}} value="{{username}}"{{/if}}>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="form-group col-md-10">
+              <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
+            </div>
+          </div>
+
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <input type="password" class="form-control mr-sm-2 mr-md-2 mb-sm-1 mb-md-1" placeholder="Password" name="password"{{#if password}} value="{{password}}"{{/if}}>
+            </div>
+            <div class="col-md-6">
+                <input type="password" class="form-control" placeholder="Confirm password" name="passwordConfirm"{{#if passwordConfirm}} value="{{passwordConfirm}}"{{/if}}>
+            </div>
+          </div>
+
+        {{/if}}
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <select class="form-control" name="class">
+              <option value="till" {{#ifCond class '==' 'till'}}selected{{/ifCond}}>Till User</option>
+              <option value="volunteer" {{#ifCond class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
+              {{#ifCond user.class '==' 'admin'}}
+                <option value="staff" {{#ifCond class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
+                <option value="admin" {{#ifCond class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
+              {{/ifCond}}
+              {{#ifCond user.class '==' 'staff'}}
+                {{#ifCond user.id '==' user_id}}
+                  <option value="staff" {{#ifCond class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
+                {{/ifCond}}
+              {{/ifCond}}
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <select class="selectpicker show-tick form-control" name="working_groups" title="Select one or more working groups" data-style="btn-info" data-size="auto" data-header="Select one or more working groups" data-live-search="true" multiple required />
+              {{#each user.allWorkingGroupsObj}}
+                  <option value="{{group_id}}"
+                  {{#if (lookupArray ../working_groups group_id)}}selected{{/if}}
+                  {{#ifCond ../user.class '==' 'staff'}}
+                    {{#unless (lookupArray ../user.working_groups_arr group_id)}} disabled{{/unless}}
+                  {{/ifCond}}>{{name}}</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
