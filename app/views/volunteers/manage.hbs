@@ -29,14 +29,7 @@
     			</select>
     		</div>
     	</div>
-    	{{else}}
-    	<div class="row">
-    		<div class="card">
-    			<div class="card-body">
-    				<h3>{{user.working_groups.0.name}}</h3>
-    			</div>
-    		</div>
-    	</div>
+
     	{{/ifGreaterThan}}
     {{/ifUserClass}}
   </div>
@@ -114,8 +107,8 @@
                   {{/ifCond}}
                   {{#ifCond needsToVolunteer '==' 'now'}}
                     <a class="btn btn-danger w-100" href="">Prompt To Volunteer</a>
-                  {{/ifCond}}-->
-
+                  {{/ifCond}}
+                -->
                   <!--{{#ifCond needsToVolunteer '==' 'soon'}}
                     <a class="btn btn-warning w-100" href="">Conduct Check-in</a>
                   {{/ifCond}}

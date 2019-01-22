@@ -50,16 +50,12 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
         }
 
         Object.keys(formattedData).forEach(function(key) {
-          console.log(
-            formattedData[key],
-            carbonCategories[key][method],
-            unit.factor
-          );
+          
           formattedData[key] = (formattedData[key] * unit.factor).toFixed(4);
         });
 
         var dates = { start: null, end: null };
-        console.log(startDate);
+        
         dates.start = moment(startDate).format("DD/MM/YY");
         dates.end = moment(endDate).format("DD/MM/YY");
 

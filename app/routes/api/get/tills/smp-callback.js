@@ -52,7 +52,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
       }
     }
   );
-  console.log(req.query.till_id);
+  
   res.redirect(
     process.env.PUBLIC_ADDRESS +
       "/till/" +

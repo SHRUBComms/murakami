@@ -140,18 +140,25 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
         }
         volunteer.dateCreated = moment(volunteer.dateCreated).format("L");
 
-        if(user.class != "admin"){
+        if (user.class != "admin") {
           //Redact info if common working group
           volunteer.address = null;
-          console.log(volunteer.working_groups, user.working_groups_arr);
-          if(!Helpers.hasOneInCommon(
-            JSON.parse(volunteer.working_groups) || [],
-            user.working_groups_arr
-          )){
-            if(volunteer.survey.gdpr.email != "on"){
+
+          if (
+            !Helpers.hasOneInCommon(
+              JSON.parse(volunteer.working_groups) || [],
+              user.working_groups_arr
+            )
+          ) {
+            if (volunteer.survey.gdpr) {
+              if (volunteer.survey.gdpr.email != "on") {
+                volunteer.email = null;
+              }
+              if (volunteer.survey.gdpr.phone != "on") {
+                volunteer.phone_no = null;
+              }
+            } else {
               volunteer.email = null;
-            }
-            if(volunteer.survey.gdpr.phone != "on"){
               volunteer.phone_no = null;
             }
           }

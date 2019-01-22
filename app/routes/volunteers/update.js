@@ -480,7 +480,7 @@ router.post(
                                 subscribeBody
                               );
                             }
-                            console.log("Success!");
+                            
                             req.flash(
                               "success_msg",
                               "Volunteer successfully updated!"

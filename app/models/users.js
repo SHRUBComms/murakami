@@ -68,7 +68,7 @@ Users.getById = function(id, loggedInUser, callback) {
               WHERE login.id = ?`;
   var inserts = [id];
   var sql = mysql.format(query, inserts);
-  console.log(sql);
+  
   con.query(sql, function(err, user) {
     Users.sanitizeUser(user, loggedInUser, function(user) {
       callback(err, user);

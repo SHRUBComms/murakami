@@ -390,7 +390,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
         Members.add(newMember, function(err, member_id) {
           Volunteers.addExistingMember(member_id, volInfo, function(err) {
             if (err) {
-              console.log(err);
+              
               res.render("volunteers/add", {
                 errors: [{ msg: "Something went wrong!" }],
                 title: "Induct Volunteer",
@@ -447,7 +447,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                   subscribeBody
                 );
               }
-              console.log("Success!");
+              
               req.flash("success_msg", "Volunteer successfully added!");
               res.redirect(
                 process.env.PUBLIC_ADDRESS + "/volunteers/view/" + member_id

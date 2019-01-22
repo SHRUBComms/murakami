@@ -30,6 +30,10 @@ router.get(
               Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
                 req.user.id
               ]) ||
+              Helpers.hasOneInCommon(
+                member.working_groups,
+                req.user.working_groups_arr
+              ) ||
               req.user.class == "admin"
             ) {
               Users.getCoordinators({ class: "admin" }, function(
@@ -43,7 +47,6 @@ router.get(
                   rolesGroupedByGroup,
                   rolesGroupedById
                 ) {
-                  console.log(volInfo.assignedCoordinators);
                   res.render("volunteers/view", {
                     title: "View Volunteer",
                     volunteersActive: true,

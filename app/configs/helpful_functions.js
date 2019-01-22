@@ -166,7 +166,7 @@ Helpers.flatten = function(array) {
 };
 
 Helpers.hasOneInCommon = function(haystack, arr) {
-  console.log(haystack, arr);
+  
   return arr.some(function(v) {
     return haystack.indexOf(v) >= 0;
   });

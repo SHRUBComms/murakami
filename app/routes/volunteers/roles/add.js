@@ -135,6 +135,49 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       commitmentLengths: commitmentLengths
     });
   } else {
+    var days = {
+      mon: true,
+      tue: true,
+      wed: true,
+      thu: true,
+      fri: true,
+      sat: true,
+      sun: true
+    };
+    var periods = { m: true, a: true, e: true };
+
+    var validTimes = 0;
+
+    if (role.availability) {
+      Object.keys(role.availability).forEach(function(key) {
+        var validDay = false;
+        var validPeriod = false;
+
+        if (days[key.substring(0, 3)]) {
+          validDay = true;
+        }
+
+        if (periods[key.substring(4, 5)]) {
+          validPeriod = true;
+        }
+
+        if (validDay && key.substring(3, 4) == "_" && validPeriod) {
+          validTimes++;
+        } else {
+          delete role.availability[key];
+        }
+      });
+    }
+
+    if (validTimes == 0) {
+      let error = {
+        param: "volInfo.availability",
+        msg: "Please tick at least one box in the availability matrix",
+        value: req.body.role.availability
+      };
+      errors.push(error);
+    }
+
     if (role.hours_per_week < 1 || role.hours_per_week > 15) {
       var error = {
         param: "working_group",

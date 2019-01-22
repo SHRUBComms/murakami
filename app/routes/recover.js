@@ -148,7 +148,7 @@ router.post("/", function(req, res) {
                                 html,
                                 function(err) {
                                   if (err) {
-                                    console.log(err);
+                                    
                                     req.flash(
                                       "error_msg",
                                       'Something went wrong sending you your recovery link, please <a href="/support">contact support</a>'

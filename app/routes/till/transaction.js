@@ -282,7 +282,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               msg: "Something has gone terribly wrong!"
                             });
                           } else {
-                            console.log(transaction_id);
+                            
                             var carbon = {
                               member_id: member_id,
                               user_id: req.user.id,
@@ -346,7 +346,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                           }
                                         }
 
-                                        console.log(sumupSummon);
+                                        
                                         if (response.status == "ok") {
                                           res.send({
                                             status: "redirect",
@@ -479,7 +479,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     till.till_id
                                 );
 
-                              console.log(sumupSummon);
+                              
                               if (response.status == "ok") {
                                 res.send({
                                   status: "redirect",

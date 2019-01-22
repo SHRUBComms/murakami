@@ -291,7 +291,7 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
                   volInfo,
                   function(err) {
                     if (err) {
-                      console.log(err);
+                      
                       res.render("members/make-volunteer", {
                         errors: [{ msg: "Something went wrong!" }],
                         title: "Add Volunteer (Existing Member)",

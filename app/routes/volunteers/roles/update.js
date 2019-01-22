@@ -25,13 +25,20 @@ router.get(
         if (!Array.isArray(role.details.locations)) {
           role.details.locations = [role.details.locations];
         }
-        res.render("volunteers/roles/update", {
-          title: "Update Volunter Role",
-          volunteerRolesActive: true,
-          role: role.details,
-          locations: allLocations,
-          commitmentLengths: commitmentLengths,
-          activities: allActivities
+
+        Volunteers.getRoleSignUpInfo(function(
+          allLocations,
+          commitmentLengths,
+          allActivities
+        ) {
+          res.render("volunteers/roles/update", {
+            title: "Update Volunter Role",
+            volunteerRolesActive: true,
+            role: role.details,
+            locations: allLocations,
+            commitmentLengths: commitmentLengths,
+            activities: allActivities
+          });
         });
       } else {
         res.redirect(process.enc.PUBLIC_ADDRESS + "/volunteers/roles/manage");

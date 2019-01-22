@@ -36,23 +36,38 @@
 
     <div class="row-fluid mb-3">
       <select class="selectpicker show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
-        <optgroup label="SHRUB-wide">
-          {{#each (lookup roles "na")}}
-            <option value="{{role_id}}" {{#if (lookupArray ../volInfo.roles role_id)}}selected{{/if}}>{{details.title}}</option>
-          {{else}}
-            <option disabled>This group has no roles.</option>
-          {{/each}}
-        </optgroup>
 
-        {{#each user.allWorkingGroupsObj}}
-        <optgroup label="{{name}}">
-          {{#each (lookup ../roles group_id)}}
-            <option value="{{role_id}}" {{#if (lookupArray ../../volInfo.roles role_id)}}selected{{/if}}>{{details.title}}</option>
-          {{else}}
-            <option disabled>This group has no roles.</option>
+
+          <optgroup label="SHRUB-wide">
+            {{#each (lookup roles "na")}}
+              <option value="{{role_id}}"
+              {{#if (lookupArray ../volInfo.roles role_id)}}selected{{/if}}
+              {{#ifUserClass user.class '["volunteer"]'}}disabled{{/ifUserClass}}
+              >{{details.title}}</option>
+            {{else}}
+              <option disabled>This group has no roles.</option>
+            {{/each}}
+          </optgroup>
+
+
+          {{#each user.allWorkingGroupsObj}}
+            <optgroup label="{{name}}">
+              {{#each (lookup ../roles group_id)}}
+                <option value="{{role_id}}"
+                {{#if (lookupArray ../../volInfo.roles role_id)}}selected{{/if}}
+                {{#ifUserClass user.class '["volunteer", "staff"]'}}
+                  {{#unless (lookupArray ../../user.working_groups_arr (lookup ../../roles group_id))}}
+                    disabled
+                  {{/unless}}
+                {{/ifUserClass}}
+                >{{details.title}}</option>
+              {{else}}
+                <option disabled>This group has no roles.</option>
+              {{/each}}
+            </optgroup>
           {{/each}}
-        </optgroup>
-        {{/each}}
+
+
       </select>
     </div>
 

@@ -23,7 +23,7 @@ router.post(
       err,
       member
     ) {
-      console.log(member);
+      
       if (member[0]) {
         response.status = "ok";
         response.member_id = member[0].member_id;

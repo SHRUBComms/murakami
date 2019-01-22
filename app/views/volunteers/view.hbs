@@ -82,11 +82,22 @@
 					<div class="card-body">
 						<h4>Contact</h4>
 
+						{{#ifCond user.class '==' 'admin'}}
 							<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
 							<p>{{member.phone_no}}</p>
-							{{#ifUserClass user.class '["admin"]'}}
-								<p>{{member.address}}</p>
-							{{/ifUserClass}}
+							<p>{{member.address}}</p>
+						{{else}}
+							{{#ifCond member.gdpr.email '&&' member.email}}
+								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+							{{else}}
+								<p>You can't view this member's email address</p>
+							{{/ifCond}}
+							{{#ifCond member.gdpr.phone '&&' member.phone_no}}
+								<p>{{member.phone_no}}</p>
+							{{else}}
+								<p>You can't view this member's phone number</p>
+							{{/ifCond}}
+						{{/ifCond}}
 
 					</div>
 				</div>

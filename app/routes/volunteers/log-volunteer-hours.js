@@ -64,7 +64,7 @@ router.post("/", function(req, res) {
                         );
                         Tills.addTransaction(transaction, function(err) {
                           if (err) {
-                            console.log(err);
+                            
                             message.status = "fail";
                             message.msg = "Something went wrong!";
                             res.send(message);

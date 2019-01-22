@@ -57,13 +57,16 @@
                           {{#if user}}
                               {{#unless tillMode}}
 
-                                <li {{#if membersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
-                                    <ul class="collapse">
-                                        <li><a href="{{public_address}}/members">Manage Members</a></li>
-                                        <li><a href="{{public_address}}/members/add">Add Member</a></li>
-                                    </ul>
-                                </li>
+                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                  <li {{#if membersActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
+                                      <ul class="collapse">
+                                          <li><a href="{{public_address}}/members">Manage Members</a></li>
+                                          <li><a href="{{public_address}}/members/add">Add Member</a></li>
+                                      </ul>
+                                  </li>
+                                {{/ifUserClass}}
+
                                 <li {{#if volunteersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
                                     <ul class="collapse">
@@ -74,14 +77,18 @@
                                     </ul>
                                 </li>
 
-                                <li {{#if volunteerRolesActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
-                                    <ul class="collapse">
-                                      <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
-                                      <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
-                                      <li><a href="{{public_address}}/volunteers/roles/settings">Settings</a></li>
-                                    </ul>
-                                </li>
+                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                  <li {{#if volunteerRolesActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
+                                      <ul class="collapse">
+                                        <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
+                                        <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
+                                        {{#ifUserClass user.class '["admin"]'}}
+                                          <li><a href="{{public_address}}/volunteers/roles/settings">Settings</a></li>
+                                        {{/ifUserClass}}
+                                      </ul>
+                                  </li>
+                                {{/ifUserClass}}
 
                                 <li {{#if volunteerHoursActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
@@ -91,17 +98,24 @@
                                     </ul>
                                 </li>
 
-                                <li {{#if tillsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
-                                    <ul class="collapse">
-                                        <li><a href="{{public_address}}/settings/tills">Manage Tills</a></li>
-                                    </ul>
-                                </li>
+                                {{#ifUserClass user.class '["admin", "staff"]'}}
+
+                                  <li {{#if tillsActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
+                                      <ul class="collapse">
+                                          <li><a href="{{public_address}}/settings/tills">Manage Tills</a></li>
+                                      </ul>
+                                  </li>
+
+                                {{/ifUserClass}}
+
                                 <li {{#if carbonActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/log-outgoing-weight">Log Outgoing Weight</a></li>
-                                        <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
+                                        {{#ifUserClass user.class '["admin", "staff"]'}}
+                                          <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
+                                        {{/ifUserClass}}
                                         <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
                                     </ul>
                                 </li>
@@ -114,6 +128,7 @@
                                     </ul>
                                 </li>
                                 {{/ifUserClass}}
+                                {{#ifUserClass user.class '["admin", "staff"]'}}
                                 <li {{#if usersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i></i><span>Users</span></a>
                                     <ul class="collapse">
@@ -121,6 +136,7 @@
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
                                     </ul>
                                 </li>
+                                {{/ifUserClass}}
                                 <!--
                                 <li {{#if settingsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Email Templates</span></a>

@@ -45,7 +45,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                 members[i].id = member.id;
                 members[i].first_name = member.first_name;
 
-                if (["admin", "volunteer"].includes(req.user.class)) {
+                if (["admin"].includes(req.user.class)) {
                   members[i].name = member.name;
                   members[i].email = member.email;
                   members[i].working_groups = member.working_groups;
