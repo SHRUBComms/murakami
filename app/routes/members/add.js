@@ -167,7 +167,7 @@ router.post("/", function(req, res) {
     errors.push(error);
   }
 
-  if (errors) {
+  if (errors[0]) {
     res.render("members/add", {
       errors: errors,
       membersActive: true,
@@ -188,6 +188,7 @@ router.post("/", function(req, res) {
       }
     });
   } else {
+    console.log("form valid");
     var newMember = {
       member_id: null,
       first_name: first_name,
@@ -202,73 +203,99 @@ router.post("/", function(req, res) {
     };
 
     Members.add(newMember, function(err, member_id) {
-      var subscribeBody = {
-        email_address: email,
-        status: "subscribed",
-        merge_fields: {
-          FNAME: first_name,
-          LNAME: last_name
-        }
-      };
-      if (generalNewsletterConsent == "on") {
-        var shrubMailchimp = new Mailchimp(
-          process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-        );
-        shrubMailchimp.put(
-          "/lists/" +
-            process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-            "/members/" +
-            md5(email),
-          subscribeBody
-        );
-      }
+      if(err){
+        res.render("members/add", {
+          errors: [{
+            msg: "Something went wrong, please try again!"
+          }],
+          membersActive: true,
+          title: "Add Member",
+          first_name: first_name,
+          last_name: last_name,
+          email: email,
+          phone_no: phone_no,
+          address: address,
+          shrubExplained: shrubExplained,
+          safeSpace: safeSpace,
+          membershipBenefits: membershipBenefits,
+          contactConsent: contactConsent,
+          gdprConsent: gdprConsent,
+          dob: dob,
+          till: {
+            till_id: till_id
+          }
+        })
 
-      if (fseNewsletterConsent == "on") {
-        var fseMailchimp = new Mailchimp(
-          process.env.FSE_MAILCHIMP_SECRET_API_KEY
-        );
-        fseMailchimp.put(
-          "/lists/" +
-            process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
-            "/members/" +
-            md5(email),
-          subscribeBody
-        );
-      }
-
-      if (membership_length == "year") {
-        var transaction = {
-          member_id: member_id,
-          till_id: till_id || null,
-          user_id: "automatic",
-          date: today,
-          summary: {
-            totals: {
-              tokens: 5
-            },
-            bill: [
-              {
-                tokens: "5",
-                item_id: "membership"
-              }
-            ],
-            comment: "",
-            paymentMethod: null
+      } else {
+        var subscribeBody = {
+          email_address: email,
+          status: "subscribed",
+          merge_fields: {
+            FNAME: first_name,
+            LNAME: last_name
           }
         };
-        transaction.summary = JSON.stringify(transaction.summary);
-        Tills.addTransaction(transaction, function(err) {
-          Members.updateBalance(member_id, 5, function(err) {});
-        });
-      }
+        if (generalNewsletterConsent == "on") {
+          var shrubMailchimp = new Mailchimp(
+            process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
+          );
+          shrubMailchimp.put(
+            "/lists/" +
+              process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+              "/members/" +
+              md5(email),
+            subscribeBody
+          );
+        }
 
-      Mail.sendAutomated("hello", member_id, function(err) {});
+        if (fseNewsletterConsent == "on") {
+          var fseMailchimp = new Mailchimp(
+            process.env.FSE_MAILCHIMP_SECRET_API_KEY
+          );
+          fseMailchimp.put(
+            "/lists/" +
+              process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
+              "/members/" +
+              md5(email),
+            subscribeBody
+          );
+        }
 
-      req.flash("success_msg", "New member added!");
-      if (till_id) {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + till_id);
-      } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+        if (membership_length == "year") {
+          var transaction = {
+            member_id: member_id,
+            till_id: till_id || null,
+            user_id: "automatic",
+            date: today,
+            summary: {
+              totals: {
+                tokens: 5
+              },
+              bill: [
+                {
+                  tokens: "5",
+                  item_id: "membership"
+                }
+              ],
+              comment: "",
+              paymentMethod: null
+            }
+          };
+          transaction.summary = JSON.stringify(transaction.summary);
+          Tills.addTransaction(transaction, function(err) {
+            Members.updateBalance(member_id, 5, function(err) {});
+          });
+        }
+
+        Mail.sendAutomated("hello", member_id, function(err) {});
+
+        req.flash("success_msg", "New member added!");
+
+        if (till_id) {
+          res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + till_id);
+        } else {
+          res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+        }
       }
     });
   }
