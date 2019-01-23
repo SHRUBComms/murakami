@@ -13,15 +13,11 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 var Members = {};
 
 Members.sanitizeMember = function(member, user, callback) {
-<<<<<<< HEAD
   try {
     member.working_groups = JSON.parse(member.working_groups);
   } catch(err){
     member.working_groups = [];
   }
-=======
-  member.working_groups = JSON.parse(member.working_groups) || [];
->>>>>>> bd31bcfbac16583f8d7d6359622327a96e2e7688
 
   if (user.class == "till") {
     member.email = null;
