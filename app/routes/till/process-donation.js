@@ -55,17 +55,28 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           " <" +
                           member.email +
                           ">",
-                        "Your Recent Donation",
-                        "<p>Hey " +
+                        "Swap Shop: New tokens have been added to your account!",
+                        "<p>Hi " +
                           member.first_name +
-                          "!</p>" +
-                          "<p>Your recent donation has been processed and <b>" +
+                          ",</p>" +
+                          "<p>Our volunteers have processed the items you recently dropped off at the Swap Shop and <b>" +
                           tokens +
-                          " tokens</b> have been credited to your account, leaving you with a total of " +
+                          " tokens</b> have been added to your account</p>" +
+                          "<p>You now have a total of " +
                           member.balance +
-                          " tokens which you can spend in <a href='https://goo.gl/maps/L5WCe6ji1Xr'>our swapshop</a>.</p>" +
-                          "<p>Thanks so much for your donation, we hope to see you soon!</p>" +
-                          "<p>Shrub Co-op</p>",
+                          " tokens in your account.</p>" +
+
+                          "<p><b>How do we value your stuff?</b></p>" +
+                          "<p>Our volunteers sort through your items to check their condition and value the items we're able to sell in the shop.</p>" +
+
+                          "<p>Unlike your ordinary charity shop, we give you back 25% of your item's value. This is added to your account in the form of tokens that you can spend at the Swap Shop where 1 token is worth £1.</p>" +
+
+                          "<p>We're open 12pm to 5pm, Wednesday, Thursday, Friday, Saturday.</p>" +
+
+                          "<p>Thank you!</p>" +
+
+                          "<p>The Swap Shop</p>",
+
                         function(err) {
                           if (err) {
                             response.msg =
