@@ -282,7 +282,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               msg: "Something has gone terribly wrong!"
                             });
                           } else {
-                            
+
                             var carbon = {
                               member_id: member_id,
                               user_id: req.user.id,
@@ -296,12 +296,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 [carbon],
                                 carbonCategories,
                                 function(carbonSaved) {
-                                  if (carbonSaved > 0) {
+
                                     response.msg +=
                                       " " +
                                       Math.abs(carbonSaved.toFixed(2)) +
-                                      "kg of carbon saved!";
-                                  }
+                                      "kg of carbon saved.";
+
                                   Members.updateBalance(
                                     member_id,
                                     returnedMember.balance,
@@ -318,6 +318,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                           ].name +
                                           " purchase" +
                                           "&total=" +
+                                          totals.money +
+                                          "&amount=" +
                                           totals.money +
                                           "&currency=GBP" +
                                           "&foreign-tx-id=" +
@@ -346,7 +348,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                           }
                                         }
 
-                                        
+
                                         if (response.status == "ok") {
                                           res.send({
                                             status: "redirect",
@@ -447,12 +449,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           [carbon],
                           carbonCategories,
                           function(carbonSaved) {
-                            if (carbonSaved > 0) {
+
                               response.msg +=
                                 " " +
                                 Math.abs(carbonSaved.toFixed(2)) +
-                                "kg of carbon saved!";
-                            }
+                                "kg of carbon saved.";
+
                             if (paymentMethod == "card") {
                               var sumupSummon =
                                 "sumupmerchant://pay/1.0?affiliate-key=" +
@@ -463,6 +465,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 req.user.allWorkingGroupsObj[till.group_id]
                                   .name +
                                 "&total=" +
+                                totals.money +
+                                "&amount=" +
                                 totals.money +
                                 "&currency=GBP" +
                                 "&foreign-tx-id=" +
@@ -479,7 +483,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     till.till_id
                                 );
 
-                              
+
                               if (response.status == "ok") {
                                 res.send({
                                   status: "redirect",

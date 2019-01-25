@@ -34,6 +34,8 @@
 
     <h3 class="mb-2">Roles <span class="text-danger">*</span></h3>
 
+    {{json (lookupArray user.workings_groups_arr "WG-100")}}
+
     <div class="row-fluid mb-3">
       <select class="selectpicker show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
 
@@ -41,25 +43,31 @@
           <optgroup label="SHRUB-wide">
             {{#each (lookup roles "na")}}
               <option value="{{role_id}}"
-              {{#if (lookupArray ../volInfo.roles role_id)}}selected{{/if}}
-              {{#ifUserClass user.class '["volunteer"]'}}disabled{{/ifUserClass}}
+              {{#if (lookupArray ../volInfo.roles role_id)}}
+                selected
+              {{else}}
+                {{#ifUserClass ../user.class '["volunteer"]'}}disabled{{/ifUserClass}}
+              {{/if}}
+
               >{{details.title}}</option>
             {{else}}
               <option disabled>This group has no roles.</option>
             {{/each}}
           </optgroup>
 
-
           {{#each user.allWorkingGroupsObj}}
             <optgroup label="{{name}}">
               {{#each (lookup ../roles group_id)}}
                 <option value="{{role_id}}"
-                {{#if (lookupArray ../../volInfo.roles role_id)}}selected{{/if}}
-                {{#ifUserClass user.class '["volunteer", "staff"]'}}
-                  {{#unless (lookupArray ../../user.working_groups_arr (lookup ../../roles group_id))}}
-                    disabled
-                  {{/unless}}
-                {{/ifUserClass}}
+                {{#if (lookupArray ../../volInfo.roles role_id)}}
+                  selected
+                {{else}}
+                  {{#ifUserClass ../../user.class '["volunteer", "staff"]'}}
+                    {{#unless (lookupArray ../../user.working_groups_arr group_id)}}
+                      disabled
+                    {{/unless}}
+                  {{/ifUserClass}}
+                {{/if}}
                 >{{details.title}}</option>
               {{else}}
                 <option disabled>This group has no roles.</option>
@@ -72,7 +80,7 @@
     </div>
 
     <div class="row-fluid">
-      <select class="selectpicker show-tick form-control" id="rolesSelect" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
+      <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
 
         {{#each coordinators}}
             <option value="{{id}}" {{#if (lookupArray ../volInfo.assignedCoordinators id)}}selected{{/if}}>{{first_name}} {{last_name}}</option>

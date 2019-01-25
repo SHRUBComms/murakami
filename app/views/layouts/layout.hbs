@@ -83,9 +83,9 @@
                                       <ul class="collapse">
                                         <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
                                         <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
-                                        {{#ifUserClass user.class '["admin"]'}}
+                                        <!--{{#ifUserClass user.class '["admin"]'}}
                                           <li><a href="{{public_address}}/volunteers/roles/settings">Settings</a></li>
-                                        {{/ifUserClass}}
+                                        {{/ifUserClass}}-->
                                       </ul>
                                   </li>
                                 {{/ifUserClass}}
@@ -273,7 +273,9 @@
 
 
                               <div class="dropdown-menu" style="width: 100%;">
-                                  <a class="dropdown-item" href="{{public_address}}/users/update/{{user.id}}">Manage Your Account</a>
+                                  {{#ifUserClass user.class '["admin", "staff"]'}}
+                                    <a class="dropdown-item" href="{{public_address}}/users/update/{{user.id}}">Manage Your Account</a>
+                                  {{/ifUserClass}}
                                   <a class="dropdown-item" href="{{public_address}}/logout">Log Out</a>
                               </div>
 
