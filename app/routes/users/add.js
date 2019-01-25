@@ -116,7 +116,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     .checkBody("working_groups", "Please select at least one working group")
     .notEmpty();
 
-  if (!Helpers.allBelongTo(working_groups, req.user.working_groups_arr)) {
+  if (!Helpers.allBelongTo(working_groups, req.user.all_working_groups_arr)) {
     req
       .checkBody("placeholder", "Please select valid working groups")
       .notEmpty();

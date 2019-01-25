@@ -164,9 +164,12 @@ app.use(function(req, res, next) {
       WorkingGroups.getAll(function(err, working_groups_arr) {
         var working_groups = {};
         res.locals.allWorkingGroups = working_groups_arr;
+        var all_working_groups_arr = [];
+
         async.each(
           working_groups_arr,
           function(group, callback) {
+            all_working_groups_arr.push(group.group_id);
             working_groups[group.group_id] = group;
             callback();
           },
@@ -186,9 +189,11 @@ app.use(function(req, res, next) {
               },
               function(err) {
                 var working_groups = req.user.working_groups || [];
+
                 req.user.working_groups_arr = working_groups.map(function(obj) {
                   return obj.group_id;
                 });
+                req.user.all_working_groups_arr = all_working_groups_arr;
                 next();
               }
             );

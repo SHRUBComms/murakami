@@ -91,11 +91,16 @@ router.post(
           errors.push(error);
         }
 
-        if (!Helpers.allBelongTo(working_groups, req.user.working_groups_arr)) {
-          var error = {
+        if (!Array.isArray(working_groups)) {
+          working_groups = [working_groups];
+        }
+
+        if (
+          !Helpers.allBelongTo(working_groups, req.user.all_working_groups_arr)
+        ) {
+          errors.push({
             msg: "Please select valid working groups."
-          };
-          errors.push(error);
+          });
         }
 
         if (errors[0]) {

@@ -96,6 +96,8 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.firstVolunteered = moment(
             volunteer.firstVolunteered
           ).format("l");
+        } else {
+          volunteer.firstVolunteered = "Never!";
         }
 
         volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");

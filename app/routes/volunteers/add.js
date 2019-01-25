@@ -2,7 +2,8 @@
 
 var router = require("express").Router();
 var async = require("async");
-var moment = require("moment"); moment.locale("en-gb");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -24,7 +25,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
     ) {
       res.render("volunteers/add", {
         title: "Add Volunteer",
-        membersActive: true,
+        volunteersActive: true,
         coordinators: coordinators,
         roles: rolesGroupedByGroup,
         skills: skills,
@@ -354,7 +355,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
         res.render("members/make-volunteer", {
           errors: errors,
           title: "Induct Volunteer",
-          membersActive: true,
+          volunteerActive: true,
           volInfo: volInfo,
           member: member,
           coordinators: coordinators,
@@ -390,11 +391,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
         Members.add(newMember, function(err, member_id) {
           Volunteers.addExistingMember(member_id, volInfo, function(err) {
             if (err) {
-              
               res.render("volunteers/add", {
                 errors: [{ msg: "Something went wrong!" }],
                 title: "Induct Volunteer",
-                membersActive: true,
+                volunteerActive: true,
                 volInfo: volInfo,
                 member: member,
                 coordinators: coordinators,
@@ -447,7 +447,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                   subscribeBody
                 );
               }
-              
+
               req.flash("success_msg", "Volunteer successfully added!");
               res.redirect(
                 process.env.PUBLIC_ADDRESS + "/volunteers/view/" + member_id
