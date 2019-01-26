@@ -8,42 +8,29 @@ If you are interested in using/adapting Murakami for your organisation or simply
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![DeepScan grade](https://deepscan.io/api/teams/2524/projects/3660/branches/32113/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=2524&pid=3660&bid=32113)
 
-Murakami is straight-to-the-point - it facilitates the following features with little to no faff:
+Murakami is straight-to-the-point. It allows an organisation to _easily_ manage its members and volunteers, integrating seemlessly with a fully bespoke POS system.
 
--   Membership
-    -   Members can be added to the system with ease
-    -   The system keeps track of each membership including - but not limited to - contact details, membership dates, volunteer status, how often they use the swapshop etc.
-    -   Memberships can be renewed in two clicks!
-    -   Members are automatically emailed at various points in their membership
--   Volunteering
-    -   Murakami also keeps track of Shrub's volunteers - volunteers log their hours with the working group they volunteered for. Hours are then approved or rejected by an admin of said working group. If approved the member will be automatically credited with some tokens if said working group chooses to do this for their volunteers
--   Transactions
-    -   Shrub gives their members "tokens" when they bring in donations which can then be used to "purchase" other items in their shop - AKA swapping. Volunteers may also be given tokens for volunteering. Murakami effortlessly integrates these transactions into each member's page. It is as easy as entering the category, value, and weight of each item in the transaction
--   Carbon calculations
-    -   When an item leaves the swapshop its weight is logged with the transaction - this is then used to calculate how much carbon Shrub has been saved as a result
--   Analytics
-    -   Based on the data stored by the above features, Murakami can create insightful statistics to help Shrub better understand its membership
--   User system
-    -   Murakami makes use of 2 distinct classes of users - normal and administrator
-    -   A normal user is mainly, if not exclusively, used by the person on the till in the swapshop. They can only view members (contact details are hidden), add members and log hours for review by an admin.
-    -   An administrator has full access to the system - including reports, settings, managing email templates, managing users and managing working groups (review requests to join, volunteer hours, add members etc). Every admin can be assigned to multiple working groups or none at all
+### Key features:
 
-## Roadmap
-
--   Implement nicer analytics
+- Simple, GDPR-compliant membership management.
+- Automated, customizable email communications with members, volunteers and customers.
+- Management of volunteers - dynamically create and assign roles, co-ordinators and working groups.
+- Manage volunteer hours
+- Fully integrated and customizable till system. Can take card transactions through SumUp.
+- Manage and record outgoing weights which can be used to calculate carbon savings (also integrated with till).
 
 ### Requirements
 
--   NodeJS
--   NPM
--   MySQL
+- NodeJS
+- NPM
+- MySQL
 
 ### Installation
 
--   Import schema to databases (db/murakami.sql). 3 databases should be created:
-    1. murakami
-    2. murakami_testing
-    3. murakami_dev
+- Import schema to databases (db/murakami.sql). 3 databases should be created:
+  1. murakami
+  2. murakami_testing
+  3. murakami_dev
 
 ```sh
 ~ $ git clone https://github.com/honeypieio/murakami
@@ -52,7 +39,7 @@ Murakami is straight-to-the-point - it facilitates the following features with l
 ~/murakami $ nano .env
 ```
 
--   Input your mail, database, Mailchimp, and reCaptcha credentials. Be sure to set your `NODE_ENV`, `CWD` and `PORT`.
+- Input your mail, database, Mailchimp, and reCaptcha credentials. Be sure to set your `NODE_ENV`, `CWD` and `PORT`.
 
 ### Deployment
 
@@ -60,5 +47,5 @@ Murakami is straight-to-the-point - it facilitates the following features with l
 ~/murakami $ nodemon server.js
 ```
 
--   Go to `localhost:PORT` in your browser
--   Login with the test account (username: test.admin, password: swapshop)
+- Go to `localhost:PORT` in your browser
+- Login with the test account (username: test.admin, password: swapshop)
