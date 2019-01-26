@@ -31,16 +31,15 @@
 		{{/if}}
 
 
-			<!--
 
-			-->
-			<!--
 			{{#if user.admin}}
-			    <div class="form-group col-md-3" style="padding: 0px;">
-			      	<a class='btn btn-success form-control' href="/members/id-remind/{{member.member_id}}">Email Member ID</a>
-			    </div>
+			<div class="row mt-2">
+				<div class="col-md-5">
+			     <a class='btn btn-success form-control' href="{{public_address}}/api/get/members/id-remind/{{member.member_id}}">Send Volunteer Their ID ({{member.member_id}})</a>
+				</div>
+			</div>
 			{{/if}}
-			-->
+
 
 		<div class="row mt-4 mb-4">
 			<div class="col-lg-6">
