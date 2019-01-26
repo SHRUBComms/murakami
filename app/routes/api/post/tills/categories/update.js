@@ -31,6 +31,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     category.member_discount = 0;
                   }
 
+                  if (category.weight < 0 && category.weight > 100000) {
+                    category.weight = 0;
+                  }
+
                   category.value = category.value || null;
 
                   Tills.updateCategory(category, function(err) {

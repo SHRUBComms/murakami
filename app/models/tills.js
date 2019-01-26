@@ -12,17 +12,18 @@ Tills.getAllTills = function(callback) {
   con.query(query, callback);
 };
 
-Tills.removeTransaction = function(transaction_id, group_id, callback){
+Tills.removeTransaction = function(transaction_id, group_id, callback) {
   var query = "SELECT date FROM transactions WHERE transaction_id = ?";
   var inserts = [transaction_id];
   var sql = mysql.format(query, inserts);
-  con.query(sql, function(err, transaction){
-    query = "DELETE FROM transactions WHERE transaction_id = ?; DELETE FROM carbon WHERE (trans_date >= ? AND trans_date <= DATE_ADD(?, INTERVAL 2 SECOND)) AND group_id = ?"
-    inserts = [transaction_id, transaction.date, transaction.date, group_id]
+  con.query(sql, function(err, transaction) {
+    query =
+      "DELETE FROM transactions WHERE transaction_id = ?; DELETE FROM carbon WHERE (trans_date >= ? AND trans_date <= DATE_ADD(?, INTERVAL 2 SECOND)) AND group_id = ?";
+    inserts = [transaction_id, transaction.date, transaction.date, group_id];
     sql = mysql.format(query, inserts);
     con.query(sql, callback);
   });
-}
+};
 
 Tills.updateTill = function(till, callback) {
   var query = "UPDATE tills SET name = ?, stockControl = ? WHERE till_id = ?";
@@ -61,7 +62,7 @@ Tills.removeCategory = function(item_id, callback) {
 
 Tills.addCategory = function(category, callback) {
   var query =
-    "INSERT INTO stock_categories (item_id, till_id, carbon_id, name, value, member_discount, allowTokens, parent) VALUES (?,?,?,?,?,?,?,?)";
+    "INSERT INTO stock_categories (item_id, till_id, carbon_id, name, value, member_discount, weight, allowTokens, parent) VALUES (?,?,?,?,?,?,?,?,?)";
   Helpers.uniqueBase64Id(10, "stock_categories", "item_id", function(id) {
     var inserts = [
       category.id || id,
@@ -70,6 +71,7 @@ Tills.addCategory = function(category, callback) {
       category.name,
       category.value,
       category.member_discount || 0,
+      category.weight || 0,
       category.allowTokens,
       category.parent
     ];
@@ -82,12 +84,13 @@ Tills.addCategory = function(category, callback) {
 
 Tills.updateCategory = function(category, callback) {
   var query =
-    "UPDATE stock_categories SET carbon_id = ?, name = ?, value = ?, member_discount = ?, allowTokens = ? WHERE item_id = ?";
+    "UPDATE stock_categories SET carbon_id = ?, name = ?, value = ?, weight = ?, member_discount = ?, allowTokens = ? WHERE item_id = ?";
 
   var inserts = [
     category.carbon_id,
     category.name,
     category.value,
+    category.weight || 0,
     category.member_discount || null,
     category.allowTokens,
     category.item_id

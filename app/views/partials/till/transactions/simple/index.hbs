@@ -232,11 +232,11 @@ var money_total = 0;
 
 var paymentMethod;
 
-function addToTrans(id, category, value, carbon_id, allowTokens, member_discount){
+function addToTrans(id, category, value, carbon_id, allowTokens, member_discount, weight){
 	var item = {};
 	item.id = id;
 	item.category = category;
-	item.weight = 0;
+	item.weight = weight || 0;
 
 	item.allowTokens = allowTokens;
 	item.carbon_id = carbon_id;
@@ -375,10 +375,15 @@ function updateOptions(path){
 		if(!option.value){
 			option.value = 0;
 		}
+
+		if(!option.weight){
+			option.weight = 0;
+		}
+
 		if(option.children && option.children.length > 0){
 			option.onclick =  "updateOptions('" + path + "[" + i + "].children" + "')";
 		} else {
-			option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "')";
+			option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "')";
 		}
 		var wrapper, wrapperEnd = "";
 

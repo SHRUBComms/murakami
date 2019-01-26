@@ -42,13 +42,23 @@
               </span>
             </div>
 
-            <select name="carbon_id" id="addCategoryCarbonId" class="form-control mb-3">
+            <select name="carbon_id" id="addCategoryCarbonId" onchange="toggleDefinedWeight('add');" class="form-control mb-3">
               <option value="">None (can't be weighed)</option>
               {{#each carbonCategories}}
                 <option value="{{carbon_id}}">{{name}}</option>
               {{/each}}
             </select>
 
+            <div class="input-group mb-3" id="addCategoryDefinedWeightContainer">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Weight: </span>
+              </span>
+              <input class="form-inline form-control" id="addCategoryDefinedWeight" type="number" min="0" max="100000" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">grams</span>
+              </span>
+              <small>Leave weight as 0 grams if variable.</small>
+            </div>
 
           </div>
         </div>
@@ -99,12 +109,23 @@
               </span>
             </div>
 
-            <select name="carbon_id" id="editCategoryCarbonId" class="form-control mb-3">
+            <select name="carbon_id" id="editCategoryCarbonId"  onchange="toggleDefinedWeight('edit');" class="form-control mb-3">
               <option value="">None (can't be weighed)</option>
               {{#each carbonCategories}}
                 <option value="{{carbon_id}}">{{name}}</option>
               {{/each}}
             </select>
+
+            <div class="input-group mb-3" id="editCategoryDefinedWeightContainer">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Weight: </span>
+              </span>
+              <input class="form-inline form-control" id="editCategoryDefinedWeight" type="number" min="0" max="100000" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">grams</span>
+              </span>
+              <small>Set weight as 0 grams if variable.</small>
+            </div>
 
           </div>
         </div>
@@ -189,6 +210,26 @@ $(".fixedPrice").change(function() {
     $("#addCategoryValue").val("");
   }
 });
+
+function toggleDefinedWeight(mode){
+  if(mode == 'add'){
+    if($("#addCategoryCarbonId").val() != ""){
+
+      $("#addCategoryDefinedWeightContainer").removeClass("d-none")
+    } else {
+      $("#addCategoryDefinedWeightContainer").addClass("d-none")
+
+    }
+  } else if( mode == "edit") {
+    if($("#editCategoryCarbonId").val() != ""){
+
+      $("#editCategoryDefinedWeightContainer").removeClass("d-none")
+    } else {
+      $("#editCategoryDefinedWeightContainer").addClass("d-none")
+
+    }
+  }
+}
 
 var categories = {};
 // prettier-ignore
@@ -315,6 +356,8 @@ function openAddCategoryDialog(path) {
 
   console.log(category)
 
+  toggleDefinedWeight("add");
+
   $("#parent_name").html(category.name || "root");
   $("#addChild").modal("show");
   $("#addCategorySubmit").attr("onClick", "addCategory('" + path + "')");
@@ -345,7 +388,11 @@ function openEditCategoryDialog(path) {
 
   $("#editCategoryMemberDiscount").val(category.member_discount || 0);
 
+  $("#editCategoryDefinedWeight").val(category.weight || 0);
+
   $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
+
+  toggleDefinedWeight("edit");
 
   $("#editCategory").modal("show");
 }
@@ -365,6 +412,7 @@ function addCategory(path) {
   newCategory.carbon_id = $("#addCategoryCarbonId").val() || null;
   newCategory.value = $("#addCategoryValue").val() || null;
   newCategory.member_discount = $("#addCategoryMemberDiscount").val() || 0;
+  newCategory.weight = $("#addCategoryDefinedWeight").val() || 0;
 
   if ($("#addCategoryAllowTokens").is(":checked") == true) {
     newCategory.allowTokens = 1;
@@ -398,8 +446,9 @@ function addCategory(path) {
         $("#addCategoryCarbonId").val("");
         $("#addCategoryValue").val("");
         $("#addCategoryMemberDiscount").val("0");
-        $("#addCategoryFixedPriceCheck")
+        $("#addCategoryFixedPriceCheck").prop("checked", false);
         $("#addCategoryAllowTokens").prop("checked", true);
+        $("#addCategoryDefinedWeight").val("0");
 
         alert(response.msg);
 
@@ -419,6 +468,7 @@ function updateCategory(path) {
   category.carbon_id = $("#editCategoryCarbonId").val() || null;
   category.value = $("#editCategoryValue").val() || null;
   category.member_discount = $("#editCategoryMemberDiscount").val() || 0;
+  category.weight = $("#editCategoryDefinedWeight").val() || 0;
 
   if ($("#editCategoryAllowTokens").is(":checked") == true) {
     category.allowTokens = 1;
