@@ -321,6 +321,8 @@ function addToTrans(id, category, value, carbon_id, allowTokens, member_discount
 	}
 
 	if(condition == 1){
+		$('input[name="itemCondition"]:radio').prop('checked', false);
+		$("#addItemConditionToTrans").attr("onclick", "return false;");
 		$("#itemConditionName").text(item.category);
 		$('#itemConditionModal').modal('show');
 		itemToAdd = item;
