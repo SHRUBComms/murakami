@@ -13,7 +13,7 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
 router.use("/review-hours", require("./review-hours"));
 router.use("/find-a-volunteer", require("./find-a-volunteer"));
 router.use("/induct-volunteers", require("./induct-volunteers"));
-router.use("/log-volunteer-hours", require("./log-volunteer-hours"));
+router.use("/log-hours", require("./log-hours"));
 router.use("/roles", require("./roles/root"));
 router.use("/manage", require("./manage"));
 router.use("/add", require("./add"));

@@ -118,7 +118,7 @@ function updateDuration(member){
 }
 
 $('#working_groups').on('change', function () {
-  var url = "/working-groups/log-volunteer-hours/" + $(this).val();
+  var url = "/working-groups/volunteers/log-hours/" + $(this).val();
   window.location = url;
 });
 
@@ -126,7 +126,7 @@ function logHours(member_id){
   var duration = $("#duration_" + member_id).val();
    $.ajax({
       type: "POST",
-      url: "/working-groups/log-volunteer-hours",
+      url: "/working-groups/volunteers/log-hours",
       data: {
         shift: {
           member_id: member_id,

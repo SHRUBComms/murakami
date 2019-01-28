@@ -45,16 +45,18 @@ router.get(
                 user_id: req.user.id,
                 date: new Date(),
                 summary: {
-                  totals: { tokens: Math.floor(shift.duration) * group.rate },
+                  totals: {
+                    tokens: Math.floor(shift.duration_as_decimal) * group.rate
+                  },
                   bill: [
                     {
                       item_id: "volunteering",
-                      tokens: Math.floor(shift.duration) * group.rate
+                      tokens: Math.floor(shift.duration_as_decimal) * group.rate
                     }
                   ],
                   comment: "with " + group.name
                 },
-                amount: Math.floor(shift.duration) * group.rate
+                amount: Math.floor(shift.duration_as_decimal) * group.rate
               };
 
               if (transaction.amount > 0) {

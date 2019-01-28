@@ -154,7 +154,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
 
           if (
             !Helpers.hasOneInCommon(
-              JSON.parse(volunteer.working_groups) || [],
+              volunteer.working_groups || [],
               user.working_groups_arr ||
                 !Helpers.hasOneInCommon(volunteer.assignedCoordinators, [
                   user.id

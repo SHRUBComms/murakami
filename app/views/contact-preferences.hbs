@@ -1,86 +1,112 @@
-<div class="row">
-  <div class="col-md-7 mx-auto">
+<form action="{{public_address}}/contact-preferences/{{member.member_id}}" method="POST">
 
-    <div class="card mt-4">
-      <div class="card-body">
-        <h3>Contact Preferences</h3>
-        <p>Choose what types emails you would like to receive to using the form below!</p>
+  <div class="row">
+    <div class="col-md-7 mx-auto">
+
+      <div class="card mt-4">
+        <div class="card-body">
+          <h3>Contact Preferences</h3>
+          <p>Choose what types emails you would like to receive to using the form below</p>
+        </div>
       </div>
-    </div>
 
 
-    <div class="card mt-4">
-      <div class="card-body">
-        <h3>Newsletters</h3>
-        <small>Optionally subscribe to our newsletters (via Mailchimp). You can unsubscribe at any time.</small>
+      <div class="card mt-4">
+        <div class="card-body">
+          <h3>Newsletters</h3>
+          <p>Optionally subscribe to our newsletters (via Mailchimp). You can unsubscribe at any time.</p>
 
-        <p class="mt-2 font-weight-bold">SHRUB Co-op newsletter</p>
-        <p class="font-italic mb-2">Description</p>
-        {{#if member.contactPreferences.newsletters.shrub}}
-          <div class="btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-danger btn-block">
-              <input type="checkbox" name="newsletters[shrub][unsubscribe]" autocomplete="off"> Unsubscribe From Shrub's Newsletter
-            </label>
-          </div>
-        {{else}}
-          <div class="btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-success btn-block">
-              <input type="checkbox" name="newsletters[shrub][subscribe]" autocomplete="off"> Subscribe To Shrub's Newsletter
-            </label>
-          </div>
-        {{/if}}
-
-
-        <p class="mt-3 font-weight-bold">Food Sharing Edinburgh newsletter</p>
-        <p class="font-italic mb-2">Description</p>
-
-        {{#if member.contactPreferences.newsletters.fse}}
-          <div class="btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-danger btn-block">
-              <input type="checkbox" name="newsletters[fse][unsubscribe]" autocomplete="off"> Unsubscribe From FSE's Newsletter
-            </label>
-          </div>
-        {{else}}
-          <div class="btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-success btn-block">
-              <input type="checkbox" name="newsletters[fse][subscribe]" autocomplete="off"> Subscribe To FSE's Newsletter
-            </label>
-          </div>
-        {{/if}}
+          <p class="mt-2 font-weight-bold">SHRUB Co-op newsletter</p>
+          <p class="font-italic mb-2">To keep you up to date with decisions made at our open meetings, events and Shrub parties!</p>
+          {{#if member.contactPreferences.newsletters.shrub}}
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-danger btn-block">
+                <input type="checkbox" name="newsletters[shrub][unsubscribe]" autocomplete="off"> Unsubscribe From Shrub's Newsletter
+              </label>
+            </div>
+          {{else}}
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-success btn-block">
+                <input type="checkbox" name="newsletters[shrub][subscribe]" autocomplete="off"> Subscribe To Shrub's Newsletter
+              </label>
+            </div>
+          {{/if}}
 
 
+          <p class="mt-3 font-weight-bold">Food Sharing Edinburgh newsletter</p>
+          <p class="font-italic mb-2">Sent every 2 weeks</p>
+
+          {{#if member.contactPreferences.newsletters.fse}}
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-danger btn-block">
+                <input type="checkbox" name="newsletters[fse][unsubscribe]" autocomplete="off"> Unsubscribe From FSE's Newsletter
+              </label>
+            </div>
+          {{else}}
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-success btn-block">
+                <input type="checkbox" name="newsletters[fse][subscribe]" autocomplete="off"> Subscribe To FSE's Newsletter
+              </label>
+            </div>
+          {{/if}}
+
+
+        </div>
       </div>
-    </div>
 
-    <div class="card mt-4">
-      <div class="card-body">
-        <h3>Donation Notifications</h3>
+      <div class="card mt-4">
+        <div class="card-body">
+          <h3>Donation Notifications</h3>
 
-        <p class="mb-3">Optionally receive an email once your Swap Shop donation has been processed by our volunteers letting you know how many tokens were added to your account along with your new balance.</p>
+          <p class="mb-3">Optionally receive an email once your Swap Shop donation has been processed by our volunteers letting you know how many tokens were added to your account along with your new balance.</p>
 
-        {{#if member.contactPreferences.donations}}
-          <div class="btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-danger btn-block">
-              <input type="checkbox" name="donations[unsubscribe]" autocomplete="off"> Unsubscribe From Donation Notifications
-            </label>
-          </div>
-        {{else}}
-          <div class="btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-success btn-block">
-              <input type="checkbox" name="donations[subscribe]" autocomplete="off"> Subscribe To Donation Notifications
-            </label>
-          </div>
-        {{/if}}
+          {{#if member.contactPreferences.donations}}
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-danger btn-block">
+                <input type="checkbox" name="donations[unsubscribe]" autocomplete="off"> Unsubscribe From Donation Notifications
+              </label>
+            </div>
+          {{else}}
+            <div class="btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-success btn-block">
+                <input type="checkbox" name="donations[subscribe]" autocomplete="off"> Subscribe To Donation Notifications
+              </label>
+            </div>
+          {{/if}}
 
+        </div>
       </div>
-    </div>
 
-    <div class="card mt-4">
-      <div class="card-body">
-        <h3>Volunteering Oppurtunities</h3>
-        <p class="mb-3">Optionally receive an email with new volunteering oppurtunities at Shrub.</p>
+      <div class="card mt-4">
+        <div class="card-body">
+          <h3>Volunteering Opportunities</h3>
+          <p>Receive a weekly email with new volunteering opportunities at Shrub.</p>
+          <p class="mb-3">If you are an exisiting volunteer the opportunities you are sent will be tailored to your availability and skills!</p>
+
+            {{#if member.contactPreferences.volunteeringOpportunities}}
+              <div class="btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-danger btn-block">
+                  <input type="checkbox" name="volunteeringOpportunities[unsubscribe]" autocomplete="off"> Unsubscribe From Volunteering Opportunities
+                </label>
+              </div>
+            {{else}}
+              <div class="btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-success btn-block">
+                  <input type="checkbox" name="volunteeringOpportunities[subscribe]" autocomplete="off"> Subscribe To Volunteering Opportunities
+                </label>
+              </div>
+            {{/if}}
+
+        </div>
       </div>
-    </div>
 
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <input type="submit" class="btn btn-primary btn-block btn-lg" value="Update My Preferences" />
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
+
+</form>

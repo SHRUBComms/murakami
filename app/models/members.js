@@ -14,6 +14,7 @@ var Members = {};
 
 Members.sanitizeMember = function(member, user, callback) {
   if (member) {
+    member.full_name = member.first_name + " " + member.last_name;
     try {
       member.working_groups = JSON.parse(member.working_groups);
     } catch (err) {
@@ -24,6 +25,12 @@ Members.sanitizeMember = function(member, user, callback) {
       member.roles = JSON.parse(member.roles);
     } catch (err) {
       member.roles = [];
+    }
+
+    try {
+      member.contactPreferences = JSON.parse(member.contactPreferences);
+    } catch (err) {
+      member.contactPreferences = {};
     }
 
     if (user.class == "till") {
@@ -50,12 +57,12 @@ Members.sanitizeMember = function(member, user, callback) {
       member.roles,
       function(role, callback) {
         if (user.allVolunteerRoles) {
-          if (user.allVolunteerRoles[role]) {
-            try {
+          try {
+            if (user.allVolunteerRoles[role]) {
               member.working_groups.push(user.allVolunteerRoles[role].group_id);
-            } catch (err) {
-              member.working_groups = [user.allVolunteerRoles[role].group_id];
             }
+          } catch (err) {
+            member.working_groups = [user.allVolunteerRoles[role].group_id];
           }
         }
         callback();
@@ -82,11 +89,24 @@ Members.getAllCurrentMembers = function(callback) {
   con.query(query, callback);
 };
 
+Members.updateContactPreferences = function(
+  member_id,
+  contactPreferences,
+  callback
+) {
+  var query = "UPDATE members SET contactPreferences = ? WHERE member_id = ?";
+  delete contactPreferences.newsletters;
+  var inserts = [JSON.stringify(contactPreferences), member_id];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
 Members.searchByName = function(search, callback) {
-  var query =
-    "SELECT * FROM members " +
-    "WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND first_name != '[redacted]'" +
-    "ORDER BY first_name ASC LIMIT 3";
+  var query = `SELECT * FROM members
+    LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
+    FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
+    WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND first_name != '[redacted]'
+    ORDER BY first_name ASC LIMIT 3`;
   var inserts = ["%" + search + "%"];
 
   var sql = mysql.format(query, inserts);

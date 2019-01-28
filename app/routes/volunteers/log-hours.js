@@ -1,14 +1,60 @@
-// /working-groups/review-join-requests
+// /volunteers/log-hours
 
 var router = require("express").Router();
 var async = require("async");
 var request = require("request");
+var Recaptcha = require("express-recaptcha").Recaptcha;
 
 var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 var Members = require(rootDir + "/app/models/members");
+var Volunteers = require(rootDir + "/app/models/volunteers");
 var Tills = require(rootDir + "/app/models/tills");
+
+var recaptcha = new Recaptcha(
+  process.env.RECAPTCHA_SITE_KEY,
+  process.env.RECAPTCHA_SECRET_KEY
+);
+router.get("/", function(req, res) {
+  WorkingGroups.getAll(function(err, working_groups) {
+    if (req.user) {
+      var tillMode = false;
+      var till_id = req.query.till_id || null;
+      if (till_id) {
+        tillMode = true;
+      }
+
+      res.render("log-volunteer-hours", {
+        tillMode: tillMode,
+        logVolunteerHoursActive: true,
+        till: {
+          till_id: till_id
+        },
+        title: "Log Volunteer Hours",
+        volunteerHoursActive: true,
+        captcha: recaptcha.render(),
+        working_groups: working_groups
+      });
+    } else {
+      if (req.query.member_id) {
+        var member_id = req.query.member_id;
+      }
+
+      var till_id = req.query.till_id;
+      res.render("log-volunteer-hours", {
+        title: "Log Volunteer Hours",
+        logoutActive: true,
+        member_id: member_id,
+        captcha: recaptcha.render(),
+        working_groups: working_groups,
+        till: {
+          till_id: till_id
+        }
+      });
+    }
+  });
+});
 
 router.post("/", function(req, res) {
   var message = {};
@@ -29,7 +75,7 @@ router.post("/", function(req, res) {
             if (allWorkingGroups[shift.working_group]) {
               var group = allWorkingGroups[shift.working_group];
               if (req.user) {
-                if (["admin", "volunteer"].includes(req.user.class)) {
+                if (["admin", "staff", "volunteer"].includes(req.user.class)) {
                   shift.approved = 1;
                   WorkingGroups.createShift(shift, function(err) {
                     if (err) {
@@ -64,7 +110,6 @@ router.post("/", function(req, res) {
                         );
                         Tills.addTransaction(transaction, function(err) {
                           if (err) {
-                            
                             message.status = "fail";
                             message.msg = "Something went wrong!";
                             res.send(message);
@@ -272,86 +317,96 @@ router.post("/", function(req, res) {
     if (duration >= 0.25 && duration <= 24) {
       WorkingGroups.getAll(function(err, allWorkingGroups) {
         if (allWorkingGroups[working_group]) {
-          Members.getById(member_id, req.user, function(err, member) {
-            if (member) {
-              member.working_groups = JSON.parse(member.working_groups);
+          Volunteers.getAllRoles(function(
+            err,
+            rolesArray,
+            rolesByGroup,
+            rolesObj
+          ) {
+            Members.getById(
+              member_id,
+              { class: "admin", allVolunteerRoles: rolesObj },
+              function(err, member) {
+                if (member) {
+                  var isMemberOfWG = false;
 
-              var isMemberOfWG = false;
-
-              async.each(
-                member.working_groups,
-                function(wg, callback) {
-                  if (wg == working_group) {
-                    isMemberOfWG = true;
-                  }
-                  callback();
-                },
-                function(err) {
-                  if (isMemberOfWG) {
-                    shift = {};
-
-                    shift.member_id = member_id;
-                    shift.working_group = working_group;
-                    shift.duration = duration;
-                    shift.approved = null;
-
-                    request.post(
-                      {
-                        url: "https://www.google.com/recaptcha/api/siteverify",
-                        form: {
-                          secret: process.env.RECAPTCHA_SECRET_KEY,
-                          response: req.body["g-recaptcha-response"]
-                        }
-                      },
-                      function(error, response, body) {
-                        if (body) {
-                          body = JSON.parse(body);
-                          if (body.success == true) {
-                            WorkingGroups.createShift(shift, function(err) {
-                              req.flash(
-                                "success_msg",
-                                "Shift logged - awaiting review by an admin!"
-                              );
-                              res.redirect("/log-volunteer-hours");
-                            });
-                          } else {
-                            req.flash(
-                              "error",
-                              "Please confirm that you're not a robot"
-                            );
-                            res.redirect("/log-volunteer-hours");
-                          }
-                        } else {
-                          req.flash(
-                            "error",
-                            "Please confirm that you're not a robot"
-                          );
-                          res.redirect("/log-volunteer-hours");
-                        }
+                  async.each(
+                    member.working_groups,
+                    function(wg, callback) {
+                      if (wg == working_group) {
+                        isMemberOfWG = true;
                       }
-                    );
-                  } else {
-                    req.flash(
-                      "error",
-                      "Member does not belong to working group"
-                    );
-                    res.redirect("/log-volunteer-hours");
-                  }
+                      callback();
+                    },
+                    function(err) {
+                      if (isMemberOfWG) {
+                        shift = {};
+
+                        shift.member_id = member_id;
+                        shift.working_group = working_group;
+                        shift.duration = duration;
+                        shift.approved = null;
+
+                        request.post(
+                          {
+                            url:
+                              "https://www.google.com/recaptcha/api/siteverify",
+                            form: {
+                              secret: process.env.RECAPTCHA_SECRET_KEY,
+                              response: req.body["g-recaptcha-response"]
+                            }
+                          },
+                          function(error, response, body) {
+                            if (body) {
+                              body = JSON.parse(body);
+                              if (body.success == true) {
+                                WorkingGroups.createShift(shift, function(err) {
+                                  req.flash(
+                                    "success_msg",
+                                    "Shift logged - awaiting review by an admin!"
+                                  );
+                                  res.redirect("/volunteers/log-hours");
+                                });
+                              } else {
+                                req.flash(
+                                  "error",
+                                  "Please confirm that you're not a robot"
+                                );
+                                res.redirect("/volunteers/log-hours");
+                              }
+                            } else {
+                              req.flash(
+                                "error",
+                                "Please confirm that you're not a robot"
+                              );
+                              res.redirect("/volunteers/log-hours");
+                            }
+                          }
+                        );
+                      } else {
+                        req.flash(
+                          "error",
+                          "Member does not belong to working group"
+                        );
+                        res.redirect("/volunteers/log-hours");
+                      }
+                    }
+                  );
+                } else {
+                  req.flash("error", "No member associated with that ID");
+                  res.redirect("/volunteers/log-hours");
                 }
-              );
-            } else {
-              req.flash("error", "No member associated with that ID");
-              res.redirect("/log-volunteer-hours");
-            }
+              }
+            );
           });
         } else {
           req.flash("error", "Please select a valid working group");
-          res.redirect("/log-volunteer-hours");
+          res.redirect("/volunteers/log-hours");
         }
       });
     } else {
       req.flash("error", "Please enter a duration >= 0.25 and <= to 24");
-      res.redirect("/log-volunteer-hours");
+      res.redirect("/volunteers/log-hours");
     }
   }
 });

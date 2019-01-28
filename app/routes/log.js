@@ -3,7 +3,11 @@
 var router = require("express").Router();
 
 router.get("/", function(req, res) {
-  res.redirect("/log-volunteer-hours");
+  if (req.query.member_id) {
+    res.redirect("/volunteers/log-hours?member_id=" + req.query.member_id);
+  } else {
+    res.redirect("/volunteers/log-hours");
+  }
 });
 
 module.exports = router;

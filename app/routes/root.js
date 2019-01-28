@@ -17,7 +17,6 @@ router.use("/error", require("./error"));
 router.use("/log", require("./log"));
 router.use("/support", require("./support"));
 router.use("/success", require("./success"));
-router.use("/log-volunteer-hours", require("./log-volunteer-hours"));
 router.use("/login", require("./login"));
 router.use("/contact-preferences", require("./contact-preferences"));
 router.use("/recover", require("./recover"));

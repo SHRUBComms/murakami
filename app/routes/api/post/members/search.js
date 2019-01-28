@@ -10,60 +10,43 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-function censorEmail(email) {
-  var email = email.split("@");
-  usernameMiddleLength = email[0].length - 2;
-  domainMiddleLength = email[1].length - 2;
-  return (
-    email[0].slice(0, 1) +
-    "*".repeat(usernameMiddleLength) +
-    email[0].slice(-1) +
-    "@" +
-    email[1].slice(0, 1) +
-    "*".repeat(domainMiddleLength) +
-    email[1].slice(-1)
-  );
-}
-
 router.post("/", Auth.isLoggedIn, function(req, res) {
   var term = req.body.term;
   if (!term) {
     res.send({ status: "ok", results: [] });
   } else {
     Members.searchByName(term, function(err, members) {
-      WorkingGroups.getAll(function(err, working_groups) {
-        if (err) {
-          res.send({ status: "fail", results: [] });
-        } else {
-          async.eachOf(
-            members,
-            function(member, i, callback) {
-              Members.makeSearchNice(members[i], working_groups, function(
-                member
-              ) {
-                members[i] = {};
-                members[i].id = member.id;
-                members[i].first_name = member.first_name;
+      console.log(err);
+      async.eachOf(
+        members,
+        function(member, i, callback) {
+          Members.sanitizeMember(members[i], req.user, function(err, member) {
+            members[i] = {};
+            members[i].id = member.member_id;
+            members[i].first_name = member.first_name;
 
-                if (["admin"].includes(req.user.class)) {
-                  members[i].name = member.name;
-                  members[i].email = member.email;
-                  members[i].working_groups = member.working_groups;
-                } else {
-                  members[i].name = member.name;
-                  members[i].email = censorEmail(member.email);
-                  members[i].working_groups = member.working_groups;
-                }
+            members[i].name = member.full_name;
+            members[i].email = member.email || "Not available";
+            members[i].working_groups = member.working_groups;
 
+            async.eachOf(
+              members[i].working_groups,
+              function(member, j, callback) {
+                members[i].working_groups[j] =
+                  req.user.allWorkingGroupsObj[members[i].working_groups[j]];
                 callback();
-              });
-            },
-            function(err) {
-              res.send({ status: "ok", results: members });
-            }
-          );
+              },
+              function() {
+                callback();
+              }
+            );
+          });
+        },
+        function(err) {
+          console.log(members);
+          res.send({ status: "ok", results: members });
         }
-      });
+      );
     });
   }
 });
