@@ -23,7 +23,6 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
           till_id: req.query.till_id
         }
       });
-
     }
   });
 });

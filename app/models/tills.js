@@ -62,7 +62,7 @@ Tills.removeCategory = function(item_id, callback) {
 
 Tills.addCategory = function(category, callback) {
   var query =
-    "INSERT INTO stock_categories (item_id, till_id, carbon_id, name, value, member_discount, weight, allowTokens, parent) VALUES (?,?,?,?,?,?,?,?,?)";
+    "INSERT INTO stock_categories (item_id, till_id, carbon_id, name, value, needsCondition, member_discount, weight, allowTokens, parent) VALUES (?,?,?,?,?,?,?,?,?,?)";
   Helpers.uniqueBase64Id(10, "stock_categories", "item_id", function(id) {
     var inserts = [
       category.id || id,
@@ -70,6 +70,7 @@ Tills.addCategory = function(category, callback) {
       category.carbon_id,
       category.name,
       category.value,
+      category.needsCondition,
       category.member_discount || 0,
       category.weight || 0,
       category.allowTokens,
@@ -84,12 +85,13 @@ Tills.addCategory = function(category, callback) {
 
 Tills.updateCategory = function(category, callback) {
   var query =
-    "UPDATE stock_categories SET carbon_id = ?, name = ?, value = ?, weight = ?, member_discount = ?, allowTokens = ? WHERE item_id = ?";
+    "UPDATE stock_categories SET carbon_id = ?, name = ?, value = ?, needsCondition = ?, weight = ?, member_discount = ?, allowTokens = ? WHERE item_id = ?";
 
   var inserts = [
     category.carbon_id,
     category.name,
     category.value,
+    category.needsCondition,
     category.weight || 0,
     category.member_discount || null,
     category.allowTokens,

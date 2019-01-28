@@ -203,6 +203,59 @@
   </div>
 </div>
 
+
+<div id="itemConditionModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+			<div class="modal-header">
+        <h5 class="modal-title">Item Condition</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<div class="row">
+
+					<div class="col-md-12">
+
+						<div class="p-4">
+
+							<h5 class="mb-1">Please select the condition of "<span id="itemConditionName" class="text-weight-bold"></span>"</h5>
+
+							<div class="form-check">
+							  <label class="form-check-label">
+							    <input type="radio" class="form-check-input" name="itemCondition" value="Bought New">Bought New
+							  </label>
+							</div>
+
+							<div class="form-check">
+							  <label class="form-check-label">
+							    <input type="radio" class="form-check-input" name="itemCondition" value="Reused">Reused
+							  </label>
+							</div>
+
+							<div class="form-check">
+							  <label class="form-check-label">
+							    <input type="radio" class="form-check-input" name="itemCondition" value="Fixed in workshop">Fixed in workshop
+							  </label>
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="addItemConditionToTrans" class="btn btn-success" data-dismiss="modal">Add To Transaction</button>
+        <button type="button" class="btn btn-danger" onclick="" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
 if (navigator.appVersion.includes("Android")){
     $("#cardOption").removeClass("d-none");
@@ -232,7 +285,19 @@ var money_total = 0;
 
 var paymentMethod;
 
-function addToTrans(id, category, value, carbon_id, allowTokens, member_discount, weight){
+var itemToAdd = {};
+
+$('input[name="itemCondition"]:radio').change(function(){
+	let condition = this.value;
+	let option = itemToAdd;
+	console.log(condition);
+	if(itemToAdd){
+
+		$("#addItemConditionToTrans").attr("onclick", "addToTrans('" + option.id + "', '" + option.category.replace(/'/g, "\\\'") + " (" + condition + ")" + "', '" + option.tokens + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "', '" + condition + "')");
+
+	}
+});
+function addToTrans(id, category, value, carbon_id, allowTokens, member_discount, weight, condition){
 	var item = {};
 	item.id = id;
 	item.category = category;
@@ -255,9 +320,19 @@ function addToTrans(id, category, value, carbon_id, allowTokens, member_discount
 		$("#removeUnsafe").attr("onclick", "removeFromTrans(null)");
 	}
 
+	if(condition == 1){
+		$("#itemConditionName").text(item.category);
+		$('#itemConditionModal').modal('show');
+		itemToAdd = item;
+	} else {
+		if(condition != 1){
+			item.condition = condition;
+		}
 
-	transaction.push(item);
-	update();
+		itemToAdd = {};
+		transaction.push(item);
+		update();
+	}
 
 }
 
@@ -383,7 +458,9 @@ function updateOptions(path){
 		if(option.children && option.children.length > 0){
 			option.onclick =  "updateOptions('" + path + "[" + i + "].children" + "')";
 		} else {
-			option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "')";
+
+				option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "', " + option.needsCondition + ")";
+
 		}
 		var wrapper, wrapperEnd = "";
 

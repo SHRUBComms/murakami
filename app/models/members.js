@@ -15,8 +15,14 @@ var Members = {};
 Members.sanitizeMember = function(member, user, callback) {
   try {
     member.working_groups = JSON.parse(member.working_groups);
-  } catch(err){
+  } catch (err) {
     member.working_groups = [];
+  }
+
+  try {
+    member.roles = JSON.parse(member.roles);
+  } catch (err) {
+    member.roles = [];
   }
 
   if (user.class == "till") {
@@ -27,22 +33,38 @@ Members.sanitizeMember = function(member, user, callback) {
     member.address = null;
     try {
       member.gdpr = JSON.parse(member.gdpr);
-      if(!member.gdpr.email){
+      if (!member.gdpr.email) {
         member.email = null;
       }
-      if(!member.gdpr.phone){
+      if (!member.gdpr.phone) {
         member.phone_no = null;
       }
-    } catch(err){
+    } catch (err) {
       member.email = null;
       member.phone_no = null;
     }
   }
-  callback(null, member);
+
+  async.each(
+    member.roles,
+    function(role, callback) {
+      if (user.allVolunteerRoles) {
+        if (user.allVolunteerRoles[role]) {
+          member.working_groups.push(user.allVolunteerRoles[role].group_id);
+        }
+      }
+      callback();
+    },
+    function() {
+      member.working_groups = Array.from(new Set(member.working_groups));
+      callback(null, member);
+    }
+  );
 };
 
 Members.getAll = function(callback) {
-  var query = "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
+  var query =
+    "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
   con.query(query, callback);
 };
 
@@ -87,7 +109,7 @@ Members.searchByNameAndGroup = function(search, group_id, callback) {
 
 Members.getById = function(id, user, callback) {
   var query = `SELECT * FROM members
-                LEFT JOIN (SELECT member_id volunteer_id, gdpr
+                LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
                 FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
                 WHERE members.member_id = ?`;
   var inserts = [id];
@@ -395,7 +417,9 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
   }
 
   con.query(sql, function(err, volunteers) {
-    Volunteers.sanitizeVolunteer(volunteers, user, function(sanitizedVolunteers) {
+    Volunteers.sanitizeVolunteer(volunteers, user, function(
+      sanitizedVolunteers
+    ) {
       callback(err, sanitizedVolunteers);
     });
   });

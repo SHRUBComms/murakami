@@ -43,6 +43,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                       category.weight = 0;
                     }
 
+                    if (category.needsCondition != 1) {
+                      category.needsCondition = 0;
+                    }
+
                     category.value = category.value || null;
 
                     Tills.addCategory(category, function(err, newCategory, id) {

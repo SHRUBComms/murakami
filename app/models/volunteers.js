@@ -115,6 +115,22 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.roles = [];
         }
 
+        member.working;
+
+        async.each(
+          member.roles,
+          function(role, callback) {
+            if (user.allVolunteerRoles[role]) {
+              member.working_groups.push(user.allVolunteerRoles[role].group_id);
+            }
+            callback();
+          },
+          function() {
+            member.working_groups = Array.from(new Set(member.working_groups));
+            callback(null, member);
+          }
+        );
+
         if (volunteer.assignedCoordinators) {
           volunteer.assignedCoordinators = JSON.parse(
             volunteer.assignedCoordinators
@@ -149,7 +165,10 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           if (
             !Helpers.hasOneInCommon(
               JSON.parse(volunteer.working_groups) || [],
-              user.working_groups_arr || !Helpers.hasOneInCommon(volunteer.assignedCoordinators, [user.id])
+              user.working_groups_arr ||
+                !Helpers.hasOneInCommon(volunteer.assignedCoordinators, [
+                  user.id
+                ])
             )
           ) {
             if (volunteer.survey.gdpr) {
@@ -248,10 +267,10 @@ Volunteers.addRole = function(role, callback) {
     var inserts = [role_id];
     inserts.push(role.working_group);
     delete role.working_group;
-    var availability = JSON.stringify(role.availability)
+    var availability = JSON.stringify(role.availability);
     delete role.availability;
     inserts.push(JSON.stringify(role));
-    inserts.push(availability)
+    inserts.push(availability);
     var sql = mysql.format(query, inserts);
     con.query(sql, function(err) {
       callback(err, role_id);

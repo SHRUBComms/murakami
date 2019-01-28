@@ -17,6 +17,7 @@ var validator = require("express-validator");
 var async = require("async");
 
 var Notifications = require(process.env.CWD + "/app/models/notifications");
+var Volunteers = require(process.env.CWD + "/app/models/volunteers");
 
 if (process.env.NODE_ENV != "development") {
   process.on("uncaughtException", function(err) {
@@ -161,44 +162,49 @@ app.use(function(req, res, next) {
       }
       req.user.name = req.user.first_name + " " + req.user.last_name;
 
-      WorkingGroups.getAll(function(err, working_groups_arr) {
-        var working_groups = {};
-        res.locals.allWorkingGroups = working_groups_arr;
-        var all_working_groups_arr = [];
+      Volunteers.getAllRoles(function(err, rolesArray, rolesByGroup, rolesObj) {
+        req.user.allVolunteerRoles = rolesObj;
+        WorkingGroups.getAll(function(err, working_groups_arr) {
+          var working_groups = {};
+          res.locals.allWorkingGroups = working_groups_arr;
+          var all_working_groups_arr = [];
 
-        async.each(
-          working_groups_arr,
-          function(group, callback) {
-            all_working_groups_arr.push(group.group_id);
-            working_groups[group.group_id] = group;
-            callback();
-          },
-          function() {
-            req.user.allWorkingGroupsObj = working_groups;
+          async.each(
+            working_groups_arr,
+            function(group, callback) {
+              all_working_groups_arr.push(group.group_id);
+              working_groups[group.group_id] = group;
+              callback();
+            },
+            function() {
+              req.user.allWorkingGroupsObj = working_groups;
 
-            async.eachOf(
-              req.user.working_groups,
-              function(wg, i, callback) {
-                req.user.working_groups[i] =
-                  working_groups[req.user.working_groups[i]];
-                req.user.working_groups[i].full_name =
-                  req.user.working_groups[i].prefix +
-                  " " +
-                  req.user.working_groups[i].name;
-                callback();
-              },
-              function(err) {
-                var working_groups = req.user.working_groups || [];
+              async.eachOf(
+                req.user.working_groups,
+                function(wg, i, callback) {
+                  req.user.working_groups[i] =
+                    working_groups[req.user.working_groups[i]];
+                  req.user.working_groups[i].full_name =
+                    req.user.working_groups[i].prefix +
+                    " " +
+                    req.user.working_groups[i].name;
+                  callback();
+                },
+                function(err) {
+                  var working_groups = req.user.working_groups || [];
 
-                req.user.working_groups_arr = working_groups.map(function(obj) {
-                  return obj.group_id;
-                });
-                req.user.all_working_groups_arr = all_working_groups_arr;
-                next();
-              }
-            );
-          }
-        );
+                  req.user.working_groups_arr = working_groups.map(function(
+                    obj
+                  ) {
+                    return obj.group_id;
+                  });
+                  req.user.all_working_groups_arr = all_working_groups_arr;
+                  next();
+                }
+              );
+            }
+          );
+        });
       });
     } else {
       res.locals.user = null;

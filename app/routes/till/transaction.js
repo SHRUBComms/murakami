@@ -50,6 +50,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                   if (categoriesAsObj[id].active == 1) {
                     let weight = transaction[i].weight;
                     let tokens = 0;
+                    let condition = transaction[i].condition;
                     if (categoriesAsObj[id].value) {
                       tokens = categoriesAsObj[id].value;
                     } else {
@@ -59,6 +60,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     transaction[i] = categoriesAsObj[id];
                     transaction[i].weight = weight;
                     transaction[i].tokens = tokens;
+                    transaction[i].condition = condition;
 
                     if (categoriesAsObj[id].action) {
                       if (categoriesAsObj[id].action.substring(0, 3) == "MEM") {
@@ -87,6 +89,17 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     }
 
                     if (
+                      categoriesAsObj[id].needsCondition == 1 &&
+                      ["Bought New", "Reused", "Fixed in workshop"].includes(
+                        transaction[i].condition
+                      )
+                    ) {
+                      condition = transaction[i].condition;
+                    } else {
+                      condition = null;
+                    }
+
+                    if (
                       transaction[i].weight > 0 &&
                       carbonCategories[transaction[i].carbon_id]
                     ) {
@@ -104,7 +117,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     transaction[i] = {};
                     transaction[i].tokens = tokens;
                     transaction[i].item_id = id;
-
+                    transaction[i].condition = condition;
                     transactionSanitized.push(transaction[i]);
                   }
                 }
@@ -282,7 +295,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               msg: "Something has gone terribly wrong!"
                             });
                           } else {
-
                             var carbon = {
                               member_id: member_id,
                               user_id: req.user.id,
@@ -296,11 +308,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 [carbon],
                                 carbonCategories,
                                 function(carbonSaved) {
-
-                                    response.msg +=
-                                      " " +
-                                      Math.abs(carbonSaved.toFixed(2)) +
-                                      "kg of carbon saved.";
+                                  response.msg +=
+                                    " " +
+                                    Math.abs(carbonSaved.toFixed(2)) +
+                                    "kg of carbon saved.";
 
                                   Members.updateBalance(
                                     member_id,
@@ -347,7 +358,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                               member.phone_no;
                                           }
                                         }
-
 
                                         if (response.status == "ok") {
                                           res.send({
@@ -449,11 +459,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           [carbon],
                           carbonCategories,
                           function(carbonSaved) {
-
-                              response.msg +=
-                                " " +
-                                Math.abs(carbonSaved.toFixed(2)) +
-                                "kg of carbon saved.";
+                            response.msg +=
+                              " " +
+                              Math.abs(carbonSaved.toFixed(2)) +
+                              "kg of carbon saved.";
 
                             if (paymentMethod == "card") {
                               var sumupSummon =
@@ -482,7 +491,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     "&till_id=" +
                                     till.till_id
                                 );
-
 
                               if (response.status == "ok") {
                                 res.send({

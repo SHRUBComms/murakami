@@ -60,6 +60,8 @@
               <small>Leave weight as 0 grams if variable.</small>
             </div>
 
+            <p><input type="checkbox" id="addCategoryNeedsCondition" /> Variable condition</p>
+
           </div>
         </div>
 
@@ -126,6 +128,8 @@
               </span>
               <small>Set weight as 0 grams if variable.</small>
             </div>
+
+            <p><input type="checkbox" id="editCategoryNeedsCondition" /> Variable condition</p>
 
           </div>
         </div>
@@ -392,6 +396,12 @@ function openEditCategoryDialog(path) {
 
   $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
 
+  if (category.needsCondition) {
+    $("#editCategoryNeedsCondition").prop("checked", true);
+  } else {
+    $("#editCategoryNeedsCondition").prop("checked", false);
+  }
+
   toggleDefinedWeight("edit");
 
   $("#editCategory").modal("show");
@@ -418,6 +428,12 @@ function addCategory(path) {
     newCategory.allowTokens = 1;
   } else {
     newCategory.allowTokens = 0;
+  }
+
+  if ($("#addCategoryNeedsCondition").is(":checked") == true) {
+    newCategory.needsCondition = 1;
+  } else {
+    newCategory.needsCondition = 0;
   }
 
   newCategory.parent = eval(path).item_id;
@@ -449,6 +465,7 @@ function addCategory(path) {
         $("#addCategoryFixedPriceCheck").prop("checked", false);
         $("#addCategoryAllowTokens").prop("checked", true);
         $("#addCategoryDefinedWeight").val("0");
+        $("#addCategoryNeedsCondition").prop("checked", false);
 
         alert(response.msg);
 
@@ -474,6 +491,12 @@ function updateCategory(path) {
     category.allowTokens = 1;
   } else {
     category.allowTokens = 0;
+  }
+
+  if ($("#editCategoryNeedsCondition").is(":checked") == true) {
+    category.needsCondition = 1;
+  } else {
+    category.needsCondition = 0;
   }
 
   $.ajax({

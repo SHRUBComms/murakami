@@ -135,9 +135,16 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                 bill +=
                                   flatCategoriesAsObj[
                                     transaction.summary.bill[i].item_id
-                                  ].absolute_name +
-                                  ": " +
-                                  parseFloat(value).toFixed(2);
+                                  ].absolute_name;
+
+                                if (transaction.summary.bill[i].condition) {
+                                  bill +=
+                                    " (" +
+                                    transaction.summary.bill[i].condition +
+                                    ")";
+                                }
+
+                                bill += ": " + parseFloat(value).toFixed(2);
                                 if (discount) {
                                   bill +=
                                     " <span class='small'>(" +
