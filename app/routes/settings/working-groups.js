@@ -18,12 +18,15 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   }
 });
 
-router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   WorkingGroups.getAll(function(err, working_groups) {
     if (working_groups[req.params.group_id]) {
       res.render("settings/working-groups", {
         title: "Working Group Settings",
-        settingsActive: true,
+        workingGroupsActive: true,
         group: working_groups[req.params.group_id]
       });
     } else {
@@ -32,7 +35,10 @@ router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(re
   });
 });
 
-router.post("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.post("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   WorkingGroups.getById(req.params.group_id, function(err, group) {
     if (group[0]) {
       group = group[0];
@@ -72,7 +78,7 @@ router.post("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(r
         res.render("settings/working-groups", {
           errors: errors,
           title: "Working Group Settings",
-          settingsActive: true,
+          workingGroupsActive: true,
           group: group
         });
       }

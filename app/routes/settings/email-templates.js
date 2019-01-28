@@ -15,7 +15,10 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   });
 });
 
-router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   Settings.getEmailTemplates(function(err, templates) {
     if (err) throw err;
     Settings.getEmailTemplateById(req.params.mail_id, function(err, template) {
@@ -33,17 +36,20 @@ router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req
   });
 });
 
-router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   Settings.getEmailTemplateById(req.params.mail_id, function(err, template) {
     if (err || !template[0]) {
       res.send("Couldn't find that template!");
     }
 
     var subject = req.body.subject;
-    var message = req.body.message;
-    var active = req.body.active;
+    var markup = req.body.markup;
+    var active = req.body.templateActive;
 
-    if (active == "true") {
+    if (active == "on") {
       active = 1;
     } else {
       active = 0;
@@ -52,15 +58,29 @@ router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(re
     var template = {
       id: req.params.mail_id,
       subject: subject,
-      markup: message,
+      markup: markup,
       active: active
     };
 
     Settings.updateEmailTemplate(template, function(err) {
       if (err) {
-        res.send("Something went wrong!");
+        res.render("settings/email-templates", {
+          title: "Email Templates",
+          emailTemplatesActive: true,
+          template: {
+            mail_id: req.params.mail_id,
+            subject: subject,
+            markup: markup,
+            active: active
+          }
+        });
       } else {
-        res.send("Updated!");
+        req.flash("success_msg", "Template successfully updated!");
+        res.redirect(
+          process.env.PUBLIC_ADDRESS +
+            "/settings/email-templates/" +
+            req.params.mail_id
+        );
       }
     });
   });

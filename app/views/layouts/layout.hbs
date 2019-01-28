@@ -24,8 +24,9 @@
     <link rel="stylesheet" href="{{public_address}}/assets/css/styles.css">
     <link rel="stylesheet" href="{{public_address}}/assets/css/responsive.css">
     <!-- modernizr css -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
     <!--<script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>-->
+
+
 
     <!-- jquery latest version -->
     <script src="{{public_address}}/assets/js/vendor/jquery-2.2.4.min.js"></script>
@@ -130,22 +131,19 @@
                                 {{/ifUserClass}}
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
                                 <li {{#if usersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i></i><span>Users</span></a>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
                                     <ul class="collapse">
                                         <li><a href="{{public_address}}/users">Manage Users</a></li>
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
                                     </ul>
                                 </li>
                                 {{/ifUserClass}}
-                                <!--
-                                <li {{#if settingsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Email Templates</span></a>
-                                    <ul class="collapse">
-                                        <li><a href="{{public_address}}/settings/email-templates">Manage Templates</a></li>
-                                        <li><a href="{{public_address}}/settings/email-templates">Add Template</a></li>
-                                    </ul>
-                                </li>
-                                -->
+                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                  <li {{#if settingsActive}}class="active"{{/if}}>
+                                      <a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a>
+                                  </li>
+                                {{/ifUserClass}}
+
                               {{else}}
                                 <li {{#if transactionsActive}}class="active"{{/if}}>
                                     <a href="/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>

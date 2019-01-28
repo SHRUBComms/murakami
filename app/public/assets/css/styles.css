@@ -2309,4 +2309,8 @@ table.dataTable thead td {
   font-size: 16px;
 }
 
+button.note-btn.btn.btn-light {
+  color: #333 !important;
+}
+
 /*-------------------- END Bootstrap Overrides ------------------- */
