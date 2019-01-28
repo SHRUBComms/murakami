@@ -115,6 +115,12 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.roles = [];
         }
 
+        if (volunteer.working_groups) {
+          volunteer.working_groups = JSON.parse(volunteer.working_groups);
+        } else {
+          volunteer.working_groups = [];
+        }
+
         if (volunteer.assignedCoordinators) {
           volunteer.assignedCoordinators = JSON.parse(
             volunteer.assignedCoordinators
@@ -173,7 +179,25 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.canUpdate = true;
         }
 
-        callback();
+        async.each(
+          volunteer.roles,
+          function(role, callback) {
+            if (user.allVolunteerRoles) {
+              if (user.allVolunteerRoles[role]) {
+                volunteer.working_groups.push(
+                  user.allVolunteerRoles[role].group_id
+                );
+              }
+            }
+            callback();
+          },
+          function() {
+            volunteer.working_groups = Array.from(
+              new Set(volunteer.working_groups)
+            );
+            callback();
+          }
+        );
       } else {
         callback();
       }

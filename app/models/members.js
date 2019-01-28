@@ -13,53 +13,61 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 var Members = {};
 
 Members.sanitizeMember = function(member, user, callback) {
-  try {
-    member.working_groups = JSON.parse(member.working_groups);
-  } catch (err) {
-    member.working_groups = [];
-  }
-
-  try {
-    member.roles = JSON.parse(member.roles);
-  } catch (err) {
-    member.roles = [];
-  }
-
-  if (user.class == "till") {
-    member.email = null;
-    member.phone_no = null;
-    member.address = null;
-  } else if (user.class == "volunteer" || user.class == "staff") {
-    member.address = null;
+  if (member) {
     try {
-      member.gdpr = JSON.parse(member.gdpr);
-      if (!member.gdpr.email) {
-        member.email = null;
-      }
-      if (!member.gdpr.phone) {
-        member.phone_no = null;
-      }
+      member.working_groups = JSON.parse(member.working_groups);
     } catch (err) {
+      member.working_groups = [];
+    }
+
+    try {
+      member.roles = JSON.parse(member.roles);
+    } catch (err) {
+      member.roles = [];
+    }
+
+    if (user.class == "till") {
       member.email = null;
       member.phone_no = null;
-    }
-  }
-
-  async.each(
-    member.roles,
-    function(role, callback) {
-      if (user.allVolunteerRoles) {
-        if (user.allVolunteerRoles[role]) {
-          member.working_groups.push(user.allVolunteerRoles[role].group_id);
+      member.address = null;
+    } else if (user.class == "volunteer" || user.class == "staff") {
+      member.address = null;
+      try {
+        member.gdpr = JSON.parse(member.gdpr);
+        if (!member.gdpr.email) {
+          member.email = null;
         }
+        if (!member.gdpr.phone) {
+          member.phone_no = null;
+        }
+      } catch (err) {
+        member.email = null;
+        member.phone_no = null;
       }
-      callback();
-    },
-    function() {
-      member.working_groups = Array.from(new Set(member.working_groups));
-      callback(null, member);
     }
-  );
+
+    async.each(
+      member.roles,
+      function(role, callback) {
+        if (user.allVolunteerRoles) {
+          if (user.allVolunteerRoles[role]) {
+            try {
+              member.working_groups.push(user.allVolunteerRoles[role].group_id);
+            } catch (err) {
+              member.working_groups = [user.allVolunteerRoles[role].group_id];
+            }
+          }
+        }
+        callback();
+      },
+      function() {
+        member.working_groups = Array.from(new Set(member.working_groups));
+        callback(null, member);
+      }
+    );
+  } else {
+    callback(null, null);
+  }
 };
 
 Members.getAll = function(callback) {
@@ -381,46 +389,31 @@ Members.delete = function(member_id, callback) {
 Members.getVolunteersByGroupId = function(group_id, user, callback) {
   var working_groups = user.working_groups_arr;
 
-  if (group_id) {
-    var query = `SELECT *
-                FROM volunteer_info volunteers
-                INNER JOIN members ON volunteers.member_id=members.member_id AND members.working_groups LIKE ?
-                LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours
-                ON volunteers.member_id=hours.hours_member_id`;
-    var inserts = ["%" + group_id + "%"];
-    var sql = mysql.format(query, inserts);
-  } else {
-    if (user.class == "admin") {
-      var sql = `SELECT *
-                FROM volunteer_info volunteers
-                INNER JOIN members ON volunteers.member_id=members.member_id
-                LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours
-                ON volunteers.member_id=hours.hours_member_id`;
-    } else {
-      var query = `SELECT *
-                  FROM volunteer_info volunteers
-                  INNER JOIN members ON volunteers.member_id=members.member_id AND (members.working_groups LIKE ?
-                  LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours
-                  ON volunteers.member_id=hours.hours_member_id`;
-      for (i = 0; i < working_groups.length; i++) {
-        working_groups[i] = "%" + working_groups[i] + "%";
-        if (i + 1 != working_groups.length) {
-          query += " OR working_groups LIKE ?";
-        }
-      }
-
-      query += ")";
-
-      var inserts = working_groups;
-      var sql = mysql.format(query, inserts);
-    }
-  }
+  var query = `SELECT * FROM volunteer_info volunteers INNER JOIN members ON volunteers.member_id = members.member_id LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id`;
+  var inserts = ["%" + group_id + "%"];
+  var sql = mysql.format(query, inserts);
 
   con.query(sql, function(err, volunteers) {
     Volunteers.sanitizeVolunteer(volunteers, user, function(
       sanitizedVolunteers
     ) {
-      callback(err, sanitizedVolunteers);
+      async.eachOf(
+        sanitizedVolunteers,
+        function(volunteer, i, callback) {
+          if (volunteer.working_groups.includes(group_id) == false) {
+            sanitizedVolunteers[i] = {};
+            callback();
+          } else {
+            callback();
+          }
+        },
+        function() {
+          callback(
+            err,
+            sanitizedVolunteers.filter(value => Object.keys(value).length !== 0)
+          );
+        }
+      );
     });
   });
 };

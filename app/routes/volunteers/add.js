@@ -3,6 +3,9 @@
 var router = require("express").Router();
 var async = require("async");
 var moment = require("moment");
+var Mailchimp = require("mailchimp-api-v3");
+var md5 = require("md5");
+
 moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
