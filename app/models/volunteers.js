@@ -115,22 +115,6 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.roles = [];
         }
 
-        member.working;
-
-        async.each(
-          member.roles,
-          function(role, callback) {
-            if (user.allVolunteerRoles[role]) {
-              member.working_groups.push(user.allVolunteerRoles[role].group_id);
-            }
-            callback();
-          },
-          function() {
-            member.working_groups = Array.from(new Set(member.working_groups));
-            callback(null, member);
-          }
-        );
-
         if (volunteer.assignedCoordinators) {
           volunteer.assignedCoordinators = JSON.parse(
             volunteer.assignedCoordinators
