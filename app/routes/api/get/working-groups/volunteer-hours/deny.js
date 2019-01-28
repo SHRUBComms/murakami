@@ -13,7 +13,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:shift_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "volunteer"]),
+  Auth.isOfClass(["admin", "staff", "volunteer"]),
   function(req, res) {
     var message = {
       status: "fail",
@@ -34,19 +34,13 @@ router.get(
             Members.getById(shift.member_id, req.user, function(err, member) {
               if (err) throw err;
 
-              WorkingGroups.verifyGroupById(
-                shift.working_group,
-                settings,
-                function(group) {
-                  WorkingGroups.denyShift(req.params.shift_id, function(err) {
-                    if (err) throw err;
+              WorkingGroups.denyShift(req.params.shift_id, function(err) {
+                if (err) throw err;
 
-                    message.status = "ok";
-                    message.msg = "Shift rejected!";
-                    res.send(message);
-                  });
-                }
-              );
+                message.status = "ok";
+                message.msg = "Shift rejected!";
+                res.send(message);
+              });
             });
           } else {
             message.status = "fail";
