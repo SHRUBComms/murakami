@@ -14,10 +14,19 @@ router.get("/:member_id", function(req, res) {
     member
   ) {
     if (!err && member) {
-      member.contactPreferences.newsletters = {
-        shrub: null,
-        fse: null
-      };
+      if (member.contactPreferences) {
+        member.contactPreferences.newsletters = {
+          shrub: null,
+          fse: null
+        };
+      } else {
+        member.contactPreferences = {
+          newsletters: {
+            shrub: null,
+            fse: null
+          }
+        };
+      }
 
       var shrubMailchimp = new Mailchimp(
         process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
