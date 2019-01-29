@@ -12,6 +12,27 @@ Tills.getAllTills = function(callback) {
   con.query(query, callback);
 };
 
+Tills.getMembershipCategories = function(callback) {
+  var query = `SELECT * FROM stock_categories WHERE action LIKE "%MEM%"`;
+  con.query(query, function(err, membershipCategories) {
+    var membershipCategoriesObj = {};
+    if (membershipCategories) {
+      async.each(
+        membershipCategories,
+        function(category, callback) {
+          membershipCategoriesObj[category.item_id] = category;
+          callback();
+        },
+        function() {
+          callback(err, membershipCategoriesObj);
+        }
+      );
+    } else {
+      callback(err, membershipCategoriesObj);
+    }
+  });
+};
+
 Tills.removeTransaction = function(transaction_id, group_id, callback) {
   var query = "SELECT date FROM transactions WHERE transaction_id = ?";
   var inserts = [transaction_id];
@@ -23,6 +44,26 @@ Tills.removeTransaction = function(transaction_id, group_id, callback) {
     sql = mysql.format(query, inserts);
     con.query(sql, callback);
   });
+};
+
+Tills.getAllTransactionsBetweenDatesByTillId = function(
+  till_id,
+  startDate,
+  endDate,
+  callback
+) {
+  var query =
+    "SELECT * FROM transactions WHERE till_id = ? AND date >= ? AND date <= ?";
+  var inserts = [till_id, startDate, endDate];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
+Tills.getAllTransactionsBetweenDates = function(startDate, endDate, callback) {
+  var query = "SELECT * FROM transactions WHERE date >= ? AND date <= ?";
+  var inserts = [startDate, endDate];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
 };
 
 Tills.updateTill = function(till, callback) {

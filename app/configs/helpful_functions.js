@@ -201,4 +201,21 @@ Helpers.allBelongTo = function(selectedOptions, validOptions) {
   }
 };
 
+Helpers.getRevenue = function(transaction) {
+  transaction.summary = JSON.parse(transaction.summary);
+  if (
+    !isNaN(transaction.summary.totals.money) &&
+    transaction.summary.totals.money > 0
+  ) {
+    revenue.total += +transaction.summary.totals.money;
+
+    if (transaction.summary.paymentMethod == "cash") {
+      console.log(transaction.summary.totals.money);
+      revenue.breakdown.cash += +transaction.summary.totals.money;
+    } else if (transaction.summary.paymentMethod == "card") {
+      revenue.breakdown.card += +transaction.summary.totals.money;
+    }
+  }
+};
+
 module.exports = Helpers;
