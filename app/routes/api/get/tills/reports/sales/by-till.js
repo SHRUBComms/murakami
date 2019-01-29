@@ -48,92 +48,48 @@ router.get("/:till_id", Auth.verifyByKey, function(req, res) {
         startDate,
         endDate,
         function(err, transactions) {
-          async.each(
-            transactions,
-            function(transaction, callback) {
-              transaction.summary = JSON.parse(transaction.summary);
+          Tills.getDonationCategories(function(err, donationCategories) {
+            Tills.getMembershipCategories(function(err, membershipCategories) {
+              async.each(
+                transactions,
+                function(transaction, callback) {
+                  transaction.summary = JSON.parse(transaction.summary);
 
-              if (
-                !isNaN(transaction.summary.totals.money) &&
-                transaction.summary.totals.money > 0
-              ) {
-                if (condition == null && item_id == null) {
-                  revenue.total += +transaction.summary.totals.money;
+                  if (
+                    !isNaN(transaction.summary.totals.money) &&
+                    transaction.summary.totals.money > 0
+                  ) {
 
-                  if (transaction.summary.paymentMethod == "cash") {
-                    revenue.breakdown.cash += +transaction.summary.totals.money;
-                  } else if (transaction.summary.paymentMethod == "card") {
-                    revenue.breakdown.card += +transaction.summary.totals.money;
-                  }
-                } else {
-                  async.each(
-                    transaction.summary.bill,
-                    function(item, callback) {
-                      if (condition != null && item_id != null) {
-                        if (item.condition) {
-                          if (
-                            item.condition.toLowerCase() ==
-                              condition.toLowerCase() &&
-                            item.item_id == item_id
-                          ) {
-                            revenue.total += +item.tokens;
-
-                            if (transaction.summary.paymentMethod == "cash") {
-                              revenue.breakdown.cash += +item.tokens;
-                            } else if (
-                              transaction.summary.paymentMethod == "card"
-                            ) {
-                              revenue.breakdown.card += +item.tokens;
-                            }
-                          }
-                        }
-                      } else if (condition != null && item_id == null) {
-                        if (item.condition) {
-                          if (
-                            item.condition.toLowerCase() ==
-                            condition.toLowerCase()
-                          ) {
-                            revenue.total += +item.tokens;
-
-                            if (transaction.summary.paymentMethod == "cash") {
-                              revenue.breakdown.cash += +item.tokens;
-                            } else if (
-                              transaction.summary.paymentMethod == "card"
-                            ) {
-                              revenue.breakdown.card += +item.tokens;
-                            }
-                          }
-                        }
-                      } else if (item_id != null && condition == null) {
-                        if (item.item_id == item_id) {
-                          revenue.total += +item.tokens;
-
-                          if (transaction.summary.paymentMethod == "cash") {
-                            revenue.breakdown.cash += +item.tokens;
-                          } else if (
-                            transaction.summary.paymentMethod == "card"
-                          ) {
-                            revenue.breakdown.card += +item.tokens;
-                          }
-                        }
+                    async.each(transaction.summary.bill, function(item, callback){
+                      if(membershipCategories[item.item_id] || donationCategories[item.item_id]){
+                        transaction.summary.totals.money =- item.tokens;
                       }
-                    },
-                    function() {}
-                  );
-                }
-              }
+                      callback();
+                    }, function(){
+                      revenue.total += +transaction.summary.totals.money;
 
-              callback();
-            },
-            function() {
-              revenue.total = revenue.total.toFixed(2);
-              revenue.breakdown.cash = revenue.breakdown.cash.toFixed(2);
-              revenue.breakdown.card = revenue.breakdown.card.toFixed(2);
-              res.send(revenue);
-            }
-          );
-        }
-      );
+                      if (transaction.summary.paymentMethod == "cash") {
+                        revenue.breakdown.cash += +transaction.summary.totals.money;
+                      } else if (transaction.summary.paymentMethod == "card") {
+                        revenue.breakdown.card += +transaction.summary.totals.money;
+                      }
+                      callback();
+                    });
+
+                  } else {
+                    callback()
+                  }
+
+
+                }, function(){
+                  revenue.total = revenue.total.toFixed(2);
+                  revenue.breakdown.cash = revenue.breakdown.cash.toFixed(2);
+                  revenue.breakdown.card = revenue.breakdown.card.toFixed(2);
+                  res.send(revenue);
+                });
+              });
+            });
+          });
     } else {
       res.send(revenue);
     }

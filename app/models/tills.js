@@ -33,6 +33,28 @@ Tills.getMembershipCategories = function(callback) {
   });
 };
 
+
+Tills.getDonationCategories = function(callback) {
+  var query = `SELECT * FROM stock_categories WHERE name LIKE "%donation%"`;
+  con.query(query, function(err, donationCategories) {
+    var donationCategoriesObj = {};
+    if (donationCategories) {
+      async.each(
+        donationCategories,
+        function(category, callback) {
+          donationCategoriesObj[category.item_id] = category;
+          callback();
+        },
+        function() {
+          callback(err, donationCategoriesObj);
+        }
+      );
+    } else {
+      callback(err, donationCategoriesObj);
+    }
+  });
+};
+
 Tills.removeTransaction = function(transaction_id, group_id, callback) {
   var query = "SELECT date FROM transactions WHERE transaction_id = ?";
   var inserts = [transaction_id];

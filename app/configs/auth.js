@@ -20,8 +20,13 @@ Auth.isOfClass = function(allowedClasses) {
 
 // TEMPORARY
 Auth.verifyByKey = function(req, res, next) {
-  if (req.query.key == process.env.TEMPORARY_API_KEY) {
-    return next();
+
+  if(req.query.key){
+    if (req.query.key === process.env.TEMPORARY_API_KEY) {
+      return next();
+    } else {
+      res.send({ message: "Permission denied" });
+    }
   } else {
     res.send({ message: "Permission denied" });
   }
