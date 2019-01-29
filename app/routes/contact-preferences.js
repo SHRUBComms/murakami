@@ -87,6 +87,10 @@ router.post("/:member_id", function(req, res) {
     member
   ) {
     if (member && !err) {
+      if (!member.contactPreferences) {
+        member.contactPreferences = {};
+      }
+
       var contactPreferences = {
         volunteeringOpportunities:
           member.contactPreferences.volunteeringOpportunities,
