@@ -55,13 +55,13 @@ router.get("/", Auth.verifyByKey, function(req, res) {
             ) {
               async.each(transaction.summary.bill, function(item, callback) {
                 if (membershipCategories[item.item_id]) {
-                  revenue.total += +transaction.summary.totals.money;
+                  revenue.total += +item.tokens;
 
                   if (transaction.summary.paymentMethod == "cash") {
-                    console.log(transaction.summary.totals.money);
-                    revenue.breakdown.cash += +transaction.summary.totals.money;
+
+                    revenue.breakdown.cash += +item.tokens
                   } else if (transaction.summary.paymentMethod == "card") {
-                    revenue.breakdown.card += +transaction.summary.totals.money;
+                    revenue.breakdown.card += +item.tokens
                   }
                 }
               });
