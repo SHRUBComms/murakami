@@ -57,16 +57,55 @@ router.get("/:till_id", Auth.verifyByKey, function(req, res) {
                 !isNaN(transaction.summary.totals.money) &&
                 transaction.summary.totals.money > 0
               ) {
-                async.each(
-                  transaction.summary.bill,
-                  function(item, callback) {
-                    if (condition != null && item_id != null) {
-                      if (item.condition) {
-                        if (
-                          item.condition.toLowerCase() ==
-                            condition.toLowerCase() &&
-                          item.item_id == item_id
-                        ) {
+                if (condition == null && item_id == null) {
+                  revenue.total += +transaction.summary.totals.money;
+
+                  if (transaction.summary.paymentMethod == "cash") {
+                    revenue.breakdown.cash += +transaction.summary.totals.money;
+                  } else if (transaction.summary.paymentMethod == "card") {
+                    revenue.breakdown.card += +transaction.summary.totals.money;
+                  }
+                } else {
+                  async.each(
+                    transaction.summary.bill,
+                    function(item, callback) {
+                      if (condition != null && item_id != null) {
+                        if (item.condition) {
+                          if (
+                            item.condition.toLowerCase() ==
+                              condition.toLowerCase() &&
+                            item.item_id == item_id
+                          ) {
+                            revenue.total += +item.tokens;
+
+                            if (transaction.summary.paymentMethod == "cash") {
+                              revenue.breakdown.cash += +item.tokens;
+                            } else if (
+                              transaction.summary.paymentMethod == "card"
+                            ) {
+                              revenue.breakdown.card += +item.tokens;
+                            }
+                          }
+                        }
+                      } else if (condition != null && item_id == null) {
+                        if (item.condition) {
+                          if (
+                            item.condition.toLowerCase() ==
+                            condition.toLowerCase()
+                          ) {
+                            revenue.total += +item.tokens;
+
+                            if (transaction.summary.paymentMethod == "cash") {
+                              revenue.breakdown.cash += +item.tokens;
+                            } else if (
+                              transaction.summary.paymentMethod == "card"
+                            ) {
+                              revenue.breakdown.card += +item.tokens;
+                            }
+                          }
+                        }
+                      } else if (item_id != null && condition == null) {
+                        if (item.item_id == item_id) {
                           revenue.total += +item.tokens;
 
                           if (transaction.summary.paymentMethod == "cash") {
@@ -78,47 +117,10 @@ router.get("/:till_id", Auth.verifyByKey, function(req, res) {
                           }
                         }
                       }
-                    } else if (condition != null && item_id == null) {
-                      if (item.condition) {
-                        if (
-                          item.condition.toLowerCase() ==
-                          condition.toLowerCase()
-                        ) {
-                          revenue.total += +item.tokens;
-
-                          if (transaction.summary.paymentMethod == "cash") {
-                            revenue.breakdown.cash += +item.tokens;
-                          } else if (
-                            transaction.summary.paymentMethod == "card"
-                          ) {
-                            revenue.breakdown.card += +item.tokens;
-                          }
-                        }
-                      }
-                    } else if (item_id != null && condition == null) {
-                      if (item.item_id == item_id) {
-                        revenue.total += +item.tokens;
-
-                        if (transaction.summary.paymentMethod == "cash") {
-                          revenue.breakdown.cash += +item.tokens;
-                        } else if (
-                          transaction.summary.paymentMethod == "card"
-                        ) {
-                          revenue.breakdown.card += +item.tokens;
-                        }
-                      }
-                    } else if (item_id == null && condition == null) {
-                      revenue.total += +transaction.summary.totals.money;
-
-                      if (transaction.summary.paymentMethod == "cash") {
-                        revenue.breakdown.cash += +item.tokens;
-                      } else if (transaction.summary.paymentMethod == "card") {
-                        revenue.breakdown.card += +item.tokens;
-                      }
-                    }
-                  },
-                  function() {}
-                );
+                    },
+                    function() {}
+                  );
+                }
               }
 
               callback();
