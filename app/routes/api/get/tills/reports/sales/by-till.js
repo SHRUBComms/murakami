@@ -59,37 +59,48 @@ router.get("/:till_id", Auth.verifyByKey, function(req, res) {
                     !isNaN(transaction.summary.totals.money) &&
                     transaction.summary.totals.money > 0
                   ) {
+                    async.each(
+                      transaction.summary.bill,
+                      function(item, callback) {
+                        if (
+                          membershipCategories[item.item_id] ||
+                          donationCategories[item.item_id]
+                        ) {
+                          transaction.summary.totals.money =
+                            transaction.summary.totals.money - item.tokens;
+                        }
+                        callback();
+                      },
+                      function() {
+                        revenue.total += +transaction.summary.totals.money;
 
-                    async.each(transaction.summary.bill, function(item, callback){
-                      if(membershipCategories[item.item_id] || donationCategories[item.item_id]){
-                        transaction.summary.totals.money =- item.tokens;
+                        if (transaction.summary.paymentMethod == "cash") {
+                          revenue.breakdown.cash += +transaction.summary.totals
+                            .money;
+                        } else if (
+                          transaction.summary.paymentMethod == "card"
+                        ) {
+                          revenue.breakdown.card += +transaction.summary.totals
+                            .money;
+                        }
+                        callback();
                       }
-                      callback();
-                    }, function(){
-                      revenue.total += +transaction.summary.totals.money;
-
-                      if (transaction.summary.paymentMethod == "cash") {
-                        revenue.breakdown.cash += +transaction.summary.totals.money;
-                      } else if (transaction.summary.paymentMethod == "card") {
-                        revenue.breakdown.card += +transaction.summary.totals.money;
-                      }
-                      callback();
-                    });
-
+                    );
                   } else {
-                    callback()
+                    callback();
                   }
-
-
-                }, function(){
+                },
+                function() {
                   revenue.total = revenue.total.toFixed(2);
                   revenue.breakdown.cash = revenue.breakdown.cash.toFixed(2);
                   revenue.breakdown.card = revenue.breakdown.card.toFixed(2);
                   res.send(revenue);
-                });
-              });
+                }
+              );
             });
           });
+        }
+      );
     } else {
       res.send(revenue);
     }
