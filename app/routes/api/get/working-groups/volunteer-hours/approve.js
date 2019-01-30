@@ -14,7 +14,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:shift_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "volunteer"]),
+  Auth.isOfClass(["admin", "staff", "volunteer"]),
   function(req, res) {
     var message = {
       status: "fail",

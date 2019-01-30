@@ -6,30 +6,42 @@
 
 <div class="row mt-4">
 
-  <div class="col-lg-8 mx-auto">
+  <div class="col-lg-10 mx-auto">
 
-  {{#ifGreaterThan user.working_groups.length 1}}
+  {{#ifUserClass user.class '["admin"]'}}
+
   <div class="row">
     <div class="container">
       <div class="form-group form-inline">
         <select class="form-control" id="working_groups">
           <option disabled selected>Select a working group...</option>
-            {{#each user.working_groups}}
+            <option value='' {{#ifCond ../group.group_id '==' null}}selected{{/ifCond}}>All My Working Groups</option>
+            {{#each user.allWorkingGroupsObj}}
               <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
             {{/each}}
         </select>
       </div>
     </div>
   </div>
+
   {{else}}
-  <div class="row">
-    <div class="card">
-      <div class="card-body">
-        <h3>{{group.name}}</h3>
+
+
+    <div class="row">
+      <div class="container">
+        <div class="form-group form-inline">
+          <select class="form-control" id="working_groups">
+            <option disabled selected>Select a working group...</option>
+              <option value='' {{#ifCond ../group.group_id '==' null}}selected{{/ifCond}}>All My Working Groups</option>
+              {{#each user.working_groups}}
+                <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+              {{/each}}
+          </select>
+        </div>
       </div>
     </div>
-  </div>
-  {{/ifGreaterThan}}
+
+  {{/ifUserClass}}
 
   <div id="vol_hours_info" class="row"></div>
 
@@ -38,6 +50,7 @@
      <table id="vol_hours" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/working-groups/volunteer-hours/{{group.group_id}}">
      	<thead>
      		<th data-field="name">Name</th>
+        <th data-field="working_group">Working Group</th>
      		<th data-sortable="true" data-field="date">Date</th>
      		<th data-field="duration">Duration (hours)</th>
         <th data-field="tokens">Tokens</th>

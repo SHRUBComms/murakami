@@ -2,69 +2,148 @@
 
 var router = require("express").Router();
 var async = require("async");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  function(req, res) {
+    var working_groups = req.user.working_groups_arr;
+    var formattedShifts = [];
+
+    async.each(
+      working_groups,
+      function(group, callback) {
+        WorkingGroups.getUnreviewedVolunteerHoursById(group, function(
+          err,
+          shifts
+        ) {
+          async.each(
+            shifts,
+            function(shift, callback) {
+              if (req.user.working_groups_arr.includes(shift.working_group)) {
+                Members.getById(shift.member_id, req.user, function(
+                  err,
+                  member
+                ) {
+                  if (member && !err) {
+                    shift.name =
+                      "<a href='" +
+                      member.member_id +
+                      "'>" +
+                      member.first_name +
+                      " " +
+                      member.last_name +
+                      "</a>";
+
+                    shift.date = moment(shift.date).format("l");
+                    shift.duration = shift.duration_as_decimal;
+                    shift.tokens =
+                      Math.floor(shift.duration) *
+                      (req.user.allWorkingGroupsObj[shift.working_group].rate ||
+                        0);
+
+                    shift.working_group =
+                      req.user.allWorkingGroupsObj[shift.working_group].name;
+
+                    shift.options =
+                      '<div class="btn-group d-flex">' +
+                      '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' +
+                      shift.shift_id +
+                      "')\">Approve</a>" +
+                      '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' +
+                      shift.shift_id +
+                      "')\">Deny</a>" +
+                      "</div>";
+                    formattedShifts.push(shift);
+                    callback();
+                  } else {
+                    callback();
+                  }
+                });
+              } else {
+                callback();
+              }
+            },
+            function() {
+              callback();
+            }
+          );
+        });
+      },
+      function() {
+        res.send(formattedShifts);
+      }
+    );
+  }
+);
+
+router.get(
   "/:group_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "volunteer"]),
+  Auth.isOfClass(["admin", "staff", "volunteer"]),
   function(req, res) {
-    WorkingGroups.getAll(function(err, allWorkingGroups) {
-      if (allWorkingGroups[req.params.group_id]) {
-        WorkingGroups.getUnreviewedVolunteerHoursById(
-          req.params.group_id,
-          function(err, hours) {
-            if (err || !hours) {
-              res.send([]);
-            } else {
-              var formattedHours = [];
+    var formattedShifts = [];
+    WorkingGroups.getUnreviewedVolunteerHoursById(req.params.group_id, function(
+      err,
+      shifts
+    ) {
+      async.each(
+        shifts,
+        function(shift, callback) {
+          if (req.user.working_groups_arr.includes(shift.working_group)) {
+            Members.getById(shift.member_id, req.user, function(err, member) {
+              if (member && !err) {
+                shift.name =
+                  "<a href='" +
+                  member.member_id +
+                  "'>" +
+                  member.first_name +
+                  " " +
+                  member.last_name +
+                  "</a>";
 
-              async.eachOf(
-                hours,
-                function(hour, i, callback) {
-                  WorkingGroups.makeVolunteerHoursNice(
-                    hour,
-                    allWorkingGroups,
-                    function(hour) {
-                      formattedHours[i] = {};
+                shift.date = moment(shift.date).format("l");
+                shift.duration = shift.duration_as_decimal;
+                shift.tokens =
+                  Math.floor(shift.duration) *
+                  (req.user.allWorkingGroupsObj[shift.working_group].rate || 0);
 
-                      formattedHours[i].name =
-                        '<a href="/members/view/' +
-                        hour.member_id +
-                        '">' +
-                        hour.name +
-                        "</a>";
-                      formattedHours[i].date = hour.date;
-                      formattedHours[i].duration = hour.duration;
-                      formattedHours[i].tokens = hour.tokens;
-                      formattedHours[i].options =
-                        '<div class="btn-group d-flex">' +
-                        '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' +
-                        hours[i].shift_id +
-                        "')\">Approve</a>" +
-                        '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' +
-                        hours[i].shift_id +
-                        "')\">Deny</a>" +
-                        "</div>";
-                      callback();
-                    }
-                  );
-                },
-                function(err) {
-                  res.send(formattedHours);
-                }
-              );
-            }
+                shift.working_group =
+                  req.user.allWorkingGroupsObj[shift.working_group].name;
+
+                shift.options =
+                  '<div class="btn-group d-flex">' +
+                  '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' +
+                  shift.shift_id +
+                  "')\">Approve</a>" +
+                  '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' +
+                  shift.shift_id +
+                  "')\">Deny</a>" +
+                  "</div>";
+                formattedShifts.push(shift);
+                callback();
+              } else {
+                callback();
+              }
+            });
+          } else {
+            callback();
           }
-        );
-      } else {
-        res.send([]);
-      }
+        },
+        function() {
+          res.send(formattedShifts);
+        }
+      );
     });
   }
 );

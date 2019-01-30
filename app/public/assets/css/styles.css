@@ -1921,6 +1921,94 @@ table.dataTable thead td {
 
 /*-------------------- 24. Pricing ------------------- */
 
+/* timeline */
+
+.timeline-area {
+  padding-left: 52px;
+  padding-top: 6px;
+}
+
+.timeline-task {
+  position: relative;
+  margin-bottom: 35px;
+}
+
+.timeline-task:before {
+  content: "";
+  position: absolute;
+  left: -35px;
+  top: 0;
+  height: calc(100% + 33px);
+  width: 1px;
+  background: #e6cdff;
+}
+
+.timeline-task:last-child:before {
+  height: 100%;
+}
+
+.timeline-task:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-task .icon {
+  position: absolute;
+  left: -52px;
+  top: -6px;
+  height: 35px;
+  width: 35px;
+  line-height: 35px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 12px;
+  color: #fff;
+}
+
+.bg1 {
+  background: #5c6df4;
+}
+
+.bg2 {
+  background: #19d0a2;
+}
+
+.bg3 {
+  background: #f7cb3f;
+}
+
+.tm-title {
+  margin-bottom: 6px;
+}
+
+.tm-title h4 {
+  font-size: 15px;
+  letter-spacing: 0;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.tm-title span.time {
+  color: #8c8a8a;
+  font-size: 13px;
+}
+
+.tm-title span.time i {
+  margin-right: 5px;
+  color: #2c3cb7;
+  font-size: 11px;
+}
+
+.timeline-task p {
+  color: #666;
+  font-size: 14px;
+  line-height: 25px;
+  margin-bottom: -10px;
+}
+
+.timeline-task:last-child p {
+  margin-bottom: 0;
+}
+
 .pricing-list {
   text-align: center;
 }

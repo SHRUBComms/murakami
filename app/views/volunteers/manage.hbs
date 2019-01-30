@@ -22,7 +22,7 @@
     	<div class="row">
     		<div class="form-group form-inline">
     			<select class="form-control" id="working_groups">
-            <!--<option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>-->
+            <option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>
     					{{#each user.working_groups}}
     						<option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
     					{{/each}}

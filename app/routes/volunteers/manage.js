@@ -18,7 +18,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.isOfClass(["admin", "staff", "volunteer"]),
   function(req, res) {
-    if (!req.query.group_id) {
+    if (!req.query.group_id && req.user.class == "admin") {
       res.redirect(
         process.env.PUBLIC_ADDRESS +
           "/volunteers/manage/?group_id=" +

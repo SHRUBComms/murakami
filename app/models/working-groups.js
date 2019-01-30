@@ -42,6 +42,13 @@ WorkingGroups.getAllVolunteerHours = function(callback) {
   con.query(query, callback);
 };
 
+WorkingGroups.getAllUnreviewedVolunteerHours = function(callback) {
+  var query =
+    "SELECT * FROM volunteer_hours WHERE approved IS NULL ORDER BY date ASC";
+
+  con.query(query, callback);
+};
+
 WorkingGroups.getHoursThisMonth = function(callback) {
   var query =
     "SELECT SUM(duration_as_decimal) FROM volunteer_hours WHERE MONTH(date) = MONTH(CURDATE())";

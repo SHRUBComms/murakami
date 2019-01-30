@@ -409,8 +409,9 @@ Members.delete = function(member_id, callback) {
 Members.getVolunteersByGroupId = function(group_id, user, callback) {
   var working_groups = user.working_groups_arr;
 
-  var query = `SELECT * FROM volunteer_info volunteers INNER JOIN members ON volunteers.member_id = members.member_id LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id`;
+  var query = `SELECT * FROM volunteer_info volunteers INNER JOIN members ON volunteers.member_id = members.member_id LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id ORDER BY lastVolunteered ASC`;
   var inserts = ["%" + group_id + "%"];
+
   var sql = mysql.format(query, inserts);
 
   con.query(sql, function(err, volunteers) {
@@ -420,11 +421,25 @@ Members.getVolunteersByGroupId = function(group_id, user, callback) {
       async.eachOf(
         sanitizedVolunteers,
         function(volunteer, i, callback) {
-          if (volunteer.working_groups.includes(group_id) == false) {
-            sanitizedVolunteers[i] = {};
-            callback();
+          if (group_id) {
+            if (volunteer.working_groups.includes(group_id) == false) {
+              sanitizedVolunteers[i] = {};
+              callback();
+            } else {
+              callback();
+            }
           } else {
-            callback();
+            if (
+              !Helpers.hasOneInCommon(
+                volunteer.working_groups,
+                user.working_groups_arr
+              )
+            ) {
+              sanitizedVolunteers[i] = {};
+              callback();
+            } else {
+              callback();
+            }
           }
         },
         function() {

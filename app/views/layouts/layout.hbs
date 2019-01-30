@@ -26,8 +26,6 @@
     <!-- modernizr css -->
     <!--<script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>-->
 
-
-
     <!-- jquery latest version -->
     <script src="{{public_address}}/assets/js/vendor/jquery-2.2.4.min.js"></script>
 
@@ -201,30 +199,13 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <div class="modal-body mx-auto">
+              <div class="modal-body p-4">
 
-                  {{#each notifications}}
-                    {{#if @first}}
-                      <br />
-                    {{/if}}
-                    <span class="time"><i class="ti-time"></i> {{timestamp}}</span>
-                    <p class="font-weight-bold">{{title}}</p>
-                    <p><a href="{{public_address}}{{destination}}" onclick="markAsRead('{{notification_id}}');">See details</a></p>
-                    <hr />
-                  {{else}}
-                    <p class="mt-2 text-muted text-center">Nothing to see here...</p>
-                  {{/each}}
-
-
-                {{#ifCond notifications.old.length '>' 0}}
-                  <p class="text-center mt-4">
-                    <a href="/notifications">view older notifications</a>
-                  </p>
-                {{/ifCond}}
+                <div id="notificationsArea" class="col-10 offset-2"></div>
 
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="{{public_address}}/api/get/notifications/read-all" {{#unless notifications}} disabled{{/unless}}>Mark All As Read</button>
+                <!--<button type="button" class="btn btn-primary" onclick="{{public_address}}/api/get/notifications/read-all" {{#unless notifications}} disabled{{/unless}}>Mark All As Read</button>-->
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -261,9 +242,9 @@
                               <div class="">
                                 <button type="button" class="btn btn-bell" data-toggle="modal" data-target="#notificationsModal">
                                   <i class="ti-bell" style="font-size: 30px;"></i>
-                                  {{#if notifications}}
-                                    <span class="badge badge-light my-auto" style="font-size: 12px;">{{notifications.length}}</span>
-                                  {{/if}}
+
+                                    <span class="badge badge-light my-auto d-none" style="font-size: 12px;" id="notificationsBagde"></span>
+
                                 </button>
                               </div>
 
@@ -398,4 +379,30 @@
 function markAsRead(notification_id){
   $.get("{{public_address}}/api/get/notifications/read/" + notification_id, function(){});
 }
+
+{{#if user}}
+  $.get("{{public_address}}/api/get/notifications", function(notifications){
+    if(notifications.length > 0){
+
+      $("#notificationsBagde").html(notifications.length);
+      $("#notificationsBagde").removeClass("d-none");
+      for(i=0;i<notifications.length;i++){
+
+        $("#notificationsArea").html($("#notificationsArea").html() +
+              `<a href="` + notifications[i].action + `">
+                  <div class="timeline-task">
+                    <div class="icon bg1">
+                        <i class="` + notifications[i].icon + `"></i>
+                    </div>
+                    <div class="tm-title">
+                        <h4>` + notifications[i].message + `</h4>
+                        <span class="time"><i class="ti-time"></i>` + notifications[i].time + `</span>
+                    </div>
+
+                  </div>
+                </a>`)
+      }
+    }
+  });
+{{/if}}
 </script>
