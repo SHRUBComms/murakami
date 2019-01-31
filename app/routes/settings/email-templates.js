@@ -46,7 +46,7 @@ router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
     }
 
     var subject = req.body.subject;
-    var markup = req.body.markup;
+    var markup = req.body.markup.trim();
     var active = req.body.templateActive;
 
     if (active == "on") {

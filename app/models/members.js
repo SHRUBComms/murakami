@@ -53,6 +53,21 @@ Members.sanitizeMember = function(member, user, callback) {
       }
     }
 
+    try {
+      member.current_exp_membership = moment(
+        member.current_exp_membership
+      ).format("L");
+      if (member.current_exp_membership == "01/01/9999") {
+        member.current_exp_membership = "never";
+      }
+      member.current_init_membership = moment(
+        member.current_init_membership
+      ).format("L");
+      member.earliest_membership_date = moment(
+        member.earliest_membership_date
+      ).format("L");
+    } catch (err) {}
+
     async.each(
       member.roles,
       function(role, callback) {

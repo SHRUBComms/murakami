@@ -91,6 +91,48 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
   });
 };
 
+Mail.sendDonation = function(member, callback) {
+  Settings.getEmailTemplateById("donation", function(err, template) {
+    if (err || !template[0]) throw err;
+    mail = template[0];
+
+    if (mail.active) {
+      mail.markup = sanitizeHtml(mail.markup);
+
+      mail.markup = mail.markup
+        .replace("|first_name|", member.first_name)
+        .replace("|tokens|", member.tokens || 0)
+        .replace("|balance|", member.balance)
+        .replace("|last_name|", member.last_name)
+        .replace("|fullname|", member.first_name + " " + member.last_name)
+        .replace(
+          "|exp_date|",
+          moment(member.current_exp_membership).format("l")
+        )
+        .replace("|membership_id|", member.member_id);
+
+      var message = {
+        html: mail.markup,
+        from: "Shrub Co-op <shrub@murakami.org.uk>",
+        to:
+          member.first_name +
+          " " +
+          member.last_name +
+          " <" +
+          member.email +
+          ">",
+        subject: mail.subject
+      };
+
+      var transporter = nodemailer.createTransport(Mail.supportSmtpConfig);
+      transporter.use("compile", htmlToText());
+      transporter.sendMail(message, callback);
+    } else {
+      callback("Email template not active!", null);
+    }
+  });
+};
+
 Mail.sendUsers = function(to_name, to_address, subject, html, callback) {
   html = sanitizeHtml(html);
 

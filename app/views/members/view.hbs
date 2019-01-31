@@ -46,9 +46,16 @@
 				<div class="card">
 					<div class="card-body">
 						<h4 class="mb-1">Membership</h4>
-						<p>Expires: <b><script>document.write(moment("{{member.current_exp_membership}}").format("L"));</script></b></p>
 
-						<p>Since: <script>document.write(moment("{{member.earliest_membership_date}}").format("L"));</script></p>
+						<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
+
+						<small>Current Membership Period</small>
+						<div class="mb-2">
+							<p>Expires: <b>{{member.current_exp_membership}}</b></p>
+							<p>Began: <b>{{member.current_init_membership}}</b></p>
+						</div>
+
+
 
 						<p><span id="carbon">0</span> kilos of carbon saved!</p>
 

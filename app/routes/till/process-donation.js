@@ -45,37 +45,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                       formattedTransaction.summary
                     );
                     member.balance = +member.balance + +tokens;
+                    member.tokens = tokens;
                     member.name = member.first_name + " " + member.last_name;
                     member.membership_expires = member.current_exp_membership;
                     Tills.addTransaction(formattedTransaction, function(err) {
-                      Mail.sendGeneral(
-                        member.first_name +
-                          " " +
-                          member.last_name +
-                          " <" +
-                          member.email +
-                          ">",
-                        "Swap Shop: New tokens have been added to your account!",
-                        "<p>Hi " +
-                          member.first_name +
-                          ",</p>" +
-                          "<p>Our volunteers have processed the items you recently dropped off at the Swap Shop and <b>" +
-                          tokens +
-                          " tokens</b> have been added to your account</p>" +
-                          "<p>You now have a total of " +
-                          member.balance +
-                          " tokens in your account.</p>" +
-
-                          "<p><b>How do we value your stuff?</b></p>" +
-                          "<p>Our volunteers sort through your items to check their condition and value the items we're able to sell in the shop.</p>" +
-
-                          "<p>Unlike your ordinary charity shop, we give you back 25% of your item's value. This is added to your account in the form of tokens that you can spend at the Swap Shop where 1 token is worth £1.</p>" +
-
-                          "<p>We're open 12pm to 5pm, Wednesday, Thursday, Friday, Saturday.</p>" +
-
-                          "<p>Thank you!</p>" +
-
-                          "<p>The Swap Shop</p>",
+                      Mail.sendDonation(
+                        member,
 
                         function(err) {
                           if (err) {

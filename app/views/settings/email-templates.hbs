@@ -15,23 +15,56 @@
             <select class="form-control" id="templates">
               <option selected disbaled>Select an email template...</option>
               {{#each templates}}
-                  <option value="{{mail_id}}" {{#ifCond mail_id '==' ../template.mail_id}}selected{{/ifCond}}>{{mail_desc}}</option>
+                  <option value="{{mail_id}}" {{#ifCond mail_id '==' ../template.mail_id}}selected{{/ifCond}}>
+                    {{mail_desc}}
+                  </option>
               {{/each}}
             </select>
           </div>
       </div>
 
-      <div class="row">
-        <div class="card p-4">
+
+      <div class="row mt-4">
+        <div class="card px-4">
           <div class="card-body">
-            <div class="row mb-3">
-                <h2>{{template.mail_desc}}&nbsp;
-                    <input type="checkbox" data-toggle="toggle" data-on="Active" data-off="Inactive" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}}>
-                </h2>
+            <div class="row">
+
+              <p class="mb-2">
+                This template is currently
+                {{#if template.active}}
+                  <span class="text-success">enabled</span>
+                {{else}}
+                  <span class="text-danger">disabled</span>
+                {{/if}}
+              </p>
             </div>
+            <div class="row">
+              <div id="preview">
+
+                <h4>Preview</h4>
+
+
+
+                <p>From: <b>Shrub Co-op</b></p>
+                <p class="mb-2">Subject: <b id="subject-preview"></b></p>
+                <div id="preview-content" style="border: 1px grey solid; padding: 25px; width: 100%;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row mt-4">
+        <div class="card px-4">
+          <div class="card-body">
 
             <div class="row mb-4">
                 <input type="text" name="subject" id="subject" oninput="update_preview()" style="width: 60%; margin-bottom: 15px;" class="form-control" value="{{template.subject}}">
+                &emsp;
+                <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}}>
+
                 <div id="editor" oninput="update_preview()" onblur="update_preview()">
                     {{{template.markup}}}
                 </div>
@@ -47,6 +80,8 @@
                         <li><b>last_name</b> - the recipient's last name</li>
                         <li><b>fullname</b> - the recipient's full name</li>
                         <li><b>exp_date</b> - the date the recipient's membership will end</li>
+                        <li><b>balance</b> - the recipient's current balance</li>
+                        <li><b>tokens</b> - the amount of tokens given to member after donation</li>
                     </ul>
                 </div>
             </div>
@@ -55,21 +90,7 @@
         </div>
       </div>
 
-      <div class="row mt-4">
-        <div class="card p-4">
-          <div class="card-body">
-            <div class="row mb-3">
-              <div id="preview">
-                  <h3>Preview</h3>
-                  <p>From: <b>Shrub Co-op</b></p>
-                  <p class="mb-2">Subject: <b id="subject-preview"></b></p>
-                  <div id="preview-content" style="border: 1px grey solid; padding: 25px; width: 100%;"></div>
-              </div>
-            </div>
 
-          </div>
-        </div>
-      </div>
 
       <div class="row mt-4">
         <input type="submit" class="btn btn-primary btn-block btn-lg" value="Update Template">
@@ -89,11 +110,17 @@ $('#templates').on('change', function () {
 
 function update_preview(){
     var raw_markup = $("#editor").summernote('code');
-    $("#markup").val(raw_markup);
+    $("#markup").val(raw_markup.trim());
     var modified_markup;
-    modified_markup = raw_markup.replace("|first_name|", "Ringo").replace("|last_name|", "Starr").replace("|fullname|", "Ringo Starr").replace("|exp_date|", "September 20th 2023").replace("|membership_id|", "6491762");
+    modified_markup = raw_markup.replace("|first_name|", "Ringo")
+                                .replace("|last_name|", "Starr")
+                                .replace("|fullname|", "Ringo Starr")
+                                .replace("|exp_date|", "September 20th 2023")
+                                .replace("|membership_id|", "64917625122")
+                                .replace("|balance|", "11")
+                                .replace("|tokens|", "4");
     $("#subject-preview").html($("#subject").val());
-    $("#preview-content").html(modified_markup);
+    $("#preview-content").html(modified_markup.trim());
 }
 
 $("document").ready(function(){
