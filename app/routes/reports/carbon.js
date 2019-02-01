@@ -1,7 +1,8 @@
 // /reports/carbon
 
 var router = require("express").Router();
-var moment = require("moment"); moment.locale("en-gb");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -11,8 +12,18 @@ var Carbon = require(rootDir + "/app/models/carbon-calculations");
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
-  var startDate = req.query.startDate || new Date();
-  var endDate = req.query.endDate || new Date();
+  try {
+    var startDate = new Date(req.query.startDate) || new Date();
+  } catch (err) {
+    var startDate = new Date();
+  }
+
+  try {
+    var endDate = new Date(req.query.endDate) || new Date();
+  } catch (err) {
+    var endDate = new Date();
+  }
+
   var unit = req.query.unit;
   var type = req.query.type;
   var group_id = req.query.group_id;
@@ -50,12 +61,11 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
         }
 
         Object.keys(formattedData).forEach(function(key) {
-          
           formattedData[key] = (formattedData[key] * unit.factor).toFixed(4);
         });
 
         var dates = { start: null, end: null };
-        
+
         dates.start = moment(startDate).format("DD/MM/YY");
         dates.end = moment(endDate).format("DD/MM/YY");
 
@@ -64,7 +74,11 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
         } catch (err) {
           startDate = null;
         }
-        endDate = endDate.toISOString().split("T")[0] || null;
+        try {
+          endDate = endDate.toISOString().split("T")[0] || null;
+        } catch (err) {
+          endDate = null;
+        }
 
         res.render("reports/carbon", {
           carbonActive: true,

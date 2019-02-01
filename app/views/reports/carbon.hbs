@@ -8,70 +8,68 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/extensions/export/bootstrap-table-export.min.js"></script>
 <script src="//rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
 
-<div class="row">
-	<h1>Carbon Report</h1>
-</div>
-<div class="row">
-  <p>This tool exports <b>raw</b> weights - this is not how much carbon has been saved.</p>
-</div>
-<br />
 
-<div class="row">
-  <form class="form-inline" action="/reports/carbon" method="get">
-    <div class="form-group">
-      <input type="date" name="startDate" class="form-control" value="{{startDate}}">
-    </div>
-    <div class="form-group">
-      <input type="date" name="endDate" class="form-control" value="{{endDate}}">
-    </div>
-    <div class="form-group">
-      <select class="form-control" name="unit">
-        <option value="grams" {{#ifCond unit.name '==' "grams"}}selected{{/ifCond}}>Grams</option>
-        <option value="kilos" {{#ifCond unit.name '==' "kilos"}}selected{{/ifCond}}>Kilograms</option>
-        <option value="tonnes" {{#ifCond unit.name '==' "tonnes"}}selected{{/ifCond}}>Tonnes</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <select class="form-control" name="group_id">
-        {{#each working_groups}}
-          <option value="{{group_id}}"{{#ifCond group_id '==' ../group_id}} selected{{/ifCond}}>{{name}}</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="form-group">
-      <select class="form-control" name="method">
-        <option value="recycled" {{#ifCond method '==' "recycled"}}selected{{/ifCond}}>Recycled</option>
-        <option value="generated" {{#ifCond method '==' "generated"}}selected{{/ifCond}}>Generated</option>
-        <option value="incinerated" {{#ifCond method '==' "incinerated"}}selected{{/ifCond}}>Incinerated</option>
-        <option value="landfilled" {{#ifCond method '==' "landfilled"}}selected{{/ifCond}}>Landfilled</option>
-        <option value="composted" {{#ifCond method '==' "composted"}}selected{{/ifCond}}>Composted</option>
-        <option value="reused" {{#ifCond method '==' "reused"}}selected{{/ifCond}}>Reused</option>
-        <option value="stored" {{#ifCond method '==' "restored"}}selected{{/ifCond}}>Stored</option>
-        <option value="other" {{#ifCond method '==' "other"}}selected{{/ifCond}}>Other</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Update</button>
-  </form>
+<div class="row mt-4 mb-4">
+	<div class="col-md-6 mx-auto">
+	  <formaction="/reports/carbon" method="get">
+	    <div class="form-group">
+	      <input type="date" name="startDate" class="form-control" value="{{startDate}}">
+	    </div>
+	    <div class="form-group">
+	      <input type="date" name="endDate" class="form-control" value="{{endDate}}">
+	    </div>
+	    <div class="form-group">
+	      <select class="form-control" name="unit">
+	        <option value="grams" {{#ifCond unit.name '==' "grams"}}selected{{/ifCond}}>Grams</option>
+	        <option value="kilos" {{#ifCond unit.name '==' "kilos"}}selected{{/ifCond}}>Kilograms</option>
+	        <option value="tonnes" {{#ifCond unit.name '==' "tonnes"}}selected{{/ifCond}}>Tonnes</option>
+	      </select>
+	    </div>
+	    <div class="form-group">
+	      <select class="form-control" name="group_id">
+	        {{#each working_groups}}
+	          <option value="{{group_id}}"{{#ifCond group_id '==' ../group_id}} selected{{/ifCond}}>{{name}}</option>
+	        {{/each}}
+	      </select>
+	    </div>
+	    <div class="form-group">
+	      <select class="form-control" name="method">
+	        <option value="recycled" {{#ifCond method '==' "recycled"}}selected{{/ifCond}}>Recycled</option>
+	        <option value="generated" {{#ifCond method '==' "generated"}}selected{{/ifCond}}>Generated</option>
+	        <option value="incinerated" {{#ifCond method '==' "incinerated"}}selected{{/ifCond}}>Incinerated</option>
+	        <option value="landfilled" {{#ifCond method '==' "landfilled"}}selected{{/ifCond}}>Landfilled</option>
+	        <option value="composted" {{#ifCond method '==' "composted"}}selected{{/ifCond}}>Composted</option>
+	        <option value="reused" {{#ifCond method '==' "reused"}}selected{{/ifCond}}>Reused</option>
+	        <option value="stored" {{#ifCond method '==' "restored"}}selected{{/ifCond}}>Stored</option>
+	        <option value="other" {{#ifCond method '==' "other"}}selected{{/ifCond}}>Other</option>
+	      </select>
+	    </div>
+	    <button type="submit" class="btn btn-primary btn-block">Update</button>
+	  </form>
+	</div>
 </div>
 
 
 <div class="row">
-	<table class="fadeIn" data-toggle="table" data-striped="true" data-show-export="true" data-export-options='{"fileName": "swapshop_carbon"}'>
-		<thead>
-			<th data-sortable="true">Date</th>
-      {{#each carbonCategories}}
-			 <th data-sortable="true">{{name}}</th>
-      {{/each}}
-		</thead>
-		<tbody>
+	<div class="col-md-6 mx-auto">
+		<table class="table-light mt-4" style="width: 100%;">
 
-      <tr>
-        <td>{{dates.start}} to {{dates.end}}</td>
-        {{#each carbon}}
-          <td>{{this}}</td>
-        {{/each}}
-      </tr>
+			{{#each carbonCategories}}
+				<tr class="p-2">
+					<td class="p-3">
+						<p>
+							<b>
+								{{name}}
+							</b>
+						</p>
+					</td>
+					<td class="p-3">
+						<p>{{lookup ../carbon @key}} {{../unit.name}}</p>
+					</td>
+				</tr>
+			{{/each}}
+		</table>
 
-		</tbody>
-	</table>
+	</div>
+
 </div>
