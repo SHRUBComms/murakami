@@ -67,16 +67,12 @@ router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
 
     Settings.updateEmailTemplate(template, function(err) {
       if (err) {
-        res.render("settings/email-templates", {
-          title: "Email Templates",
-          emailTemplatesActive: true,
-          template: {
-            mail_id: req.params.mail_id,
-            subject: subject,
-            markup: markup,
-            active: active
-          }
-        });
+        console.log(err);
+        res.redirect(
+          process.env.PUBLIC_ADDRESS +
+            "/settings/email-templates/" +
+            req.params.mail_id
+        );
       } else {
         req.flash("success_msg", "Template successfully updated!");
         res.redirect(

@@ -93,11 +93,15 @@
           <div class="card-body">
 
             <div class="row mb-4">
-                {{#ifCond template.mail_id '!=' 'footer'}}
-                  <input type="text" name="subject" id="subject" oninput="update_preview()" style="width: 60%; margin-bottom: 15px;" class="form-control" value="{{template.subject}}">
-                  &emsp;
-                {{/ifCond}}
-                <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}}>
+                <div class="mb-4">
+                  {{#ifCond template.mail_id '!=' 'footer'}}
+                    <input type="text" name="subject" id="subject" oninput="update_preview()" style="width: 60%;" class="form-control" value="{{template.subject}}">
+                    &emsp;
+                  {{/ifCond}}
+
+                  <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}} />
+                </div>
+
 
                 <div id="editor" oninput="update_preview()" onblur="update_preview()">
                     {{{template.markup}}}
