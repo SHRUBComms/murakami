@@ -37,7 +37,7 @@ router.get(
                 ) {
                   if (member && !err) {
                     shift.name =
-                      "<a href='" +
+                      "<a href='" + process.env.PUBLIC_ADDRESS + "/volunteers/view/" +
                       member.member_id +
                       "'>" +
                       member.first_name +
@@ -104,7 +104,7 @@ router.get(
             Members.getById(shift.member_id, req.user, function(err, member) {
               if (member && !err) {
                 shift.name =
-                  "<a href='" +
+                  "<a href='" + process.env.PUBLIC_ADDRESS + "/volunteers/view/" +
                   member.member_id +
                   "'>" +
                   member.first_name +

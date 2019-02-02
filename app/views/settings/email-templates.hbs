@@ -7,10 +7,10 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
 <form action="{{public_address}}/settings/email-templates/{{template.mail_id}}" method="POST">
-  <div class="row">
-    <div class="col-md-8 mx-auto">
+
 
       <div class="row mt-4">
+        <div class="col-md-8 mx-auto">
           <div class="form-group form-inline">
             <select class="form-control" id="templates">
               <option selected disbaled>Select an email template...</option>
@@ -21,48 +21,82 @@
               {{/each}}
             </select>
           </div>
+        </div>
       </div>
 
 
       <div class="row mt-4">
-        <div class="card px-4">
-          <div class="card-body">
-            <div class="row">
+        <div class="col-md-8 mx-auto">
+          <div class="card px-4">
+            <div class="card-body">
 
-              <p class="mb-2">
-                This template is currently
-                {{#if template.active}}
-                  <span class="text-success">enabled</span>
-                {{else}}
-                  <span class="text-danger">disabled</span>
-                {{/if}}
-              </p>
-            </div>
-            <div class="row">
-              <div id="preview">
-
-                <h4>Preview</h4>
-
-
-
-                <p>From: <b>Shrub Co-op</b></p>
-                <p class="mb-2">Subject: <b id="subject-preview"></b></p>
-                <div id="preview-content" style="border: 1px grey solid; padding: 25px; width: 100%;"></div>
+              <div class="row">
+                <p{{#ifCond template.mail_id '==' 'footer'}} class="mb-2"{{/ifCond}}>
+                  This template is currently
+                  {{#if template.active}}
+                    <span class="text-success">enabled</span>
+                  {{else}}
+                    <span class="text-danger">disabled</span>
+                  {{/if}}
+                </p>
               </div>
-            </div>
+              {{#ifCond template.mail_id '!=' 'footer'}}
+                <div class="row">
+                  <p class="mb-2">
+                    Footer template is currently
+                    {{#if footer.active}}
+                      <span class="text-success">enabled</span>
+                    {{else}}
+                      <span class="text-danger">disabled</span>
+                    {{/if}}
+                  </p>
+                </div>
+              {{/ifCond}}
+              <div class="row">
+                <div id="preview" style="width: 100%;">
 
+                  <h4{{#ifCond template.mail_id '==' 'footer'}} class="mb-2"{{/ifCond}}>Preview</h4>
+
+
+                  {{#ifCond template.mail_id '!=' 'footer'}}
+                    <p>From: <b>Shrub Co-op</b></p>
+                    <p class="mb-2">Subject: <b id="subject-preview"></b></p>
+                  {{/ifCond}}
+                  <div style="border: 1px grey solid; padding: 25px; width: 100%;">
+                    <div id="preview-content">
+
+                    </div>
+                    {{#ifCond template.mail_id '!=' 'footer'}}
+                      {{#if footer.active}}
+                        <div id="footer">
+                          <hr />
+                          {{{footer.markup}}}
+                        </div>
+                      {{/if}}
+                    {{/ifCond}}
+                  </div>
+
+
+
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
 
 
       <div class="row mt-4">
-        <div class="card px-4">
+        <div class="col-md-8 mx-auto">
+          <div class="card px-4">
           <div class="card-body">
 
             <div class="row mb-4">
-                <input type="text" name="subject" id="subject" oninput="update_preview()" style="width: 60%; margin-bottom: 15px;" class="form-control" value="{{template.subject}}">
-                &emsp;
+                {{#ifCond template.mail_id '!=' 'footer'}}
+                  <input type="text" name="subject" id="subject" oninput="update_preview()" style="width: 60%; margin-bottom: 15px;" class="form-control" value="{{template.subject}}">
+                  &emsp;
+                {{/ifCond}}
                 <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}}>
 
                 <div id="editor" oninput="update_preview()" onblur="update_preview()">
@@ -71,33 +105,39 @@
                 <input type="hidden" name="markup" id="markup" value="{{template.markup}}">
             </div>
 
-            <div class="row mt-4">
-                <div id="mail_info">
-                    <p>To include personalised information in the body of an email, please use a | (vertical line symbol) at the start and end of its reference name</p>
-                    <p>Find below the personalised information you can use, and their reference names.</p>
-                    <ul>
-                        <li><b>first_name</b> - the recipient's first name</li>
-                        <li><b>last_name</b> - the recipient's last name</li>
-                        <li><b>fullname</b> - the recipient's full name</li>
-                        <li><b>exp_date</b> - the date the recipient's membership will end</li>
-                        <li><b>balance</b> - the recipient's current balance</li>
-                        <li><b>tokens</b> - the amount of tokens given to member after donation</li>
-                    </ul>
-                </div>
-            </div>
+            {{#ifCond template.mail_id '!=' 'footer'}}
+
+              <div class="row mt-4">
+                  <div id="mail_info">
+                      <p>To include personalised information in the body of an email, please use a | (vertical line symbol) at the start and end of its reference name</p>
+                      <p>Find below the personalised information you can use, and their reference names.</p>
+                      <ul>
+                          <li><b>first_name</b> - the recipient's first name</li>
+                          <li><b>last_name</b> - the recipient's last name</li>
+                          <li><b>fullname</b> - the recipient's full name</li>
+                          <li><b>exp_date</b> - the date the recipient's membership will end</li>
+                          <li><b>balance</b> - the recipient's current balance</li>
+                          <li><b>tokens</b> - the amount of tokens given to member after donation</li>
+                      </ul>
+                  </div>
+              </div>
+
+              {{/ifCond}}
 
           </div>
+        </div>
         </div>
       </div>
 
 
 
       <div class="row mt-4">
-        <input type="submit" class="btn btn-primary btn-block btn-lg" value="Update Template">
+        <div class="col-md-8 mx-auto">
+          <input type="submit" class="btn btn-primary btn-block btn-lg" value="Update Template">
+        </div>
       </div>
 
-    </div>
-  </div>
+
 </form>
 
 
@@ -119,7 +159,9 @@ function update_preview(){
                                 .replace("|membership_id|", "64917625122")
                                 .replace("|balance|", "11")
                                 .replace("|tokens|", "4");
-    $("#subject-preview").html($("#subject").val());
+    {{#ifCond template.mail_id '!=' 'footer'}}
+      $("#subject-preview").html($("#subject").val());
+    {{/ifCond}}
     $("#preview-content").html(modified_markup.trim());
 }
 

@@ -22,16 +22,19 @@ router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
   Settings.getEmailTemplates(function(err, templates) {
     if (err) throw err;
     Settings.getEmailTemplateById(req.params.mail_id, function(err, template) {
-      if (err || !template[0]) {
-        res.redirect("/settings/email-templates/");
-      } else {
-        res.render("settings/email-templates", {
-          title: "Email Templates",
-          settingsActive: true,
-          templates: templates,
-          template: template[0]
-        });
-      }
+      Settings.getEmailTemplateById("footer", function(err, footer) {
+        if (err || !template[0]) {
+          res.redirect("/settings/email-templates/");
+        } else {
+          res.render("settings/email-templates", {
+            title: "Email Templates",
+            settingsActive: true,
+            templates: templates,
+            template: template[0],
+            footer: footer[0]
+          });
+        }
+      });
     });
   });
 });
