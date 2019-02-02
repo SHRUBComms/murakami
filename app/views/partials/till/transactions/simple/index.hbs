@@ -767,6 +767,7 @@ function completeTrans(type){
         	$("#confirmTransaction").prop("checked", false)
         	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");
+					console.log(response);
         	if(response.status == "ok"){
         		$("#note").val("")
 

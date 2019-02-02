@@ -346,6 +346,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                               "&till_id=" +
                                               till.till_id
                                           );
+                                        console.log(sumupSummon);
 
                                         if (member) {
                                           if (member.email) {
@@ -405,33 +406,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                 if (paymentMethod == "cash" || paymentMethod == "card") {
                   formattedTransaction.summary.paymentMethod = paymentMethod;
 
-                  let response = {
-                    status: "ok",
-                    msg: "Transaction complete! £" + totals.money + " paid."
-                  };
-
-                  if (membershipBought) {
-                    if (membershipBought == "MEM-FY") {
-                      response.status = "ok";
-                      response.msg +=
-                        " Full year of membership purchased - <a href='/members/add?membership_length=year&till_id=" +
-                        till_id +
-                        "' target='_blank'>add new member</a>";
-                    } else if (membershipBought == "MEM-HY") {
-                      response.status = "ok";
-                      response.msg +=
-                        " Half a year of membership purchased - <a href='/members/add?membership_length=half_year&till_id=" +
-                        till_id +
-                        "' target='_blank'>add new member</a>";
-                    } else if (membershipBought == "MEM-QY") {
-                      response.status = "ok";
-                      response.msg +=
-                        " 3 months a year of membership purchased - <a href='/members/add?membership_length=3_months&till_id=" +
-                        till_id +
-                        "' target='_blank'>add new member</a>";
-                    }
-                  }
-
                   formattedTransaction.summary = JSON.stringify(
                     formattedTransaction.summary
                   );
@@ -459,10 +433,41 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           [carbon],
                           carbonCategories,
                           function(carbonSaved) {
+                            let response = {
+                              status: "ok",
+                              msg:
+                                "Transaction complete! £" +
+                                totals.money +
+                                " paid."
+                            };
+
                             response.msg +=
                               " " +
                               Math.abs(carbonSaved.toFixed(2)) +
                               "kg of carbon saved.";
+
+                            if (membershipBought) {
+                              response.status = "redirect";
+                              if (membershipBought == "MEM-FY") {
+                                membershipBought = "year";
+                              } else if (membershipBought == "MEM-HY") {
+                                membershipBought = "half_year";
+                              } else if (membershipBought == "MEM-QY") {
+                                membershipBought = "3_months";
+                              } else {
+                                membershipBought = null;
+                              }
+
+                              response.url =
+                                process.env.PUBLIC_ADDRESS +
+                                "/members/add?till_id=" +
+                                till_id +
+                                "&murakamiStatus=ok" +
+                                "&murakamiMsg=" +
+                                response.msg +
+                                "&membership_length=" +
+                                membershipBought;
+                            }
 
                             if (paymentMethod == "card") {
                               var sumupSummon =
@@ -489,17 +494,15 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     "&murakamiMsg=" +
                                     response.msg +
                                     "&till_id=" +
-                                    till.till_id
+                                    till.till_id +
+                                    "&membershipBought=" +
+                                    membershipBought
                                 );
-
-                              if (response.status == "ok") {
-                                res.send({
-                                  status: "redirect",
-                                  url: sumupSummon
-                                });
-                              } else {
-                                res.send(response);
-                              }
+                              console.log(sumupSummon);
+                              res.send({
+                                status: "redirect",
+                                url: sumupSummon
+                              });
                             } else {
                               res.send(response);
                             }

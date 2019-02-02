@@ -1,7 +1,40 @@
 <form method="post" action="{{public_address}}/members/add{{#if till.till_id}}?till_id={{till.till_id}}{{/if}}" class="form-group" autocomplete="off">
 
+
+
   <div class="row mt-4 mb-4">
+
+
+
     <div class="col-lg-5 mx-auto">
+
+      <div id="transaction_info" class="row pl-3 mt-4 mb-4">
+      	{{#if murakamiMsg}}
+      		{{#ifCond smpStatus '==' 'failed'}}
+      			<div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+      				Transaction failed! (error status: {{smpMsg}})
+      				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+      			</div>
+      		{{else}}
+      			{{#ifCond murakamiStatus '==' 'ok'}}
+      				<div class="alert alert-success alert-dismissible fade show col-md-12 p-3 mx-auto">
+      					{{murakamiMsg}}
+      					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+      				</div>
+      			{{else}}
+      				<div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+      					{{murakamiMsg}}
+      					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+      				</div>
+      			{{/ifCond}}
+      		{{/ifCond}}
+        {{else}}
+          <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+            Please make sure membership has been paid for!
+            <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+          </div>
+      	{{/if}}
+      </div>
 
       {{> members/add}}
 

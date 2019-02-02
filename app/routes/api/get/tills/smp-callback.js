@@ -52,21 +52,34 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
       }
     }
   );
-  
-  res.redirect(
-    process.env.PUBLIC_ADDRESS +
-      "/till/" +
-      req.query.till_id +
-      "/?" +
-      "murakamiStatus=" +
-      req.query["murakamiStatus"] +
-      "&murakamiMsg=" +
-      req.query["murakamiMsg"] +
-      "&smp-status=" +
-      req.query["smp-status"] +
-      "&smp-failure-cause=" +
-      req.query["smp-failure-cause"]
-  );
+
+  if (req.query.membershipBought && req.query["smp-status"] == "success") {
+    res.redirect(
+      process.env.PUBLIC_ADDRESS +
+        "/members/add?till_id=" +
+        req.query.till_id +
+        "&murakamiStatus=ok" +
+        "&murakamiMsg=" +
+        req.query["murakamiMsg"] +
+        "&membership_length=" +
+        req.query.membershipBought
+    );
+  } else {
+    res.redirect(
+      process.env.PUBLIC_ADDRESS +
+        "/till/" +
+        req.query.till_id +
+        "/?" +
+        "murakamiStatus=" +
+        req.query["murakamiStatus"] +
+        "&murakamiMsg=" +
+        req.query["murakamiMsg"] +
+        "&smp-status=" +
+        req.query["smp-status"] +
+        "&smp-failure-cause=" +
+        req.query["smp-failure-cause"]
+    );
+  }
 });
 
 module.exports = router;

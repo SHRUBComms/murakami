@@ -25,8 +25,13 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   res.render("members/add", {
     tillMode: res.locals.tillMode || tillMode,
     title: "Add Member",
+    membersActive: true,
     addMemberActive: true,
     membership_length: req.query.membership_length,
+
+    murakamiMsg: req.query.murakamiMsg || null,
+    murakamiStatus: req.query.murakamiStatus || null,
+
     till: {
       till_id: till_id
     }
@@ -203,11 +208,13 @@ router.post("/", function(req, res) {
     };
 
     Members.add(newMember, function(err, member_id) {
-      if(err){
+      if (err) {
         res.render("members/add", {
-          errors: [{
-            msg: "Something went wrong, please try again!"
-          }],
+          errors: [
+            {
+              msg: "Something went wrong, please try again!"
+            }
+          ],
           membersActive: true,
           title: "Add Member",
           first_name: first_name,
@@ -224,8 +231,7 @@ router.post("/", function(req, res) {
           till: {
             till_id: till_id
           }
-        })
-
+        });
       } else {
         var subscribeBody = {
           email_address: email,
@@ -294,7 +300,9 @@ router.post("/", function(req, res) {
         if (till_id) {
           res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + till_id);
         } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+          res.redirect(
+            process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
+          );
         }
       }
     });

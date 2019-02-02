@@ -76,7 +76,7 @@ router.post("/simple", Auth.isLoggedIn, function(req, res) {
             formattedMember.is_member = isMember;
             formattedMember.membership_expires = member.current_exp_membership;
             if (!["admin"].includes(req.user.class)) {
-              formattedMember.email = censorEmail(member.email);
+              formattedMember.email = "Not available";
             } else {
               formattedMember.email = member.email;
             }

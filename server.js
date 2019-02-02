@@ -16,7 +16,6 @@ var back = require("express-back");
 var validator = require("express-validator");
 var async = require("async");
 
-var Notifications = require(process.env.CWD + "/app/models/notifications");
 var Volunteers = require(process.env.CWD + "/app/models/volunteers");
 
 if (process.env.NODE_ENV != "development") {
@@ -146,10 +145,6 @@ app.use(function(req, res, next) {
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
 
   if (req.user) {
-    Notifications.getAll(req.user.id, function(err, notifications) {
-      res.locals.notifications = notifications;
-    });
-
     res.locals.user = req.user;
     if (req.user.deactivated == 0) {
       if (req.user.class == "admin") {

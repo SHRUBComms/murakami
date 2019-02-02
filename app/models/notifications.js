@@ -7,26 +7,11 @@ moment.locale("en-gb");
 
 var Notifications = {};
 
-Notifications.getAll = function(user_id, callback) {
+Notifications.getAllMessages = function(user_id, callback) {
   var query = "SELECT * FROM notifications WHERE user_id = ?";
   var inserts = [user_id];
   var sql = mysql.format(query, inserts);
-  con.query(sql, function(err, notifications) {
-    if (err || !notifications) {
-      callback(err, null);
-    } else {
-      async.each(
-        notifications,
-        function(notification, callback) {
-          notification.timestamp = moment(notification.timestamp).fromNow();
-          callback();
-        },
-        function() {
-          callback(null, notifications);
-        }
-      );
-    }
-  });
+  con.query(sql, callback);
 };
 
 Notifications.remove = function(notification_id, user_id, callback) {
