@@ -238,7 +238,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
                       if (membershipBought == "MEM-FY") {
                         Members.renew(member_id, "full_year", function() {});
-                        response.msg += " Membership renewed for 12 years.";
+                        response.msg += " Membership renewed for 12 months.";
                         returnedMember.is_member = true;
                         var dt = new Date();
                         returnedMember.membership_expires = new Date(
