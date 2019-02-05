@@ -32,6 +32,11 @@
 
   {{>users/add}}
 
+  {{#ifCond user_id '==' user.id}}
+    {{>users/notification-preferences}}
+  {{/ifCond}}
+
+
   <div class="row mt-4">
     <div class="col-md-6 mt-4 mx-auto">
       <button type="submit" class="btn btn-block btn-primary btn-lg">Update User</button>

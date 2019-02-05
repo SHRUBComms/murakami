@@ -33,6 +33,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
 
 router.use("/add", require("./add"));
 router.use("/update", require("./update"));
+router.use("/update-basic", require("./update-basic"));
 router.use("/view", require("./view"));
 router.use("/make-volunteer", require("./make-volunteer"));
 

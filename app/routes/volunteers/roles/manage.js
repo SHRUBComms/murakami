@@ -10,11 +10,13 @@ var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
-  Volunteers.getAllRoles(function(err, roles) {
+  Volunteers.getAllRoles(function(err, roles, rolesGroupedByGroup) {
     res.render("volunteers/roles/manage", {
       title: "Manage Volunteer Roles",
       volunteerRolesActive: true,
-      roles: roles
+      rolesGroupedByGroupId: rolesGroupedByGroup,
+      roles: roles,
+      group_id: req.query.group_id || null
     });
   });
 });

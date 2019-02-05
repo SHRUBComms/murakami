@@ -1,0 +1,52 @@
+<div class="row m-4">
+  <div class="col-md-6 mx-auto">
+
+    <div class="card p-4">
+      <div class="card-body">
+
+        <h3>Notification Preferences</h3>
+        <p>Select which notifications you would like to receive.</p>
+
+
+        <p class="mt-3">When there are volunteer hours in you working group(s) that need to be reviewed</p>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="notification_preferences[pending-volunteer-hours][murakami]"{{#ifCond notification_preferences.[pending-volunteer-hours].murakami '==' 'on'}} checked{{/ifCond}}>
+          <label class="form-check-label">Murakami</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="notification_preferences[pending-volunteer-hours][email]"{{#ifCond notification_preferences.[pending-volunteer-hours].email '==' 'on'}} checked{{/ifCond}}>
+          <label class="form-check-label">Email</label>
+        </div>
+
+
+
+        <p class="mt-3">When volunteers need to volunteer</p>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="notification_preferences[volunteers-need-to-volunteer][murakami]"{{#ifCond notification_preferences.[volunteers-need-to-volunteer].murakami '==' 'on'}} checked{{/ifCond}}>
+          <label class="form-check-label">Murakami</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="notification_preferences[volunteers-need-to-volunteer][email]"{{#ifCond notification_preferences.[volunteers-need-to-volunteer].email '==' 'on'}} checked{{/ifCond}}>
+          <label class="form-check-label">Email</label>
+        </div>
+
+
+
+        <p class="mt-3">When there are roles in your working group that haven't been completed</p>
+
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="notification_preferences[unfinished-roles][murakami]"{{#ifCond notification_preferences.[unfinished-roles].murakami '==' 'on'}} checked{{/ifCond}}>
+          <label class="form-check-label">Murakami</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="notification_preferences[unfinished-roles][email]"{{#ifCond notification_preferences.[unfinished-roles].email '==' 'on'}} checked{{/ifCond}}>
+          <label class="form-check-label">Email</label>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

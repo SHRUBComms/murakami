@@ -33,13 +33,11 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   req,
   res
 ) {
-
   Volunteers.getRoleSignUpInfo(function(
     allLocations,
     commitmentLengths,
     allActivities
   ) {
-
     var role = {};
     var public = req.body.public;
 
@@ -57,7 +55,9 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     role.working_group = req.body.working_group;
 
     // Validation
-    req.checkBody("role_title", "Please enter a title for this role.").notEmpty();
+    req
+      .checkBody("role_title", "Please enter a title for this role.")
+      .notEmpty();
     req
       .checkBody(
         "role_title",

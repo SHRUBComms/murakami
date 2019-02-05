@@ -157,6 +157,9 @@ app.use(function(req, res, next) {
       }
       req.user.name = req.user.first_name + " " + req.user.last_name;
 
+      req.user.notification_preferences =
+        req.user.notification_preferences || {};
+
       Volunteers.getAllRoles(function(err, rolesArray, rolesByGroup, rolesObj) {
         req.user.allVolunteerRoles = rolesObj;
         WorkingGroups.getAll(function(err, working_groups_arr) {

@@ -33,6 +33,7 @@ router.get(
           username: user.username,
           class: user.class,
           working_groups: user.working_groups,
+          notification_preferences: user.notification_preferences,
           last_login: user.lastLogin
         });
       }
@@ -55,6 +56,82 @@ router.post(
         var last_name = req.body.last_name.trim();
         var userClass = req.body.class;
         var working_groups = req.body.working_groups || [];
+        if (req.user.id == req.params.user_id) {
+          var notification_preferences = req.body.notification_preferences;
+
+          var sanitized_notification_preferences = {
+            "pending-volunteer-hours": {
+              email: "off",
+              murakami: "off"
+            },
+            "volunteers-need-to-volunteer": {
+              email: "off",
+              murakami: "off"
+            },
+            "unfinished-roles": {
+              email: "off",
+              murakami: "off"
+            }
+          };
+
+          try {
+            if (
+              notification_preferences["pending-volunteer-hours"]["murakami"]
+            ) {
+              sanitized_notification_preferences["pending-volunteer-hours"][
+                "murakami"
+              ] = "on";
+            }
+          } catch (err) {}
+
+          try {
+            if (notification_preferences["pending-volunteer-hours"]["email"]) {
+              sanitized_notification_preferences["pending-volunteer-hours"][
+                "email"
+              ] = "on";
+            }
+          } catch (err) {}
+
+          try {
+            if (
+              notification_preferences["volunteers-need-to-volunteer"][
+                "murakami"
+              ]
+            ) {
+              sanitized_notification_preferences[
+                "volunteers-need-to-volunteer"
+              ]["murakami"] = "on";
+            }
+          } catch (err) {}
+
+          try {
+            if (
+              notification_preferences["volunteers-need-to-volunteer"]["email"]
+            ) {
+              sanitized_notification_preferences[
+                "volunteers-need-to-volunteer"
+              ]["email"] = "on";
+            }
+          } catch (err) {}
+
+          try {
+            if (notification_preferences["unfinished-roles"]["murakami"]) {
+              sanitized_notification_preferences["unfinished-roles"][
+                "murakami"
+              ] = "on";
+            }
+          } catch (err) {}
+
+          try {
+            if (notification_preferences["unfinished-roles"]["email"]) {
+              sanitized_notification_preferences["unfinished-roles"]["email"] =
+                "on";
+            }
+          } catch (err) {}
+        } else {
+          var sanitized_notification_preferences =
+            user.notification_preferences;
+        }
 
         // Validation
         req.checkBody("first_name", "Please enter a first name").notEmpty();
@@ -84,9 +161,9 @@ router.post(
           validClasses = ["till", "volunteer"];
         }
 
-        if(req.user.class == "staff") {
+        if (req.user.class == "staff") {
           console.log("Is staff");
-          if(req.user.id == req.params.user_id){
+          if (req.user.id == req.params.user_id) {
             console.log("Updating self");
             console.log(userClass);
             validClasses.push("staff");
@@ -124,7 +201,8 @@ router.post(
             username: user.username,
             class: userClass,
             working_groups: working_groups,
-            last_login: user.lastLogin
+            last_login: user.lastLogin,
+            notification_preferences: notification_preferences
           });
         } else {
           var updatedUser = {
@@ -132,7 +210,10 @@ router.post(
             first_name: first_name,
             last_name: last_name,
             class: userClass,
-            working_groups: JSON.stringify(working_groups.sort())
+            working_groups: JSON.stringify(working_groups.sort()),
+            notification_preferences: JSON.stringify(
+              sanitized_notification_preferences
+            )
           };
 
           Users.update(updatedUser, function(err, user) {

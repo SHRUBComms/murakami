@@ -32,6 +32,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   var passwordConfirm = req.body.passwordConfirm;
 
   var working_groups = req.body.working_groups;
+  var notification_preferences = req.body.notification_preferences;
 
   if (!Array.isArray(working_groups)) {
     working_groups = [working_groups];
@@ -122,6 +123,64 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
       .notEmpty();
   }
 
+  var sanitized_notification_preferences = {
+    "pending-volunteer-hours": {
+      email: "off",
+      murakami: "off"
+    },
+    "volunteers-need-to-volunteer": {
+      email: "off",
+      murakami: "off"
+    },
+    "unfinished-roles": {
+      email: "off",
+      murakami: "off"
+    }
+  };
+
+  try {
+    if (notification_preferences["pending-volunteer-hours"]["murakami"]) {
+      sanitized_notification_preferences["pending-volunteer-hours"][
+        "murakami"
+      ] = "on";
+    }
+  } catch (err) {}
+
+  try {
+    if (notification_preferences["pending-volunteer-hours"]["email"]) {
+      sanitized_notification_preferences["pending-volunteer-hours"]["email"] =
+        "on";
+    }
+  } catch (err) {}
+
+  try {
+    if (notification_preferences["volunteers-need-to-volunteer"]["murakami"]) {
+      sanitized_notification_preferences["volunteers-need-to-volunteer"][
+        "murakami"
+      ] = "on";
+    }
+  } catch (err) {}
+
+  try {
+    if (notification_preferences["volunteers-need-to-volunteer"]["email"]) {
+      sanitized_notification_preferences["volunteers-need-to-volunteer"][
+        "email"
+      ] = "on";
+    }
+  } catch (err) {}
+
+  try {
+    if (notification_preferences["unfinished-roles"]["murakami"]) {
+      sanitized_notification_preferences["unfinished-roles"]["murakami"] = "on";
+    }
+  } catch (err) {}
+
+  try {
+    if (notification_preferences["unfinished-roles"]["email"]) {
+      sanitized_notification_preferences["unfinished-roles"]["email"] = "on";
+    }
+  } catch (err) {}
+
   // Parse request's body asynchronously
   req
     .asyncValidationErrors()
@@ -134,6 +193,9 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         email: email,
         class: userClass,
         working_groups: JSON.stringify(working_groups.sort()),
+        notification_preferences: JSON.stringify(
+          sanitized_notification_preferences
+        ),
         password: password,
         passwordConfirm: passwordConfirm
       };
@@ -156,6 +218,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         email: email,
         class: userClass,
         password: password,
+        notification_preferences: notification_preferences,
         passwordConfirm: passwordConfirm
       });
     });

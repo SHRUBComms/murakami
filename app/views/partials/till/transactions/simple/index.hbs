@@ -677,7 +677,7 @@ function updateSearchResults(){
 				"<div class='col-md-3 mx-auto member-result'>" +
 					"<div class='card'>" +
 						"<div class='card-body'>" +
-							"<p class='mb-2'><b>" + results[i].name + "</b></p>" +
+							"<p class='mb-2'><b>" + results[i].name + "</b> (<a href='{{public_address}}/members/view/" + results[i].id + "' target='_blank'>view profile</a>)</p>" +
 							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
 							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
 							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
@@ -702,6 +702,7 @@ function updateSearchResults(){
 
 
 function selectMember(index){
+
 	member = results[index];
 
 	if(member.is_member){
@@ -709,7 +710,7 @@ function selectMember(index){
 			"<div class='col-md-3 mb-4 mx-auto member-result'>" +
 				"<div class='card member-selected'>" +
 					"<div class='card-body'>" +
-						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'><b>" + member.name + "</b> (<a href='{{public_address}}/members/view/" + member.id + "' target='_blank'>view profile</a>)</p>" +
 						"<p class='mb-2'>" + member.balance + " tokens</p>" +
 						"<p class='mb-2'><input type='checkbox' id='payWithTokens' /> Use tokens</p>" +
 						"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +

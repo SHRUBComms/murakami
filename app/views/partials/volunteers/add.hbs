@@ -34,13 +34,13 @@
 
     <h3 class="mb-2">Roles <span class="text-danger">*</span></h3>
 
-    {{json (lookupArray user.workings_groups_arr "WG-100")}}
-
-    <div class="row-fluid mb-3">
-      <select class="selectpicker show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
 
 
-          <optgroup label="SHRUB-wide">
+    <div class="row-fluid mb-1">
+      <select class="selectpicker volunteer-roles show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
+
+
+          <optgroup id="na_optgroup" label="SHRUB-wide">
             {{#each (lookup roles "na")}}
               <option value="{{role_id}}"
               {{#if (lookupArray ../volInfo.roles role_id)}}
@@ -56,7 +56,7 @@
           </optgroup>
 
           {{#each user.allWorkingGroupsObj}}
-            <optgroup label="{{name}}">
+            <optgroup id="{{group_id}}_optgroup" label="{{name}}">
               {{#each (lookup ../roles group_id)}}
                 <option value="{{role_id}}"
                 {{#if (lookupArray ../../volInfo.roles role_id)}}
@@ -78,6 +78,8 @@
 
       </select>
     </div>
+
+    <a class="btn btn-primary mb-3" data-toggle="modal" data-target="#quickAddRoleDialog">Quick Add Role</a>
 
     <div class="row-fluid">
       <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
@@ -287,9 +289,85 @@
   </div>
 </div>
 
+
+
+
+<div class="modal fade" id="quickAddRoleDialog" tabindex="-1" role="dialog" aria-labelledby="quickAddRoleLabel" aria-hidden="true">
+  <div class="modal-dialog modal modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="quickAddRoleLabel">Quick Add Role</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto">
+            <p class="mb-1">Add a volunteer role by just its title. The rest of the role's information will need to be completed at a later date.</p>
+
+            <select class="form-control mb-2" id="roleWorkingGroup">
+              <option value="" disabled selected>Select a working group...</option>
+              <option value="na">Not Applicable</option>
+              {{#each user.allWorkingGroupsObj}}
+                <option value="{{group_id}}">{{name}}</option>
+              {{/each}}
+            </select>
+            <input type="text" id="roleTitle" placeholder="Role Title" class="form-control" />
+
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="quickAddRole();">Quick Add Role</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <script>
 function toggleOtherInput() {
   $("#otherInput").toggleClass("d-none");
+}
+
+function quickAddRole() {
+  $.post("{{public_address}}/api/post/volunteers/roles/quick-add",
+    {
+      title: $("#roleTitle").val(),
+      working_group: $("#roleWorkingGroup").val()
+    },
+    function(response){
+      console.log(response);
+      if(response.status == "ok"){
+        $("#quickAddRoleDialog").modal("hide");
+        $("#roleTitle").val("");
+        $("#roleWorkingGroup").val("");
+        alert("Role successfully added.");
+        $("#" + response.role.group_id + "_optgroup").append($('<option>', {
+            value: response.role.role_id,
+            text: response.role.details.title
+        }))
+        $(".volunteer-roles").selectpicker('refresh');
+        var currentRoles = $('.volunteer-roles').selectpicker('val');
+
+        if(currentRoles == null){
+          currentRoles = []
+        }
+
+        if(!Array.isArray(currentRoles)){
+          currentRoles = [currentRoles]
+        }
+
+        currentRoles.push(response.role.role_id)
+
+        $('.volunteer-roles').selectpicker('val', currentRoles);
+      } else {
+        alert(response.msg);
+      }
+    });
 }
 
 {{#if updatingVolunteer}}

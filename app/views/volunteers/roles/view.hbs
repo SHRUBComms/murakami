@@ -5,7 +5,7 @@
         <a class="btn btn-block btn-success" href="{{public_address}}/volunteers/roles/update/{{role.role_id}}">Update</a>
       </div>
       <div class="col-md-4 mx-auto">
-          <button class="btn btn-block btn-primary" onclick="location.href='{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}'" {{#if role.removed}}disabled{{/if}}>
+          <button class="btn btn-block btn-primary" onclick="location.href='{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}'" {{#if role.removed}}disabled{{/if}} {{#if role.incomplete}}disabled{{/if}}>
             {{#if role.public}}
               Make Private
             {{else}}
@@ -64,6 +64,17 @@
             </td>
           </tr>
 
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Date Created</b></p>
+            </td>
+            <td class="p-3">
+              <p>
+                {{role.dateCreated}}
+              </p>
+            </td>
+          </tr>
+
         </table>
       </div>
     </div>
@@ -89,5 +100,17 @@
         </table>
       </div>
     </div>
+
+    {{#if role.availability}}
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h4 class="mt-4 mb-1">Availability</h4>
+          <table class="table-light table-striped mt-4 mx-auto" style="width: 100%;">
+            {{>volunteers/availability-view availability=role.availability}}
+          </table>
+        </div>
+      </div>
+    {{/if}}
+
   </div>
 </div>

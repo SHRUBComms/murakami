@@ -68,7 +68,7 @@ Users.getById = function(id, loggedInUser, callback) {
               WHERE login.id = ?`;
   var inserts = [id];
   var sql = mysql.format(query, inserts);
-  
+
   con.query(sql, function(err, user) {
     Users.sanitizeUser(user, loggedInUser, function(user) {
       callback(err, user);
@@ -123,7 +123,7 @@ Users.updateWorkingGroups = function(user_id, working_groups, callback) {
 
 Users.add = function(user, callback) {
   var query =
-    "INSERT INTO login (id, first_name, last_name, username, email, password, class, working_groups) VALUES (?,?,?,?,?,?,?,?)";
+    "INSERT INTO login (id, first_name, last_name, username, email, password, class, working_groups, notification_preferences) VALUES (?,?,?,?,?,?,?,?,?)";
 
   // Generate ID!
   Helpers.uniqueIntId(11, "login", "id", function(id) {
@@ -139,7 +139,8 @@ Users.add = function(user, callback) {
           user.email,
           user.password,
           user.class,
-          user.working_groups
+          user.working_groups,
+          user.notification_preferences
         ];
         var sql = mysql.format(query, inserts);
 
@@ -152,12 +153,13 @@ Users.add = function(user, callback) {
 
 Users.update = function(user, callback) {
   var query =
-    "UPDATE login SET first_name = ?, last_name = ?, class = ?, working_groups = ? WHERE id = ?";
+    "UPDATE login SET first_name = ?, last_name = ?, class = ?, working_groups = ?, notification_preferences = ? WHERE id = ?";
   var inserts = [
     user.first_name,
     user.last_name,
     user.class,
     user.working_groups,
+    user.notification_preferences,
     user.user_id
   ];
   var sql = mysql.format(query, inserts);
@@ -227,6 +229,11 @@ Users.sanitizeUser = function(users, loggedInUser, callback) {
 
         if (user.working_groups) {
           user.working_groups = JSON.parse(user.working_groups) || [];
+        }
+
+        if (user.notification_preferences) {
+          user.notification_preferences =
+            JSON.parse(user.notification_preferences) || {};
         }
 
         if (user.lastLogin) {

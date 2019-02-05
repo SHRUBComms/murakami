@@ -391,7 +391,7 @@ function markAsRead(notification_id){
 
         $("#notificationsArea").html($("#notificationsArea").html() +
               `<a href="` + notifications[i].action + `">
-                  <div class="timeline-task">
+                  <div class="timeline-task mb-2">
                     <div class="icon bg1">
                         <i class="` + notifications[i].icon + `"></i>
                     </div>
@@ -403,6 +403,8 @@ function markAsRead(notification_id){
                   </div>
                 </a>`)
       }
+    } else {
+      $("#notificationsArea").html("<p class='text-muted text-center'>Nothing to see here...</p>");
     }
   });
 {{/if}}

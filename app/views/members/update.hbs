@@ -7,39 +7,43 @@
 
           <h3 class="mb-2">Personal Details</h3>
 
-          <div class="form-inline mb-3">
-
-              <input type="text" class="form-control mr-2" placeholder="First Name" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
-
-              <input type="text" class="form-control" placeholder="Last Name" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
-
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <input type="text" class="form-control mr-sm-1 mr-md-1 mb-sm-1 mb-md-1" placeholder="First Name" name="first_name"name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+            </div>
+            <div class="col-md-6">
+              <input type="text" class="form-control" placeholder="Last Name"name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+            </div>
           </div>
 
         </div>
       </div>
 
-      <div class="card mb-4">
-  			<div class="card-body">
 
-          <h3 class="mb-2">Contact Details</h3>
+      {{#ifUserClass user.class '["admin", "staff"]'}}
+        <div class="card mb-4">
+    			<div class="card-body">
 
-          <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
+            <h3 class="mb-2">Contact Details</h3>
 
-          <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+            <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
 
-          <textarea type="text" class="form-control mb-2" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
+            <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+
+            <textarea type="text" class="form-control mb-2" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
+          </div>
         </div>
-      </div>
 
-      <div class="card mb-4">
-        <div class="card-body">
-          <h3 class="mb-2">Membership Info</h3>
-          <select class="form-control" name="free" onchange="membership_type_update()">
-            <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
-            <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
-          </select>
+        <div class="card mb-4">
+          <div class="card-body">
+            <h3 class="mb-2">Membership Info</h3>
+            <select class="form-control" name="free" onchange="membership_type_update()">
+              <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
+              <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
+            </select>
+          </div>
         </div>
-      </div>
+      {{/ifUserClass}}
 
       <div class="row mt-4">
         <div class="col-md-12">
