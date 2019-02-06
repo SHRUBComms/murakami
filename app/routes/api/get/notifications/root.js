@@ -10,6 +10,8 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 var Notifications = require(rootDir + "/app/models/notifications");
 var Volunteers = require(rootDir + "/app/models/volunteers");
 
+var Auth = require(rootDir + "/app/configs/auth");
+
 router.use("/read", require("./read"));
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
