@@ -64,7 +64,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
                 callback();
               },
               function() {
-                if (shiftsNeedAttention.length > 0 && pendingHoursOn) {
+                if (shiftsNeedAttention.length > 0 && pendingHoursOn == "on") {
                   notifications.push({
                     message: "You have volunteer hours waiting to be reviewed",
                     action:
@@ -89,7 +89,10 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
                       callback();
                     },
                     function() {
-                      if (rolesNeedFinished.length > 0 && incompleteRolesOn) {
+                      if (
+                        rolesNeedFinished.length > 0 &&
+                        incompleteRolesOn == "on"
+                      ) {
                         console.log(
                           rolesNeedFinished[rolesNeedFinished.length - 1]
                         );
