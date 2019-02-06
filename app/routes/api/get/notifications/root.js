@@ -12,7 +12,7 @@ var Volunteers = require(rootDir + "/app/models/volunteers");
 
 router.use("/read", require("./read"));
 
-router.get("/", function(req, res) {
+router.get("/", Auth.isLoggedIn, function(req, res) {
   var notifications = [];
 
   // Get unreviewed volunteer hours, volunteers who need to volunteer
