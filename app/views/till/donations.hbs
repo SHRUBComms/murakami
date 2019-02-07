@@ -24,7 +24,7 @@
 		<div class="form-group form-inline">
 			<div class="mx-auto">
 				<input type="number" class="input-lg form-control" oninput="updateTokens(this)" step=1 min=1 max=50 value="1" />
-				<a class="btn btn-success" onclick="processDonation()">Add Tokens</a>
+				<button class="btn btn-success" onclick="processDonation()" id="submitDonation">Add Tokens</button>
 			</div>
 		</div>
 
@@ -44,7 +44,7 @@ function updateTokens(e){
 function searchMember(){
   $.ajax({
       type: "POST",
-      url: "/api/post/members/search/simple",
+      url: "{{public_address}}/api/post/members/search/simple",
       data: {
           'term': $('#memberInput').val()
       },
@@ -124,10 +124,11 @@ function selectMember(index){
 }
 
 function processDonation(type){
+	$("#submitDonation").prop("disabled", true)
 	let member_id = member.id || null;
     $.ajax({
         type: "POST",
-        url: "/till/process-donation",
+        url: "{{public_address}}/till/process-donation",
         data: {
         	'member_id': member.id,
         	'till_id': "{{till.till_id}}",
@@ -143,6 +144,8 @@ function processDonation(type){
 
 							results[0] = response.member;
 							selectMember(0)
+
+							$("#submitDonation").prop("disabled", false)
 
 	        } else {
 	        	$("#transaction_info").removeClass("d-none")
