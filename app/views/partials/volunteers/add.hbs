@@ -146,11 +146,20 @@
 
         <p class="mb-2">Please tick any skills that apply to you from the list below, if any</p>
 
+
         <div class="row-fluid">
           <select class="selectpicker show-tick form-control" name=volInfo[survey][skills] data-style="btn-info" data-size="auto" data-live-search="true" multiple>
 
               {{#each skills}}
-                <option value="{{this}}">{{this}}</option>
+
+                {{#if this}}
+                  <option value="{{@key}}"{{#if (lookupArray ../volInfo.survey.skills @key)}} selected{{/if}}>{{@key}}</option>
+                {{else}}
+                  {{#if (lookupArray ../volInfo.survey.skills @key)}}
+                    <option value="{{@key}}" selected>{{@key}}</option>
+                  {{/if}}
+                {{/if}}
+
               {{/each}}
 
           </select>
@@ -166,7 +175,14 @@
         <select class="selectpicker show-tick form-control" title="Select one or more communication methods" name="volInfo[survey][preferredCommMethods]" data-style="btn-info" data-size="auto" multiple required>
 
             {{#each contactMethods}}
-              <option value="{{this}}" {{#if (lookupArray ../volInfo.survey.preferredCommMethods this)}}selected{{/if}}>{{this}}</option>
+
+                {{#if this}}
+                  <option value="{{@key}}"{{#if (lookupArray ../volInfo.survey.preferredCommMethods @key)}} selected{{/if}}>{{@key}}</option>
+                {{else}}
+                  {{#if (lookupArray ../volInfo.survey.preferredCommMethods @key)}}
+                    <option value="{{@key}}" selected>{{@key}}</option>
+                  {{/if}}
+                {{/if}}
             {{/each}}
 
         </select>

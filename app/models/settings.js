@@ -1,11 +1,24 @@
 var con = require("./index");
 var mysql = require("mysql");
+var async = require("async");
 
 var Settings = {};
 
 Settings.getAll = function(callback) {
   var query = "SELECT * FROM global_settings";
-  con.query(query, callback);
+  con.query(query, function(err, settings) {
+    settingsObj = {};
+    async.each(
+      settings,
+      function(setting, callback) {
+        settingsObj[setting.id] = JSON.parse(setting.data);
+        callback();
+      },
+      function() {
+        callback(err, settingsObj);
+      }
+    );
+  });
 };
 
 Settings.getEmailTemplates = function(callback) {

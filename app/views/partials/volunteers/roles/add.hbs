@@ -17,7 +17,18 @@
     <select class="form-control mt-3" name="commitment_length">
       <option disabled selected>Commitment length</option>
       {{#each commitmentLengths}}
-        <option value="{{this}}" {{#ifCond this '==' ../role.commitment_length}}selected{{/ifCond}}>{{formToPlain this}}</option>
+
+
+        {{#if this}}
+          <option value="{{@key}}"{{#ifCond ../role.commitment_length '==' @key}} selected{{/ifCond}}>{{@key}}</option>
+        {{else}}
+          {{#ifCond ../role.commitment_length '==' @key}}
+            <option value="{{@key}}" selected>{{@key}}</option>
+          {{/ifCond}}
+        {{/if}}
+
+
+
       {{/each}}
     </select>
 
@@ -32,7 +43,15 @@
     <select class="selectpicker show-tick form-control mt-3" name="locations" title="Select one or more locations" data-style="btn-info" data-size="auto" data-header="Select one or more locations" data-live-search="true" multiple required>
 
       {{#each locations}}
-        <option value="{{this}}" {{#if (lookup ../role.locations @index)}}selected{{/if}}>{{this}}</option>
+
+          {{#if this}}
+            <option value="{{@key}}"{{#if (lookupArray ../role.locations @key)}} selected{{/if}}>{{@key}}</option>
+          {{else}}
+            {{#if (lookupArray ../role.locations @key)}}
+              <option value="{{@key}}" selected>{{@key}}</option>
+            {{/if}}
+          {{/if}}
+
       {{/each}}
 
     </select>
@@ -40,7 +59,15 @@
     <select class="selectpicker show-tick form-control mt-3" name="activities" title="Select one or more types of activity" data-style="btn-info" data-size="auto" data-header="Select one or more locations" data-live-search="true" multiple required>
 
       {{#each activities}}
-        <option value="{{this}}" {{#if (lookup ../role.activities @index)}}selected{{/if}}>{{this}}</option>
+
+          {{#if this}}
+            <option value="{{@key}}"{{#if (lookupArray ../role.activities @key)}} selected{{/if}}>{{@key}}</option>
+          {{else}}
+            {{#if (lookupArray ../role.activities @key)}}
+              <option value="{{@key}}" selected>{{@key}}</option>
+            {{/if}}
+          {{/if}}
+
       {{/each}}
 
     </select>

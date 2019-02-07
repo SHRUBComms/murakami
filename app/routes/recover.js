@@ -11,7 +11,7 @@ var Mail = require(rootDir + "/app/configs/mail");
 
 router.get("/", function(req, res) {
   Settings.getAll(function(err, settings) {
-    if (settings[0].password_reset == 1) {
+    if (settings.passwordReset == true) {
       res.render("recover", {
         title: "Account Recovery"
       });
@@ -94,7 +94,7 @@ router.post("/:reset_code", function(req, res) {
 
 router.post("/", function(req, res) {
   Settings.getAll(function(err, settings) {
-    if (settings[0].password_reset == 1) {
+    if (settings.passwordReset == 1) {
       var username = req.body.username.trim();
       req.checkBody("username", "Please enter a username").notEmpty();
 
@@ -148,7 +148,6 @@ router.post("/", function(req, res) {
                                 html,
                                 function(err) {
                                   if (err) {
-                                    
                                     req.flash(
                                       "error_msg",
                                       'Something went wrong sending you your recovery link, please <a href="/support">contact support</a>'
@@ -185,7 +184,7 @@ router.post("/", function(req, res) {
             res.render("recover", {
               layout: "login-layout",
               errors: errors,
-              settings: settings[0]
+              settings: settings
             });
           });
         });

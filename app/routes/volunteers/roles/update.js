@@ -28,8 +28,8 @@ router.get(
 
         Volunteers.getRoleSignUpInfo(function(
           allLocations,
-          commitmentLengths,
-          allActivities
+          allActivities,
+          commitmentLengths
         ) {
           res.render("volunteers/roles/update", {
             title: "Update Volunter Role",
@@ -53,13 +53,14 @@ router.post("/:role_id", function(req, res) {
     if (roleExists) {
       Volunteers.getRoleSignUpInfo(function(
         allLocations,
-        commitmentLengths,
-        allActivities
+        allActivities,
+        commitmentLengths
       ) {
         var role = {};
         var public = req.body.public;
 
         // Validate role.
+        role.role_id = req.params.role_id;
         role.title = req.body.role_title.trim();
         role.short_description = req.body.short_description.trim();
         role.experience_required = req.body.experience_required.trim();
@@ -134,12 +135,6 @@ router.post("/:role_id", function(req, res) {
             "Please enter the commitment length for this role."
           )
           .notEmpty();
-        req
-          .checkBody(
-            "commitment_length",
-            "Please enter a valid commitment length."
-          )
-          .isIn(commitmentLengths);
 
         var working_groups = req.user.allWorkingGroupsObj;
 
@@ -150,13 +145,11 @@ router.post("/:role_id", function(req, res) {
             volunteerRolesActive: true,
             errors: errors,
             role: role,
-            availability: availability,
             locations: allLocations,
             activities: allActivities,
             commitmentLengths: commitmentLengths
           });
         } else {
-
           var days = {
             mon: true,
             tue: true,
@@ -203,7 +196,8 @@ router.post("/:role_id", function(req, res) {
           if (role.hours_per_week < 1 || role.hours_per_week > 15) {
             var error = {
               param: "working_group",
-              msg: "Please enter a valid number of hours per week (>=1 and <=15)",
+              msg:
+                "Please enter a valid number of hours per week (>=1 and <=15)",
               value: req.body.hours_per_week
             };
             errors = [error];
@@ -220,7 +214,21 @@ router.post("/:role_id", function(req, res) {
             }
           }
 
-          if (Helpers.allBelongTo(role.locations, allLocations) == false) {
+          if (
+            !Object.keys(commitmentLengths).includes(role.commitment_length)
+          ) {
+            var error = {
+              param: "commitment_length",
+              msg: "Please enter a valid commitment length.",
+              value: req.body.locations
+            };
+            errors = [error];
+          }
+
+          if (
+            Helpers.allBelongTo(role.locations, Object.keys(allLocations)) ==
+            false
+          ) {
             var error = {
               param: "locations",
               msg: "Please make sure you have selected valid locations.",
@@ -229,7 +237,10 @@ router.post("/:role_id", function(req, res) {
             errors = [error];
           }
 
-          if (Helpers.allBelongTo(role.activities, allActivities) == false) {
+          if (
+            Helpers.allBelongTo(role.activities, Object.keys(allActivities)) ==
+            false
+          ) {
             var error = {
               param: "activities",
               msg: "Please make sure you have selected valid activities.",
@@ -272,7 +283,6 @@ router.post("/:role_id", function(req, res) {
       req.flash("error_msg", "Role does not exist!");
       res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage");
     }
-
   });
 });
 

@@ -26,6 +26,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
       rolesGroupedByGroup,
       rolesGroupedById
     ) {
+      console.log(skills);
       res.render("volunteers/add", {
         title: "Add Volunteer",
         volunteersActive: true,
@@ -297,7 +298,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
         if (!Array.isArray(volInfo.survey.skills)) {
           volInfo.survey.skills = [volInfo.survey.skills];
         }
-        if (!Helpers.allBelongTo(volInfo.survey.skills, skills)) {
+        if (!Helpers.allBelongTo(volInfo.survey.skills, Object.keys(skills))) {
           let error = {
             param: "volInfo.survey.skills",
             msg: "Please select valid skills",
@@ -317,7 +318,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
       if (
         !Helpers.allBelongTo(
           volInfo.survey.preferredCommMethods,
-          contactMethods
+          Object.keys(contactMethods)
         )
       ) {
         let error = {

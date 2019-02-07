@@ -7,6 +7,8 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
+var Settings = require(rootDir + "/app/models/settings");
+
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 var Volunteers = {};
@@ -452,7 +454,13 @@ var allActivities = [
 ];
 
 Volunteers.getRoleSignUpInfo = function(callback) {
-  callback(allLocations, allActivities, commitmentLengths);
+  Settings.getAll(function(err, settings) {
+    callback(
+      settings.locations,
+      settings.activities,
+      settings.commitmentLengths
+    );
+  });
 };
 
 Volunteers.getSignUpInfo = function(callback) {
@@ -462,18 +470,16 @@ Volunteers.getSignUpInfo = function(callback) {
     rolesGroupedByGroup,
     rolesGroupedById
   ) {
-    callback(
-      allActivities,
-      contactMethods,
-      roles,
-      rolesGroupedByGroup,
-      rolesGroupedById
-    );
+    Settings.getAll(function(err, settings) {
+      callback(
+        settings.activities,
+        settings.contactMethods,
+        roles,
+        rolesGroupedByGroup,
+        rolesGroupedById
+      );
+    });
   });
-};
-
-Volunteers.getRoleSignUpInfo = function(callback) {
-  callback(allLocations, commitmentLengths, allActivities);
 };
 
 module.exports = Volunteers;

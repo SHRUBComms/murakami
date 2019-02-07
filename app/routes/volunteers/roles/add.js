@@ -16,8 +16,8 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
 ) {
   Volunteers.getRoleSignUpInfo(function(
     allLocations,
-    commitmentLengths,
-    allActivities
+    allActivities,
+    commitmentLengths
   ) {
     res.render("volunteers/roles/add", {
       volunteerRolesActive: true,
@@ -35,8 +35,8 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
 ) {
   Volunteers.getRoleSignUpInfo(function(
     allLocations,
-    commitmentLengths,
-    allActivities
+    allActivities,
+    commitmentLengths
   ) {
     var role = {};
     var public = req.body.public;
@@ -117,9 +117,6 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         "Please enter the commitment length for this role."
       )
       .notEmpty();
-    req
-      .checkBody("commitment_length", "Please enter a valid commitment length.")
-      .isIn(commitmentLengths);
 
     // Fomat public variable.
     if (public == "on") {
@@ -205,7 +202,18 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         }
       }
 
-      if (Helpers.allBelongTo(role.locations, allLocations) == false) {
+      if (!Object.keys(commitmentLengths).includes(role.commitment_length)) {
+        var error = {
+          param: "commitment_length",
+          msg: "Please enter a valid commitment length.",
+          value: req.body.locations
+        };
+        errors = [error];
+      }
+
+      if (
+        Helpers.allBelongTo(role.locations, Object.keys(allLocations)) == false
+      ) {
         var error = {
           param: "locations",
           msg: "Please make sure you have selected valid locations.",
@@ -214,7 +222,10 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         errors = [error];
       }
 
-      if (Helpers.allBelongTo(role.activities, allActivities) == false) {
+      if (
+        Helpers.allBelongTo(role.activities, Object.keys(allActivities)) ==
+        false
+      ) {
         var error = {
           param: "activities",
           msg: "Please make sure you have selected valid activities.",

@@ -295,7 +295,13 @@ router.post(
                   }
 
                   var rolesChanged = false;
-                  if (volInfo.roles != oldVolInfo.roles) {
+
+                  if (
+                    volInfo.roles.length != oldVolInfo.roles.length ||
+                    volInfo.roles.sort().every(function(value, index) {
+                      return value != oldVolInfo.roles.sort()[index];
+                    })
+                  ) {
                     rolesChanged = true;
                     if (volInfo.volunteerAgreementAgreed != "on") {
                       let error = {
@@ -332,7 +338,12 @@ router.post(
                     if (!Array.isArray(volInfo.survey.skills)) {
                       volInfo.survey.skills = [volInfo.survey.skills];
                     }
-                    if (!Helpers.allBelongTo(volInfo.survey.skills, skills)) {
+                    if (
+                      !Helpers.allBelongTo(
+                        volInfo.survey.skills,
+                        Object.keys(skills)
+                      )
+                    ) {
                       let error = {
                         param: "volInfo.survey.skills",
                         msg: "Please select valid skills",
@@ -352,7 +363,7 @@ router.post(
                   if (
                     !Helpers.allBelongTo(
                       volInfo.survey.preferredCommMethods,
-                      contactMethods
+                      Object.keys(contactMethods)
                     )
                   ) {
                     let error = {
@@ -480,7 +491,7 @@ router.post(
                                 subscribeBody
                               );
                             }
-                            
+
                             req.flash(
                               "success_msg",
                               "Volunteer successfully updated!"
