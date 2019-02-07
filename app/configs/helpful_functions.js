@@ -201,6 +201,10 @@ Helpers.allBelongTo = function(selectedOptions, validOptions) {
   }
 };
 
+Helpers.getCommonItemsInArray = function(array1, array2) {
+  return array1.filter(value => -1 !== array2.indexOf(value));
+};
+
 Helpers.getRevenue = function(transaction) {
   transaction.summary = JSON.parse(transaction.summary);
   if (

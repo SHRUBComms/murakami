@@ -123,8 +123,10 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
 
         if (volunteer.working_groups) {
           volunteer.working_groups = JSON.parse(volunteer.working_groups);
+          volunteer.old_working_groups = volunteer.working_groups.slice();
         } else {
           volunteer.working_groups = [];
+          volunteer.old_working_groups = [];
         }
 
         if (volunteer.assignedCoordinators) {
@@ -201,6 +203,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             volunteer.working_groups = Array.from(
               new Set(volunteer.working_groups)
             );
+
             callback();
           }
         );

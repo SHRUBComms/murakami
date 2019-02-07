@@ -59,7 +59,13 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           } else {
                             response.status = "ok";
                             response.msg = "Tokens added and member notified!";
-                            response.member = member;
+                            response.member = {
+                              id: member.member_id,
+                              name: member.name,
+                              balance: member.balance,
+                              is_member: 1,
+                              membership_expires: member.membership_expires
+                            };
                             res.send(response);
                           }
                         }
