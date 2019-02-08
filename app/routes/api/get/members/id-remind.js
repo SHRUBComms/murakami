@@ -26,6 +26,7 @@ router.get(
           err
         ) {
           if (err) {
+            console.log(err);
             req.flash("error", "Something went wrong!");
             res.redirect("/members");
           } else {

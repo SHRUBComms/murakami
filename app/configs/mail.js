@@ -1,4 +1,5 @@
 var nodemailer = require("nodemailer");
+
 var htmlToText = require("nodemailer-html-to-text").htmlToText;
 var sanitizeHtml = require("sanitize-html");
 var moment = require("moment");
@@ -16,8 +17,11 @@ if (process.env.NODE_ENV == "production") {
     port: process.env.MAIL_PORT,
     secure: JSON.parse(process.env.MAIL_SECURE_BOOL),
     auth: {
+      type: "OAuth2",
       user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS
+      clientId: process.env.MAIL_CLIENT_ID,
+      clientSecret: process.env.MAIL_CLIENT_SECRET,
+      refreshToken: process.env.MAIL_REFRESH_TOKEN
     }
   };
 } else {
@@ -39,7 +43,7 @@ Mail.sendSupport = function(from_name, from_address, subject, html, callback) {
 
   var message = {
     html: html,
-    from: "Murakami Support <support@murakami.org.uk>",
+    from: "Murakami Support <membership@shrubcoop.org>",
     to: "Ross Hudson <hello@rosshudson.co.uk>",
     subject: subject
   };
@@ -52,25 +56,82 @@ Mail.sendSupport = function(from_name, from_address, subject, html, callback) {
 Mail.sendAutomated = function(mail_id, member_id, callback) {
   Members.getById(member_id, { class: "admin" }, function(err, member) {
     Settings.getEmailTemplateById(mail_id, function(err, template) {
-      if (err || !template[0]) throw err;
+      Settings.getEmailTemplateById("footer", function(err, footer) {
+        if (!err) {
+          mail = template[0];
+          footer = footer[0];
+
+          if (mail.active) {
+            if (footer.active) {
+              mail.markup += "<hr />" + footer.markup;
+            }
+
+            mail.markup = mail.markup
+              .replace(/\|first_name\|/g, member.first_name)
+              .replace(/\|last_name\|/g, member.last_name)
+              .replace(
+                /\|fullname\|/g,
+                member.first_name + " " + member.last_name
+              )
+              .replace(/\|exp_date\|/g, member.current_exp_membership)
+              .replace(/\|membership_id\|/g, member.member_id);
+
+            mail.markup = sanitizeHtml(mail.markup);
+
+            var message = {
+              html: mail.markup,
+              from: "SHRUB Co-op <membership@shrubcoop.org>",
+              to:
+                member.first_name +
+                " " +
+                member.last_name +
+                " <" +
+                member.email +
+                ">",
+              subject: mail.subject
+            };
+
+            var transporter = nodemailer.createTransport(
+              Mail.supportSmtpConfig
+            );
+            transporter.use("compile", htmlToText());
+            transporter.sendMail(message, callback);
+          } else {
+            callback("Email template not active!", null);
+          }
+        } else {
+          callback("Something went wrong.", null);
+        }
+      });
+    });
+  });
+};
+
+Mail.sendDonation = function(member, callback) {
+  Settings.getEmailTemplateById("donation", function(err, template) {
+    Settings.getEmailTemplateById("footer", function(err, footer) {
       mail = template[0];
+      footer = footer[0];
 
       if (mail.active) {
-        mail.markup = sanitizeHtml(mail.markup);
+        if (footer.active) {
+          mail.markup += "<hr />" + footer.markup;
+        }
 
         mail.markup = mail.markup
-          .replace("|first_name|", member.first_name)
-          .replace("|last_name|", member.last_name)
-          .replace("|fullname|", member.first_name + " " + member.last_name)
-          .replace(
-            "|exp_date|",
-            moment(member.current_exp_membership).format("YYYY-MM-DD")
-          )
-          .replace("|membership_id|", member.member_id);
+          .replace(/\|first_name\|/g, member.first_name)
+          .replace(/\|tokens\|/g, member.tokens || 0)
+          .replace(/\|balance\|/g, member.balance)
+          .replace(/\|last_name\|/g, member.last_name)
+          .replace(/\|fullname\|/g, member.first_name + " " + member.last_name)
+          .replace(/\|exp_date\|/g, member.current_exp_membership)
+          .replace(/\|membership_id\|/g, member.member_id);
+
+        mail.markup = sanitizeHtml(mail.markup);
 
         var message = {
           html: mail.markup,
-          from: "Shrub Co-op <shrub@murakami.org.uk>",
+          from: "SHRUB Co-op <membership@shrubcoop.org>",
           to:
             member.first_name +
             " " +
@@ -91,54 +152,12 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
   });
 };
 
-Mail.sendDonation = function(member, callback) {
-  Settings.getEmailTemplateById("donation", function(err, template) {
-    if (err || !template[0]) throw err;
-    mail = template[0];
-
-    if (mail.active) {
-      mail.markup = sanitizeHtml(mail.markup);
-
-      mail.markup = mail.markup
-        .replace("|first_name|", member.first_name)
-        .replace("|tokens|", member.tokens || 0)
-        .replace("|balance|", member.balance)
-        .replace("|last_name|", member.last_name)
-        .replace("|fullname|", member.first_name + " " + member.last_name)
-        .replace(
-          "|exp_date|",
-          moment(member.current_exp_membership).format("l")
-        )
-        .replace("|membership_id|", member.member_id);
-
-      var message = {
-        html: mail.markup,
-        from: "Shrub Co-op <shrub@murakami.org.uk>",
-        to:
-          member.first_name +
-          " " +
-          member.last_name +
-          " <" +
-          member.email +
-          ">",
-        subject: mail.subject
-      };
-
-      var transporter = nodemailer.createTransport(Mail.supportSmtpConfig);
-      transporter.use("compile", htmlToText());
-      transporter.sendMail(message, callback);
-    } else {
-      callback("Email template not active!", null);
-    }
-  });
-};
-
 Mail.sendUsers = function(to_name, to_address, subject, html, callback) {
   html = sanitizeHtml(html);
 
   var message = {
     html: html,
-    from: "Murakami <support@murakami.org.uk>",
+    from: "Murakami <membership@shrubcoop.org>",
     to: to_name + " <" + to_address + ">",
     subject: subject
   };
@@ -153,7 +172,7 @@ Mail.sendGeneral = function(to, subject, html, callback) {
 
   var message = {
     html: html,
-    from: "Shrub Co-op <shrub@murakami.org.uk>",
+    from: "SHRUB Co-op <membership@shrubcoop.org>",
     to: to,
     subject: subject
   };

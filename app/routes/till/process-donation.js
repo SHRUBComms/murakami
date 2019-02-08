@@ -26,6 +26,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               member
             ) {
               if (member) {
+                console.log(member);
                 Members.updateBalance(
                   member_id,
                   +member.balance + +tokens,
@@ -49,27 +50,42 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     member.name = member.first_name + " " + member.last_name;
                     member.membership_expires = member.current_exp_membership;
                     Tills.addTransaction(formattedTransaction, function(err) {
-                      Mail.sendDonation(
-                        member,
+                      if (member.contactPreferences.donations) {
+                        Mail.sendDonation(
+                          member,
 
-                        function(err) {
-                          if (err) {
-                            response.msg =
-                              "Tokens added but something went wrong notifying the member!";
-                          } else {
-                            response.status = "ok";
-                            response.msg = "Tokens added and member notified!";
-                            response.member = {
-                              id: member.member_id,
-                              name: member.name,
-                              balance: member.balance,
-                              is_member: 1,
-                              membership_expires: member.membership_expires
-                            };
-                            res.send(response);
+                          function(err) {
+                            if (err) {
+                              response.msg =
+                                "Tokens added but something went wrong notifying the member!";
+                            } else {
+                              response.status = "ok";
+                              response.msg =
+                                "Tokens added and member notified!";
+                              response.member = {
+                                id: member.member_id,
+                                name: member.name,
+                                balance: member.balance,
+                                is_member: 1,
+                                membership_expires: member.membership_expires
+                              };
+                              res.send(response);
+                            }
                           }
-                        }
-                      );
+                        );
+                      } else {
+                        response.status = "ok";
+                        response.msg =
+                          "Tokens added! Member has asked not to be notified by email.";
+                        response.member = {
+                          id: member.member_id,
+                          name: member.name,
+                          balance: member.balance,
+                          is_member: 1,
+                          membership_expires: member.membership_expires
+                        };
+                        res.send(response);
+                      }
                     });
                   }
                 );

@@ -27,10 +27,12 @@ Members.sanitizeMember = function(member, user, callback) {
       member.roles = [];
     }
 
-    try {
+    if (member.contactPreferences) {
       member.contactPreferences = JSON.parse(member.contactPreferences);
-    } catch (err) {
-      member.contactPreferences = {};
+    } else {
+      member.contactPreferences = {
+        donations: true
+      };
     }
 
     if (user.class == "till") {
