@@ -216,7 +216,12 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
                 if (!Array.isArray(volInfo.survey.skills)) {
                   volInfo.survey.skills = [volInfo.survey.skills];
                 }
-                if (!Helpers.allBelongTo(volInfo.survey.skills, skills)) {
+                if (
+                  !Helpers.allBelongTo(
+                    volInfo.survey.skills,
+                    Object.keys(skills)
+                  )
+                ) {
                   let error = {
                     param: "volInfo.survey.skills",
                     msg: "Please select valid skills",
@@ -236,7 +241,7 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
               if (
                 !Helpers.allBelongTo(
                   volInfo.survey.preferredCommMethods,
-                  contactMethods
+                  Object.keys(contactMethods)
                 )
               ) {
                 let error = {
@@ -291,7 +296,6 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
                   volInfo,
                   function(err) {
                     if (err) {
-                      
                       res.render("members/make-volunteer", {
                         errors: [{ msg: "Something went wrong!" }],
                         title: "Add Volunteer (Existing Member)",
