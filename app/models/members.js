@@ -9,6 +9,7 @@ var rootDir = process.env.CWD;
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 var Volunteers = require(rootDir + "/app/models/volunteers");
+var Settings = require(rootDir + "/app/models/settings");
 
 var Members = {};
 
@@ -104,6 +105,16 @@ Members.getAllCurrentMembers = function(callback) {
   var query =
     "SELECT * FROM members WHERE first_name != '[redacted]' AND is_member = 1";
   con.query(query, callback);
+};
+
+Members.getSignUpInfo = function(callback) {
+  Settings.getAll(function(err, settings) {
+    callback(
+      settings.ourVision,
+      settings.saferSpacesPolicy,
+      settings.membershipBenefits
+    );
+  });
 };
 
 Members.updateContactPreferences = function(

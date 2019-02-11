@@ -14,5 +14,6 @@ router.use("/working-groups", require("./working-groups"));
 router.use("/carbon-factors", require("./carbon-factors"));
 router.use("/email-templates", require("./email-templates"));
 router.use("/tills", require("./tills"));
+router.use("/static-content", require("./static-content"));
 
 module.exports = router;

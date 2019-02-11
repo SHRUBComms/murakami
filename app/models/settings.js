@@ -21,6 +21,22 @@ Settings.getAll = function(callback) {
   });
 };
 
+Settings.getStaticContent = function(callback) {
+  var query = `SELECT * FROM global_settings WHERE id = "membershipBenefits" OR id = "saferSpacesPolicy" OR id = "volunteerAgreement" OR id = "ourVision"`;
+  con.query(query, function(err, settings) {
+    async.each(
+      settings,
+      function(setting, callback) {
+        setting.data = JSON.parse(setting.data);
+        callback();
+      },
+      function() {
+        callback(err, settings);
+      }
+    );
+  });
+};
+
 Settings.getEmailTemplates = function(callback) {
   var query = "SELECT * FROM mail_templates ORDER BY mail_desc ASC";
   con.query(query, callback);
@@ -54,12 +70,12 @@ Settings.updateGeneral = function(settings, callback) {
   con.query(sql, callback);
 };
 
-Settings.updateDefinitions = function(definitions, callback) {
-  var query = "UPDATE global_settings SET definitions = ?";
+Settings.updateSetting = function(id, data, callback) {
+  var query = "UPDATE global_settings SET data = ? WHERE id = ?";
 
-  var inserts = [definitions];
+  var inserts = [JSON.stringify(data), id];
   var sql = mysql.format(query, inserts);
-
+  console.log(sql);
   con.query(sql, callback);
 };
 

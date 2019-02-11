@@ -57,6 +57,20 @@ Helpers.uniqueBase64Id = function(length, table, id_name, callback) {
   });
 };
 
+Helpers.flattenToIds = function(array, id, callback) {
+  var flatArray = [];
+  async.each(
+    array,
+    function(obj, callback) {
+      flatArray.push(obj[id]);
+      callback();
+    },
+    function() {
+      callback(flatArray);
+    }
+  );
+};
+
 Helpers.checkCaptcha = function(response, remoteip, callback) {
   var post_data = JSON.stringify({
     secret: process.env.RECAPTCHA_SECRET_KEY,

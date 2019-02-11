@@ -138,9 +138,16 @@
                                 </li>
                                 {{/ifUserClass}}
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
+
+
                                   <li {{#if settingsActive}}class="active"{{/if}}>
-                                      <a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
+                                      <ul class="collapse">
+                                          <li><a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a></li>
+                                          <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
+                                      </ul>
                                   </li>
+
                                 {{/ifUserClass}}
 
                               {{else}}

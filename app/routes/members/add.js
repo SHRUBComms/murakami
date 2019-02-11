@@ -22,19 +22,30 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   if (till_id) {
     tillMode = true;
   }
-  res.render("members/add", {
-    tillMode: res.locals.tillMode || tillMode,
-    title: "Add Member",
-    membersActive: true,
-    addMemberActive: true,
-    membership_length: req.query.membership_length,
 
-    murakamiMsg: req.query.murakamiMsg || null,
-    murakamiStatus: req.query.murakamiStatus || null,
+  Members.getSignUpInfo(function(
+    ourVision,
+    saferSpacesPolicy,
+    membershipBenefits
+  ) {
+    res.render("members/add", {
+      tillMode: res.locals.tillMode || tillMode,
+      title: "Add Member",
+      membersActive: true,
+      addMemberActive: true,
+      membership_length: req.query.membership_length,
 
-    till: {
-      till_id: till_id
-    }
+      ourVision: ourVision,
+      saferSpacesPolicy: saferSpacesPolicy,
+      membershipBenefitsInfo: membershipBenefits,
+
+      murakamiMsg: req.query.murakamiMsg || null,
+      murakamiStatus: req.query.murakamiStatus || null,
+
+      till: {
+        till_id: till_id
+      }
+    });
   });
 });
 
