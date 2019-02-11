@@ -132,11 +132,11 @@
       <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
       <div class="mt-1">
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" name="volInfo[canShareEmail]" {{#if canShareEmail}}checked{{/if}} >
+          <input class="form-check-input" type="checkbox" name="volInfo[gdpr][email]" {{#if volInfo.gdpr.email}}checked{{/if}} >
           <label class="form-check-label">Email</label>
         </div>
         <div class="form-check form-check-inline">
-          <input class="form-check-input" type="checkbox" name="volInfo[canSharePhone]" {{#if canSharePhone}}checked{{/if}} >
+          <input class="form-check-input" type="checkbox" name="volInfo[gdpr][phone]" {{#if volInfo.gdpr.phone}}checked{{/if}} >
           <label class="form-check-label">Phone</label>
         </div>
       </div>
@@ -169,29 +169,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-md-10 mx-auto">
-            <p>SHRUB Swap & Reuse Hub is a community-led co-operative working for a world without waste.</p>
-
-            <h5 class="mt-3 mb-1">Our Purpose (Aims & Objectives)</h5>
-            <div class="container">
-              <ol>
-
-                <li>To provide a welcoming space for rethinking our relationship to waste, reducing consumption and developing effective use of resources</li>
-
-                <li>To support community empowerment in Edinburgh, learning and sharing skills to make a practical difference to the world we share</li>
-
-                <li>To deliver innovative waste prevention, creative reuse and repair practices in a living laboratory of Circular Economy</li>
-              </ol>
-            </div>
-            <h5 class="mt-4 mb-1">Our Values</h5>
-            <div class="container">
-              <ul style="list-style-type: disc;">
-                <li>We value inclusivity and work with others to provide a welcoming community for all</li>
-
-                <li>We act with integrity and strive to be sustainable in everything we do</li>
-
-                <li>We live by co-operative values of self-help, self-responsibility, democracy, equality, equity and solidarity.</li>
-              </ul>
-            </div>
+            {{{ourVision.markup}}}
           </div>
         </div>
       </div>
@@ -216,11 +194,8 @@
         <div class="row">
           <div class="col-md-10 mx-auto">
 
-            <p class="mt-2">SHRUB aims to provide a safe environment, which is welcoming, engaging and supportive for everyone. By becoming a member, you agree to behave in accordance with this policy when at SHRUB, during SHRUB events, and through SHRUB’s social media, emails or other messages with those involved with SHRUB!</p>
+            {{{saferSpacesPolicy.markup}}}
 
-            <p class="mt-2">You will find a full verstion of the safer spaces policy in your welcome email, please take a look!</p>
-
-            <p class="mt-2">You can also contact the welfare working group if you have any problems or require support: <a href="shrubwelfare@gmail.com">shrubwelfare@gmail.com</a></p>
           </div>
         </div>
       </div>
@@ -244,19 +219,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-md-10 mx-auto">
-            <p class="mt-2">As a member of SHRUB you're now part of our community, have an equal voice in the co-op and the right to take part in decision making!</p>
-            <p class="mt-2 mb-1">You also get:</p>
-            <div class="container">
-              <ul style="list-style-type: disc;">
-                <li>Access to swap at the swapshop!</li>
-                <li>Use of the freeshop!</li>
-                <li>Use of the food sharing hub!</li>
-                <li>Discounts at paid events and workshops!</li>
-                <li>Discount on bike parts at the Wee Spoke Hub!</li>
-                <li>Discounted booking of our lovely spaces for personal use!</li></li>
-                <li>Come to our members parties!</li>
-              </ul>
-            </div>
+            {{{membershipBenefitsInfo.markup}}}
           </div>
         </div>
       </div>

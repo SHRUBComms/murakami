@@ -24,12 +24,19 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
       contactMethods,
       roles,
       rolesGroupedByGroup,
-      rolesGroupedById
+      rolesGroupedById,
+      volunteerAgreement,
+      ourVision,
+      saferSpacesPolicy,
+      membershipBenefits
     ) {
-      console.log(skills);
       res.render("volunteers/add", {
         title: "Add Volunteer",
         volunteersActive: true,
+        volunteerAgreement: volunteerAgreement,
+        ourVision: ourVision,
+        saferSpacesPolicy: saferSpacesPolicy,
+        membershipBenefitsInfo: membershipBenefits,
         coordinators: coordinators,
         roles: rolesGroupedByGroup,
         skills: skills,
@@ -152,6 +159,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
       //Volunteer Validation
       var volInfo = req.body.volInfo;
+      console.log(volInfo);
+      if (!volInfo.gdpr) {
+        volInfo.gdpr = {};
+      }
 
       req
         .checkBody(

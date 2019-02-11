@@ -250,8 +250,8 @@ Volunteers.addExistingMember = function(member_id, volInfo, callback) {
     JSON.stringify(volInfo.survey),
     JSON.stringify(volInfo.availability),
     JSON.stringify({
-      email: volInfo.canShareEmail,
-      phone: volInfo.canSharePhone
+      email: volInfo.gdpr.email,
+      phone: volInfo.gdpr.phone
     })
   ];
   var sql = mysql.format(query, inserts);
@@ -270,8 +270,8 @@ Volunteers.updateVolunteer = function(member_id, volInfo, callback) {
     JSON.stringify(volInfo.survey),
     JSON.stringify(volInfo.availability),
     JSON.stringify({
-      email: volInfo.canShareEmail,
-      phone: volInfo.canSharePhone
+      email: volInfo.gdpr.email,
+      phone: volInfo.gdpr.phone
     }),
     member_id
   ];
@@ -476,7 +476,11 @@ Volunteers.getSignUpInfo = function(callback) {
         settings.contactMethods,
         roles,
         rolesGroupedByGroup,
-        rolesGroupedById
+        rolesGroupedById,
+        settings.volunteerAgreement,
+        settings.ourVision,
+        settings.saferSpacesPolicy,
+        settings.membershipBenefits
       );
     });
   });

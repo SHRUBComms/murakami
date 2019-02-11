@@ -26,7 +26,8 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
               contactMethods,
               roles,
               rolesGroupedByGroup,
-              rolesGroupedById
+              rolesGroupedById,
+              volunteerAgreement
             ) {
               res.render("members/make-volunteer", {
                 title: "Add Volunteer (Existing Member)",
@@ -34,6 +35,7 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
                 member: member,
                 volInfo: volInfo,
                 coordinators: coordinators,
+                volunteerAgreement: volunteerAgreement,
                 roles: rolesGroupedByGroup,
                 skills: skills,
                 contactMethods: contactMethods
@@ -75,6 +77,9 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
               rolesGroupedById
             ) {
               var volInfo = req.body.volInfo;
+              if (!volInfo.gdpr) {
+                volInfo.gdpr = {};
+              }
 
               req
                 .checkBody(

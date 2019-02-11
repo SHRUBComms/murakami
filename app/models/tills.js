@@ -33,7 +33,6 @@ Tills.getMembershipCategories = function(callback) {
   });
 };
 
-
 Tills.getDonationCategories = function(callback) {
   var query = `SELECT * FROM stock_categories WHERE name LIKE "%donation%"`;
   con.query(query, function(err, donationCategories) {
@@ -240,7 +239,7 @@ Tills.getCategoriesByParentId = function(parent, callback) {
 
 Tills.getCategoriesByTillId = function(till_id, format, callback) {
   var query =
-    "SELECT * FROM stock_categories WHERE (till_id = ? OR till_id IS NULL) AND active = 1";
+    "SELECT * FROM stock_categories WHERE (till_id = ? OR till_id IS NULL) AND active = 1 ORDER BY name ASC";
   var inserts = [till_id];
   var sql = mysql.format(query, inserts);
 

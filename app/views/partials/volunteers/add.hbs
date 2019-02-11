@@ -210,11 +210,11 @@
         <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
         <div class="mt-1">
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" name="volInfo[canShareEmail]" {{#if volInfo.canShareEmail}}checked{{/if}} >
+            <input class="form-check-input" type="checkbox" name="volInfo[gdpr][email]" {{#if volInfo.gdpr.email}}checked{{/if}} >
             <label class="form-check-label">Email</label>
           </div>
           <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" name="volInfo[canSharePhone]" {{#if volInfo.canSharePhone}}checked{{/if}} >
+            <input class="form-check-input" type="checkbox" name="volInfo[gdpr][phone]" {{#if volInfo.gdpr.phone}}checked{{/if}} >
             <label class="form-check-label">Phone</label>
           </div>
         </div>
@@ -247,53 +247,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-md-10 mx-auto">
-            <p>This agreement will act as a reminder of the support that SHRUB should offer you as a volunteer and the rights and responsibilities you have as a member of the SHRUB community.</p>
-
-            <p class="mt-2 mb-1">The SHRUB has the responsibility:</p>
-
-            <div class="container">
-              <ul style="list-style-type: disc;">
-                <li>To provide adequate information and training so that you are able to meet the responsibilities of your volunteering role, (outlined in your Volunteer Role Description, or on agreement with your working group), this includes:</li>
-                <div class="container">
-                  <ul style="list-style-type: disc;">
-                    <li>To support you throughout your time volunteering with SHRUB.</li>
-                    <li>To assign you a named co-ordinator, who will act as a go-to-person for you.</li>
-                    <li>To treat you with respect.</li>
-                    <li>To be receptive to any comments and feedback from you and other volunteers.</li>
-                    <li>To value and recognise your contribution as a volunteer.</li>
-                  </ul>
-                </div>
-              </ul>
-            </div>
-
-            <p class="mt-4 mb-1">The Volunteer (you) has the responsibility:</p>
-            <div class="container">
-              <ul style="list-style-type: disc;">
-                <li>To fulfil your role as outlined in your volunteer role description/by agreement with the working group.</li>
-                <li>To follow SHRUB’s policies and procedures.</li>
-                <li>To meet time and task commitment and provide sufficient notice when not available to meet your responsibilities.</li>
-                <li>To treat any sensitive personal or business information and data, you may have access to as part of your role, as confidential and in line with the Data Protection Act.</li>
-                <li>To act in a way that is in line with the aims, objectives, and ethos of the SHRUB.</li>
-                <div class="container">  $("#rolesSelect").on("changed.bs.select", function(){
-    console.log("triggered");
-
-  });
-                  <p>This means when interacting with people in the SHRUB: Be respectful, be aware of your own prejudices, create calm, and strive for equality and diversity.</p>
-                  <p>Sexism, racism, homophobia and other behaviours and language that belittle or insult other people will not be tolerated within our organisation. If somebody is acting in a way that you feel uncomfortable with, either point it out to them or talk to a member of staff or the Welfare Working group.</p>
-                  <p>The SHRUB is an inclusive space!</p>
-              </ul>
-            </div>
-
-            <p class="mt-3 mb-1">The volunteer (you) has the right:</p>
-            <div class="container">
-              <ul style="list-style-type: disc;">
-                <li>To participate in the decision making process of the SHRUB by attending open meetings (see shrub website for dates and times).</li>
-                <li>To participate in your Working Group and any other that you wish to.</li>
-              </ul>
-            </div>
-
-            <p class="mt-2">If you are unable to meet your responsibilities (outlined above) SHRUB may ask you to step back from your volunteering role.</p>
-
+            {{{volunteerAgreement.markup}}}
           </div>
         </div>
       </div>
