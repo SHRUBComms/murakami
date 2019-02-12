@@ -67,7 +67,7 @@ router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
 
     Settings.updateEmailTemplate(template, function(err) {
       if (err) {
-        console.log(err);
+        
         res.redirect(
           process.env.PUBLIC_ADDRESS +
             "/settings/email-templates/" +

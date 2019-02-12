@@ -16,7 +16,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
     res.send({ status: "ok", results: [] });
   } else {
     Members.searchByName(term, function(err, members) {
-      console.log(err);
+      
       async.eachOf(
         members,
         function(member, i, callback) {
@@ -43,7 +43,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
           });
         },
         function(err) {
-          console.log(members);
+          
           res.send({ status: "ok", results: members });
         }
       );

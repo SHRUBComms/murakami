@@ -290,7 +290,7 @@ var itemToAdd = {};
 $('input[name="itemCondition"]:radio').change(function(){
 	let condition = this.value;
 	let option = itemToAdd;
-	console.log(condition);
+	
 	if(itemToAdd){
 
 		$("#addItemConditionToTrans").attr("onclick", "addToTrans('" + option.id + "', '" + option.category.replace(/'/g, "\\\'") + " (" + condition + ")" + "', '" + option.tokens + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "', '" + condition + "')");
@@ -355,12 +355,12 @@ categories.parent = null
 function calculateChange(e){
 	let cashGiven = parseFloat(e.value);
 	let change = 0;
-	console.log("Cash given: " + cashGiven);
-	console.log("Cost: " + global_money_total);
+	
+	
 	if(isNumeric(cashGiven)){
 		if(cashGiven > global_money_total){
 			change = cashGiven - global_money_total;
-			console.log("Change: " + change);
+			
 		}
 	}
 	$("#change").val(change.toFixed(2));
@@ -593,7 +593,7 @@ function updateButtons(){
 		}
 
 		if(global_money_total < 1){
-			console.log("Money less than £1.00");
+			
 			$("#cardOption").prop("disabled", true)
 			$("#minimumCardTransaction").removeClass("d-none");
 		} else {
@@ -732,7 +732,7 @@ function selectMember(index){
 	}
 
 	$("#payWithTokens").change(function(){
-		console.log("triggered");
+		
 		if(this.checked) {
 			payWithTokens = true;
 		} else {
@@ -768,7 +768,7 @@ function completeTrans(type){
         	$("#confirmTransaction").prop("checked", false)
         	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");
-					console.log(response);
+					
         	if(response.status == "ok"){
         		$("#note").val("")
 

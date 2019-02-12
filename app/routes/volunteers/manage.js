@@ -58,7 +58,8 @@ router.get(
                   coordinators: coordinatorsObj,
                   group: {
                     group_id: req.query.group_id
-                  }
+                  },
+                  volunteerStatus: req.query.volunteers || "all"
                 });
               });
             });

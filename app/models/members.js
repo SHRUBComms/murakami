@@ -101,6 +101,15 @@ Members.getAll = function(callback) {
   con.query(query, callback);
 };
 
+Members.getTotals = function(callback) {
+  var query = `SELECT
+  (SELECT count(*) FROM members WHERE first_name != '[redacted]') AS members,
+  (SELECT count(*) FROM members WHERE is_member = 1) AS current_members,
+  (SELECT COUNT(*) FROM members WHERE is_member = 0) AS expired_members,
+  (SELECT COUNT(*) FROM volunteer_info) as volunteers`;
+  con.query(query, callback);
+};
+
 Members.getAllCurrentMembers = function(callback) {
   var query =
     "SELECT * FROM members WHERE first_name != '[redacted]' AND is_member = 1";

@@ -4,10 +4,22 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
+<div class="row mt-4">
+  <div class="col-md-6 mx-auto">
+    <div id="activeMessageAlert" class="alert alert-danger alert-dismissible d-none fade show p-3" role="alert">
+      <span id="activeMessage"></span>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="row mt-4 ml-1">
   <div class="col-md-12">
+    <div class="row">
     {{#ifUserClass user.class '["admin"]'}}
-      <div class="row">
+
         <div class="form-group form-inline">
           <select class="form-control" id="working_groups">
             <!--<option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>-->
@@ -16,10 +28,10 @@
               {{/each}}
           </select>
         </div>
-      </div>
+
     {{else}}
     	{{#ifGreaterThan user.working_groups.length 1}}
-    	<div class="row">
+
     		<div class="form-group form-inline">
     			<select class="form-control" id="working_groups">
             <option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>
@@ -28,10 +40,21 @@
     					{{/each}}
     			</select>
     		</div>
-    	</div>
+
 
     	{{/ifGreaterThan}}
     {{/ifUserClass}}
+
+
+      <div class="form-group form-inline ml-2">
+        <select class="form-control" id="volunteerStatus">
+          <option value="all" {{#ifCond volunteerStatus '==' 'all'}}selected{{/ifCond}}>All Volunteers</option>
+          <option value="active" {{#ifCond volunteerStatus '==' 'active'}}selected{{/ifCond}}>Active Volunteers</option>
+          <option value="inactive" {{#ifCond volunteerStatus '==' 'inactive'}}selected{{/ifCond}}>Inactive Volunteers</option>
+        </select>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -39,91 +62,33 @@
   <div class="col-md-12">
 
     <table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
-          <thead>
-            <th data-sortable="true">Name</th>
-            <th>Roles</th>
-            <th data-sortable="true">Last Volunteered</th>
-            <th></th>
-          </thead>
-          <tbody>
-          {{#each volunteers}}
-            <tr>
-              <td>{{first_name}} {{last_name}} {{isAssignedCoordinator}}</td>
-              <td>
-                {{#unless roles.0.name}}
+      <thead>
+        <th data-sortable="true">Name</th>
+        <th>Roles</th>
+        <th data-sortable="true">Last Volunteered</th>
+        <th></th>
+      </thead>
+      <tbody>
+        {{#each volunteers}}
+          {{#ifCond ../volunteerStatus '==' 'all'}}
+            {{>volunteers/manage allRoles=../roles user=../user volunteerStatus=../volunteerStatus}}
+          {{/ifCond}}
 
-                    <ul>
-                      {{#each roles}}
-                        {{#if (lookup ../../roles this)}}
-                          <li {{#if (not @last)}}class="mb-1"{{/if}}>
-                            <b>{{lookup (lookup (lookup ../../roles this) 'details') 'title'}}</b>
+          {{#ifCond ../volunteerStatus '==' 'active'}}
+            {{#if active}}
+              {{>volunteers/manage allRoles=../roles user=../user volunteerStatus=../volunteerStatus}}
+            {{/if}}
+          {{/ifCond}}
 
-                            <small>
-                              {{#ifCond (lookup (lookup ../../roles this) 'group_id') '==' 'na'}}
-                                (SHRUB-wide)
-                              {{else}}
-                                with {{lookup (lookup ../../user.allWorkingGroupsObj (lookup (lookup ../../roles this) 'group_id')) 'name'}}
-                              {{/ifCond}}
-                            </small>
-                          </li>
-                        {{/if}}
-                      {{/each}}
-                    </ul>
+          {{#ifCond ../volunteerStatus '==' 'inactive'}}
+            {{#unless active}}
+              {{>volunteers/manage allRoles=../roles user=../user volunteerStatus=../volunteerStatus}}
+            {{/unless}}
+          {{/ifCond}}
 
-                {{else}}
-                  <span class="text-danger">Not assigned to any roles!</span>
-                {{/unless}}
-              </td>
-
-              <td>
-                <span
-                  class="
-                    {{#ifCond needsToVolunteer '==' 'now'}}
-                      text-danger
-                    {{/ifCond}}
-                    {{#ifCond needsToVolunteer '==' 'soon'}}
-                      text-warning
-                    {{/ifCond}}
-                    {{#ifCond needsToVolunteer '==' false}}
-                      text-success
-                    {{/ifCond}}
-                    "
-                  >
-                  {{#if lastVolunteered}}
-                    <b>
-                      {{lastVolunteered}}
-                    </b>
-                  {{else}}
-                    Never
-                  {{/if}}
-                </span>
-              </td>
-
-              <td>
-                <div class="btn-group d-flex">
-                  <!--
-                  {{#ifCond needsToVolunteer '==' 'soon'}}
-                    <a class="btn btn-warning w-100" href="">Prompt To Volunteer</a>
-                  {{/ifCond}}
-                  {{#ifCond needsToVolunteer '==' 'now'}}
-                    <a class="btn btn-danger w-100" href="">Prompt To Volunteer</a>
-                  {{/ifCond}}
-                -->
-                  <!--{{#ifCond needsToVolunteer '==' 'soon'}}
-                    <a class="btn btn-warning w-100" href="">Conduct Check-in</a>
-                  {{/ifCond}}
-                  {{#ifCond needsToVolunteer '==' 'now'}}
-                    <a class="btn btn-danger w-100" href="">Conduct Check-in</a>
-                  {{/ifCond}}-->
-
-                  <a class="btn btn-info w-100" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
-                </div>
-
-              </td>
-            </tr>
-          {{/each}}
-          </tbody>
-        </table>
+        {{/each}}
+      </tbody>
+    </table>
 
   </div>
 </div>
@@ -131,7 +96,64 @@
 
 <script>
 $('#working_groups').on('change', function () {
-  var url = "/volunteers/manage?group_id=" + $(this).val();
+  var url = "/volunteers/manage?group_id=" + $("#working_groups").val() + "&volunteers=" + $("#volunteerStatus").val();
   window.location = url;
 });
+
+$('#volunteerStatus').on('change', function () {
+  var url = "/volunteers/manage?group_id=" + $("#working_groups").val() + "&volunteers=" + $("#volunteerStatus").val();
+  window.location = url;
+});
+
+function markAsInactive(member_id, row){
+  var confirmed = confirm("Are you sure you want to mark this volunteer as inactive?");
+  if(confirmed == true){
+    $.get("{{public_address}}/api/get/volunteers/mark-as-inactive/" + member_id, function( response ) {
+      if(response.status == "ok"){
+        $("#activeMessageAlert").removeClass("alert-danger");
+        $("#activeMessageAlert").addClass("alert-success");
+        $("#activeMessage").html(response.msg);
+        $("#activeMessageAlert").removeClass("d-none");
+        if("{{volunteerStatus}}" != "all"){
+          $(row).parents('tr').remove();
+        } else {
+          $(row).removeClass("btn-warning");
+          $(row).addClass("btn-success");
+          $(row).text("Mark As Active");
+          $(row).attr("onclick","markAsActive(" + member_id + ", this)")
+        }
+      } else {
+        $("#activeMessage").html(response.msg);
+        $("#activeMessageAlert").removeClass("d-none");
+      }
+    });
+  }
+}
+
+function markAsActive(member_id, row){
+  var confirmed = confirm("Are you sure you want to mark this volunteer as active? Membership will be renewed!");
+  if(confirmed == true){
+    $.get("{{public_address}}/api/get/volunteers/mark-as-active/" + member_id, function( response ) {
+      if(response.status == "ok"){
+        $("#activeMessageAlert").removeClass("alert-danger");
+        $("#activeMessageAlert").addClass("alert-success");
+        $("#activeMessage").html(response.msg);
+        $("#activeMessageAlert").removeClass("d-none");
+        if("{{volunteerStatus}}" != "all"){
+          $(row).parents('tr').remove();
+        } else {
+          $(row).addClass("btn-warning");
+          $(row).removeClass("btn-success");
+          $(row).text("Mark As Inactive");
+          $(row).attr("onclick","markAsInctive(" + member_id + ", this)")
+        }
+
+      } else {
+        $("#activeMessage").html(response.msg);
+        $("#activeMessageAlert").removeClass("d-none");
+      }
+    });
+  }
+}
+
 </script>

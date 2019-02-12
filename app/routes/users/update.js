@@ -162,10 +162,10 @@ router.post(
         }
 
         if (req.user.class == "staff") {
-          console.log("Is staff");
+          
           if (req.user.id == req.params.user_id) {
-            console.log("Updating self");
-            console.log(userClass);
+            
+            
             validClasses.push("staff");
           }
         }

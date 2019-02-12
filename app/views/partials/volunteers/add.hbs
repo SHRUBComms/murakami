@@ -310,7 +310,7 @@ function quickAddRole() {
       working_group: $("#roleWorkingGroup").val()
     },
     function(response){
-      console.log(response);
+      
       if(response.status == "ok"){
         $("#quickAddRoleDialog").modal("hide");
         $("#roleTitle").val("");
@@ -358,7 +358,7 @@ function quickAddRole() {
 
   $('.selectpicker').on('change', function(e){
     if($(e.target).attr("name") == "volInfo[roles]"){
-      console.log("change");
+      
       roleChanged = true;
       toggleVolunteerAgreement();
     }

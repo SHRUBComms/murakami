@@ -84,7 +84,7 @@ router.post(
 router.get("/", function(req, res) {
   if (!req.user) {
     Settings.getAll(function(err, settings) {
-      console.log(settings);
+      
       res.render("login", {
         loginActive: true,
         title: "Login",

@@ -1,0 +1,90 @@
+
+
+  <tr>
+    <td>{{first_name}} {{last_name}}</td>
+    <td>
+      {{#unless roles.0.name}}
+
+          <ul>
+            {{#each roles}}
+              {{#if (lookup ../allRoles this)}}
+                <li {{#if (not @last)}}class="mb-1"{{/if}}>
+                  <b>{{lookup (lookup (lookup ../allRoles this) 'details') 'title'}}</b>
+
+                  <small>
+                    {{#ifCond (lookup (lookup ../allRoles this) 'group_id') '==' 'na'}}
+                      (SHRUB-wide)
+                    {{else}}
+                      with {{lookup (lookup ../user.allWorkingGroupsObj (lookup (lookup ../allRoles this) 'group_id')) 'name'}}
+                    {{/ifCond}}
+                  </small>
+                </li>
+              {{/if}}
+            {{/each}}
+          </ul>
+
+      {{else}}
+        <span class="text-danger">Not assigned to any roles!</span>
+      {{/unless}}
+    </td>
+
+    <td>
+      <span
+        class="
+          {{#ifCond needsToVolunteer '==' 'now'}}
+            text-danger
+          {{/ifCond}}
+          {{#ifCond needsToVolunteer '==' 'soon'}}
+            text-warning
+          {{/ifCond}}
+          {{#ifCond needsToVolunteer '==' false}}
+            text-success
+          {{/ifCond}}
+          "
+        >
+        {{#if lastVolunteered}}
+          <b>
+            {{lastVolunteered}}
+          </b>
+        {{else}}
+          Never
+        {{/if}}
+      </span>
+    </td>
+
+    <td>
+      <div class="btn-group d-flex">
+
+        {{#ifCond volunteerStatus '==' 'active'}}
+          {{#ifCond needsToVolunteer '==' 'soon'}}
+            <a class="btn btn-warning w-100" onclick="markAsInactive('{{member_id}}', this)">Mark As Inactive</a>
+          {{/ifCond}}
+          {{#ifCond needsToVolunteer '==' 'now'}}
+            <a class="btn btn-warning w-100" onclick="markAsInactive('{{member_id}}', this)">Mark As Inactive</a>
+          {{/ifCond}}
+        {{/ifCond}}
+
+        {{#ifCond volunteerStatus '==' 'inactive'}}
+          <a class="btn btn-success w-100" onclick="markAsActive('{{member_id}}', this)">Mark As Active</a>
+        {{/ifCond}}
+
+        {{#ifCond volunteerStatus '==' 'all'}}
+          {{#if active}}
+            <a class="btn btn-warning w-100" onclick="markAsInactive('{{member_id}}', this)">Mark As Inactive</a>
+          {{else}}
+            <a class="btn btn-success w-100" onclick="markAsActive('{{member_id}}', this)">Mark As Active</a>
+          {{/if}}
+        {{/ifCond}}
+
+        <!--{{#ifCond needsToVolunteer '==' 'soon'}}
+          <a class="btn btn-warning w-100" href="">Conduct Check-in</a>
+        {{/ifCond}}
+        {{#ifCond needsToVolunteer '==' 'now'}}
+          <a class="btn btn-danger w-100" href="">Conduct Check-in</a>
+        {{/ifCond}}-->
+
+        <a class="btn btn-info w-100" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
+      </div>
+
+    </td>
+  </tr>

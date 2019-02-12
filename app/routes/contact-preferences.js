@@ -63,7 +63,7 @@ router.get("/:member_id", function(req, res) {
                 }
               } catch (err) {}
 
-              console.log(member.contactPreferences);
+              
               res.render("contact-preferences.hbs", {
                 title: "Contact Preferences",
                 member: member

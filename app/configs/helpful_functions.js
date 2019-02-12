@@ -228,7 +228,7 @@ Helpers.getRevenue = function(transaction) {
     revenue.total += +transaction.summary.totals.money;
 
     if (transaction.summary.paymentMethod == "cash") {
-      console.log(transaction.summary.totals.money);
+      
       revenue.breakdown.cash += +transaction.summary.totals.money;
     } else if (transaction.summary.paymentMethod == "card") {
       revenue.breakdown.card += +transaction.summary.totals.money;

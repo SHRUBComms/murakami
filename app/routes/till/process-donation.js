@@ -26,7 +26,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               member
             ) {
               if (member) {
-                console.log(member);
+                
                 Members.updateBalance(
                   member_id,
                   +member.balance + +tokens,

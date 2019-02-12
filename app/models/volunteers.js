@@ -93,11 +93,21 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           );
         } else {
           volunteer.lastVolunteered = "Never";
-          if (volunteer.createdAt < moment().diff(-2, "weeks")) {
+          if (
+            moment(volunteer.dateCreated).isBefore(
+              moment().subtract(2, "weeks")
+            )
+          ) {
             volunteer.needsToVolunteer = "now";
           } else {
             volunteer.needsToVolunteer = "soon";
           }
+        }
+
+        if (volunteer.active == 1) {
+          volunteer.active = true;
+        } else {
+          volunteer.active = false;
         }
 
         if (volunteer.firstVolunteered) {
@@ -237,6 +247,13 @@ Volunteers.getVolunteerById = function(member_id, user, callback) {
   });
 };
 
+Volunteers.updateActiveStatus = function(member_id, active, callback) {
+  var query = `UPDATE volunteer_info SET active = ? WHERE member_id = ?`;
+  var inserts = [active, member_id];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
 Volunteers.addExistingMember = function(member_id, volInfo, callback) {
   var query =
     "INSERT INTO volunteer_info (member_id, emergencyContactRelation, emergencyContactName, emergencyContactPhoneNo, roles, assignedCoordinators, survey, availability, gdpr) VALUES (?,?,?,?,?,?,?,?,?)";
@@ -371,7 +388,6 @@ Volunteers.getRoleById = function(role_id, callback) {
       role.details = JSON.parse(role.details);
       if (Object.keys(role.details).length == 1) {
         role.incomplete = true;
-        console.log("Incomplete");
       } else {
         role.incomplete = false;
       }

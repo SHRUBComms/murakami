@@ -346,7 +346,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                               "&till_id=" +
                                               till.till_id
                                           );
-                                        console.log(sumupSummon);
+                                        
 
                                         if (member) {
                                           if (member.email) {
@@ -498,7 +498,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     "&membershipBought=" +
                                     membershipBought
                                 );
-                              console.log(sumupSummon);
+                              
                               res.send({
                                 status: "redirect",
                                 url: sumupSummon

@@ -182,7 +182,7 @@ router.post(
 
                   //Volunteer Validation
                   var volInfo = req.body.volInfo;
-                  console.log(volInfo);
+                  
                   if (!volInfo.gdpr) {
                     volInfo.gdpr = {};
                   }

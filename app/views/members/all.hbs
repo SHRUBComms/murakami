@@ -5,35 +5,46 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
 <div class="row mt-4 mb-4">
-
-	<div class="col-lg-6 col-md-8 mx-auto">
-			<table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
-				<thead>
-					<th data-sortable="true">Name</th>
-					<th>Status</th>
-					<th></th>
-				</thead>
-				<tbody>
-				{{#each members}}
-					<tr>
-						<td>{{first_name}} {{last_name}}</td>
-						<td>
-							{{#if is_member}}
-								Current member,
-								{{#ifCond free '==' 1}}
-									free
-								{{else}}
-									paid
-								{{/ifCond}}
-							{{else}}
-								No longer a member.
-							{{/if}}
-						</td>
-						<td><a href="{{public_address}}/members/view/{{member_id}}" class="btn btn-block btn-primary">View/Update</a></td>
-					</tr>
-				{{/each}}
-				</tbody>
-			</table>
+	<div class="col-lg-8 col-md-10 mx-auto">
+		<div class="row">
+			<div class="col-lg-8 col-md-9">
+					<table class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+						<thead>
+							<th data-sortable="true">Name</th>
+							<th>Status</th>
+							<th></th>
+						</thead>
+						<tbody>
+						{{#each members}}
+							<tr>
+								<td>{{first_name}} {{last_name}}</td>
+								<td>
+									{{#if is_member}}
+										Current member,
+										{{#ifCond free '==' 1}}
+											free
+										{{else}}
+											paid
+										{{/ifCond}}
+									{{else}}
+										No longer a member.
+									{{/if}}
+								</td>
+								<td><a href="{{public_address}}/members/view/{{member_id}}" class="btn btn-block btn-primary">View/Update</a></td>
+							</tr>
+						{{/each}}
+						</tbody>
+					</table>
+			</div>
+			<div class="col-lg-4 col-md-3">
+				<div class="card">
+					<div class="card-body">
+						<h4 class="mb-1">Totals</h4>
+						<p><b>{{total.current_members}}</b> current members</p>
+						<p><b>{{total.volunteers}}</b> volunteers</p>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-
 </div>

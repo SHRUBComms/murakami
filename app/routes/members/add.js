@@ -204,7 +204,7 @@ router.post("/", function(req, res) {
       }
     });
   } else {
-    console.log("form valid");
+    
     var newMember = {
       member_id: null,
       first_name: first_name,

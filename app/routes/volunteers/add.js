@@ -159,7 +159,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
       //Volunteer Validation
       var volInfo = req.body.volInfo;
-      console.log(volInfo);
+      
       if (!volInfo.gdpr) {
         volInfo.gdpr = {};
       }

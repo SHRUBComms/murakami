@@ -75,7 +75,7 @@ Settings.updateSetting = function(id, data, callback) {
 
   var inserts = [JSON.stringify(data), id];
   var sql = mysql.format(query, inserts);
-  console.log(sql);
+  
   con.query(sql, callback);
 };
 

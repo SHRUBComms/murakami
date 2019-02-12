@@ -19,7 +19,7 @@ router.post(
     var working_groups = req.user.all_working_groups_arr;
     working_groups.push("na");
 
-    console.log(working_groups);
+    
 
     if (working_groups.includes(working_group) && title) {
       Volunteers.quickAddRole(working_group, title, function(err, role) {

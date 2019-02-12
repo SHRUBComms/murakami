@@ -4,6 +4,17 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
+<div class="row mt-4">
+  <div class="col-md-6 mx-auto">
+    <div id="activeMessageAlert" class="alert alert-danger alert-dismissible d-none fade show p-3" role="alert">
+      <span id="activeMessage"></span>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="row">
 	<div class="col-md-8 mx-auto">
 
@@ -11,11 +22,11 @@
 			<div class="card">
 				<div class="card-body">
 						<h1>{{member.first_name}} {{member.last_name}}</h1>
-            <p class="{{#if member.is_member}}text-success{{else}}text-danger{{/if}}">
-							{{#if member.is_member}}
-								Current member
+            <p class="{{#if volInfo.active}}text-success{{else}}text-danger{{/if}}">
+							{{#if volInfo.active}}
+								Active volunteer
 							{{else}}
-								No longer a member.
+								Inactive volunteer
 							{{/if}}
 						</p>
 				</div>
@@ -55,8 +66,18 @@
 			</div>
 		{{/if}}
 
+		<div class="row mt-2">
+			<div class="col-md-5">
+				{{#if volInfo.active}}
+					<a onclick="markAsInactive({{member.member_id}})" class="btn btn-block btn-warning">Mark As Inactive</a>
 
+				{{else}}
+					<a onclick="markAsActive({{member.member_id}})" class="btn btn-block btn-success">Mark As Active</a>
+				{{/if}}
+			</div>
+		</div>
 
+		{{#if volInfo.active}}
 			{{#if user.admin}}
 			<div class="row mt-2">
 				<div class="col-md-5">
@@ -64,6 +85,7 @@
 				</div>
 			</div>
 			{{/if}}
+		{{/if}}
 
 
 		<div class="row mt-4 mb-4">
@@ -189,3 +211,35 @@
 
   </div>
 </div>
+
+<script>
+
+function markAsInactive(member_id, row){
+  var confirmed = confirm("Are you sure you want to mark this volunteer as inactive?");
+  if(confirmed == true){
+    $.get("{{public_address}}/api/get/volunteers/mark-as-inactive/" + member_id, function( response ) {
+      if(response.status == "ok"){
+				location.reload(false);
+      } else {
+        $("#activeMessage").html(response.msg);
+        $("#activeMessageAlert").removeClass("d-none");
+      }
+    });
+  }
+}
+
+function markAsActive(member_id, row){
+  var confirmed = confirm("Are you sure you want to mark this volunteer as active? Membership will be renewed!");
+  if(confirmed == true){
+    $.get("{{public_address}}/api/get/volunteers/mark-as-active/" + member_id, function( response ) {
+      if(response.status == "ok"){
+				location.reload(false);
+      } else {
+        $("#activeMessage").html(response.msg);
+        $("#activeMessageAlert").removeClass("d-none");
+      }
+    });
+  }
+}
+
+</script>
