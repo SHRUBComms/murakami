@@ -2,6 +2,7 @@
 
 var router = require("express").Router();
 var async = require("async");
+var moment = require("moment");
 
 var rootDir = process.env.CWD;
 
@@ -313,12 +314,40 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
                         contactMethods: contactMethods
                       });
                     } else {
-                      req.flash("success_msg", "Volunteer successfully added!");
-                      res.redirect(
-                        process.env.PUBLIC_ADDRESS +
-                          "/volunteers/view/" +
-                          req.params.member_id
-                      );
+                      if (
+                        member.free ||
+                        moment(member.current_membership_exp).isBefore(
+                          moment().add(3, "months")
+                        )
+                      ) {
+                        Members.renew(member.member_id, "3_months", function() {
+                          Members.updateFreeStatus(
+                            member.member_id,
+                            1,
+                            function() {
+                              req.flash(
+                                "success_msg",
+                                "Volunteer successfully added! Membership has been renewed"
+                              );
+                              res.redirect(
+                                process.env.PUBLIC_ADDRESS +
+                                  "/volunteers/view/" +
+                                  req.params.member_id
+                              );
+                            }
+                          );
+                        });
+                      } else {
+                        req.flash(
+                          "success_msg",
+                          "Volunteer successfully added!"
+                        );
+                        res.redirect(
+                          process.env.PUBLIC_ADDRESS +
+                            "/volunteers/view/" +
+                            req.params.member_id
+                        );
+                      }
                     }
                   }
                 );

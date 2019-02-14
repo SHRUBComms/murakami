@@ -77,6 +77,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             )
           ) {
             volunteer.needsToVolunteer = "now";
+            volunteer.lastVolunteeredMessage = "needs to volunteer now";
           } else if (
             moment(volunteer.lastVolunteered).isBetween(
               moment().subtract(1, "months"),
@@ -84,6 +85,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             )
           ) {
             volunteer.needsToVolunteer = "soon";
+            volunteer.lastVolunteeredMessage = "needs to volunteer soon";
           } else {
             volunteer.needsToVolunteer = false;
           }
@@ -99,15 +101,11 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             )
           ) {
             volunteer.needsToVolunteer = "now";
+            volunteer.lastVolunteeredMessage = "needs to volunteer now";
           } else {
             volunteer.needsToVolunteer = "soon";
+            volunteer.lastVolunteeredMessage = "needs to volunteer soon";
           }
-        }
-
-        if (volunteer.active == 1) {
-          volunteer.active = true;
-        } else {
-          volunteer.active = false;
         }
 
         if (volunteer.firstVolunteered) {
@@ -131,6 +129,12 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.roles = JSON.parse(volunteer.roles);
         } else {
           volunteer.roles = [];
+        }
+
+        if (volunteer.roles.length > 0) {
+          volunteer.active = true;
+        } else {
+          volunteer.active = false;
         }
 
         if (volunteer.working_groups) {
@@ -207,6 +211,18 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
                 volunteer.working_groups.push(
                   user.allVolunteerRoles[role].group_id
                 );
+                if (
+                  volunteer.working_groups.indexOf(
+                    user.allVolunteerRoles[role].group_id
+                  ) == -1
+                ) {
+                  volunteer.old_working_groups.splice(
+                    volunteer.working_groups.indexOf(
+                      user.allVolunteerRoles[role].group_id
+                    ),
+                    1
+                  );
+                }
               }
             }
             callback();
@@ -229,15 +245,20 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
   );
 };
 
+Volunteers.updateVolunteersRoles = function(member_id, roles, callback) {
+  var query = "UPDATE volunteer_info SET roles = ? WHERE member_id = ?";
+  var inserts = [JSON.stringify(roles), member_id];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
 Volunteers.getVolunteerById = function(member_id, user, callback) {
-  var query = `SELECT * FROM volunteer_info volunteers
-  INNER JOIN members ON volunteers.member_id=members.member_id AND members.member_id = ?
-  LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered, MIN(date) firstVolunteered
-  FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id`;
+  console.log(member_id);
+  var query = `SELECT * FROM volunteer_info volunteers LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered, MIN(date) firstVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id WHERE volunteers.member_id = ?`;
   var inserts = [member_id];
   var sql = mysql.format(query, inserts);
   con.query(sql, function(err, volInfo) {
-    if (volInfo && !err) {
+    if (volInfo[0] && !err) {
       Volunteers.sanitizeVolunteer([volInfo[0]], user, function(volInfoClean) {
         callback(null, volInfoClean[0]);
       });

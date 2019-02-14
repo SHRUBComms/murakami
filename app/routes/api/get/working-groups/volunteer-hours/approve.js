@@ -1,6 +1,7 @@
 // /api/get/working-groups/volunteer-hours/approve
 
 var router = require("express").Router();
+var moment = require("moment");
 
 var rootDir = process.env.CWD;
 
@@ -37,136 +38,34 @@ router.get(
           if (allWorkingGroups[shift.working_group]) {
             var group = allWorkingGroups[shift.working_group];
             WorkingGroups.approveShift(req.params.shift_id, function(err) {
-              if (err) throw err;
+              message.status = "ok";
+              message.msg =
+                "Shift approved - " +
+                member.full_name +
+                ", " +
+                shift.duration_as_decimal +
+                " hour(s) for " +
+                group.name;
 
-              var transaction = {
-                member_id: member.member_id,
-                till_id: null,
-                user_id: req.user.id,
-                date: new Date(),
-                summary: {
-                  totals: {
-                    tokens: Math.floor(shift.duration_as_decimal) * group.rate
-                  },
-                  bill: [
-                    {
-                      item_id: "volunteering",
-                      tokens: Math.floor(shift.duration_as_decimal) * group.rate
-                    }
-                  ],
-                  comment: "with " + group.name
-                },
-                amount: Math.floor(shift.duration_as_decimal) * group.rate
-              };
-
-              if (transaction.amount > 0) {
-                transaction.summary = JSON.stringify(transaction.summary);
-                Tills.addTransaction(transaction, function(err) {
-                  Members.updateBalance(
-                    member.member_id,
-                    +member.balance + +transaction.amount,
-                    function(err) {
-                      Members.updateLastVolunteered(
-                        member.member_id,
-                        function() {
-                          if (member.first_volunteered) {
-                            Members.updateFirstVolunteered(
-                              member.member_id,
-                              function() {
-                                if (member.free) {
-                                  Members.renew(
-                                    member.member_id,
-                                    "3_months",
-                                    function() {
-                                      message.status = "ok";
-                                      message.msg =
-                                        "Shift approved - " +
-                                        transaction.amount +
-                                        " token(s) issued!";
-                                      res.send(message);
-                                    }
-                                  );
-                                } else {
-                                  message.status = "ok";
-                                  message.msg =
-                                    "Shift approved - " +
-                                    transaction.amount +
-                                    " token(s) issued!";
-                                  res.send(message);
-                                }
-                              }
-                            );
-                          } else {
-                            if (member.free) {
-                              Members.renew(
-                                member.member_id,
-                                "3_months",
-                                function() {
-                                  message.status = "ok";
-                                  message.msg =
-                                    "Shift approved - " +
-                                    transaction.amount +
-                                    " token(s) issued!";
-                                  res.send(message);
-                                }
-                              );
-                            } else {
-                              message.status = "ok";
-                              message.msg =
-                                "Shift approved - " +
-                                transaction.amount +
-                                " token(s) issued!";
-                              res.send(message);
-                            }
-                          }
-                        }
-                      );
-                    }
-                  );
+              if (
+                member.free ||
+                moment(member.current_membership_exp).isBefore(
+                  moment().add(3, "months")
+                )
+              ) {
+                Members.renew(member.member_id, "3_months", function() {
+                  Members.updateFreeStatus(member.member_id, 1, function() {
+                    message.msg += ". Membership renewed!";
+                    res.send(message);
+                  });
                 });
               } else {
-                Members.updateLastVolunteered(member.member_id, function() {
-                  if (member.first_volunteered) {
-                    Members.updateFirstVolunteered(
-                      member.member_id,
-                      function() {
-                        if (member.free) {
-                          Members.renew(
-                            member.member_id,
-                            "3_months",
-                            function() {
-                              message.status = "ok";
-                              message.msg =
-                                "Shift approved - no tokens issued!";
-                              res.send(message);
-                            }
-                          );
-                        } else {
-                          message.status = "ok";
-                          message.msg = "Shift approved - no tokens issued!";
-                          res.send(message);
-                        }
-                      }
-                    );
-                  } else {
-                    if (member.free) {
-                      Members.renew(member.member_id, "3_months", function() {
-                        message.status = "ok";
-                        message.msg = "Shift approved - no tokens issued!";
-                        res.send(message);
-                      });
-                    } else {
-                      message.status = "ok";
-                      message.msg = "Shift approved - no tokens issued!";
-                      res.send(message);
-                    }
-                  }
-                });
+                res.send(message);
               }
             });
           } else {
             message.status = "fail";
-            message.msg = "Invalid group!";
+            message.msg = "Please select a valid group!";
             res.send(message);
           }
         });

@@ -110,9 +110,11 @@ Members.getTotals = function(callback) {
   con.query(query, callback);
 };
 
-Members.getAllCurrentMembers = function(callback) {
-  var query =
-    "SELECT * FROM members WHERE first_name != '[redacted]' AND is_member = 1";
+Members.getAllCurrentMembers = function(user, callback) {
+  var query = `SELECT * FROM members
+                LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles, active activeVolunteer
+                FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
+                WHERE members.first_name != "[redacted]" AND members.is_member = 1`;
   con.query(query, callback);
 };
 
@@ -277,6 +279,13 @@ Members.getNewVolsThisMonth = function(callback) {
   var query =
     "SELECT * FROM members WHERE is_member = 1 AND MONTH(first_volunteered) = MONTH(CURDATE())";
   con.query(query, callback);
+};
+
+Members.updateFreeStatus = function(member_id, free, callback) {
+  var query = "UPDATE members SET free = ? WHERE member_id = ?";
+  var inserts = [free, member_id];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
 };
 
 Members.updateFirstVolunteered = function(member_id, callback) {
@@ -446,19 +455,29 @@ Members.delete = function(member_id, callback) {
 Members.getVolunteersByGroupId = function(group_id, user, callback) {
   var working_groups = user.working_groups_arr;
 
-  var query = `SELECT * FROM volunteer_info volunteers INNER JOIN members ON volunteers.member_id = members.member_id LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id ORDER BY lastVolunteered ASC`;
-  var inserts = ["%" + group_id + "%"];
+  var query = `SELECT * FROM volunteer_info volunteers
 
-  var sql = mysql.format(query, inserts);
+RIGHT JOIN members ON volunteers.member_id = members.member_id
 
-  con.query(sql, function(err, volunteers) {
+LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
+
+ORDER BY lastVolunteered ASC`;
+
+  con.query(query, function(err, volunteers) {
     Volunteers.sanitizeVolunteer(volunteers, user, function(
       sanitizedVolunteers
     ) {
       async.eachOf(
         sanitizedVolunteers,
         function(volunteer, i, callback) {
-          if (group_id) {
+          if (group_id == "inactive") {
+            if (volunteer.working_groups.length > 0) {
+              sanitizedVolunteers[i] = {};
+              callback();
+            } else {
+              callback();
+            }
+          } else if (group_id) {
             if (volunteer.working_groups.includes(group_id) == false) {
               sanitizedVolunteers[i] = {};
               callback();

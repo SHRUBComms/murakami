@@ -62,7 +62,7 @@
       mainHeader = $("#sticky-header"),
       mainHeaderHeight = mainHeader.innerHeight();
 
-    // console.log(mainHeader.innerHeight());
+    // );
     if (scroll > 1) {
       $("#sticky-header").addClass("sticky-menu");
     } else {

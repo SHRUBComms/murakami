@@ -66,17 +66,6 @@
 			</div>
 		{{/if}}
 
-		<div class="row mt-2">
-			<div class="col-md-5">
-				{{#if volInfo.active}}
-					<a onclick="markAsInactive({{member.member_id}})" class="btn btn-block btn-warning">Mark As Inactive</a>
-
-				{{else}}
-					<a onclick="markAsActive({{member.member_id}})" class="btn btn-block btn-success">Mark As Active</a>
-				{{/if}}
-			</div>
-		</div>
-
 		{{#if volInfo.active}}
 			{{#if user.admin}}
 			<div class="row mt-2">
@@ -165,7 +154,7 @@
 					<div class="card-body">
 						<h4 class="mb-1">Roles</h4>
 
-						{{#unless volInfo.roles.0.name}}
+						{{#if volInfo.roles}}
 							<div class="container">
 		            <ul style="list-style-type: disc;">
 		              {{#each volInfo.roles}}
@@ -185,7 +174,7 @@
 							</div>
 						{{else}}
 							<p class="text-danger">Has not been assigned any roles!</p>
-						{{/unless}}
+						{{/if}}
 					</div>
 				</div>
 			</div>

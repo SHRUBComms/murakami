@@ -308,7 +308,7 @@ function updateOptions(path) {
     parent.pop();
     parentReal = true;
     parent = parent.join("[");
-    console.log("Joined: ", parent)
+    
   } else {
     parent = "categories.options"
   }
@@ -358,7 +358,7 @@ function openAddCategoryDialog(path) {
     category = eval(path);
   }
 
-  console.log(category)
+  
 
   toggleDefinedWeight("add");
 

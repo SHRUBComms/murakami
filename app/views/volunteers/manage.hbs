@@ -4,17 +4,6 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
-<div class="row mt-4">
-  <div class="col-md-6 mx-auto">
-    <div id="activeMessageAlert" class="alert alert-danger alert-dismissible d-none fade show p-3" role="alert">
-      <span id="activeMessage"></span>
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-  </div>
-</div>
-
 <div class="row mt-4 ml-1">
   <div class="col-md-12">
     <div class="row">
@@ -22,10 +11,13 @@
 
         <div class="form-group form-inline">
           <select class="form-control" id="working_groups">
-            <!--<option value=""{{#unless group.group_id}} selected{{/unless}}>All My Working Groups</option>-->
-              {{#each user.allWorkingGroupsObj}}
-                <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
-              {{/each}}
+              <!--<option value="inactive">Inactive Volunteers (no assigned roles)</option>
+              <optgroup label="Active Volunteers">-->
+                <option value=""{{#unless group.group_id}} selected{{/unless}}>All Working Groups</option>
+                {{#each user.allWorkingGroupsObj}}
+                  <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+                {{/each}}
+              <!--</optgroup>-->
           </select>
         </div>
 
@@ -45,14 +37,6 @@
     	{{/ifGreaterThan}}
     {{/ifUserClass}}
 
-
-      <div class="form-group form-inline ml-2">
-        <select class="form-control" id="volunteerStatus">
-          <option value="all" {{#ifCond volunteerStatus '==' 'all'}}selected{{/ifCond}}>All Volunteers</option>
-          <option value="active" {{#ifCond volunteerStatus '==' 'active'}}selected{{/ifCond}}>Active Volunteers</option>
-          <option value="inactive" {{#ifCond volunteerStatus '==' 'inactive'}}selected{{/ifCond}}>Inactive Volunteers</option>
-        </select>
-      </div>
 
     </div>
   </div>
@@ -94,66 +78,116 @@
 </div>
 
 
+<div class="modal fade" id="removeVolunteerModal" tabindex="-1" role="dialog" aria-labelledby="removeVolunteerModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="removeVolunteerModalLabel">Remove Volunteer</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="removeVolunteerRoles"></p>
+        <p id="removeVolunteerOldWorkingGroups"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="location.reload();">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
+
+var allWorkingGroups = {{{json user.allWorkingGroupsObj}}}
+var allRoles = {{{json roles}}}
+
 $('#working_groups').on('change', function () {
-  var url = "/volunteers/manage?group_id=" + $("#working_groups").val() + "&volunteers=" + $("#volunteerStatus").val();
+  var url = "/volunteers/manage?group_id=" + $("#working_groups").val();
   window.location = url;
 });
 
-$('#volunteerStatus').on('change', function () {
-  var url = "/volunteers/manage?group_id=" + $("#working_groups").val() + "&volunteers=" + $("#volunteerStatus").val();
-  window.location = url;
-});
+function removeVolunteer(member_id, name, roles, old_working_groups) {
 
-function markAsInactive(member_id, row){
-  var confirmed = confirm("Are you sure you want to mark this volunteer as inactive?");
-  if(confirmed == true){
-    $.get("{{public_address}}/api/get/volunteers/mark-as-inactive/" + member_id, function( response ) {
-      if(response.status == "ok"){
-        $("#activeMessageAlert").removeClass("alert-danger");
-        $("#activeMessageAlert").addClass("alert-success");
-        $("#activeMessage").html(response.msg);
-        $("#activeMessageAlert").removeClass("d-none");
-        if("{{volunteerStatus}}" != "all"){
-          $(row).parents('tr').remove();
-        } else {
-          $(row).removeClass("btn-warning");
-          $(row).addClass("btn-success");
-          $(row).text("Mark As Active");
-          $(row).attr("onclick","markAsActive(" + member_id + ", this)")
-        }
-      } else {
-        $("#activeMessage").html(response.msg);
-        $("#activeMessageAlert").removeClass("d-none");
-      }
-    });
+  console.log(member_id, name, roles, old_working_groups);
+
+  $("#removeVolunteerRoles").html("");
+  $("#removeVolunteerOldWorkingGroups").html("");
+
+  $("removeVolunteerName").html(name);
+
+  var removeRolesMarkup = "<h4 class='mb-3'>Roles</h4>";
+  var removeVolunteerOldWorkingGroupsMarkup = "<h4 class='mb-3'>Working Groups</h4>";
+  var onclick = "";
+
+  if(roles.length > 0){
+
+    removeRolesMarkup += "<table class='table'>"
+
+    for(i=0;i<roles.length;i++){
+      removeRolesMarkup += "<tr>"
+      onclick = "removeRole(\"" + member_id + "\", \"" + roles[i] + "\", this)"
+      removeRolesMarkup += "<td>" + allRoles[roles[i]].details.title + "</td>"
+      removeRolesMarkup += "<td><a class='btn btn-sm btn-danger' onclick='" + onclick + "'>Remove</a></td>"
+      removeRolesMarkup += "</tr>"
+    }
+
+    removeRolesMarkup += "</table>"
+    $("#removeVolunteerRoles").html(removeRolesMarkup);
   }
+
+  if(old_working_groups.length > 0){
+
+    removeVolunteerOldWorkingGroupsMarkup += "<table class='table'>"
+
+    for(i=0;i<old_working_groups.length;i++){
+      removeVolunteerOldWorkingGroupsMarkup += "<tr class='p-2'>"
+      onclick = "removeWorkingGroup(\"" + member_id + "\", \"" + old_working_groups[i] + "\", this)"
+      removeVolunteerOldWorkingGroupsMarkup += "<td>" + allWorkingGroups[old_working_groups[i]].name + "</td>"
+      removeVolunteerOldWorkingGroupsMarkup += "<td><a class='btn btn-sm btn-danger' onclick='" + onclick + "'>Remove</a></td>"
+      removeVolunteerOldWorkingGroupsMarkup += "</tr>"
+    }
+
+    removeVolunteerOldWorkingGroupsMarkup += "</table>"
+    $("#removeVolunteerOldWorkingGroups").html(removeVolunteerOldWorkingGroupsMarkup);
+  }
+
+
+  $("#removeVolunteerModal").modal("show");
 }
 
-function markAsActive(member_id, row){
-  var confirmed = confirm("Are you sure you want to mark this volunteer as active? Membership will be renewed!");
-  if(confirmed == true){
-    $.get("{{public_address}}/api/get/volunteers/mark-as-active/" + member_id, function( response ) {
-      if(response.status == "ok"){
-        $("#activeMessageAlert").removeClass("alert-danger");
-        $("#activeMessageAlert").addClass("alert-success");
-        $("#activeMessage").html(response.msg);
-        $("#activeMessageAlert").removeClass("d-none");
-        if("{{volunteerStatus}}" != "all"){
-          $(row).parents('tr').remove();
-        } else {
-          $(row).addClass("btn-warning");
-          $(row).removeClass("btn-success");
-          $(row).text("Mark As Inactive");
-          $(row).attr("onclick","markAsInctive(" + member_id + ", this)")
-        }
-
-      } else {
-        $("#activeMessage").html(response.msg);
-        $("#activeMessageAlert").removeClass("d-none");
+function removeWorkingGroup(member_id, group_id, row) {
+  $.post("{{public_address}}/api/post/volunteers/remove-working-group",
+    {
+      member_id: member_id,
+      group_id: group_id
+    },
+    function(data) {
+      if(data.status == "ok"){
+        $(row).parents("tr").remove();
       }
-    });
-  }
+      alert(data.msg);
+
+    }
+  )
+}
+
+function removeRole(member_id, role_id, row) {
+  $.post("{{public_address}}/api/post/volunteers/remove-role",
+    {
+      member_id: member_id,
+      role_id: role_id
+    },
+    function(data) {
+      if(data.status == "ok"){
+        $(row).parents("tr").remove();
+      }
+      alert(data.msg);
+
+    }
+  )
 }
 
 </script>

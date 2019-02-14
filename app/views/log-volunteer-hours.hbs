@@ -71,6 +71,9 @@
 
 
   <script>
+
+  var allWorkingGroups = {{{json user.allWorkingGroupsObj}}};
+
   function search(){
     $.ajax({
         type: "POST",
@@ -112,13 +115,15 @@
 
       	var workingGroupSelectMarkup =  '<select id="working_group_select_' + results[i].id + '" class="form-control">'+
       										'<option>Select a working group...</option>';
-      	for(let j=0;j<results[i].working_groups.length;j++){
-  			workingGroupSelectMarkup += "<option value='" + results[i].working_groups[j].group_id + "'>" + results[i].working_groups[j].name + "</option>";
-      	}
+        	Object.keys(allWorkingGroups).forEach(function(key){
+            workingGroupSelectMarkup += "<option value='" + allWorkingGroups[key].group_id + "'>" + allWorkingGroups[key].name + "</option>";
+          })
+
+      	
 
       	workingGroupSelectMarkup += '</select>';
         var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].id +  ")'>Log Hours</a>"
-      	if(results[i].working_groups.length > 0){
+      	if(Object.keys(allWorkingGroups).length > 0){
   	      	var shiftLogger =   '<div class="row">' +
             		      						'<div class="col-lg-8 mx-auto mb-4">' +
             		      							workingGroupSelectMarkup +
