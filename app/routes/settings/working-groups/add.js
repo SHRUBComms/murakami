@@ -22,15 +22,13 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
   var group = {
     prefix: req.body.prefix,
     name: req.body.name,
-    parent: req.body.parent
+    parent: req.body.parent || null
   };
 
   if (
-    req.user.allWorkingGroupsObj[parent] &&
-    !req.user.allWorkingGroupsObj[parent].parent
+    !req.user.allWorkingGroupsObj[group.parent] ||
+    req.user.allWorkingGroupsObj[group.parent].parent
   ) {
-    group.parent = parent;
-  } else {
     group.parent = null;
   }
 
