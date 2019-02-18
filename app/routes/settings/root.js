@@ -10,10 +10,10 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   res.redirect("/settings/general");
 });
 
-router.use("/working-groups", require("./working-groups"));
+router.use("/working-groups", require("./working-groups/root"));
 router.use("/carbon-factors", require("./carbon-factors"));
 router.use("/email-templates", require("./email-templates"));
-router.use("/tills", require("./tills"));
+router.use("/tills", require("./tills/root"));
 router.use("/static-content", require("./static-content"));
 
 module.exports = router;

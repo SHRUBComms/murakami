@@ -1,0 +1,48 @@
+
+
+
+<div class="col-md-12">
+  <div class="row">
+
+      <div class="form-group form-inline">
+
+        <select class="form-control" id="{{id}}" name="{{id}}">
+
+            <option disabled selected>Select a working group...</option>
+
+            {{#if parentsOnly}}
+              <option value='none' {{#unless selectedGroup}}selected{{/unless}}>No Parent</option>
+              {{#each user.allWorkingGroupsObj}}
+                {{#unless parent}}
+                  <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}}</option>
+                {{/unless}}
+              {{/each}}
+            {{else}}
+              {{#each user.allWorkingGroupsObj}}
+                {{#unless parent}}
+
+                  {{#ifCond children.length '>' 0}}
+                    <optgroup label="{{name}}">
+                      <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}} (General)</option>
+                      {{#each children}}
+                       <option value='{{this}}'{{#ifCond this '==' ../../selectedGroup}} selected{{/ifCond}}>{{lookup (lookup ../../user.allWorkingGroupsObj this) 'name'}}</option>
+                      {{/each}}
+                    </optgroup>
+                  {{else}}
+                    <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}}</option>
+                  {{/ifCond}}
+
+                {{/unless}}
+              {{/each}}
+            {{/if}}
+
+        </select>
+      </div>
+
+  </div>
+</div>
+
+
+{{#if path}}
+  {{>working-groups/select-script path=path id=id}}
+{{/if}}

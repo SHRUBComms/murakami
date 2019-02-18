@@ -34,6 +34,19 @@ WorkingGroups.getAllMembersByGroup = function(group_id, callback) {
   con.query(sql, callback);
 };
 
+WorkingGroups.addWorkingGroup = function(group, callback) {
+  var query =
+    "INSERT INTO working_groups (group_id, prefix, name, parent) VALUES (?,?,?,?)";
+  Helpers.generateGroupId(group.parent, function(id) {
+    var inserts = [id, group.prefix, group.name, group.parent];
+    var sql = mysql.format(query, inserts);
+
+    con.query(sql, function(err) {
+      callback(err, id);
+    });
+  });
+};
+
 /* VOLUNTEER HOURS */
 
 WorkingGroups.getAllVolunteerHours = function(callback) {
@@ -320,8 +333,8 @@ WorkingGroups.makeVolunteerHoursNice = function(
 
 WorkingGroups.updateGroup = function(group, callback) {
   var query =
-    "UPDATE working_groups SET prefix = ?, name = ?, rate = ? WHERE group_id = ?";
-  var inserts = [group.prefix, group.name, group.rate, group.group_id];
+    "UPDATE working_groups SET prefix = ?, name = ?, parent = ? WHERE group_id = ?";
+  var inserts = [group.prefix, group.name, group.parent, group.group_id];
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
 };

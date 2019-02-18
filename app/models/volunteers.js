@@ -211,6 +211,20 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
                 volunteer.working_groups.push(
                   user.allVolunteerRoles[role].group_id
                 );
+                try {
+                  if (
+                    user.allWorkingGroupsObj[
+                      user.allVolunteerRoles[role].group_id
+                    ].parent
+                  ) {
+                    volunteer.working_groups.push(
+                      user.allWorkingGroupsObj[
+                        user.allVolunteerRoles[role].group_id
+                      ].parent
+                    );
+                  }
+                } catch (err) {}
+
                 if (
                   volunteer.working_groups.indexOf(
                     user.allVolunteerRoles[role].group_id
@@ -253,7 +267,6 @@ Volunteers.updateVolunteersRoles = function(member_id, roles, callback) {
 };
 
 Volunteers.getVolunteerById = function(member_id, user, callback) {
-  console.log(member_id);
   var query = `SELECT * FROM volunteer_info volunteers LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered, MIN(date) firstVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id WHERE volunteers.member_id = ?`;
   var inserts = [member_id];
   var sql = mysql.format(query, inserts);

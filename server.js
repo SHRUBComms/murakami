@@ -172,6 +172,13 @@ app.use(function(req, res, next) {
             function(group, callback) {
               all_working_groups_arr.push(group.group_id);
               working_groups[group.group_id] = group;
+              if (group.parent) {
+                try {
+                  working_groups[group.parent].children.push(group.group_id);
+                } catch (err) {
+                  working_groups[group.parent].children = [group.group_id];
+                }
+              }
               callback();
             },
             function() {
@@ -182,10 +189,19 @@ app.use(function(req, res, next) {
                 function(wg, i, callback) {
                   req.user.working_groups[i] =
                     working_groups[req.user.working_groups[i]];
-                  req.user.working_groups[i].full_name =
-                    req.user.working_groups[i].prefix +
-                    " " +
+
+                  if (req.user.working_groups[i].parent) {
+                    req.user.working_groups[i].full_name =
+                      req.user.allWorkingGroupsObj[
+                        req.user.working_groups[i].parent
+                      ].name + ": ";
+
                     req.user.working_groups[i].name;
+                  } else {
+                    req.user.working_groups[i].full_name =
+                      req.user.working_groups[i].name;
+                  }
+
                   callback();
                 },
                 function(err) {

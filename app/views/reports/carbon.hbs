@@ -26,11 +26,9 @@
 	      </select>
 	    </div>
 	    <div class="form-group">
-	      <select class="form-control" name="group_id">
-	        {{#each working_groups}}
-	          <option value="{{group_id}}"{{#ifCond group_id '==' ../group_id}} selected{{/ifCond}}>{{name}}</option>
-	        {{/each}}
-	      </select>
+
+					{{>working-groups/select selectedGroup=group_id id="group_id" user=user}}
+
 	    </div>
 	    <div class="form-group">
 	      <select class="form-control" name="method">

@@ -98,7 +98,19 @@ Members.sanitizeMember = function(member, user, callback) {
 Members.getAll = function(callback) {
   var query =
     "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
-  con.query(query, callback);
+  con.query(query, function(err, members) {
+    var membersObj = {};
+    async.each(
+      members,
+      function(member, callback) {
+        membersObj[member.member_id] = member;
+        callback();
+      },
+      function() {
+        callback(err, members, membersObj);
+      }
+    );
+  });
 };
 
 Members.getTotals = function(callback) {

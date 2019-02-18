@@ -52,7 +52,9 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
               till: till,
               categories: categories,
               carbonCategories: carbonCategories,
-              status: status
+              status: status,
+              endDate: req.query.endDate || null,
+              startDate: req.query.startDate || null
             });
           });
         });

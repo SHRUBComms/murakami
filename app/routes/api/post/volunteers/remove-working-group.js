@@ -15,7 +15,7 @@ router.post(
 
   function(req, res) {
     var member_id = req.body.member_id.trim();
-    console.log(member_id);
+    
     var group_id = req.body.group_id.trim().toUpperCase();
     var response = { msg: "Something went wrong!", status: "fail" };
 
@@ -31,7 +31,7 @@ router.post(
             JSON.stringify(volunteer.working_groups),
             function(err) {
               if (err) {
-                console.log(err);
+                
                 res.send(response);
               } else {
                 response.status = "ok";

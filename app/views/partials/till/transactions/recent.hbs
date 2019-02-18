@@ -1,14 +1,18 @@
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+<link href="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.css" rel="stylesheet">
 
 <!-- Latest compiled and minified JavaScript -->
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.js"></script>
 
-
+<!-- Export plugin -->
+<script src="https://unpkg.com/tableexport.jquery.plugin@1.10.1/tableExport.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
 <div class="row mt-4">
 	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
-		<table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-page-size="5" data-toggle="table" data-striped="true" data-url="/api/get/tills/transactions/{{till.till_id}}">
+		<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" {{#if pageSize}}data-pagination="false"{{else}}data-pagination="true"{{/if}} data-toggle="table" data-export-data-type="all" data-striped="true" data-url="/api/get/tills/transactions/{{till.till_id}}?{{#if startDate}}startDate={{startDate}}{{/if}}" data-show-export="true" data-export-options='{
+         "fileName": "{{till.name}} Transactions - {{startDate}} to {{endDate}}"
+       }'>
 		    <thead>
 		        <tr>
 		        	<th><a class="btn btn-default" onclick="$('#transaction_history').bootstrapTable('refresh');">&#8635;</a></th>
@@ -31,3 +35,10 @@
 	</div>
 
 </div>
+
+<script>
+$(document).ready(function(){
+	$(".bootstrap-table > div.fixed-table-toolbar > div > div > button > i").addClass("fa-download");
+	$("div.bootstrap-table > div.fixed-table-toolbar > div > div > ul").css("padding-left", "10px");
+})
+</script>

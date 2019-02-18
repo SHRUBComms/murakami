@@ -25,7 +25,7 @@ var job = new CronJob({
           } else {
 
             if(moment(member.current_exp_membership).format("YYYY-MM-DD") == (moment().format("YYYY-MM-DD"))){
-              console.log("Expiring today");
+              
 
               try {
                 memberMails[member.member_id].push("goodbye");
@@ -38,19 +38,19 @@ var job = new CronJob({
               });
 
             } else if(moment(member.current_exp_membership).isBefore(moment().format("YYYY-MM-DD"))) {
-              console.log("Already expired");
+              
               Members.updateStatus(member.member_id, 0, function(err) {
 
               });
             } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment().add(1, "months").format("YYYY-MM-DD")){
-              console.log("Expiring in one month");
+              
                 try {
                   memberMails[member.member_id].push("renewal_notice_long");
                 } catch (err) {
                   memberMails[member.member_id] = ["renewal_notice_long"];
                 }
             } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment().add(1, "week").format("YYYY-MM-DD")){
-              console.log("Expiring in one week");
+              
               try {
                 memberMails[member.member_id].push("renewal_notice_short");
               } catch (err) {
@@ -63,7 +63,7 @@ var job = new CronJob({
 
         },
         function() {
-          console.log(memberMails);
+          
           async.eachOf(
             memberMails,
             function(membersMail, member_id, callback) {
@@ -72,7 +72,7 @@ var job = new CronJob({
                 function(mail, callback) {
                   Mail.sendAutomated(mail, member_id, function(err) {
 
-                    console.log("Sent " + mail + " to " + member_id);
+                    
                     callback();
                   });
                 },

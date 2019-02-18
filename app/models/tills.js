@@ -401,10 +401,15 @@ Tills.getTotalCashTakingsSince = function(till_id, timestamp, callback) {
   });
 };
 
-Tills.getTransactionsSinceOpening = function(till_id, timestamp, callback) {
+Tills.getAllTransactionsBetweenDates = function(
+  till_id,
+  startDate,
+  endDate,
+  callback
+) {
   var query =
-    "SELECT * FROM transactions WHERE till_id = ? AND (date >= ? AND date <= NOW()) ORDER BY date DESC";
-  var inserts = [till_id, timestamp];
+    "SELECT * FROM transactions WHERE till_id = ? AND (date >= ? AND date <= ?) ORDER BY date DESC";
+  var inserts = [till_id, startDate, endDate];
   var sql = mysql.format(query, inserts);
 
   con.query(sql, callback);

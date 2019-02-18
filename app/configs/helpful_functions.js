@@ -40,6 +40,28 @@ Helpers.uniqueIntId = function(length, table, id_name, callback) {
   });
 };
 
+Helpers.generateGroupId = function(parent, callback) {
+  var query = "SELECT group_id FROM working_groups WHERE group_id = ?";
+  // Generate ID!
+  var id;
+  if (parent) {
+    id = parent + "-" + Helpers.generateIntId(3);
+  } else {
+    id = "WG-" + Helpers.generateIntId(3);
+  }
+
+  var inserts = [id];
+  var sql = mysql.format(query, inserts);
+
+  con.query(sql, function(err, result) {
+    if (result.length == 1) {
+      Helpers.generateGroupId(parent, callback);
+    } else if (result.length == 0) {
+      callback(id);
+    }
+  });
+};
+
 Helpers.uniqueBase64Id = function(length, table, id_name, callback) {
   var query = "SELECT ?? FROM ?? WHERE ?? = ?";
   // Generate ID!
@@ -228,7 +250,6 @@ Helpers.getRevenue = function(transaction) {
     revenue.total += +transaction.summary.totals.money;
 
     if (transaction.summary.paymentMethod == "cash") {
-      
       revenue.breakdown.cash += +transaction.summary.totals.money;
     } else if (transaction.summary.paymentMethod == "card") {
       revenue.breakdown.card += +transaction.summary.totals.money;
