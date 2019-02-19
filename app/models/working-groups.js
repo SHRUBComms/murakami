@@ -243,13 +243,14 @@ WorkingGroups.createShift = function(shift, callback) {
   var dt = new Date();
   Helpers.uniqueIntId(11, "volunteer_hours", "shift_id", function(id) {
     var query =
-      "INSERT INTO volunteer_hours (shift_id, member_id, date, duration_as_decimal, working_group, approved) VALUES (?,?,?,?,?,?)";
+      "INSERT INTO volunteer_hours (shift_id, member_id, date, duration_as_decimal, working_group, note, approved) VALUES (?,?,?,?,?,?,?)";
     var inserts = [
       id,
       shift.member_id,
       new Date(dt.setMonth(dt.getMonth())),
       shift.duration,
       shift.working_group,
+      shift.note || null,
       shift.approved
     ];
     var sql = mysql.format(query, inserts);

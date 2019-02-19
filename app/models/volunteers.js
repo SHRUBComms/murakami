@@ -172,37 +172,6 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
         }
         volunteer.dateCreated = moment(volunteer.dateCreated).format("L");
 
-        if (user.class != "admin") {
-          //Redact info if common working group
-          volunteer.address = null;
-
-          if (
-            !Helpers.hasOneInCommon(
-              volunteer.working_groups || [],
-              user.working_groups_arr ||
-                !Helpers.hasOneInCommon(volunteer.assignedCoordinators, [
-                  user.id
-                ])
-            )
-          ) {
-            if (volunteer.survey.gdpr) {
-              if (volunteer.survey.gdpr.email != "on") {
-                volunteer.email = null;
-              }
-              if (volunteer.survey.gdpr.phone != "on") {
-                volunteer.phone_no = null;
-              }
-            } else {
-              volunteer.email = null;
-              volunteer.phone_no = null;
-            }
-          } else {
-            volunteer.canUpdate = true;
-          }
-        } else {
-          volunteer.canUpdate = true;
-        }
-
         async.each(
           volunteer.roles,
           function(role, callback) {
@@ -245,6 +214,37 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             volunteer.working_groups = Array.from(
               new Set(volunteer.working_groups)
             );
+
+            if (user.class != "admin") {
+              //Redact info if common working group
+              volunteer.address = null;
+
+              if (
+                !Helpers.hasOneInCommon(
+                  volunteer.working_groups || [],
+                  user.working_groups_arr || []
+                )
+              ) {
+                if (volunteer.survey.gdpr) {
+                  if (
+                    volunteer.survey.gdpr.email != "on" &&
+                    user.class != "staff"
+                  ) {
+                    volunteer.email = null;
+                  }
+                  if (
+                    volunteer.survey.gdpr.phone != "on" &&
+                    user.class != "staff"
+                  ) {
+                    volunteer.phone_no = null;
+                  }
+                }
+              } else {
+                volunteer.canUpdate = true;
+              }
+            } else {
+              volunteer.canUpdate = true;
+            }
 
             callback();
           }

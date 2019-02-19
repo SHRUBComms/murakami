@@ -3,6 +3,7 @@
 var router = require("express").Router();
 var async = require("async");
 var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -268,8 +269,24 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
                 function(role, callback) {
                   if (!rolesGroupedById[role]) {
                     rolesValid = false;
+                    callback();
+                  } else {
+                    if (
+                      member.working_groups.includes(
+                        rolesGroupedById[role].group_id
+                      )
+                    ) {
+                      member.working_groups.splice(
+                        member.working_groups.indexOf(
+                          rolesGroupedById[role].group_id
+                        ),
+                        1
+                      );
+                      callback();
+                    } else {
+                      callback();
+                    }
                   }
-                  callback();
                 },
                 function() {
                   if (rolesValid == false) {
@@ -314,13 +331,20 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
                         contactMethods: contactMethods
                       });
                     } else {
+                      Members.updateWorkingGroups(
+                        member.member_id,
+                        JSON.stringify(member.working_groups),
+                        function(err) {}
+                      );
+
                       if (
-                        member.free ||
-                        moment(member.current_membership_exp).isBefore(
+                        moment(member.current_exp_membership, "L").isBefore(
                           moment().add(3, "months")
                         )
                       ) {
-                        Members.renew(member.member_id, "3_months", function() {
+                        Members.renew(member.member_id, "3_months", function(
+                          err
+                        ) {
                           Members.updateFreeStatus(
                             member.member_id,
                             1,

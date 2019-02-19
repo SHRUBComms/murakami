@@ -4,6 +4,7 @@ var router = require("express").Router();
 var async = require("async");
 var moment = require("moment");
 moment.locale("en-gb");
+var sanitizeHtml = require("sanitize-html");
 
 var rootDir = process.env.CWD;
 
@@ -37,7 +38,9 @@ router.get(
                 ) {
                   if (member && !err) {
                     shift.name =
-                      "<a href='" + process.env.PUBLIC_ADDRESS + "/volunteers/view/" +
+                      "<a href='" +
+                      process.env.PUBLIC_ADDRESS +
+                      "/volunteers/view/" +
                       member.member_id +
                       "'>" +
                       member.first_name +
@@ -47,10 +50,8 @@ router.get(
 
                     shift.date = moment(shift.date).format("l");
                     shift.duration = shift.duration_as_decimal;
-                    shift.tokens =
-                      Math.floor(shift.duration) *
-                      (req.user.allWorkingGroupsObj[shift.working_group].rate ||
-                        0);
+                    shift.note = shift.note || "-";
+                    shift.note = sanitizeHtml(shift.note);
 
                     shift.working_group =
                       req.user.allWorkingGroupsObj[shift.working_group].name;
@@ -104,7 +105,9 @@ router.get(
             Members.getById(shift.member_id, req.user, function(err, member) {
               if (member && !err) {
                 shift.name =
-                  "<a href='" + process.env.PUBLIC_ADDRESS + "/volunteers/view/" +
+                  "<a href='" +
+                  process.env.PUBLIC_ADDRESS +
+                  "/volunteers/view/" +
                   member.member_id +
                   "'>" +
                   member.first_name +

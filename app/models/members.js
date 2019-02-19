@@ -36,24 +36,10 @@ Members.sanitizeMember = function(member, user, callback) {
       };
     }
 
-    if (user.class == "till") {
-      member.email = null;
-      member.phone_no = null;
-      member.address = null;
-    } else if (user.class == "volunteer" || user.class == "staff") {
-      member.address = null;
-      try {
-        member.gdpr = JSON.parse(member.gdpr);
-        if (!member.gdpr.email) {
-          member.email = null;
-        }
-        if (!member.gdpr.phone) {
-          member.phone_no = null;
-        }
-      } catch (err) {
-        member.email = null;
-        member.phone_no = null;
-      }
+    try {
+      member.gdpr = JSON.parse(member.gdpr);
+    } catch (err) {
+      member.gdpr = {};
     }
 
     try {
@@ -87,6 +73,32 @@ Members.sanitizeMember = function(member, user, callback) {
       },
       function() {
         member.working_groups = Array.from(new Set(member.working_groups));
+
+        if (user.class != "admin") {
+          //Redact info if common working group
+          member.address = null;
+
+          if (
+            !Helpers.hasOneInCommon(
+              member.working_groups,
+              user.working_groups_arr
+            )
+          ) {
+            if (member.gdpr) {
+              if (member.gdpr.email != "on" && user.class != "staff") {
+                member.email = null;
+              }
+              if (member.gdpr.phone != "on" && user.class != "staff") {
+                member.phone_no = null;
+              }
+            }
+          } else {
+            member.canUpdate = true;
+          }
+        } else {
+          member.canUpdate = true;
+        }
+
         callback(null, member);
       }
     );

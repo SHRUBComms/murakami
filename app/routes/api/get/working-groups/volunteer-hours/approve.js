@@ -48,14 +48,13 @@ router.get(
                 group.name;
 
               if (
-                member.free ||
-                moment(member.current_membership_exp).isBefore(
+                moment(member.current_exp_membership).isBefore(
                   moment().add(3, "months")
                 )
               ) {
                 Members.renew(member.member_id, "3_months", function() {
                   Members.updateFreeStatus(member.member_id, 1, function() {
-                    message.msg += ". Membership renewed!";
+                    message.msg += ".<br/>Membership renewed!";
                     res.send(message);
                   });
                 });

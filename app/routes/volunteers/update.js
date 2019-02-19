@@ -182,7 +182,7 @@ router.post(
 
                   //Volunteer Validation
                   var volInfo = req.body.volInfo;
-                  
+
                   if (!volInfo.gdpr) {
                     volInfo.gdpr = {};
                   }
@@ -388,8 +388,24 @@ router.post(
                     function(role, callback) {
                       if (!rolesGroupedById[role]) {
                         rolesValid = false;
+                        callback();
+                      } else {
+                        if (
+                          member.working_groups.includes(
+                            rolesGroupedById[role].group_id
+                          )
+                        ) {
+                          member.working_groups.splice(
+                            member.working_groups.indexOf(
+                              rolesGroupedById[role].group_id
+                            ),
+                            1
+                          );
+                          callback();
+                        } else {
+                          callback();
+                        }
                       }
-                      callback();
                     },
                     function() {
                       if (rolesValid == false) {
@@ -437,75 +453,101 @@ router.post(
                       err,
                       member_id
                     ) {
-                      Volunteers.updateVolunteer(
+                      Members.updateWorkingGroups(
                         member.member_id,
-                        volInfo,
+                        JSON.stringify(member.working_groups),
                         function(err) {
-                          if (err) {
-                            res.render("volunteers/update", {
-                              errors: [{ msg: "Something went wrong!" }],
-                              title: "Update Volunteer",
-                              volunteersActive: true,
-                              volInfo: volInfo,
-                              rolesChanged: rolesChanged,
-                              member: member,
-                              coordinators: coordinators,
-                              roles: rolesGroupedByGroup,
-                              skills: skills,
-                              contactMethods: contactMethods,
-                              first_name: first_name,
-                              last_name: last_name,
-                              email: email,
-                              phone_no: phone_no,
-                              address: address,
-                              gdprConsent: gdprConsent
-                            });
-                          } else {
-                            var subscribeBody = {
-                              email_address: email,
-                              status: "subscribed",
-                              merge_fields: {
-                                FNAME: first_name,
-                                LNAME: last_name
+                          Volunteers.updateVolunteer(
+                            member.member_id,
+                            volInfo,
+                            function(err) {
+                              if (err) {
+                                res.render("volunteers/update", {
+                                  errors: [{ msg: "Something went wrong!" }],
+                                  title: "Update Volunteer",
+                                  volunteersActive: true,
+                                  volInfo: volInfo,
+                                  rolesChanged: rolesChanged,
+                                  member: member,
+                                  coordinators: coordinators,
+                                  roles: rolesGroupedByGroup,
+                                  skills: skills,
+                                  contactMethods: contactMethods,
+                                  first_name: first_name,
+                                  last_name: last_name,
+                                  email: email,
+                                  phone_no: phone_no,
+                                  address: address,
+                                  gdprConsent: gdprConsent
+                                });
+                              } else {
+                                var subscribeBody = {
+                                  email_address: email,
+                                  status: "subscribed",
+                                  merge_fields: {
+                                    FNAME: first_name,
+                                    LNAME: last_name
+                                  }
+                                };
+                                if (generalNewsletterConsent == "on") {
+                                  var shrubMailchimp = new Mailchimp(
+                                    process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
+                                  );
+                                  shrubMailchimp.put(
+                                    "/lists/" +
+                                      process.env
+                                        .SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+                                      "/members/" +
+                                      md5(email),
+                                    subscribeBody
+                                  );
+                                }
+
+                                if (fseNewsletterConsent == "on") {
+                                  var fseMailchimp = new Mailchimp(
+                                    process.env.FSE_MAILCHIMP_SECRET_API_KEY
+                                  );
+                                  fseMailchimp.put(
+                                    "/lists/" +
+                                      process.env
+                                        .FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
+                                      "/members/" +
+                                      md5(email),
+                                    subscribeBody
+                                  );
+                                }
+
+                                if (
+                                  moment(
+                                    member.current_exp_membership,
+                                    "L"
+                                  ).isBefore(moment().add(3, "months"))
+                                ) {
+                                  Members.renew(
+                                    member.member_id,
+                                    "3_months",
+                                    function() {
+                                      Members.updateFreeStatus(
+                                        member.member_id,
+                                        1,
+                                        function(err) {}
+                                      );
+                                    }
+                                  );
+                                }
+
+                                req.flash(
+                                  "success_msg",
+                                  "Volunteer successfully updated!"
+                                );
+                                res.redirect(
+                                  process.env.PUBLIC_ADDRESS +
+                                    "/volunteers/view/" +
+                                    member.member_id
+                                );
                               }
-                            };
-                            if (generalNewsletterConsent == "on") {
-                              var shrubMailchimp = new Mailchimp(
-                                process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-                              );
-                              shrubMailchimp.put(
-                                "/lists/" +
-                                  process.env
-                                    .SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                                  "/members/" +
-                                  md5(email),
-                                subscribeBody
-                              );
                             }
-
-                            if (fseNewsletterConsent == "on") {
-                              var fseMailchimp = new Mailchimp(
-                                process.env.FSE_MAILCHIMP_SECRET_API_KEY
-                              );
-                              fseMailchimp.put(
-                                "/lists/" +
-                                  process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
-                                  "/members/" +
-                                  md5(email),
-                                subscribeBody
-                              );
-                            }
-
-                            req.flash(
-                              "success_msg",
-                              "Volunteer successfully updated!"
-                            );
-                            res.redirect(
-                              process.env.PUBLIC_ADDRESS +
-                                "/volunteers/view/" +
-                                member.member_id
-                            );
-                          }
+                          );
                         }
                       );
                     });

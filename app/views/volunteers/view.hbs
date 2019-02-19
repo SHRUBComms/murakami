@@ -66,15 +66,13 @@
 			</div>
 		{{/if}}
 
-		{{#if volInfo.active}}
-			{{#if user.admin}}
+
 			<div class="row mt-2">
 				<div class="col-md-5">
 			     <a class='btn btn-success form-control' href="{{public_address}}/api/get/members/id-remind/{{member.member_id}}">Send Volunteer Their ID ({{member.member_id}})</a>
 				</div>
 			</div>
-			{{/if}}
-		{{/if}}
+
 
 
 		<div class="row mt-4 mb-4">
@@ -117,22 +115,36 @@
 					<div class="card-body">
 						<h4>Contact</h4>
 
-						{{#ifCond user.class '==' 'admin'}}
-							<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-							<p>{{member.phone_no}}</p>
-							<p>{{member.address}}</p>
-						{{else}}
-							{{#ifCond member.gdpr.email '&&' member.email}}
-								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-							{{else}}
-								<p>You can't view this member's email address</p>
-							{{/ifCond}}
-							{{#ifCond member.gdpr.phone '&&' member.phone_no}}
-								<p>{{member.phone_no}}</p>
-							{{else}}
-								<p>You can't view this member's phone number</p>
-							{{/ifCond}}
-						{{/ifCond}}
+            {{#if volInfo.canUpdate}}
+              <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+              <p>{{member.phone_no}}</p>
+              <p>{{member.address}}</p>
+            {{else}}
+              {{#ifCond user.class '==' 'admin'}}
+                <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+                <p>{{member.phone_no}}</p>
+                <p>{{member.address}}</p>
+              {{/ifCond}}
+              {{#ifCond user.class '==' 'staff'}}
+                {{#if member.gdpr.email}}
+  								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
+  							{{else}}
+  								<a href="mailto:{{member.email}}"><p class="text-danger">{{member.email}} <b>(permission required)</b></p></a>
+  							{{/if}}
+  							{{#if member.phone_no}}
+                  {{#if member.gdpr.phone}}
+  					        <p>{{member.phone_no}}</p>
+                  {{else}}
+                    <p class="text-danger">{{member.phone_no}} <b>(permission required)</b></p>
+                  {{/if}}
+  							{{/if}}
+              {{/ifCond}}
+              {{#ifCond user.class '==' 'volunteer'}}
+                <p>You can't view this volunteer's email</p>
+                <p>You can't view this volunteer's phone number</p>
+              {{/ifCond}}
+
+						{{/if}}
 
 					</div>
 				</div>

@@ -93,9 +93,6 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
                         rolesNeedFinished.length > 0 &&
                         incompleteRolesOn == "on"
                       ) {
-                        console.log(
-                          rolesNeedFinished[rolesNeedFinished.length - 1]
-                        );
                         notifications.push({
                           message:
                             "You have volunteer roles that need to be completed",

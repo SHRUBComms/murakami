@@ -5,6 +5,7 @@ var async = require("async");
 var request = require("request");
 var moment = require("moment");
 var Recaptcha = require("express-recaptcha").Recaptcha;
+var sanitizeHtml = require("sanitize-html");
 
 var rootDir = process.env.CWD;
 
@@ -91,8 +92,7 @@ router.post("/", function(req, res) {
                       group.name;
 
                     if (
-                      member.free ||
-                      moment(member.current_membership_exp).isBefore(
+                      moment(member.current_exp_membership).isBefore(
                         moment().add(3, "months")
                       )
                     ) {
@@ -134,46 +134,56 @@ router.post("/", function(req, res) {
     var member_id = req.body.member_id;
     var duration = req.body.duration;
     var working_group = req.body.working_group;
+    var note = req.body.note || null;
 
     if (!isNaN(duration) && duration >= 0.25) {
-      WorkingGroups.getAll(function(err, allWorkingGroups) {
-        if (allWorkingGroups[working_group]) {
-          Volunteers.getAllRoles(function(
-            err,
-            rolesArray,
-            rolesByGroup,
-            rolesObj
-          ) {
-            Members.getById(
-              member_id,
-              { class: "admin", allVolunteerRoles: rolesObj },
-              function(err, member) {
-                if (member) {
-                  var shift = {};
-                  shift.member_id = member_id;
-                  shift.working_group = working_group;
-                  shift.duration = duration;
-                  shift.approved = null;
+      if (!note || (note && note.length <= 200)) {
+        WorkingGroups.getAll(function(err, allWorkingGroups) {
+          if (allWorkingGroups[working_group]) {
+            Volunteers.getAllRoles(function(
+              err,
+              rolesArray,
+              rolesByGroup,
+              rolesObj
+            ) {
+              Members.getById(
+                member_id,
+                { class: "admin", allVolunteerRoles: rolesObj },
+                function(err, member) {
+                  if (member) {
+                    var shift = {};
+                    shift.member_id = member_id;
+                    shift.working_group = working_group;
+                    shift.duration = duration;
+                    shift.note = sanitizeHtml(note);
+                    shift.approved = null;
 
-                  request.post(
-                    {
-                      url: "https://www.google.com/recaptcha/api/siteverify",
-                      form: {
-                        secret: process.env.RECAPTCHA_SECRET_KEY,
-                        response: req.body["g-recaptcha-response"]
-                      }
-                    },
-                    function(error, response, body) {
-                      if (body) {
-                        body = JSON.parse(body);
-                        if (body.success == true) {
-                          WorkingGroups.createShift(shift, function(err) {
+                    request.post(
+                      {
+                        url: "https://www.google.com/recaptcha/api/siteverify",
+                        form: {
+                          secret: process.env.RECAPTCHA_SECRET_KEY,
+                          response: req.body["g-recaptcha-response"]
+                        }
+                      },
+                      function(error, response, body) {
+                        if (body) {
+                          body = JSON.parse(body);
+                          if (body.success == true) {
+                            WorkingGroups.createShift(shift, function(err) {
+                              req.flash(
+                                "success_msg",
+                                "Shift logged - awaiting review by an admin!"
+                              );
+                              res.redirect("/volunteers/log-hours");
+                            });
+                          } else {
                             req.flash(
-                              "success_msg",
-                              "Shift logged - awaiting review by an admin!"
+                              "error",
+                              "Please confirm that you're not a robot"
                             );
                             res.redirect("/volunteers/log-hours");
-                          });
+                          }
                         } else {
                           req.flash(
                             "error",
@@ -181,27 +191,24 @@ router.post("/", function(req, res) {
                           );
                           res.redirect("/volunteers/log-hours");
                         }
-                      } else {
-                        req.flash(
-                          "error",
-                          "Please confirm that you're not a robot"
-                        );
-                        res.redirect("/volunteers/log-hours");
                       }
-                    }
-                  );
-                } else {
-                  req.flash("error", "No member associated with that ID");
-                  res.redirect("/volunteers/log-hours");
+                    );
+                  } else {
+                    req.flash("error", "No member associated with that ID");
+                    res.redirect("/volunteers/log-hours");
+                  }
                 }
-              }
-            );
-          });
-        } else {
-          req.flash("error", "Please select a valid working group");
-          res.redirect("/volunteers/log-hours");
-        }
-      });
+              );
+            });
+          } else {
+            req.flash("error", "Please select a valid working group");
+            res.redirect("/volunteers/log-hours");
+          }
+        });
+      } else {
+        req.flash("error", "Please enter a note less than 200 characters.");
+        res.redirect("/volunteers/log-hours");
+      }
     } else {
       req.flash("error", "Please enter a valid duration");
       res.redirect("/volunteers/log-hours");
