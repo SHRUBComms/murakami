@@ -77,7 +77,6 @@ Tills.getAllTransactionsBetweenDatesByTillId = function(
     "SELECT * FROM transactions WHERE till_id = ? AND date >= ? AND date <= ?";
   var inserts = [till_id, startDate, endDate];
   var sql = mysql.format(query, inserts);
-  console.log(sql);
   con.query(sql, callback);
 };
 
@@ -386,7 +385,10 @@ Tills.getTotalCashTakingsSince = function(till_id, timestamp, callback) {
         function(transaction, callback) {
           transaction.summary = JSON.parse(transaction.summary);
 
-          if (transaction.summary.paymentMethod == "cash") {
+          if (
+            transaction.summary.paymentMethod == "cash" &&
+            !isNaN(transaction.summary.totals.money)
+          ) {
             money_total = +money_total + +transaction.summary.totals.money;
           }
 
@@ -397,7 +399,7 @@ Tills.getTotalCashTakingsSince = function(till_id, timestamp, callback) {
         }
       );
     } else {
-      callback(0);
+      callback("0");
     }
   });
 };
