@@ -77,6 +77,7 @@ Tills.getAllTransactionsBetweenDatesByTillId = function(
     "SELECT * FROM transactions WHERE till_id = ? AND date >= ? AND date <= ?";
   var inserts = [till_id, startDate, endDate];
   var sql = mysql.format(query, inserts);
+  console.log(sql);
   con.query(sql, callback);
 };
 

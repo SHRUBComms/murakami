@@ -18,10 +18,10 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
     if (till) {
       Tills.getStatusById(req.params.till_id, function(status) {
         if (status.opening == 1 || req.query.startDate) {
-          Tills.getAllTransactionsBetweenDates(
+          Tills.getAllTransactionsBetweenDatesByTillId(
             req.params.till_id,
             req.query.startDate || status.timestamp,
-            req.query.endDate || moment().format("YYYY-MM-DD"),
+            req.query.endDate || new Date(),
             function(err, transactions) {
               if (transactions.length > 0) {
                 Members.getAll(function(err, members, membersObj) {
