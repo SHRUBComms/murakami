@@ -74,14 +74,15 @@ Tills.getAllTransactionsBetweenDatesByTillId = function(
   callback
 ) {
   var query =
-    "SELECT * FROM transactions WHERE till_id = ? AND date >= ? AND date <= ?";
+    "SELECT * FROM transactions WHERE till_id = ? AND date >= ? AND date <= ? ORDER BY date DESC";
   var inserts = [till_id, startDate, endDate];
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
 };
 
 Tills.getAllTransactionsBetweenDates = function(startDate, endDate, callback) {
-  var query = "SELECT * FROM transactions WHERE date >= ? AND date <= ?";
+  var query =
+    "SELECT * FROM transactions WHERE date >= ? AND date <= ? ORDER BY date DESC";
   var inserts = [startDate, endDate];
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
