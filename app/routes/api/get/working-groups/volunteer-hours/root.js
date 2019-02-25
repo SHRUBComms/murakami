@@ -51,6 +51,9 @@ router.get(
                     shift.date = moment(shift.date).format("l");
                     shift.duration = shift.duration_as_decimal;
                     shift.note = shift.note || "-";
+                    if (shift.note == "null") {
+                      shift.note = "-";
+                    }
                     shift.note = sanitizeHtml(shift.note);
 
                     shift.working_group =
