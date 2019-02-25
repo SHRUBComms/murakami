@@ -76,7 +76,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         "short_description",
         "Please enter a shorter description for this role (<= 150 characters)"
       )
-      .isLength({ max: 150 });
+      .isLength({ max: 310 });
 
     req
       .checkBody(
@@ -89,7 +89,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         "experience_required",
         "Please enter a shorter description of the experience required for this role (<= 150 characters)"
       )
-      .isLength({ max: 150 });
+      .isLength({ max: 310 });
 
     req
       .checkBody(
@@ -102,7 +102,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         "experience_gained",
         "Please enter a shorter description of the experience gained for this role (<= 150 characters)"
       )
-      .isLength({ max: 150 });
+      .isLength({ max: 500 });
 
     req
       .checkBody(

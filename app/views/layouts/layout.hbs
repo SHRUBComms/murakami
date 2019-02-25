@@ -389,6 +389,8 @@ function markAsRead(notification_id){
 }
 
 {{#if user}}
+
+
   $.get("{{public_address}}/api/get/notifications", function(notifications){
     if(notifications.length > 0){
 
@@ -414,5 +416,24 @@ function markAsRead(notification_id){
       $("#notificationsArea").html("<p class='text-muted text-center'>Nothing to see here...</p>");
     }
   });
+
+
+
 {{/if}}
+
+$('body').on('input', ":input", function(){
+  var maxLength = $(this).attr('maxlength') || null;
+  var noChars = $(this).val().length || 0;
+  if(maxLength){
+    var charsRemaining = (maxLength - noChars);
+    console.log($(this).next());
+    if($(this).next().hasClass("charsRemaining")){
+      $(this).next().replaceWith("<span class=\"badge badge-info float-right mb-2 charsRemaining \">" + charsRemaining +"/"+ maxLength + "</span>");
+    } else {
+      $("<span class=\"badge badge-info float-right mb-2 charsRemaining \">" + charsRemaining +"/"+ maxLength + "</span>").insertAfter(this);
+    }
+
+  }
+})
+
 </script>
