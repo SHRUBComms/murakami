@@ -139,7 +139,7 @@
 
 .sidebar-header {
   padding: 19px 32px 20px;
-  background: #fff;
+  background: #303641;
   border-bottom: 1px solid #343e50;
 }
 .sidebar-menu .logo {
@@ -147,7 +147,7 @@
 }
 .logo a {
   display: inline-block;
-  max-width: 125px;
+  max-width: 135px;
 }
 
 .metismenu > li > a {
