@@ -1,3 +1,5 @@
+{{#ifUserClass user.class '["admin", "staff"]'}}
+
 <div class="row mt-4">
   <div class="col-md-6 mx-auto">
     <div class="row mt-2">
@@ -114,3 +116,44 @@
 
   </div>
 </div>
+
+{{else}}
+
+<div class="row mt-4">
+  <div class="col-md-6 mx-auto">
+
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <h3 class="text-center">{{role.details.title}}</h3>
+        <p class="text-center">with {{group.name}}</p>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <table class="table-light table-responsive mt-4 mx-auto" style="width: 100%;">
+
+          {{#each role.details}}
+            <tr class="p-2">
+              <td class="p-3">
+                <p>
+                  <b>
+                    {{formToPlain @key}}
+                  </b>
+                </p>
+              </td>
+              <td class="p-3">
+                <p>{{this}}</p>
+              </td>
+            </tr>
+          {{/each}}
+        </table>
+      </div>
+    </div>
+
+
+
+  </div>
+</div>
+
+{{/ifUserClass}}
