@@ -1,6 +1,7 @@
 // /settings/working-groups/add
 
 var router = require("express").Router();
+var h2p = require("html2plaintext");
 
 var rootDir = process.env.CWD;
 
@@ -25,6 +26,10 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
     parent: req.body.parent || null,
     welcomeMessage: req.body.welcomeMessage || null
   };
+
+  if (h2p(group.welcomeMessage) == null) {
+    group.welcomeMessage = null;
+  }
 
   if (
     !req.user.allWorkingGroupsObj[group.parent] ||

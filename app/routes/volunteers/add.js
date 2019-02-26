@@ -15,6 +15,7 @@ var Users = require(rootDir + "/app/models/users");
 var Volunteers = require(rootDir + "/app/models/volunteers");
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Mail = require(rootDir + "/app/configs/mail");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
@@ -159,7 +160,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
       //Volunteer Validation
       var volInfo = req.body.volInfo;
-      
+
       if (!volInfo.gdpr) {
         volInfo.gdpr = {};
       }
@@ -462,6 +463,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                   subscribeBody
                 );
               }
+
+              Mail.sendAutomated("welcome_volunteer", member_id, function(
+                err
+              ) {});
 
               req.flash("success_msg", "Volunteer successfully added!");
               res.redirect(

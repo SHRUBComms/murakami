@@ -2,6 +2,7 @@ var nodemailer = require("nodemailer");
 
 var htmlToText = require("nodemailer-html-to-text").htmlToText;
 var sanitizeHtml = require("sanitize-html");
+var cleaner = require("clean-html");
 var moment = require("moment");
 moment.locale("en-gb");
 var async = require("async");
@@ -105,11 +106,7 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                     async.eachOf(
                       member.working_groups,
                       function(working_group, i, callback) {
-                        if (
-                          allWorkingGroups[working_group].welcomeMessage &&
-                          allWorkingGroups[working_group].welcomeMessage !=
-                            "<p><br></p>"
-                        ) {
+                        if (allWorkingGroups[working_group].welcomeMessage) {
                           console.log(
                             allWorkingGroups[working_group].welcomeMessage
                           );
@@ -146,6 +143,10 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                     .replace(/\|membership_id\|/g, member.member_id);
 
                   mail.markup = sanitizeHtml(mail.markup);
+
+                  cleaner.clean(mail.markup, {}, function(cleanMarkup) {
+                    mail.markup = cleanMarkup;
+                  });
 
                   var message = {
                     html: mail.markup,
