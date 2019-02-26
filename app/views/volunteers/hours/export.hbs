@@ -1,0 +1,78 @@
+<!-- Latest compiled and minified CSS -->
+<link href="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.js"></script>
+
+<!-- Export plugin -->
+<script src="https://unpkg.com/tableexport.jquery.plugin@1.10.1/tableExport.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/extensions/export/bootstrap-table-export.min.js"></script>
+
+
+<div class="row mt-4 mb-4">
+	<div class="col-md-6 mx-auto">
+	  <form action="{{public_address}}/volunteers/export-hours" method="get">
+	    <div class="form-group">
+	      <input type="date" name="startDate" class="form-control" value="{{startDate}}">
+	    </div>
+	    <div class="form-group">
+	      <input type="date" name="endDate" class="form-control" value="{{endDate}}">
+	    </div>
+
+	    <div class="form-group">
+
+					{{>working-groups/select selectedGroup=group.group_id id="group_id" user=user}}
+
+	    </div>
+
+	    <button type="submit" class="btn btn-primary btn-block">Get Hours</button>
+	  </form>
+	</div>
+</div>
+
+
+<div class="row mt-4">
+	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
+		<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true"  data-show-export="true" data-export-options='{
+         "fileName": "{{lookup (lookup user.allWorkingGroupsObj group.group_id) 'name'}} Volunteer Hours - {{startDate}} to {{endDate}}"
+       }'>
+		    <thead>
+		        <tr>
+		        	<th>Date</th>
+							<th>Member</th>
+		        	<th>Duration</th>
+		          <th>Note</th>
+		        </tr>
+		    </thead>
+
+			<tbody>
+        {{#each shifts}}
+          <tr>
+            <td>{{niceDate date}}</td>
+						<td>
+
+								{{member}}
+
+						</td>
+            <td>{{duration_as_decimal}}</td>
+            <td>
+              {{#if note}}
+                {{note}}
+              {{else}}
+                -
+              {{/if}}
+            </td>
+          </tr>
+        {{/each}}
+			</tbody>
+		</table>
+	</div>
+
+</div>
+
+<script>
+$(document).ready(function(){
+	$(".bootstrap-table > div.fixed-table-toolbar > div > div > button > i").addClass("fa-download");
+	$("div.bootstrap-table > div.fixed-table-toolbar > div > div > ul").css("padding-left", "10px");
+})
+</script>
