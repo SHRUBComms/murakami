@@ -22,7 +22,8 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
   var group = {
     prefix: req.body.prefix,
     name: req.body.name,
-    parent: req.body.parent || null
+    parent: req.body.parent || null,
+    welcomeMessage: req.body.welcomeMessage || null
   };
 
   if (
@@ -39,7 +40,8 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
         workingGroupsActive: true,
         errors: [{ msg: "Something went wrong!" }],
         name: group.name,
-        prefix: group.prefix
+        prefix: group.prefix,
+        welcomeMessage: group.welcomeMessage
       });
     } else {
       req.flash("success_msg", "Working group added successfully!");

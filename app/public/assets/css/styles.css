@@ -2401,4 +2401,20 @@ button.note-btn.btn.btn-light {
   color: #333 !important;
 }
 
+ul {
+  list-style-type: disc;
+}
+
+ul > li {
+  margin-left: 20px;
+}
+
+.plain-list {
+  list-style-type: none;
+}
+
+.plain-list > li {
+  margin-left: 0px;
+}
+
 /*-------------------- END Bootstrap Overrides ------------------- */

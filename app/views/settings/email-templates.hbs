@@ -100,13 +100,19 @@
                   {{/ifCond}}
 
                   <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" name="templateActive" id="templateActive" {{#if template.active}}checked{{/if}} />
+                  <div class="row mt-4">
+                    <div class="col-md-12">
+                      <div id="editor" oninput="update_preview()" onblur="update_preview()">
+                          {{{template.markup}}}
+                      </div>
+                      <input type="hidden" name="markup" id="markup" value="{{template.markup}}">
+                    </div>
+                  </div>
+
                 </div>
 
 
-                <div id="editor" oninput="update_preview()" onblur="update_preview()">
-                    {{{template.markup}}}
-                </div>
-                <input type="hidden" name="markup" id="markup" value="{{template.markup}}">
+
             </div>
 
             {{#ifCond template.mail_id '!=' 'footer'}}
@@ -121,7 +127,11 @@
                           <li><b>fullname</b> - the recipient's full name</li>
                           <li><b>exp_date</b> - the date the recipient's membership will end</li>
                           <li><b>balance</b> - the recipient's current balance</li>
-                          <li><b>tokens</b> - the amount of tokens given to member after donation</li>
+                          {{#ifCond template.mail_id '==' 'donation'}}
+                            <li><b>tokens</b> - the amount of tokens given to member after donation</li>
+                          {{/ifCond}}
+                          <li><b>roles</b> - lists assigned volunteer role(s)</li>
+                          <li><b>wg_summary</b> - adds working group welcome message(s)</li>
                       </ul>
                   </div>
               </div>
@@ -162,7 +172,9 @@ function update_preview(){
                                 .replace(/\|exp_date\|/g, "September 20th 2023")
                                 .replace(/\|membership_id\|/g, "64917625122")
                                 .replace(/\|balance\|/g, "11")
-                                .replace(/\|tokens\|/g, "4");
+                                .replace(/\|tokens\|/g, "4")
+                                .replace(/\|wg_summary\|/g, "{{{group.welcomeMessage}}}")
+                                .replace(/\|roles\|/g, "<ul><li><a href='#'>Shop Assistant</a></li></ul>");
     {{#ifCond template.mail_id '!=' 'footer'}}
       $("#subject-preview").html($("#subject").val());
     {{/ifCond}}

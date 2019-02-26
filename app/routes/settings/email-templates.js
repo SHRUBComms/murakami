@@ -5,6 +5,7 @@ var router = require("express").Router();
 var rootDir = process.env.CWD;
 
 var Settings = require(rootDir + "/app/models/settings");
+var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -23,17 +24,20 @@ router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
     if (err) throw err;
     Settings.getEmailTemplateById(req.params.mail_id, function(err, template) {
       Settings.getEmailTemplateById("footer", function(err, footer) {
-        if (err || !template[0]) {
-          res.redirect("/settings/email-templates/");
-        } else {
-          res.render("settings/email-templates", {
-            title: "Email Templates",
-            settingsActive: true,
-            templates: templates,
-            template: template[0],
-            footer: footer[0]
-          });
-        }
+        WorkingGroups.getById("WG-100", function(err, group) {
+          if (err || !template[0]) {
+            res.redirect("/settings/email-templates/");
+          } else {
+            res.render("settings/email-templates", {
+              title: "Email Templates",
+              settingsActive: true,
+              templates: templates,
+              template: template[0],
+              footer: footer[0],
+              group: group[0]
+            });
+          }
+        });
       });
     });
   });
@@ -67,7 +71,6 @@ router.post("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
 
     Settings.updateEmailTemplate(template, function(err) {
       if (err) {
-        
         res.redirect(
           process.env.PUBLIC_ADDRESS +
             "/settings/email-templates/" +

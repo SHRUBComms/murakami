@@ -4,10 +4,12 @@ var htmlToText = require("nodemailer-html-to-text").htmlToText;
 var sanitizeHtml = require("sanitize-html");
 var moment = require("moment");
 moment.locale("en-gb");
+var async = require("async");
 
 var Members = require("../models/members");
 var Settings = require("../models/settings");
 var WorkingGroups = require("../models/working-groups");
+var Volunteers = require("../models/volunteers");
 
 var Mail = {};
 
@@ -54,55 +56,125 @@ Mail.sendSupport = function(from_name, from_address, subject, html, callback) {
 };
 
 Mail.sendAutomated = function(mail_id, member_id, callback) {
-  Members.getById(member_id, { class: "admin" }, function(err, member) {
-    Settings.getEmailTemplateById(mail_id, function(err, template) {
-      Settings.getEmailTemplateById("footer", function(err, footer) {
-        if (!err) {
-          mail = template[0];
-          footer = footer[0];
+  Volunteers.getAllRoles(function(err, rolesArray, allRolesByGroup, allRoles) {
+    WorkingGroups.getAll(function(err, allWorkingGroups) {
+      Members.getById(
+        member_id,
+        { class: "admin", allVolunteerRoles: allRoles },
+        function(err, member) {
+          Settings.getEmailTemplateById(mail_id, function(err, template) {
+            Settings.getEmailTemplateById("footer", function(err, footer) {
+              if (!err) {
+                mail = template[0];
+                footer = footer[0];
 
-          if (mail.active) {
-            if (footer.active) {
-              mail.markup += "<hr />" + footer.markup;
-            }
+                if (mail.active) {
+                  if (footer.active) {
+                    mail.markup += "<hr />" + footer.markup;
+                  }
 
-            mail.markup = mail.markup
-              .replace(/\|first_name\|/g, member.first_name)
-              .replace(/\|last_name\|/g, member.last_name)
-              .replace(
-                /\|fullname\|/g,
-                member.first_name + " " + member.last_name
-              )
-              .replace(/\|exp_date\|/g, member.current_exp_membership)
-              .replace(/\|membership_id\|/g, member.member_id);
+                  if (mail.markup.indexOf("|roles|") >= 0) {
+                    var rolesMarkup = "";
+                    async.eachOf(
+                      member.roles,
+                      function(role, i, callback) {
+                        if (allRoles[member.roles[i]]) {
+                          rolesMarkup +=
+                            "<li><a href='" +
+                            process.env.PUBLIC_ADDRESS +
+                            "/volunteers/roles/view/" +
+                            member.roles[i] +
+                            "'>" +
+                            allRoles[member.roles[i]].details.title +
+                            "</a></li>";
+                        }
+                        callback();
+                      },
+                      function() {
+                        mail.markup = mail.markup.replace(
+                          /\|roles\|/g,
+                          rolesMarkup || "<i>No assigned roles.</i>"
+                        );
+                      }
+                    );
+                  }
 
-            mail.markup = sanitizeHtml(mail.markup);
+                  if (mail.markup.indexOf("|wg_summary|") >= 0) {
+                    var workingGroupsMarkup = "";
 
-            var message = {
-              html: mail.markup,
-              from: "SHRUB Co-op <membership@shrubcoop.org>",
-              to:
-                member.first_name +
-                " " +
-                member.last_name +
-                " <" +
-                member.email +
-                ">",
-              subject: mail.subject
-            };
+                    async.eachOf(
+                      member.working_groups,
+                      function(working_group, i, callback) {
+                        if (
+                          allWorkingGroups[working_group].welcomeMessage &&
+                          allWorkingGroups[working_group].welcomeMessage !=
+                            "<p><br></p>"
+                        ) {
+                          console.log(
+                            allWorkingGroups[working_group].welcomeMessage
+                          );
+                          workingGroupsMarkup +=
+                            allWorkingGroups[working_group].welcomeMessage;
 
-            var transporter = nodemailer.createTransport(
-              Mail.supportSmtpConfig
-            );
-            transporter.use("compile", htmlToText());
-            transporter.sendMail(message, callback);
-          } else {
-            callback("Email template not active!", null);
-          }
-        } else {
-          callback("Something went wrong.", null);
+                          // prettier-ignore
+                          if (
+                              i != (member.working_groups.length - 1)
+                            ) {
+                              workingGroupsMarkup += "<br />";
+                            }
+                        }
+
+                        callback();
+                      },
+                      function() {
+                        mail.markup = mail.markup.replace(
+                          /\|wg_summary\|/g,
+                          workingGroupsMarkup
+                        );
+                      }
+                    );
+                  }
+
+                  mail.markup = mail.markup
+                    .replace(/\|first_name\|/g, member.first_name)
+                    .replace(/\|last_name\|/g, member.last_name)
+                    .replace(
+                      /\|fullname\|/g,
+                      member.first_name + " " + member.last_name
+                    )
+                    .replace(/\|exp_date\|/g, member.current_exp_membership)
+                    .replace(/\|membership_id\|/g, member.member_id);
+
+                  mail.markup = sanitizeHtml(mail.markup);
+
+                  var message = {
+                    html: mail.markup,
+                    from: "SHRUB Co-op <membership@shrubcoop.org>",
+                    to:
+                      member.first_name +
+                      " " +
+                      member.last_name +
+                      " <" +
+                      member.email +
+                      ">",
+                    subject: mail.subject
+                  };
+
+                  var transporter = nodemailer.createTransport(
+                    Mail.supportSmtpConfig
+                  );
+                  transporter.use("compile", htmlToText());
+                  transporter.sendMail(message, callback);
+                } else {
+                  callback("Email template not active!", null);
+                }
+              } else {
+                callback("Something went wrong.", null);
+              }
+            });
+          });
         }
-      });
+      );
     });
   });
 };

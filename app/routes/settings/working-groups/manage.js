@@ -69,6 +69,8 @@ router.post("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
         group.parent = null;
       }
 
+      group.welcomeMessage = req.body.welcomeMessage || null;
+
       if (!errors) {
         WorkingGroups.updateGroup(group, function(err) {
           req.flash("success_msg", "Group successfully updated!");

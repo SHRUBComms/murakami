@@ -52,14 +52,14 @@
             <div class="main-menu">
                 <div class="menu-inner">
                     <nav>
-                        <ul class="metismenu" id="menu">
+                        <ul class="metismenu plain-list" id="menu">
                           {{#if user}}
                               {{#unless tillMode}}
 
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
                                   <li {{#if membersActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
-                                      <ul class="collapse">
+                                      <ul class="collapse plain-list">
                                           <li><a href="{{public_address}}/members">Manage Members</a></li>
                                           <li><a href="{{public_address}}/members/add">Add Member</a></li>
                                       </ul>
@@ -68,7 +68,7 @@
 
                                 <li {{#if volunteersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
-                                    <ul class="collapse">
+                                    <ul class="collapse plain-list">
 
                                       <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
                                       <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
@@ -79,7 +79,7 @@
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
                                   <li {{#if volunteerRolesActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
-                                      <ul class="collapse">
+                                      <ul class="collapse plain-list">
                                         <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
                                         <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
                                         <!--{{#ifUserClass user.class '["admin"]'}}
@@ -91,7 +91,7 @@
 
                                 <li {{#if volunteerHoursActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
-                                    <ul class="collapse">
+                                    <ul class="collapse plain-list">
                                       <li><a href="{{public_address}}/log">Log Hours</a></li>
                                       <li><a href="{{public_address}}/volunteers/review-hours">Review Hours</a></li>
                                     </ul>
@@ -101,7 +101,7 @@
 
                                   <li {{#if tillsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
-                                      <ul class="collapse">
+                                      <ul class="collapse plain-list">
                                           <li><a href="{{public_address}}/settings/tills">Manage Tills</a></li>
                                       </ul>
                                   </li>
@@ -110,7 +110,7 @@
 
                                 <li {{#if carbonActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
-                                    <ul class="collapse">
+                                    <ul class="collapse plain-list">
                                         <li><a href="{{public_address}}/log-outgoing-weight">Log Outgoing Weight</a></li>
                                         {{#ifUserClass user.class '["admin", "staff"]'}}
                                           <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
@@ -122,7 +122,7 @@
                                 {{#ifUserClass user.class '["admin"]'}}
                                 <li {{#if workingGroupsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
-                                    <ul class="collapse">
+                                    <ul class="collapse plain-list">
                                         <li><a href="{{public_address}}/settings/working-groups/manage">Manage Working Groups</a></li>
                                         <li><a href="{{public_address}}/settings/working-groups/add">Add Working Group</a></li>
                                     </ul>
@@ -131,7 +131,7 @@
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
                                 <li {{#if usersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
-                                    <ul class="collapse">
+                                    <ul class="collapse plain-list">
                                         <li><a href="{{public_address}}/users">Manage Users</a></li>
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
                                     </ul>
@@ -142,7 +142,7 @@
 
                                   <li {{#if settingsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
-                                      <ul class="collapse">
+                                      <ul class="collapse plain-list">
                                           <li><a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a></li>
                                           <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
                                       </ul>
