@@ -1,5 +1,8 @@
 // Custom handlebar helpers
 
+var moment = require("moment");
+moment.locale("en-gb");
+
 var register = function(Handlebars) {
   var helpers = {
     select: function(value, options) {
@@ -127,6 +130,9 @@ var register = function(Handlebars) {
     },
     setVariable: function(varName, varValue, options) {
       options.data.root[varName] = varValue;
+    },
+    niceDate: function(date) {
+      return moment(date).format("L");
     }
   };
 

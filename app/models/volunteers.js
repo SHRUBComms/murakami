@@ -8,6 +8,7 @@ moment.locale("en-gb");
 var rootDir = process.env.CWD;
 
 var Settings = require(rootDir + "/app/models/settings");
+var Members = require(rootDir + "/app/models/members");
 
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
@@ -62,6 +63,37 @@ Volunteers.getAllPublicRoles = function(callback) {
         callback(err, roles);
       }
     );
+  });
+};
+
+Volunteers.getHoursBetweenTwoDatesByWorkingGroup = function(
+  group_id,
+  startDate,
+  endDate,
+  callback
+) {
+  var query =
+    "SELECT * FROM volunteer_hours WHERE working_group = ? AND approved = 1 AND date >= DATE(?) AND date <= DATE(?) ORDER BY date DESC";
+  var inserts = [group_id, startDate, endDate];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, function(err, shifts) {
+    Members.getAll(function(err, membersArray, members) {
+      async.each(
+        shifts,
+        function(shift, callback) {
+          if (members[shift.member_id]) {
+            shift.member =
+              members[shift.member_id].first_name +
+              " " +
+              members[shift.member_id].last_name;
+          }
+          callback();
+        },
+        function() {
+          callback(err, shifts);
+        }
+      );
+    });
   });
 };
 

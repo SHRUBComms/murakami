@@ -11,6 +11,7 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
 });
 
 router.use("/review-hours", require("./review-hours"));
+router.use("/export-hours", require("./export-hours"));
 router.use("/find-a-volunteer", require("./find-a-volunteer"));
 router.use("/induct-volunteers", require("./induct-volunteers"));
 router.use("/log-hours", require("./log-hours"));
