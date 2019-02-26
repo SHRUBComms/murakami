@@ -487,8 +487,8 @@ LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volu
 
 ORDER BY lastVolunteered ASC`;
 
-  con.query(query, function(err, volunteers) {
-    Volunteers.sanitizeVolunteer(volunteers, user, function(
+  con.query(query, function(err, returnedVolunteers) {
+    Volunteers.sanitizeVolunteer(returnedVolunteers, user, function(
       sanitizedVolunteers
     ) {
       async.eachOf(

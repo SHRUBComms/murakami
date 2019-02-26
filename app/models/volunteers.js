@@ -3,12 +3,10 @@ var mysql = require("mysql");
 var async = require("async");
 var moment = require("moment");
 moment.locale("en-gb");
-moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
 var Settings = require(rootDir + "/app/models/settings");
-var Members = require(rootDir + "/app/models/members");
 
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
@@ -72,6 +70,7 @@ Volunteers.getHoursBetweenTwoDatesByWorkingGroup = function(
   endDate,
   callback
 ) {
+  var Members = require(rootDir + "/app/models/members");
   var query =
     "SELECT * FROM volunteer_hours WHERE working_group = ? AND approved = 1 AND date >= DATE(?) AND date <= DATE(?) ORDER BY date DESC";
   var inserts = [group_id, startDate, endDate];
