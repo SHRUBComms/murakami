@@ -7,7 +7,6 @@ moment.locale("en-gb");
 var rootDir = process.env.CWD;
 
 var Settings = require(rootDir + "/app/models/settings");
-var Members = require(rootDir + "/app/models/members");
 
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
