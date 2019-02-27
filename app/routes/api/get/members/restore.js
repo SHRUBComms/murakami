@@ -18,15 +18,15 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
       Members.updateStatus(member_id, 1, function(err) {
         if (err) {
           req.flash("error_msg", "Something went wrong!");
-          res.redirect("/members/view/" + member_id);
+          res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
         } else {
           req.flash("success_msg", "Membership restored!");
-          res.redirect("/members/view/" + member_id);
+          res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
         }
       });
     } else {
       req.flash("error_msg", "Membership not in date, please renew");
-      res.redirect("/members/view/" + member_id);
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
     }
   });
 });

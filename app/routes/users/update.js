@@ -19,7 +19,7 @@ router.get(
     Users.getById(req.params.user_id, req.user, function(err, user) {
       if (err || !user[0]) {
         req.flash("error_msg", "User not found!");
-        res.redirect("/users");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/users");
       } else {
         user = user[0];
 
@@ -49,7 +49,7 @@ router.post(
     Users.getById(req.params.user_id, req.user, function(err, user) {
       if (err || !user[0] || user[0].deactivated) {
         req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect("/users/update/" + req.params.user_id);
+        res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id);
       } else {
         user = user[0];
         var first_name = req.body.first_name.trim();
@@ -218,7 +218,7 @@ router.post(
 
           Users.update(updatedUser, function(err, user) {
             req.flash("success_msg", "User updated!");
-            res.redirect("/users/update/" + req.params.user_id);
+            res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id);
           });
         }
       }

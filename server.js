@@ -235,27 +235,16 @@ app.use(function(req, res, next) {
 var job = require("./app/configs/cron");
 job.start();
 
-// Import routers
-var appRouter = require("./app/routes/root");
-var apiRouter = require("./app/routes/api/root");
-var tillRouter = require("./app/routes/till/root");
-var membersRouter = require("./app/routes/members/root");
-var reportsRouter = require("./app/routes/reports/root");
-var settingsRouter = require("./app/routes/settings/root");
-var workingGroupsRouter = require("./app/routes/working-groups/root");
-var usersRouter = require("./app/routes/users/root");
-var volunteersRouter = require("./app/routes/volunteers/root");
-
-// Use routers
-app.use("/members", membersRouter);
-app.use("/api", apiRouter);
-app.use("/reports", reportsRouter);
-app.use("/till", tillRouter);
-app.use("/settings", settingsRouter);
-//app.use("/working-groups", workingGroupsRouter);
-app.use("/users", usersRouter);
-app.use("/volunteers", volunteersRouter);
-app.use("/", appRouter); // *ALWAYS* PLACE THIS ROUTER LAST
+// Define routers
+app.use("/members", require("./app/routes/members/root"));
+app.use("/api", require("./app/routes/api/root"));
+app.use("/till", require("./app/routes/till/root"));
+app.use("/settings", require("./app/routes/settings/root"));
+app.use("/working-groups", require("./app/routes/working-groups/root"));
+app.use("/users", require("./app/routes/users/root"));
+app.use("/volunteers", require("./app/routes/volunteers/root"));
+app.use("/carbon-accounting", require("./app/routes/carbon-accounting/root"));
+app.use("/", require("./app/routes/root")); // *ALWAYS* PLACE THIS ROUTER LAST
 
 // Start server
 app.listen(port);

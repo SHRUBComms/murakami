@@ -6,7 +6,7 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="mb-3">{{till.name}} <span class="text-success">&#9679;</span></h3>
-				<a href="/settings/tills/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
+				<a href="{{public_address}}/till/manage/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
 			</div>
 		</div>
 
@@ -290,7 +290,7 @@ var itemToAdd = {};
 $('input[name="itemCondition"]:radio').change(function(){
 	let condition = this.value;
 	let option = itemToAdd;
-	
+
 	if(itemToAdd){
 
 		$("#addItemConditionToTrans").attr("onclick", "addToTrans('" + option.id + "', '" + option.category.replace(/'/g, "\\\'") + " (" + condition + ")" + "', '" + option.tokens + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "', '" + condition + "')");
@@ -355,12 +355,12 @@ categories.parent = null
 function calculateChange(e){
 	let cashGiven = parseFloat(e.value);
 	let change = 0;
-	
-	
+
+
 	if(isNumeric(cashGiven)){
 		if(cashGiven > global_money_total){
 			change = cashGiven - global_money_total;
-			
+
 		}
 	}
 	$("#change").val(change.toFixed(2));
@@ -593,7 +593,7 @@ function updateButtons(){
 		}
 
 		if(global_money_total < 1){
-			
+
 			$("#cardOption").prop("disabled", true)
 			$("#minimumCardTransaction").removeClass("d-none");
 		} else {
@@ -653,7 +653,7 @@ var member = {};
 function searchMember(){
   $.ajax({
       type: "POST",
-      url: "/api/post/members/search/simple",
+      url: "{{public_address}}/api/post/members/search/simple",
       data: {
           'term': $('#memberInput').val()
       },
@@ -732,7 +732,7 @@ function selectMember(index){
 	}
 
 	$("#payWithTokens").change(function(){
-		
+
 		if(this.checked) {
 			payWithTokens = true;
 		} else {
@@ -754,7 +754,7 @@ function completeTrans(type){
 	let member_id = member.id || null;
     $.ajax({
         type: "POST",
-        url: "/till/transaction",
+        url: "{{public_address}}/till/transaction",
         data: {
         	'member_id': member.id,
         	'till_id': "{{till.till_id}}",
@@ -768,7 +768,7 @@ function completeTrans(type){
         	$("#confirmTransaction").prop("checked", false)
         	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");
-					
+
         	if(response.status == "ok"){
         		$("#note").val("")
 
@@ -799,7 +799,7 @@ function completeTrans(type){
 function getSavedCarbon(){
 	$.ajax({
 	    type: "GET",
-	    url: "/api/get/members/carbon-saved/" + $("#member_id").val(),
+	    url: "{{public_address}}/api/get/members/carbon-saved/" + $("#member_id").val(),
 	    success: function(response){
 			$('#carbon').html(response.carbon);
 	    }
@@ -809,7 +809,7 @@ function getSavedCarbon(){
 function getBalance(){
 	$.ajax({
 	    type: "GET",
-	    url: "/api/get/members/balance/" + $("#member_id").val(),
+	    url: "{{public_address}}/api/get/members/balance/" + $("#member_id").val(),
 	    success: function(response){
 			$('#balance').html(response.balance);
 	    }

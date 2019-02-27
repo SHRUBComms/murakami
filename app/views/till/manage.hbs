@@ -1,0 +1,32 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row mt-5">
+	<div class="col-md-8 mx-auto">
+		<table id="members_table" class="fadeIn table-light" data-pagination="true" data-search="true" data-toggle="table" data-striped="true">
+			<thead>
+				<th data-sortable="true">Name</th>
+				<th data-sortable="false">Status</th>
+				<th data-sortable="false">Action</th>
+			</thead>
+			<tbody>
+			{{#each tills}}
+				<tr>
+					<td>{{name}}</td>
+					<td>
+						{{#if status.opening}}
+							Open
+						{{else}}
+							Closed
+						{{/if}}
+					</td>
+					<td><a href="{{public_address}}/till/manage/{{till_id}}" class="btn btn-primary">View/Update</a></td>
+				</tr>
+			{{/each}}
+			</tbody>
+		</table>
+	</div>
+</div>

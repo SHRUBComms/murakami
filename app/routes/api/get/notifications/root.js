@@ -68,7 +68,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
                   notifications.push({
                     message: "You have volunteer hours waiting to be reviewed",
                     action:
-                      process.env.PUBLIC_ADDRESS + "/volunteers/review-hours",
+                      process.env.PUBLIC_ADDRESS + "/volunteers/hours-review",
                     icon: "fas fa-clock",
                     time: moment(
                       shiftsNeedAttention[shiftsNeedAttention.length - 1].date

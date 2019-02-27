@@ -9,7 +9,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   req.logout();
   req.session = null;
-  res.redirect("/recover");
+  res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
 });
 
 module.exports = router;

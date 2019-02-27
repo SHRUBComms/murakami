@@ -128,7 +128,7 @@ function processDonation(type){
 	let member_id = member.id || null;
     $.ajax({
         type: "POST",
-        url: "{{public_address}}/till/process-donation",
+        url: "{{public_address}}/till/donations",
         data: {
         	'member_id': member.id,
         	'till_id': "{{till.till_id}}",
@@ -137,7 +137,7 @@ function processDonation(type){
         success: function(response){
 
         	if(response.status == "ok"){
-							
+
 	            $("#transaction_info").removeClass("d-none");
 	            $("#transaction_info").css("display", "block")
 	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");

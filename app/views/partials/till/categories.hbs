@@ -308,7 +308,7 @@ function updateOptions(path) {
     parent.pop();
     parentReal = true;
     parent = parent.join("[");
-    
+
   } else {
     parent = "categories.options"
   }
@@ -358,7 +358,7 @@ function openAddCategoryDialog(path) {
     category = eval(path);
   }
 
-  
+
 
   toggleDefinedWeight("add");
 
@@ -440,7 +440,7 @@ function addCategory(path) {
 
   $.ajax({
     type: "POST",
-    url: "/api/post/tills/categories/add",
+    url: "{{public_address}}/api/post/tills/categories/add",
     data: {
       category: newCategory
     },
@@ -501,7 +501,7 @@ function updateCategory(path) {
 
   $.ajax({
     type: "POST",
-    url: "/api/post/tills/categories/update",
+    url: "{{public_address}}/api/post/tills/categories/update",
     data: {
       category: category
     },
@@ -533,7 +533,7 @@ function moveCategory(path) {
 
   $.ajax({
     type: "POST",
-    url: "/api/post/tills/categories/move",
+    url: "{{public_address}}/api/post/tills/categories/move",
     data: {
       item_id: eval(path).item_id,
       newParent: $("#newParent").val(),
@@ -562,7 +562,7 @@ function moveCategory(path) {
 function removeCategory(path) {
   $.ajax({
     type: "POST",
-    url: "/api/post/tills/categories/remove",
+    url: "{{public_address}}/api/post/tills/categories/remove",
     data: {
       item_id: eval(path).item_id,
       till_id: "{{{till.till_id}}}"
@@ -584,7 +584,7 @@ function removeCategory(path) {
 function searchCategories(e) {
   $.ajax({
     type: "POST",
-    url: "/api/post/tills/categories/search",
+    url: "{{public_address}}/api/post/tills/categories/search",
     data: {
       term: e.value,
       till_id: "{{{till.till_id}}}"
@@ -623,7 +623,7 @@ function getCategories(path) {
 
   $.ajax({
     type: "GET",
-    url: "/api/get/tills/categories/{{{till.till_id}}}",
+    url: "{{public_address}}/api/get/tills/categories/{{{till.till_id}}}",
     success: function(response) {
       categories = {};
       categories.options = response;

@@ -14,10 +14,10 @@ router.get("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(r
   Members.redact(member_id, function(err) {
     if (err) {
       req.flash("error_msg", "Something went wrong!");
-      res.redirect("/members/view/" + member_id);
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
     } else {
       req.flash("success_msg", "Member destroyed!");
-      res.redirect("/members");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members");
     }
   });
 });

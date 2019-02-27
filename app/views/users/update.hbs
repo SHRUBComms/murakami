@@ -22,7 +22,7 @@
         <a href="{{public_address}}/users/deactivate/{{user_id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to deactivate yourself? This is irreversible.');">Deactivate User</a>
       {{/ifCond}}
       {{#ifCond user_id '==' user.id}}
-        &emsp;<a href="/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
+        &emsp;<a href="{{public_address}}/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
       {{/ifCond}}
     </div>
 </div>

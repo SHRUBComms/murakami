@@ -60,7 +60,7 @@
                                   <li {{#if membersActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
                                       <ul class="collapse plain-list">
-                                          <li><a href="{{public_address}}/members">Manage Members</a></li>
+                                          <li><a href="{{public_address}}/members/manage">Manage Members</a></li>
                                           <li><a href="{{public_address}}/members/add">Add Member</a></li>
                                       </ul>
                                   </li>
@@ -92,9 +92,9 @@
                                 <li {{#if volunteerHoursActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
                                     <ul class="collapse plain-list">
-                                      <li><a href="{{public_address}}/log">Log Hours</a></li>
-                                      <li><a href="{{public_address}}/volunteers/review-hours">Review Hours</a></li>
-                                      <li><a href="{{public_address}}/volunteers/export-hours">Export Data</a></li>
+                                      <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
+                                      <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
+                                      <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>
                                     </ul>
                                 </li>
 
@@ -103,7 +103,8 @@
                                   <li {{#if tillsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
                                       <ul class="collapse plain-list">
-                                          <li><a href="{{public_address}}/settings/tills">Manage Tills</a></li>
+                                          <li><a href="{{public_address}}/till/settings">Manage Tills</a></li>
+                                          <li><a href="{{public_address}}/till/settings">Add Till</a></li>
                                       </ul>
                                   </li>
 
@@ -112,10 +113,10 @@
                                 <li {{#if carbonActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
                                     <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/log-outgoing-weight">Log Outgoing Weight</a></li>
+                                        <li><a href="{{public_address}}/carbon-accounting/log">Log Outgoing Weight</a></li>
                                         {{#ifUserClass user.class '["admin", "staff"]'}}
-                                          <li><a href="{{public_address}}/settings/carbon-factors">Update Calculations</a></li>
-                                          <li><a href="{{public_address}}/reports/carbon">Export Data</a></li>
+                                          <li><a href="{{public_address}}/carbon-acccounting/settings">Update Calculations</a></li>
+                                          <li><a href="{{public_address}}/carbon-accounting/export">Export Data</a></li>
                                         {{/ifUserClass}}
                                         <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
                                     </ul>
@@ -124,8 +125,8 @@
                                 <li {{#if workingGroupsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
                                     <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/settings/working-groups/manage">Manage Working Groups</a></li>
-                                        <li><a href="{{public_address}}/settings/working-groups/add">Add Working Group</a></li>
+                                        <li><a href="{{public_address}}/working-groups/manage">Manage Working Groups</a></li>
+                                        <li><a href="{{public_address}}/working-groups/add">Add Working Group</a></li>
                                     </ul>
                                 </li>
                                 {{/ifUserClass}}
@@ -133,7 +134,7 @@
                                 <li {{#if usersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
                                     <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/users">Manage Users</a></li>
+                                        <li><a href="{{public_address}}/users/manage">Manage Users</a></li>
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
                                     </ul>
                                 </li>
@@ -151,24 +152,27 @@
 
                                 {{/ifUserClass}}
 
+                                <br />
+                                <br />
+
                               {{else}}
                                 <li {{#if transactionsActive}}class="active"{{/if}}>
-                                    <a href="/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                    <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
                                 </li>
                                 <li {{#if donationsActive}}class="active"{{/if}}>
-                                    <a href="/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
+                                    <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
                                 </li>
                                 <li {{#if carbonActive}}class="active"{{/if}}>
-                                    <a href="/log-outgoing-weight?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
+                                    <a href="{{public_address}}/carbon-accounting/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
                                 </li>
                                 <li {{#if addMemberActive}}class="active"{{/if}}>
-                                    <a href="/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
+                                    <a href="{{public_address}}/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
                                 </li>
                                 <li {{#if logVolunteerHoursActive}}class="active"{{/if}}>
-                                    <a href="/volunteers/log-hours?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
+                                    <a href="{{public_address}}/volunteers/hours/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
                                 </li>
                                 <li {{#if closeTillActive}}class="active"{{/if}}>
-                                    <a href="/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                    <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
                                 </li>
 
                               {{/unless}}
@@ -187,7 +191,7 @@
                               {{#ifUserClass user.class '["admin", "staff"]'}}
                                 <hr />
                                 <li>
-                                    <a href="/settings/tills" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
+                                    <a href="{{public_address}}/till/settings" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
                                 </li>
                               {{/ifUserClass}}
                             {{/if}}

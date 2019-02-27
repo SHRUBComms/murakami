@@ -4,9 +4,9 @@ var router = require("express").Router();
 
 router.get("/", function(req, res) {
   if (req.query.member_id) {
-    res.redirect("/volunteers/log-hours?member_id=" + req.query.member_id);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log?member_id=" + req.query.member_id);
   } else {
-    res.redirect("/volunteers/log-hours");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
   }
 });
 

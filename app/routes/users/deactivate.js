@@ -19,15 +19,15 @@ router.get("/:user_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
       Users.deactivate(user.id, function(err) {
         if (err) {
           req.flash("error", "Something went wrong!");
-          res.redirect("/users/update/" + user.id);
+          res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + user.id);
         } else {
           req.flash("success_msg", "User deactivated!");
-          res.redirect("/users");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
         }
       });
     } else {
       req.flash("error", "Something went wrong.");
-      res.redirect("/users");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
     }
   });
 });

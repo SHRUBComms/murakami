@@ -16,7 +16,7 @@ router.get("/", function(req, res) {
         title: "Account Recovery"
       });
     } else {
-      res.redirect("/");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   });
 });
@@ -32,7 +32,7 @@ router.get("/:reset_code", function(req, res) {
         reset_code: req.params.reset_code
       });
     } else {
-      res.redirect("/");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   });
 });
@@ -65,15 +65,15 @@ router.post("/:reset_code", function(req, res) {
           Users.updatePassword(resets[0].user_id, password, function(err) {
             if (err) {
               req.flash("error_msg", "Something went wrong!");
-              res.redirect("/recover/" + resets[0].reset_code);
+              res.redirect(process.env.PUBLIC_ADDRESS + "/recover/" + resets[0].reset_code);
             } else {
               Users.setResetCodeAsUsed(resets[0].reset_code, function(err) {
                 if (err) {
                   req.flash("error_msg", "Something went wrong!");
-                  res.redirect("/recover/" + resets[0].reset_code);
+                  res.redirect(process.env.PUBLIC_ADDRESS + "/recover/" + resets[0].reset_code);
                 } else {
                   req.flash("success_msg", "Password reset!");
-                  res.redirect("/login");
+                  res.redirect(process.env.PUBLIC_ADDRESS + "/login");
                 }
               });
             }
@@ -87,7 +87,7 @@ router.post("/:reset_code", function(req, res) {
           });
         });
     } else {
-      res.redirect("/");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   });
 });
@@ -104,7 +104,7 @@ router.post("/", function(req, res) {
           Users.getByUsername(username, function(err, user) {
             if (err || !user[0]) {
               req.flash("error_msg", "Couldn't find that user!");
-              res.redirect("/recover");
+              res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
             } else {
               Users.getUnusedPasswordResetsByUserId(user[0].id, function(
                 err,
@@ -118,14 +118,14 @@ router.post("/", function(req, res) {
                     function(err) {
                       if (err) {
                         req.flash("error_msg", "Something went wrong!");
-                        res.redirect("/recover");
+                        res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
                       } else {
                         Users.getUnusedPasswordResetsByUserId(
                           user[0].id,
                           function(err, resets) {
                             if (err) {
                               req.flash("error_msg", "Something went wrong!");
-                              res.redirect("/recover");
+                              res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
                             } else {
                               var name =
                                 user[0].first_name + " " + user[0].last_name;
@@ -150,15 +150,15 @@ router.post("/", function(req, res) {
                                   if (err) {
                                     req.flash(
                                       "error_msg",
-                                      'Something went wrong sending you your recovery link, please <a href="/support">contact support</a>'
+                                      'Something went wrong sending you your recovery link, please <a href="' + process.env.PUBLIC_ADDRESS + '/support">contact support</a>'
                                     );
-                                    res.redirect("/recover");
+                                    res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
                                   } else {
                                     req.flash(
                                       "success_msg",
                                       "An email with recovery instructions has been sent!"
                                     );
-                                    res.redirect("/recover");
+                                    res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
                                   }
                                 }
                               );
@@ -173,7 +173,7 @@ router.post("/", function(req, res) {
                     "error_msg",
                     "Account recovery process has already been initiated for this user!"
                   );
-                  res.redirect("/recover");
+                  res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
                 }
               });
             }
@@ -189,7 +189,7 @@ router.post("/", function(req, res) {
           });
         });
     } else {
-      res.redirect("/");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   });
 });

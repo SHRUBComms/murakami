@@ -204,7 +204,7 @@ router.post("/", function(req, res) {
       }
     });
   } else {
-    
+
     var newMember = {
       member_id: null,
       first_name: first_name,
@@ -308,13 +308,11 @@ router.post("/", function(req, res) {
 
         req.flash("success_msg", "New member added!");
 
-        if (till_id) {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + till_id);
-        } else {
+
           res.redirect(
             process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
           );
-        }
+
       }
     });
   }

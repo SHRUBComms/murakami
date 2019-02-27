@@ -16,7 +16,7 @@ router.get(
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
         req.flash("error_msg", "Member not found!");
-        res.back();
+        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage")
       } else {
         res.render("members/update", {
           title: "Update Member",
@@ -46,7 +46,7 @@ router.post(
     ) {
       if (err || !member) {
         req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect("/members/update/" + req.params.member_id);
+        res.redirect(process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id);
       } else {
         var first_name = req.body.first_name.trim();
         var last_name = req.body.last_name.trim();
@@ -137,7 +137,7 @@ router.post(
             if (err) throw err;
 
             req.flash("success_msg", first_name + " updated!");
-            res.redirect("/members/view/" + req.params.member_id);
+            res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
           });
         }
       }

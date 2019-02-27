@@ -20,7 +20,7 @@ router.get(
     ) {
       if (!member || err) {
         req.flash("error", "Member not found");
-        res.redirect("/members");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/members");
       } else {
         Mail.sendAutomated("membership_id_reminder", member.member_id, function(
           err
@@ -28,7 +28,7 @@ router.get(
           if (err) {
             
             req.flash("error", "Something went wrong!");
-            res.redirect("/members");
+            res.redirect(process.env.PUBLIC_ADDRESS + "/members");
           } else {
             req.flash("success_msg", "Volunteer has been sent their ID");
             res.redirect(

@@ -133,6 +133,9 @@ var register = function(Handlebars) {
     },
     niceDate: function(date) {
       return moment(date).format("L");
+    },
+    concat: function(str1, str2) {
+      return str1 + str2;
     }
   };
 

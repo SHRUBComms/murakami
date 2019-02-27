@@ -1,0 +1,61 @@
+
+
+<form action="{{public_address}}/settings/carbon-factors/{{selectedCategory.carbon_id}}" method="post">
+  <div class="row mb-2 mt-4">
+  	<div class="col-md-8 mx-auto">
+
+      <div class="row">
+      	<div class="col-md-6">
+          <div class="form-group form-inline">
+            <select class="form-control" id="carbonCategories">
+              {{#each carbonCategories}}
+                <option value='{{carbon_id}}'{{#ifCond carbon_id '==' ../selectedCategory.carbon_id}} selected{{/ifCond}}>{{name}}</option>
+              {{/each}}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+      	<div class="container">
+          <div class="card">
+            <div class="card-body">
+
+                {{#groupedEach 2 selectedCategory.factors}}
+                  <div class="row mb-2">
+                    {{#each this}}
+                      {{#each this}}
+                      <div class="col-md-3" style="vertical-align: middle;">
+                        <p class="mt-2 text-right"><b>{{formToPlain @key}}:</b></p>
+                      </div>
+                      <div class="col-md-3">
+                        <input class="form-control" type="text" value="{{this}}" name="factors[{{@key}}]" />
+                      </div>
+                      {{/each}}
+                    {{/each}}
+                  </div>
+                {{/groupedEach}}
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6 mx-auto">
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block form-control">Update Factors</button>
+        </div>
+    </div>
+  </div>
+
+</form>
+
+<script>
+$('#carbonCategories').on('change', function () {
+  var url = "/settings/carbon-factors/" + $(this).val();
+  window.location = url;
+});
+</script>

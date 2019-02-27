@@ -1,4 +1,4 @@
-// /settings/working-groups
+// /working-groups
 
 var router = require("express").Router();
 
@@ -35,7 +35,7 @@ router.get("/:content_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
           staticContent: staticContent
         });
       } else {
-        res.redirect("/error");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/error");
       }
     });
   });
@@ -58,7 +58,7 @@ router.post(
             Settings.updateSetting(content.id, content.data, function(err) {
               if (err) {
                 req.flash("error", "Something went wrong!");
-                res.redirect(
+                res.redirect(process.env.PUBLIC_ADDRESS +
                   "/settings/static-content/" + req.params.content_id
                 );
               } else {
@@ -66,18 +66,18 @@ router.post(
                   "success_msg",
                   "Static content successfully updated!"
                 );
-                res.redirect(
+                res.redirect(process.env.PUBLIC_ADDRESS +
                   "/settings/static-content/" + req.params.content_id
                 );
               }
             });
           } else {
             req.flash("error", "Please enter something!");
-            res.redirect("/settings/static-content/" + req.params.content_id);
+            res.redirect(process.env.PUBLIC_ADDRESS + "/settings/static-content/" + req.params.content_id);
           }
         } else {
           req.flash("error", "Something went wrong!");
-          res.redirect("/settings/static-content/" + req.params.content_id);
+          res.redirect(process.env.PUBLIC_ADDRESS + "/settings/static-content/" + req.params.content_id);
         }
       });
     });

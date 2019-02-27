@@ -47,7 +47,7 @@ passport.use(
           } else {
             return done(null, false, {
               message:
-                'This account is locked. <a href="/support">Contact support</a>'
+                'This account is locked. <a href="' + process.env.PUBLIC_ADDRESS + '/support">Contact support</a>'
             });
           }
         });
@@ -77,14 +77,14 @@ router.post(
     failureFlash: true
   }),
   function(req, res) {
-    res.redirect("/");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 );
 
 router.get("/", function(req, res) {
   if (!req.user) {
     Settings.getAll(function(err, settings) {
-      
+
       res.render("login", {
         loginActive: true,
         title: "Login",
@@ -92,7 +92,7 @@ router.get("/", function(req, res) {
       });
     });
   } else {
-    res.redirect("/");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 });
 

@@ -87,7 +87,7 @@ router.post("/", function(req, res) {
         });
       } else {
         req.flash("success_msg", "Message sent!");
-        res.redirect("/support");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/support");
       }
     });
   }

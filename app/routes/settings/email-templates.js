@@ -12,7 +12,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
   Settings.getEmailTemplates(function(err, templates) {
     if (err) throw err;
-    res.redirect("/settings/email-templates/" + templates[0].mail_id);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/" + templates[0].mail_id);
   });
 });
 
@@ -26,7 +26,7 @@ router.get("/:mail_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
       Settings.getEmailTemplateById("footer", function(err, footer) {
         WorkingGroups.getById("WG-100", function(err, group) {
           if (err || !template[0]) {
-            res.redirect("/settings/email-templates/");
+            res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/");
           } else {
             res.render("settings/email-templates", {
               title: "Email Templates",

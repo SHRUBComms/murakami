@@ -6,7 +6,7 @@ router.get("/", function(req, res) {
   req.logout();
   req.session = null;
 
-  res.redirect("/login");
+  res.redirect(process.env.PUBLIC_ADDRESS + "/login");
 });
 
 module.exports = router;

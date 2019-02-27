@@ -6,25 +6,28 @@ router.get("/", function(req, res) {
     if (["admin", "staff", "volunteer"].includes(req.user.class)) {
       res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
     } else {
-      res.redirect("/till");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/till");
     }
   } else {
-    res.redirect("/login");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/login");
   }
 });
+
+
 
 router.use("/error", require("./error"));
 router.use("/log", require("./log"));
 router.use("/support", require("./support"));
-router.use("/success", require("./success"));
 router.use("/login", require("./login"));
 router.use("/contact-preferences", require("./contact-preferences"));
 router.use("/recover", require("./recover"));
-router.use("/privacy", require("./privacy"));
-router.use("/log-outgoing-weight", require("./log-outgoing-weight"));
-router.use("/carbon-calculations", require("./carbon-calculations"));
-router.use("/get-carbon-calculations", require("./get-carbon-calculations"));
 router.use("/logout", require("./logout"));
+
+// Legacy path.
+router.get("/get-carbon-calculations", function(req, res) {
+  res.redirect(process.env.PUBLIC_ADDRESS + "/api/get/reports/all-time/carbon-saved");
+});
+
 
 router.get("*", function(req, res) {
   res.render("error", {

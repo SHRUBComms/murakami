@@ -21,10 +21,10 @@ router.get("/:member_id/:length", Auth.isLoggedIn, function(req, res) {
   Members.renew(member_id, length, function(err, member) {
     if (err) {
       req.flash("error_msg", "Something went wrong!");
-      res.redirect("/members/view/" + member_id);
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
     } else {
       req.flash("success_msg", "Membership renewed!");
-      res.redirect("/members/view/" + member_id);
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
     }
   });
 });

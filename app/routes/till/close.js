@@ -37,11 +37,11 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
             );
           });
         } else {
-          res.redirect("/till/" + req.params.till_id);
+          res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id);
         }
       });
     } else {
-      res.redirect("/till");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/till");
     }
   });
 });
@@ -67,10 +67,10 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
                   function(err) {
                     if (err) {
                       req.flash("error", "Something went wrong!");
-                      res.redirect("/till/close/" + req.params.till_id);
+                      res.redirect(process.env.PUBLIC_ADDRESS + "/till/close/" + req.params.till_id);
                     } else {
                       req.flash("success_msg", "Till closed.");
-                      res.redirect("/till");
+                      res.redirect(process.env.PUBLIC_ADDRESS + "/till");
                     }
                   }
                 );
@@ -78,16 +78,16 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
             );
           } else {
             req.flash("error", "Till already closed!");
-            res.redirect("/till");
+            res.redirect(process.env.PUBLIC_ADDRESS + "/till");
           }
         });
       } else {
-        res.redirect("/till");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/till");
       }
     });
   } else {
     req.flash("error", "Enter a valid opening float.");
-    res.redirect("/till/open/" + req.params.till_id);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/till/open/" + req.params.till_id);
   }
 });
 

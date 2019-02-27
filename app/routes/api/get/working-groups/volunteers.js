@@ -24,7 +24,7 @@ router.get("/:group_id", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer"])
       function(member, i, callback) {
         formattedMembers[i] = {};
         formattedMembers[i].name =
-          '<a href="/members/view/' +
+          '<a href="' + process.env.PUBLIC_ADDRESS + '/members/view/' +
           member.member_id +
           '">' +
           member.first_name +

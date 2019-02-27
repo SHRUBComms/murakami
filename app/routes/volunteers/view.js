@@ -19,7 +19,7 @@ router.get(
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
         req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
         Volunteers.getVolunteerById(req.params.member_id, req.user, function(
           err,

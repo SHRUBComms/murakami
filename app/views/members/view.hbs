@@ -36,7 +36,7 @@
 			<!--
 			{{#if user.admin}}
 			    <div class="form-group col-md-3" style="padding: 0px;">
-			      	<a class='btn btn-success form-control' href="/members/id-remind/{{member.member_id}}">Email Member ID</a>
+			      	<a class='btn btn-success form-control' href="{{public_address}}/members/id-remind/{{member.member_id}}">Email Member ID</a>
 			    </div>
 			{{/if}}
 			-->
@@ -106,40 +106,45 @@
 		</div>
 
 		{{#ifUserClass user.class '["admin", "staff", "volunteer"]'}}
-			<div class="row mb-4">
-				<div class="col-lg-6">
-					<div class="card">
-						<div class="card-body">
-							<h4 class="mb-1">Volunteering</h4>
-								{{#if member.volunteer_id}}
-									{{#ifCond member.working_groups.length '>' 1}}
-										 <p class="mb-2">Volunteers with:</p>
-										 <ul class="ml-5 mb-3" style="list-style-type: disc;">
-											 {{#each member.working_groups}}
-										      <li><b>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</b>{{#unless @last}},{{/unless}}</li>
-											 {{/each}}
-										 </ul>
-									{{else}}
-										<p class="mb-2">Volunteers with {{lookup (lookup user.allWorkingGroupsObj member.working_groups.[0]) 'name'}}</p>
-									{{/ifCond}}
-								   <a class='btn btn-success form-control' href="{{public_address}}/volunteers/view/{{member.member_id}}">View Full Volunteer Profile</a>
-								{{else}}
-								   <p><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}">Make {{member.first_name.text}} A Volunteer</a></p>
-								{{/if}}
+			{{#if member.volunteer_id}}
+				<div class="row mb-4">
+					<div class="col-lg-6">
+						<div class="card">
+							<div class="card-body">
+								<h4 class="mb-1">Volunteering</h4>
+
+										{{#ifCond member.working_groups.length '>' 1}}
+											 <p class="mb-2">Volunteers with:</p>
+											 <ul class="ml-5 mb-3" style="list-style-type: disc;">
+												 {{#each member.working_groups}}
+											      <li><b>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</b>{{#unless @last}},{{/unless}}</li>
+												 {{/each}}
+											 </ul>
+										{{else}}
+											<p class="mb-2">Volunteers with {{lookup (lookup user.allWorkingGroupsObj member.working_groups.[0]) 'name'}}</p>
+										{{/ifCond}}
+									   <a class='btn btn-success form-control' href="{{public_address}}/volunteers/view/{{member.member_id}}">View Full Volunteer Profile</a>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			{{else}}
+				<div class="row mb-4">
+					<div class="col-lg-6">
+						<p class="mt-2"><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="btn btn-primary btn-block">Make {{member.first_name.text}} A Volunteer</a></p>
+					</div>
+				</div>
+			{{/if}}
 		{{/ifUserClass}}
 
 		<!--
 		{{#if member.isMember.text}}
 		<div class="row">
-			<a href="/api/get/members/remove/{{member.member_id}}" onclick='return confirm("Are you sure you want to remove this member? This process can be reversed at a later date")'>Revoke membership</a>
+			<a href="{{public_address}}/api/get/members/remove/{{member.member_id}}" onclick='return confirm("Are you sure you want to remove this member? This process can be reversed at a later date")'>Revoke membership</a>
 		</div>
 		{{else}}
 		<div class="row">
-			<a href="/api/get/members/restore/{{member.member_id}}" onclick='return confirm("Are you sure you want to restore this member? This process can be reversed at a later date")'>Restore membership</a>
+			<a href="{{public_address}}/api/get/members/restore/{{member.member_id}}" onclick='return confirm("Are you sure you want to restore this member? This process can be reversed at a later date")'>Restore membership</a>
 		</div>
 		{{/if}}
 
@@ -147,18 +152,18 @@
 		{{#if user.admin}}
 		<div class="row">
 			<small>
-				<a href="/api/get/members/destroy/{{member.member_id}}" onclick='return confirm("Are you sure you want to *permanently* delete this member? All information held on this member will be destroyed or anonymised. This process is IRREVERSIBLE!")'>Delete member</a>
+				<a href="{{public_address}}/api/get/members/destroy/{{member.member_id}}" onclick='return confirm("Are you sure you want to *permanently* delete this member? All information held on this member will be destroyed or anonymised. This process is IRREVERSIBLE!")'>Delete member</a>
 			</small>
 		</div>
 		{{/if}}
 		-->
+
 		<div class="row">
 			<div class="col-lg-12">
-				<div class="card">
-					<div class="card-body">
-						<h3 class="mb-4">Transaction History</h3>
 
-						<table id="transaction_history" class="fadeIn" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/members/transactions/{{member.member_id}}">
+						<h3 class="mb-3 mt-3">Transaction History</h3>
+
+						<table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/members/transactions/{{member.member_id}}">
 						    <thead>
 						        <tr>
 						        	<th></th>
@@ -180,8 +185,7 @@
 						</table>
 
 					</div>
-				</div>
-			</div>
+
 		</div>
   </div>
 </div>

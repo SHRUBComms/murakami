@@ -10,31 +10,12 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
-  Members.getTotals(function(err, total) {
-    Members.getAll(function(err, members) {
-      async.eachOf(
-        members,
-        function(member, i, callback) {
-          Members.sanitizeMember(members[i], req.user, function(err, member) {
-            members[i] = member;
-            callback();
-          });
-        },
-        function(err) {
-          res.render("members/all", {
-            title: "Manage Members",
-            members: members,
-            membersActive: true,
-            total: total[0]
-          });
-        }
-      );
-    });
-  });
-});
+router.get("/", Auth.isLoggedIn, function(req, res){
+  res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
+})
 
 router.use("/add", require("./add"));
+router.use("/manage", require("./manage"));
 router.use("/update", require("./update"));
 router.use("/update-basic", require("./update-basic"));
 router.use("/view", require("./view"));
