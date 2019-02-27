@@ -58,6 +58,18 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
               till.till_id,
               status.timestamp,
               function(total_sales) {
+                console.log(total_sales);
+                try {
+                  total_sales = parseFloat(total_sales);
+                } catch(err) {
+                  total_sales = 0.00
+                }
+
+                try {
+                  status.counted_float = parseFloat(status.counted_float);
+                } catch(err) {
+                  counted_float = 0.00
+                }
                 Tills.close(
                   req.params.till_id,
                   +status.counted_float.toFixed(2) + +total_sales.toFixed(2),
