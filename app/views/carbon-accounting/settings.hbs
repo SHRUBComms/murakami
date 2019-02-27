@@ -55,7 +55,7 @@
 
 <script>
 $('#carbonCategories').on('change', function () {
-  var url = "/settings/carbon-factors/" + $(this).val();
+  var url = "{{public_address}}/carbon-accounting/settings/" + $(this).val();
   window.location = url;
 });
 </script>

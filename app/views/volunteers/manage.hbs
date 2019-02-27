@@ -77,7 +77,7 @@ var allWorkingGroups = {{{json user.allWorkingGroupsObj}}}
 var allRoles = {{{json roles}}}
 
 $('#working_groups').on('change', function () {
-  var url = "/volunteers/manage?group_id=" + $("#working_groups").val();
+  var url = "{{public_address}}/volunteers/manage?group_id=" + $("#working_groups").val();
   window.location = url;
 });
 

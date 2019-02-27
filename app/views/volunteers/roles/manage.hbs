@@ -152,7 +152,7 @@
 
 <script>
 $('#working_groups').on('change', function () {
-  var url = "/volunteers/roles/manage?group_id=" + $(this).val();
+  var url = "{{public_address}}/volunteers/roles/manage?group_id=" + $(this).val();
   window.location = url;
 });
 </script>

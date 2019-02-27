@@ -1,4 +1,4 @@
-// /carbon-calculations/settings
+// /carbon-accounting/settings
 
 var router = require("express").Router();
 
