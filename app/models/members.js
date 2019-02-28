@@ -75,7 +75,7 @@ Members.sanitizeMember = function(member, user, callback) {
         member.working_groups = Array.from(new Set(member.working_groups));
 
         if (user.class != "admin") {
-          //Redact info if common working group
+          //ctct info if common working group
           member.address = null;
 
           if (
@@ -396,8 +396,8 @@ Members.updateWorkingGroups = function(
 
 Members.redact = function(member_id, callback) {
   var query =
-    "UPDATE members SET first_name = '[redacted]', last_name = '[redacted]', email = '[redacted]', phone_no = '[redacted]', address = '[redacted]', working_groups = '[]', is_member = 0 WHERE member_id = ?";
-  var inserts = [member_id];
+    "UPDATE members SET first_name = '[redacted]', last_name = '[redacted]', email = '[redacted]', phone_no = '[redacted]', address = '[redacted]', working_groups = '[]', is_member = 0 WHERE member_id = ?; DELETE FROM volunteer_info WHERE member_id = ?";
+  var inserts = [member_id, member_id];
   var sql = mysql.format(query, inserts);
 
   con.query(sql, callback);

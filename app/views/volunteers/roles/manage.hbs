@@ -32,6 +32,7 @@
 					<th data-sortable="true">Role Title</th>
           <th data-sortable="true">Working Group</th>
           <th data-sortable="true">Status</th>
+          <th data-sortable="true">On Website</th>
 					<th></th>
 				</thead>
 				<tbody>
@@ -59,14 +60,18 @@
 											{{#if removed}}
 												<span class="text-danger">Disabled</span>
 											{{else}}
-												{{#if public}}
-													<p class="text-success">Active (public)</p>
-												{{else}}
-													<p class="text-success">Active (private)</p>
-												{{/if}}
+												<p class="text-success">Active</p>
 											{{/if}}
 										{{/if}}
 									</td>
+
+                  <td>
+                    {{#if public}}
+                      <p class="text-success">Published</p>
+                    {{else}}
+                      <p class="text-muted">Unpublished</p>
+                    {{/if}}
+                  </td>
 									<td><a href="{{public_address}}/volunteers/roles/view/{{role_id}}" class="btn btn-block btn-primary">View/Update</a></td>
 								</tr>
 							{{/each}}

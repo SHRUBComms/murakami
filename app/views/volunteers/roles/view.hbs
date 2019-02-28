@@ -9,9 +9,9 @@
       <div class="col-md-4 mx-auto">
           <button class="btn btn-block btn-primary" onclick="location.href='{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}'" {{#if role.removed}}disabled{{/if}} {{#if role.incomplete}}disabled{{/if}}>
             {{#if role.public}}
-              Make Private
+              Unpublish From Website
             {{else}}
-              Make Public
+              Publish To Website
             {{/if}}
           </button>
 

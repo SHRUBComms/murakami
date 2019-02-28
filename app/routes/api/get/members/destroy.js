@@ -8,7 +8,10 @@ var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.get("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
+  req,
+  res
+) {
   var member_id = req.params.member_id;
 
   Members.redact(member_id, function(err) {
@@ -17,7 +20,7 @@ router.get("/:member_id", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(r
       res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
     } else {
       req.flash("success_msg", "Member destroyed!");
-      res.redirect(process.env.PUBLIC_ADDRESS + "/members");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
     }
   });
 });

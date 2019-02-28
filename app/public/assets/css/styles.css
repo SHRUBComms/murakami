@@ -2413,7 +2413,8 @@ ul > li {
   list-style-type: none;
 }
 
-.plain-list > li {
+.plain-list > li,
+.pagination > ul > li {
   margin-left: 0px;
 }
 

@@ -10,9 +10,7 @@
 		<div class="row mt-4 mb-2 mx-auto">
 			<div class="card">
 				<div class="card-body">
-						<h1>{{member.first_name}} {{member.last_name}}
-							<a href="{{public_address}}/members/update/{{member.member_id}}" class="h4 text-primary">edit</a>
-						</h1>
+						<h1>{{member.first_name}} {{member.last_name}}</h1>
 						<p class="{{#if member.is_member}}text-success{{else}}text-danger{{/if}}">
 							{{#if member.is_member}}
 								Current member,
@@ -30,16 +28,31 @@
 		</div>
 
 
-			<!--
+		<div class="row mt-4">
+			<div class="col-md-5">
+				<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary">Update Member</a>
+			</div>
+		</div>
 
-			-->
-			<!--
-			{{#if user.admin}}
-			    <div class="form-group col-md-3" style="padding: 0px;">
-			      	<a class='btn btn-success form-control' href="{{public_address}}/members/id-remind/{{member.member_id}}">Email Member ID</a>
-			    </div>
+		{{#ifUserClass user.class '["admin", "staff"]'}}
+
+			{{#if member.is_member}}
+				<div class="row mt-2">
+					<div class="col-md-5">
+						<a href="{{public_address}}/api/get/members/remove/{{member.member_id}}" onclick='return confirm("Are you sure you want to revoke this membership?")' class="btn btn-block btn-warning">Revoke Membership</a>
+					</div>
+				</div>
 			{{/if}}
-			-->
+
+
+			<div class="row mt-2">
+				<div class="col-md-5">
+					<a href="{{public_address}}/api/get/members/destroy/{{member.member_id}}" onclick='return confirm("Are you sure you want to destory this member? *IRREVERSIBLE*")' class="btn btn-block btn-danger">Destroy Member</a>
+				</div>
+			</div>
+		{{/ifUserClass}}
+
+
 
 		<div class="row mt-4 mb-4">
 			<div class="col-lg-6">

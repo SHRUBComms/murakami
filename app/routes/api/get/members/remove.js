@@ -14,11 +14,10 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
   Members.updateStatus(member_id, 0, function(err) {
     if (err) {
       req.flash("error_msg", "Something went wrong!");
-      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
     } else {
-      req.flash("success_msg", "Member removed!");
-      res.redirect(process.env.PUBLIC_ADDRESS + "/members");
+      req.flash("success_msg", "Membership revoked!");
     }
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
   });
 });
 

@@ -14,5 +14,6 @@ router.use("/add", require("./add"));
 router.use("/view", require("./view"));
 router.use("/update", require("./update"));
 router.use("/manage", require("./manage"));
+router.use("/make-copy", require("./make-copy"));
 
 module.exports = router;
