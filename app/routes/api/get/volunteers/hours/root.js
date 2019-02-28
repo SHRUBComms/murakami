@@ -1,4 +1,4 @@
-// /api/get/working-groups/volunteer-hours
+// /api/get/volunteers/hours
 
 var router = require("express").Router();
 var async = require("async");
@@ -8,7 +8,7 @@ var sanitizeHtml = require("sanitize-html");
 
 var rootDir = process.env.CWD;
 
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
 var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
@@ -24,7 +24,7 @@ router.get(
     async.each(
       working_groups,
       function(group, callback) {
-        WorkingGroups.getUnreviewedVolunteerHoursById(group, function(
+        VolunteerHours.getUnreviewedShiftsByGroupId(group, function(
           err,
           shifts
         ) {
@@ -61,10 +61,14 @@ router.get(
 
                     shift.options =
                       '<div class="btn-group d-flex">' +
-                      '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' +
+                      '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'' +
+                      process.env.PUBLIC_ADDRESS +
+                      "/api/get/volunteers/hours/approve/" +
                       shift.shift_id +
                       "')\">Approve</a>" +
-                      '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' +
+                      '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'' +
+                      process.env.PUBLIC_ADDRESS +
+                      "/api/get/volunteers/hours/deny/" +
                       shift.shift_id +
                       "')\">Deny</a>" +
                       "</div>";
@@ -97,7 +101,7 @@ router.get(
   Auth.isOfClass(["admin", "staff", "volunteer"]),
   function(req, res) {
     var formattedShifts = [];
-    WorkingGroups.getUnreviewedVolunteerHoursById(req.params.group_id, function(
+    VolunteerHours.getUnreviewedShiftsByGroupId(req.params.group_id, function(
       err,
       shifts
     ) {
@@ -120,19 +124,25 @@ router.get(
 
                 shift.date = moment(shift.date).format("l");
                 shift.duration = shift.duration_as_decimal;
-                shift.tokens =
-                  Math.floor(shift.duration) *
-                  (req.user.allWorkingGroupsObj[shift.working_group].rate || 0);
+                shift.note = shift.note || "-";
+                if (shift.note == "null") {
+                  shift.note = "-";
+                }
+                shift.note = sanitizeHtml(shift.note);
 
                 shift.working_group =
                   req.user.allWorkingGroupsObj[shift.working_group].name;
 
                 shift.options =
                   '<div class="btn-group d-flex">' +
-                  '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/approve/' +
+                  '<a class="btn btn-success w-100" onclick="volunteerHoursAjax(\'' +
+                  process.env.PUBLIC_ADDRESS +
+                  "/api/get/volunteers/hours/approve/" +
                   shift.shift_id +
                   "')\">Approve</a>" +
-                  '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'/api/get/working-groups/volunteer-hours/deny/' +
+                  '<a class="btn btn-danger w-100" onclick="volunteerHoursAjax(\'' +
+                  process.env.PUBLIC_ADDRESS +
+                  "/api/get/volunteers/hours/deny/" +
                   shift.shift_id +
                   "')\">Deny</a>" +
                   "</div>";

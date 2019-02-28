@@ -5,10 +5,10 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
-  Volunteers.getAllPublicRoles(function(err, roles) {
+  VolunteerRoles.getAllPublicRoles(function(err, roles) {
     res.send(roles);
   });
 });

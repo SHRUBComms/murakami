@@ -7,89 +7,63 @@ moment.locale("en-gb");
 var rootDir = process.env.CWD;
 
 var Settings = require(rootDir + "/app/models/settings");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 var Volunteers = {};
 
-Volunteers.getAllRoles = function(callback) {
-  var query = "SELECT * FROM volunteer_roles ORDER BY dateCreated DESC";
+Volunteers.getByGroupId = function(group_id, user, callback) {
+  var working_groups = user.working_groups_arr;
 
-  var rolesGroupedByGroup = {};
-  var rolesGroupedById = {};
+  var query = `SELECT * FROM volunteer_info volunteers
 
-  con.query(query, function(err, roles) {
-    async.each(
-      roles,
-      function(role, callback) {
-        role.details = JSON.parse(role.details);
+RIGHT JOIN members ON volunteers.member_id = members.member_id
 
-        if (Object.keys(role.details).length == 1) {
-          role.incomplete = true;
-        } else {
-          role.incomplete = false;
-        }
+LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
 
-        if (!role.group_id) role.group_id = "na";
-        if (!rolesGroupedByGroup[role.group_id]) {
-          rolesGroupedByGroup[role.group_id] = [role];
-        } else {
-          rolesGroupedByGroup[role.group_id].push(role);
-        }
+ORDER BY lastVolunteered ASC`;
 
-        rolesGroupedById[role.role_id] = role;
-
-        callback();
-      },
-      function() {
-        callback(err, roles, rolesGroupedByGroup, rolesGroupedById);
-      }
-    );
-  });
-};
-
-Volunteers.getAllPublicRoles = function(callback) {
-  var query = "SELECT * FROM volunteer_roles WHERE public = 1 AND removed = 0";
-  con.query(query, function(err, roles) {
-    async.each(
-      roles,
-      function(role, callback) {
-        role.details = JSON.parse(role.details);
-        callback();
-      },
-      function() {
-        callback(err, roles);
-      }
-    );
-  });
-};
-
-Volunteers.getHoursBetweenTwoDatesByWorkingGroup = function(
-  group_id,
-  startDate,
-  endDate,
-  callback
-) {
-  var Members = require(rootDir + "/app/models/members");
-  var query =
-    "SELECT * FROM volunteer_hours WHERE working_group = ? AND approved = 1 AND date >= DATE(?) AND date <= DATE(?) ORDER BY date DESC";
-  var inserts = [group_id, startDate, endDate];
-  var sql = mysql.format(query, inserts);
-  con.query(sql, function(err, shifts) {
-    Members.getAll(function(err, membersArray, members) {
-      async.each(
-        shifts,
-        function(shift, callback) {
-          if (members[shift.member_id]) {
-            shift.member =
-              members[shift.member_id].first_name +
-              " " +
-              members[shift.member_id].last_name;
+  con.query(query, function(err, returnedVolunteers) {
+    Volunteers.sanitizeVolunteer(returnedVolunteers, user, function(
+      sanitizedVolunteers
+    ) {
+      async.eachOf(
+        sanitizedVolunteers,
+        function(volunteer, i, callback) {
+          if (group_id == "inactive") {
+            if (volunteer.working_groups.length > 0) {
+              sanitizedVolunteers[i] = {};
+              callback();
+            } else {
+              callback();
+            }
+          } else if (group_id) {
+            if (volunteer.working_groups.includes(group_id) == false) {
+              sanitizedVolunteers[i] = {};
+              callback();
+            } else {
+              callback();
+            }
+          } else {
+            if (
+              !Helpers.hasOneInCommon(
+                volunteer.working_groups,
+                user.working_groups_arr
+              )
+            ) {
+              sanitizedVolunteers[i] = {};
+              callback();
+            } else {
+              callback();
+            }
           }
-          callback();
         },
         function() {
-          callback(err, shifts);
+          callback(
+            err,
+            sanitizedVolunteers.filter(value => Object.keys(value).length !== 0)
+          );
         }
       );
     });
@@ -290,7 +264,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
   );
 };
 
-Volunteers.updateVolunteersRoles = function(member_id, roles, callback) {
+Volunteers.updateRoles = function(member_id, roles, callback) {
   var query = "UPDATE volunteer_info SET roles = ? WHERE member_id = ?";
   var inserts = [JSON.stringify(roles), member_id];
   var sql = mysql.format(query, inserts);
@@ -361,191 +335,8 @@ Volunteers.updateVolunteer = function(member_id, volInfo, callback) {
   con.query(sql, callback);
 };
 
-Volunteers.addRole = function(role, callback) {
-  var query =
-    "INSERT INTO volunteer_roles (role_id,group_id,details,availability,dateCreated,public) VALUES (?,?,?,?,?,0)";
-  Helpers.uniqueBase64Id(10, "volunteer_roles", "role_id", function(role_id) {
-    var inserts = [role_id];
-
-    inserts.push(role.working_group);
-    delete role.working_group;
-
-    var availability = JSON.stringify(role.availability);
-    delete role.availability;
-
-    inserts.push(JSON.stringify(role));
-    inserts.push(availability);
-    inserts.push(new Date());
-    var sql = mysql.format(query, inserts);
-    con.query(sql, function(err) {
-      callback(err, role_id);
-    });
-  });
-};
-
-Volunteers.quickAddRole = function(working_group, title, callback) {
-  var query =
-    "INSERT INTO volunteer_roles (role_id,group_id,details,availability,dateCreated,public) VALUES (?,?,?,?,?,0)";
-  Helpers.uniqueBase64Id(10, "volunteer_roles", "role_id", function(role_id) {
-    var inserts = [
-      role_id,
-      working_group,
-      JSON.stringify({ title: title }),
-      JSON.stringify({}),
-      new Date()
-    ];
-    var sql = mysql.format(query, inserts);
-    con.query(sql, function(err) {
-      callback(err, {
-        role_id: role_id,
-        group_id: working_group,
-        details: { title: title }
-      });
-    });
-  });
-};
-
-Volunteers.updateRole = function(role_id, role, callback) {
-  var group_id = role.working_group || null;
-  delete role.working_group;
-  var availability = JSON.stringify(role.availability);
-  delete role.availability;
-  var query =
-    "UPDATE volunteer_roles SET group_id = ?, details = ?, availability = ? WHERE role_id = ?";
-  var inserts = [group_id, JSON.stringify(role), availability, role_id];
-
-  var sql = mysql.format(query, inserts);
-  con.query(sql, function(err) {
-    callback(err, role.role_id);
-  });
-};
-
-Volunteers.updateRolePrivacy = function(role_id, public, callback) {
-  var query = "UPDATE volunteer_roles SET public = ? WHERE role_id = ?";
-  var inserts = [public, role_id];
-  var sql = mysql.format(query, inserts);
-  con.query(sql, callback);
-};
-
-Volunteers.removeRole = function(role_id, callback) {
-  var query =
-    "UPDATE volunteer_roles SET removed = 1, public = 0 WHERE role_id = ?";
-  var inserts = [role_id];
-  var sql = mysql.format(query, inserts);
-  con.query(sql, callback);
-};
-
-Volunteers.activateRole = function(role_id, callback) {
-  var query =
-    "UPDATE volunteer_roles SET removed = 0, public = 0 WHERE role_id = ?";
-  var inserts = [role_id];
-  var sql = mysql.format(query, inserts);
-  con.query(sql, callback);
-};
-
-Volunteers.getRoleById = function(role_id, callback) {
-  var query = "SELECT * FROM volunteer_roles WHERE role_id = ?";
-  var inserts = [role_id];
-  var sql = mysql.format(query, inserts);
-  con.query(sql, function(err, role) {
-    if (role[0]) {
-      role = role[0];
-      role.details = JSON.parse(role.details);
-      if (Object.keys(role.details).length == 1) {
-        role.incomplete = true;
-      } else {
-        role.incomplete = false;
-      }
-
-      role.availability = JSON.parse(role.availability) || {};
-
-      role.dateCreated = moment(role.dateCreated).format("l");
-      callback(err, role);
-    } else {
-      callback(err, null);
-    }
-  });
-};
-
-var contactMethods = [
-  "Email",
-  "Phone call",
-  "Text message",
-  "WhatsApp",
-  "Facebook Messenger"
-];
-var allLocations = [
-  "At home",
-  "22 Bread Street",
-  "17 Guthrie Street",
-  "13 Guthrie Street",
-  "Out and about in Edinburgh"
-];
-var commitmentLengths = [
-  "Fixed term",
-  "Ongoing",
-  "One off",
-  "Christmas",
-  "Summer"
-];
-var allActivities = [
-  "Administration/office work",
-  "Events",
-  "Adults",
-  "Advice/Information giving",
-  "Families",
-  "Finance/Accounting",
-  "Advocacy/Human Rights",
-  "Health and social care",
-  "Animals	Heritage",
-  "Art and culture: music, drama, crafts, galleries and museums",
-  "Homeless and housing",
-  "Befriending/Mentoring",
-  "Kitchen/Catering",
-  "Campaigning/Lobbying",
-  "Languages/translating",
-  "Care/Support work",
-  "LGBT+",
-  "Charity shops/Retail",
-  "Management/Business",
-  "Children",
-  "Mental health",
-  "Community",
-  "Library/Information Management",
-  "Computing/Technical",
-  "Marketing/PR/Media",
-  "Counselling",
-  "Politics",
-  "Disability",
-  "Practical/DIY",
-  "Education",
-  "Research and policy work",
-  "Domestic violence",
-  "Sport and recreation",
-  "Drugs and addiction",
-  "Students'Association",
-  "Elderly",
-  "Wheelchair accessible",
-  "Driving/escorting",
-  "Trustee and committee roles",
-  "Environment/conservation/outdoors",
-  "Tutoring",
-  "Equality and Diversity",
-  "Youth work"
-];
-
-Volunteers.getRoleSignUpInfo = function(callback) {
-  Settings.getAll(function(err, settings) {
-    callback(
-      settings.locations,
-      settings.activities,
-      settings.commitmentLengths
-    );
-  });
-};
-
 Volunteers.getSignUpInfo = function(callback) {
-  Volunteers.getAllRoles(function(
+  VolunteerRoles.getAll(function(
     err,
     roles,
     rolesGroupedByGroup,

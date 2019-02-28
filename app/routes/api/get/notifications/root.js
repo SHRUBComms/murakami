@@ -6,13 +6,10 @@ var moment = require("moment");
 
 var rootDir = process.env.CWD;
 
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var Notifications = require(rootDir + "/app/models/notifications");
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Auth = require(rootDir + "/app/configs/auth");
-
-router.use("/read", require("./read"));
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
   var notifications = [];
@@ -37,89 +34,68 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
     var pendingHoursOn = false;
   }
 
-  Notifications.getAllMessages(req.user.id, function(err, messages) {
-    async.each(
-      messages,
-      function(message, callback) {
-        notifications.push({
-          message: message.body,
-          action: "javascript::void(0);",
-          icon: "fas fa-envelope",
-          time: moment(message.timestamp).fromNow()
-        });
-        callback();
-      },
-      function() {
-        if (["staff", "admin", "volunteer"].includes(req.user.class)) {
-          WorkingGroups.getAllUnreviewedVolunteerHours(function(err, shifts) {
-            var working_groups = req.user.working_groups_arr;
-            var shiftsNeedAttention = [];
+  if (["staff", "admin", "volunteer"].includes(req.user.class)) {
+    VolunteerHours.getAllUnreviewedShifts(function(err, shifts) {
+      var working_groups = req.user.working_groups_arr;
+      var shiftsNeedAttention = [];
 
+      async.each(
+        shifts,
+        function(shift, callback) {
+          if (working_groups.includes(shift.working_group)) {
+            shiftsNeedAttention.push(shift);
+          }
+          callback();
+        },
+        function() {
+          if (shiftsNeedAttention.length > 0 && pendingHoursOn == "on") {
+            notifications.push({
+              message: "You have volunteer hours waiting to be reviewed",
+              action: process.env.PUBLIC_ADDRESS + "/volunteers/hours/review",
+              icon: "fas fa-clock",
+              time: moment(
+                shiftsNeedAttention[shiftsNeedAttention.length - 1].date
+              ).fromNow()
+            });
+          }
+          var rolesNeedFinished = [];
+          VolunteerRoles.getAll(function(err, roles) {
             async.each(
-              shifts,
-              function(shift, callback) {
-                if (working_groups.includes(shift.working_group)) {
-                  shiftsNeedAttention.push(shift);
+              roles,
+              function(role, callback) {
+                if (
+                  Object.keys(role.details).length == 1 &&
+                  working_groups.includes(role.group_id)
+                ) {
+                  rolesNeedFinished.push(role);
                 }
                 callback();
               },
               function() {
-                if (shiftsNeedAttention.length > 0 && pendingHoursOn == "on") {
+                if (rolesNeedFinished.length > 0 && incompleteRolesOn == "on") {
                   notifications.push({
-                    message: "You have volunteer hours waiting to be reviewed",
+                    message:
+                      "You have volunteer roles that need to be completed",
                     action:
-                      process.env.PUBLIC_ADDRESS + "/volunteers/hours/review",
-                    icon: "fas fa-clock",
-                    time: moment(
-                      shiftsNeedAttention[shiftsNeedAttention.length - 1].date
-                    ).fromNow()
+                      process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage",
+                    icon: "fab fa-black-tie",
+                    time:
+                      moment(
+                        rolesNeedFinished[rolesNeedFinished.length - 1]
+                          .dateCreated
+                      ).fromNow() || null
                   });
                 }
-                var rolesNeedFinished = [];
-                Volunteers.getAllRoles(function(err, roles) {
-                  async.each(
-                    roles,
-                    function(role, callback) {
-                      if (
-                        Object.keys(role.details).length == 1 &&
-                        working_groups.includes(role.group_id)
-                      ) {
-                        rolesNeedFinished.push(role);
-                      }
-                      callback();
-                    },
-                    function() {
-                      if (
-                        rolesNeedFinished.length > 0 &&
-                        incompleteRolesOn == "on"
-                      ) {
-                        notifications.push({
-                          message:
-                            "You have volunteer roles that need to be completed",
-                          action:
-                            process.env.PUBLIC_ADDRESS +
-                            "/volunteers/roles/manage",
-                          icon: "fab fa-black-tie",
-                          time:
-                            moment(
-                              rolesNeedFinished[rolesNeedFinished.length - 1]
-                                .dateCreated
-                            ).fromNow() || null
-                        });
-                      }
-                      res.send(notifications);
-                    }
-                  );
-                });
+                res.send(notifications);
               }
             );
           });
-        } else {
-          res.send(notifications);
         }
-      }
-    );
-  });
+      );
+    });
+  } else {
+    res.send(notifications);
+  }
 });
 
 module.exports = router;

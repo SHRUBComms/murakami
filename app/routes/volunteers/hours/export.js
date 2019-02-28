@@ -1,26 +1,18 @@
-// volunteers/export-hours
+// volunteers/hours/export
 
 var router = require("express").Router();
-var async = require("async");
-var moment = require("moment");
-
-moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
-var Users = require(rootDir + "/app/models/users");
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   req,
   res
 ) {
-  Volunteers.getHoursBetweenTwoDatesByWorkingGroup(
+  VolunteerHours.getHoursBetweenTwoDatesByWorkingGroup(
     req.query.group_id,
     req.query.startDate,
     req.query.endDate,

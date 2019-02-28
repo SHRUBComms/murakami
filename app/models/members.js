@@ -476,63 +476,6 @@ Members.delete = function(member_id, callback) {
   con.query(sql, callback);
 };
 
-Members.getVolunteersByGroupId = function(group_id, user, callback) {
-  var working_groups = user.working_groups_arr;
-
-  var query = `SELECT * FROM volunteer_info volunteers
-
-RIGHT JOIN members ON volunteers.member_id = members.member_id
-
-LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
-
-ORDER BY lastVolunteered ASC`;
-
-  con.query(query, function(err, returnedVolunteers) {
-    Volunteers.sanitizeVolunteer(returnedVolunteers, user, function(
-      sanitizedVolunteers
-    ) {
-      async.eachOf(
-        sanitizedVolunteers,
-        function(volunteer, i, callback) {
-          if (group_id == "inactive") {
-            if (volunteer.working_groups.length > 0) {
-              sanitizedVolunteers[i] = {};
-              callback();
-            } else {
-              callback();
-            }
-          } else if (group_id) {
-            if (volunteer.working_groups.includes(group_id) == false) {
-              sanitizedVolunteers[i] = {};
-              callback();
-            } else {
-              callback();
-            }
-          } else {
-            if (
-              !Helpers.hasOneInCommon(
-                volunteer.working_groups,
-                user.working_groups_arr
-              )
-            ) {
-              sanitizedVolunteers[i] = {};
-              callback();
-            } else {
-              callback();
-            }
-          }
-        },
-        function() {
-          callback(
-            err,
-            sanitizedVolunteers.filter(value => Object.keys(value).length !== 0)
-          );
-        }
-      );
-    });
-  });
-};
-
 Members.getAllVolunteerInfo = function(settings, callback) {
   var query = `SELECT * FROM volunteer_info
         INNER JOIN members ON volunteer_info.member_id=members.member_id`;

@@ -5,7 +5,7 @@ var router = require("express").Router();
 var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -15,7 +15,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.isOfClass(["admin", "staff"]),
   function(req, res) {
-    Volunteers.getRoleById(req.params.role_id, function(err, role) {
+    VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
       if (role) {
         role.details.role_id = role.role_id;
         role.details.working_group = role.group_id;
@@ -26,7 +26,7 @@ router.get(
           role.details.locations = [role.details.locations];
         }
 
-        Volunteers.getRoleSignUpInfo(function(
+        VolunteerRoles.getRoleSignUpInfo(function(
           allLocations,
           allActivities,
           commitmentLengths
@@ -49,9 +49,9 @@ router.get(
 );
 
 router.post("/:role_id", function(req, res) {
-  Volunteers.getRoleById(req.params.role_id, function(err, roleExists) {
+  VolunteerRoles.getRoleById(req.params.role_id, function(err, roleExists) {
     if (roleExists) {
-      Volunteers.getRoleSignUpInfo(function(
+      VolunteerRoles.getRoleSignUpInfo(function(
         allLocations,
         allActivities,
         commitmentLengths
@@ -261,7 +261,7 @@ router.post("/:role_id", function(req, res) {
               availability: availability
             });
           } else {
-            Volunteers.updateRole(req.params.role_id, role, function(
+            VolunteerRoles.updateRole(req.params.role_id, role, function(
               err,
               role_id
             ) {

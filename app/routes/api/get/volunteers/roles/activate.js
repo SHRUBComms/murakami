@@ -6,15 +6,15 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 router.get("/:role_id", Auth.isLoggedIn, function(req, res) {
   var redirectURI =
     process.env.PUBLIC_ADDRESS + "/volunteers/roles/view/" + req.params.role_id;
-  Volunteers.getRoleById(req.params.role_id, function(err, role) {
+  VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
     if (role) {
       if (role.removed == 1) {
-        Volunteers.activateRole(req.params.role_id, function(err) {
+        VolunteerRoles.activateRole(req.params.role_id, function(err) {
           if (err) {
             req.flash("error", "Something went wrong!");
             res.redirect(redirectURI);

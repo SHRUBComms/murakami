@@ -12,6 +12,8 @@ var rootDir = process.env.CWD;
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 var Members = require(rootDir + "/app/models/members");
 var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
 var Tills = require(rootDir + "/app/models/tills");
 
 var recaptcha = new Recaptcha(
@@ -75,7 +77,7 @@ router.post("/", function(req, res) {
 
               if (["admin", "staff", "volunteer"].includes(req.user.class)) {
                 shift.approved = 1;
-                WorkingGroups.createShift(shift, function(err) {
+                VolunteerHours.createShift(shift, function(err) {
                   if (err) {
                     res.send({
                       status: "fail",
@@ -114,7 +116,7 @@ router.post("/", function(req, res) {
               } else {
                 shift.approved = null;
 
-                WorkingGroups.createShift(shift, function(err) {
+                VolunteerHours.createShift(shift, function(err) {
                   res.send({
                     status: "ok",
                     msg: "Shift logged - awaiting review by an admin!"
@@ -140,7 +142,7 @@ router.post("/", function(req, res) {
       if (!note || (note && note.length <= 200)) {
         WorkingGroups.getAll(function(err, allWorkingGroups) {
           if (allWorkingGroups[working_group]) {
-            Volunteers.getAllRoles(function(
+            VolunteerRoles.getAll(function(
               err,
               rolesArray,
               rolesByGroup,
@@ -170,32 +172,42 @@ router.post("/", function(req, res) {
                         if (body) {
                           body = JSON.parse(body);
                           if (body.success == true) {
-                            WorkingGroups.createShift(shift, function(err) {
+                            VolunteerHours.createShift(shift, function(err) {
                               req.flash(
                                 "success_msg",
                                 "Shift logged - awaiting review by an admin!"
                               );
-                              res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
+                              res.redirect(
+                                process.env.PUBLIC_ADDRESS +
+                                  "/volunteers/hours/log"
+                              );
                             });
                           } else {
                             req.flash(
                               "error",
                               "Please confirm that you're not a robot"
                             );
-                            res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
+                            res.redirect(
+                              process.env.PUBLIC_ADDRESS +
+                                "/volunteers/hours/log"
+                            );
                           }
                         } else {
                           req.flash(
                             "error",
                             "Please confirm that you're not a robot"
                           );
-                          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
+                          res.redirect(
+                            process.env.PUBLIC_ADDRESS + "/volunteers/hours/log"
+                          );
                         }
                       }
                     );
                   } else {
                     req.flash("error", "No member associated with that ID");
-                    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
+                    res.redirect(
+                      process.env.PUBLIC_ADDRESS + "/volunteers/hours/log"
+                    );
                   }
                 }
               );

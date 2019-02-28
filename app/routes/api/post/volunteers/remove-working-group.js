@@ -6,7 +6,6 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
 var Members = require(rootDir + "/app/models/members");
 
 router.post(
@@ -15,7 +14,7 @@ router.post(
 
   function(req, res) {
     var member_id = req.body.member_id.trim();
-    
+
     var group_id = req.body.group_id.trim().toUpperCase();
     var response = { msg: "Something went wrong!", status: "fail" };
 
@@ -31,7 +30,6 @@ router.post(
             JSON.stringify(volunteer.working_groups),
             function(err) {
               if (err) {
-                
                 res.send(response);
               } else {
                 response.status = "ok";

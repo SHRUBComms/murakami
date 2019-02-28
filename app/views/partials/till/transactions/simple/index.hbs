@@ -607,11 +607,6 @@ function updateButtons(){
 
 }
 
-function workingGroupJoin(){
-	var group_id = $('#workingGroupSelect').val();
-	workingGroupAjaxReq("/api/get/working-groups/members/join/" + group_id + "/{{member.id.text}}");
-}
-
 function isNumericAndWhole(n) {
   return !isNaN(parseFloat(n)) && n >= 0 && n % 1 == 0;
 }

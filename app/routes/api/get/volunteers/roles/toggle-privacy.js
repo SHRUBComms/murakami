@@ -6,15 +6,15 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 router.get("/:role_id", Auth.isLoggedIn, function(req, res) {
   var redirectURI =
     process.env.PUBLIC_ADDRESS + "/volunteers/roles/view/" + req.params.role_id;
-  Volunteers.getRoleById(req.params.role_id, function(err, role) {
+  VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
     if (role) {
       if (role.public == 1) {
-        Volunteers.updateRolePrivacy(req.params.role_id, 0, function(err) {
+        VolunteerRoles.updateRolePrivacy(req.params.role_id, 0, function(err) {
           if (err) {
             req.flash("error", "Something went wrong!");
             res.redirect(redirectURI);
@@ -24,7 +24,7 @@ router.get("/:role_id", Auth.isLoggedIn, function(req, res) {
           }
         });
       } else {
-        Volunteers.updateRolePrivacy(req.params.role_id, 1, function(err) {
+        VolunteerRoles.updateRolePrivacy(req.params.role_id, 1, function(err) {
           if (err) {
             req.flash("error", "Something went wrong!");
             res.redirect(redirectURI);

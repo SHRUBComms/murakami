@@ -7,10 +7,12 @@ var moment = require("moment");
 moment.locale("en-gb");
 var async = require("async");
 
-var Members = require("../models/members");
-var Settings = require("../models/settings");
-var WorkingGroups = require("../models/working-groups");
-var Volunteers = require("../models/volunteers");
+var rootDir = process.env.CWD;
+
+var Members = require(rootDir + "/app/models/members");
+var Settings = require(rootDir + "/app/models/settings");
+var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Mail = {};
 
@@ -57,7 +59,7 @@ Mail.sendSupport = function(from_name, from_address, subject, html, callback) {
 };
 
 Mail.sendAutomated = function(mail_id, member_id, callback) {
-  Volunteers.getAllRoles(function(err, rolesArray, allRolesByGroup, allRoles) {
+  VolunteerRoles.getAll(function(err, rolesArray, allRolesByGroup, allRoles) {
     WorkingGroups.getAll(function(err, allWorkingGroups) {
       Members.getById(
         member_id,
@@ -106,21 +108,22 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                     async.eachOf(
                       member.working_groups,
                       function(working_group, i, callback) {
-                        if (allWorkingGroups[working_group].welcomeMessage) {
-                          console.log(
-                            allWorkingGroups[working_group].welcomeMessage
-                          );
-                          workingGroupsMarkup +=
-                            allWorkingGroups[working_group].welcomeMessage;
+                        if (allWorkingGroups[working_group]) {
+                          if (allWorkingGroups[working_group].welcomeMessage) {
+                            console.log(
+                              allWorkingGroups[working_group].welcomeMessage
+                            );
+                            workingGroupsMarkup +=
+                              allWorkingGroups[working_group].welcomeMessage;
 
-                          // prettier-ignore
-                          if (
-                              i != (member.working_groups.length - 1)
-                            ) {
-                              workingGroupsMarkup += "<br />";
-                            }
+                            // prettier-ignore
+                            if (
+                                i != (member.working_groups.length - 1)
+                              ) {
+                                workingGroupsMarkup += "<br />";
+                              }
+                          }
                         }
-
                         callback();
                       },
                       function() {

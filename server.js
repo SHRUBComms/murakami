@@ -16,7 +16,7 @@ var back = require("express-back");
 var validator = require("express-validator");
 var async = require("async");
 
-var Volunteers = require(process.env.CWD + "/app/models/volunteers");
+var VolunteerRoles = require(process.env.CWD + "/app/models/volunteer-roles");
 
 if (process.env.NODE_ENV != "development") {
   process.on("uncaughtException", function(err) {
@@ -160,7 +160,7 @@ app.use(function(req, res, next) {
       req.user.notification_preferences =
         req.user.notification_preferences || {};
 
-      Volunteers.getAllRoles(function(err, rolesArray, rolesByGroup, rolesObj) {
+      VolunteerRoles.getAll(function(err, rolesArray, rolesByGroup, rolesObj) {
         req.user.allVolunteerRoles = rolesObj;
         WorkingGroups.getAll(function(err, working_groups_arr) {
           var working_groups = {};

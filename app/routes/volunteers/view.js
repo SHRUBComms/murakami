@@ -7,6 +7,7 @@ var rootDir = process.env.CWD;
 var Users = require(rootDir + "/app/models/users");
 var Members = require(rootDir + "/app/models/members");
 var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -41,7 +42,7 @@ router.get(
                 coordinators,
                 coordinatorsObj
               ) {
-                Volunteers.getAllRoles(function(
+                VolunteerRoles.getAll(function(
                   err,
                   roles,
                   rolesGroupedByGroup,

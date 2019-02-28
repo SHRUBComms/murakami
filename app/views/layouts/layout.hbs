@@ -152,8 +152,7 @@
 
                                 {{/ifUserClass}}
 
-                                <br />
-                                <br />
+
 
                               {{else}}
                                 <li {{#if transactionsActive}}class="active"{{/if}}>
@@ -187,14 +186,21 @@
                             <li {{#if supportActive}}class="active"{{/if}}>
                                 <a href="{{public_address}}/support?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-help-alt"></i><span>Support</span></a>
                             </li>
+
+
                             {{#if tillMode}}
                               {{#ifUserClass user.class '["admin", "staff"]'}}
                                 <hr />
                                 <li>
-                                    <a href="{{public_address}}/till/settings" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
+                                    <a href="{{public_address}}/till/manage" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
                                 </li>
                               {{/ifUserClass}}
                             {{/if}}
+
+
+                            <br />
+                            <br />
+
 
                         </ul>
                     </nav>

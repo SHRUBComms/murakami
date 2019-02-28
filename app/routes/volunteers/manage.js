@@ -8,6 +8,7 @@ var rootDir = process.env.CWD;
 var Users = require(rootDir + "/app/models/users");
 var Members = require(rootDir + "/app/models/members");
 var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
@@ -25,50 +26,49 @@ router.get(
           req.user.working_groups[0].group_id
       );
     } else {
-      Members.getVolunteersByGroupId(
-        req.query.group_id || null,
-        req.user,
-        function(err, volunteers) {
-          userBelongsToGroup = Helpers.hasOneInCommon(
-            req.user.working_groups_arr,
-            [req.query.group_id]
-          );
+      Volunteers.getByGroupId(req.query.group_id || null, req.user, function(
+        err,
+        volunteers
+      ) {
+        userBelongsToGroup = Helpers.hasOneInCommon(
+          req.user.working_groups_arr,
+          [req.query.group_id]
+        );
 
-          if (
-            (req.query.group_id && userBelongsToGroup) ||
-            !req.query.group_id ||
-            req.user.class == "admin"
+        if (
+          (req.query.group_id && userBelongsToGroup) ||
+          !req.query.group_id ||
+          req.user.class == "admin"
+        ) {
+          VolunteerRoles.getAll(function(
+            err,
+            roles,
+            rolesGroupedByGroup,
+            rolesGroupedById
           ) {
-            Volunteers.getAllRoles(function(
+            Users.getCoordinators(req.user, function(
               err,
-              roles,
-              rolesGroupedByGroup,
-              rolesGroupedById
+              coordinators,
+              coordinatorsObj
             ) {
-              Users.getCoordinators(req.user, function(
-                err,
-                coordinators,
-                coordinatorsObj
-              ) {
-                res.render("volunteers/manage", {
-                  title: "Manage Volunteers",
-                  volunteersActive: true,
-                  volunteers: volunteers,
-                  roles: rolesGroupedById,
-                  coordinators: coordinatorsObj,
-                  group: {
-                    group_id: req.query.group_id
-                  },
-                  volunteerStatus: req.query.volunteers || "all"
-                });
+              res.render("volunteers/manage", {
+                title: "Manage Volunteers",
+                volunteersActive: true,
+                volunteers: volunteers,
+                roles: rolesGroupedById,
+                coordinators: coordinatorsObj,
+                group: {
+                  group_id: req.query.group_id
+                },
+                volunteerStatus: req.query.volunteers || "all"
               });
             });
-          } else {
-            req.flash("error", "You don't belong to that working group.");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-          }
+          });
+        } else {
+          req.flash("error", "You don't belong to that working group.");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
         }
-      );
+      });
     }
   }
 );

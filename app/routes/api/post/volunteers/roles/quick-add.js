@@ -4,7 +4,7 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -19,10 +19,8 @@ router.post(
     var working_groups = req.user.all_working_groups_arr;
     working_groups.push("na");
 
-    
-
     if (working_groups.includes(working_group) && title) {
-      Volunteers.quickAddRole(working_group, title, function(err, role) {
+      VolunteerRoles.quickAddRole(working_group, title, function(err, role) {
         if (!err && role) {
           res.send({ status: "ok", role: role });
         } else {
