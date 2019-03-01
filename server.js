@@ -53,15 +53,16 @@ String.prototype.toProperCase = function() {
   });
 };
 
-
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 // Define port (if not already)
 var port = process.env.PORT || 3000;
+var path = process.env.PUBLIC_PATH || "";
 
 // Define public (static) directory
-app.use(express.static("app/public"));
+app.use(path, express.static("app/public"));
 
+// CORS
 app.use(cors());
 
 app.use(
@@ -81,9 +82,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 // Express Validator
-app.use(
-  validator(require("./app/configs/custom-express-validators"))
-);
+app.use(validator(require("./app/configs/custom-express-validators")));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -107,20 +106,21 @@ app.use(function(req, res, next) {
       req.user.notification_preferences =
         req.user.notification_preferences || {};
 
-        VolunteerRoles.getAll(function(err, rolesArray, rolesByGroup, rolesObj) {
-          req.user.allVolunteerRoles = rolesObj;
-          WorkingGroups.getAll(function(err, allWorkingGroupsObj, allWorkingGroupsArray) {
+      VolunteerRoles.getAll(function(err, rolesArray, rolesByGroup, rolesObj) {
+        req.user.allVolunteerRoles = rolesObj;
+        WorkingGroups.getAll(function(
+          err,
+          allWorkingGroupsObj,
+          allWorkingGroupsArray
+        ) {
+          req.user.allWorkingGroups,
+            (req.user.allWorkingGroupsObj = allWorkingGroupsObj);
+          req.user.all_working_groups_arr,
+            (req.user.working_groups_arr = allWorkingGroupsArray);
 
-            req.user.allWorkingGroups, req.user.allWorkingGroupsObj = allWorkingGroupsObj;
-            req.user.all_working_groups_arr, req.user.working_groups_arr = allWorkingGroupsArray;
-
-
-            next();
-
-          });
+          next();
         });
-
-
+      });
     } else {
       res.locals.user = null;
       req.logout();
@@ -137,15 +137,8 @@ var job = require("./app/configs/cron");
 job.start();
 
 // Define routers
-app.use("/members", require("./app/routes/members/root"));
-app.use("/api", require("./app/routes/api/root"));
-app.use("/till", require("./app/routes/till/root"));
-app.use("/settings", require("./app/routes/settings/root"));
-app.use("/working-groups", require("./app/routes/working-groups/root"));
-app.use("/users", require("./app/routes/users/root"));
-app.use("/volunteers", require("./app/routes/volunteers/root"));
-app.use("/carbon-accounting", require("./app/routes/carbon-accounting/root"));
-app.use("/", require("./app/routes/root")); // *ALWAYS* PLACE THIS ROUTER LAST
+
+app.use(path, require("./app/routes/root")); // *ALWAYS* PLACE THIS ROUTER LAST
 
 // Start server
 app.listen(port);
