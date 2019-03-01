@@ -16,10 +16,19 @@ WorkingGroups.getAll = function(callback) {
       working_groups_raw,
       function(group, callback) {
         working_groups[group.group_id] = group;
+
+        if (group.parent) {
+          try {
+            working_groups[group.parent].children.push(group.group_id);
+          } catch (err) {
+            working_groups[group.parent].children = [group.group_id];
+          }
+        }
+
         callback();
       },
       function() {
-        callback(err, working_groups);
+        callback(err, working_groups, working_groups_raw);
       }
     );
   });

@@ -23,7 +23,7 @@ router.get(
       res.redirect(
         process.env.PUBLIC_ADDRESS +
           "/volunteers/manage/?group_id=" +
-          req.user.working_groups[0].group_id
+          req.user.working_groups[0]
       );
     } else {
       Volunteers.getByGroupId(req.query.group_id || null, req.user, function(

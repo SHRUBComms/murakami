@@ -53,27 +53,6 @@ String.prototype.toProperCase = function() {
   });
 };
 
-String.prototype.censorEmail = function() {
-  var email = this.split("@");
-  return (
-    email[0].slice(0, 1) +
-    "*****" +
-    email[0].slice(-1) +
-    "@" +
-    email[1].slice(0, 1) +
-    "*****" +
-    email[1].slice(-1)
-  );
-};
-
-String.prototype.censorFullName = function() {
-  var name = this.split(" ");
-  nameCensored = "";
-  for (let i = 0; i < name.length; i++) {
-    nameCensored += name[i].slice(0, 1) + "*****" + name[i].slice(-1);
-  }
-  return nameCensored;
-};
 
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
@@ -103,32 +82,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 // Express Validator
 app.use(
-  validator({
-    customValidators: {
-      isEmailAvailable: function(email) {
-        return new Promise(function(resolve, reject) {
-          Users.getByEmail(email, function(err, results) {
-            if (results.length == 0) {
-              return resolve();
-            } else {
-              return reject();
-            }
-          });
-        });
-      },
-      isUsernameAvailable: function(username) {
-        return new Promise(function(resolve, reject) {
-          Users.getByUsername(username, function(err, results) {
-            if (results.length == 0) {
-              return resolve();
-            } else {
-              return reject();
-            }
-          });
-        });
-      }
-    }
-  })
+  validator(require("./app/configs/custom-express-validators"))
 );
 
 app.use(passport.initialize());
@@ -147,79 +101,26 @@ app.use(function(req, res, next) {
   if (req.user) {
     res.locals.user = req.user;
     if (req.user.deactivated == 0) {
-      if (req.user.class == "admin") {
-        req.user.admin = 1;
-      } else {
-        req.user.admin = 0;
-        if (req.user.class == "till") {
-          res.locals.tillMode = true;
-        }
-      }
+      req.user[req.user.class] = 1;
       req.user.name = req.user.first_name + " " + req.user.last_name;
 
       req.user.notification_preferences =
         req.user.notification_preferences || {};
 
-      VolunteerRoles.getAll(function(err, rolesArray, rolesByGroup, rolesObj) {
-        req.user.allVolunteerRoles = rolesObj;
-        WorkingGroups.getAll(function(err, working_groups_arr) {
-          var working_groups = {};
-          res.locals.allWorkingGroups = working_groups_arr;
-          var all_working_groups_arr = [];
+        VolunteerRoles.getAll(function(err, rolesArray, rolesByGroup, rolesObj) {
+          req.user.allVolunteerRoles = rolesObj;
+          WorkingGroups.getAll(function(err, allWorkingGroupsObj, allWorkingGroupsArray) {
 
-          async.each(
-            working_groups_arr,
-            function(group, callback) {
-              all_working_groups_arr.push(group.group_id);
-              working_groups[group.group_id] = group;
-              if (group.parent) {
-                try {
-                  working_groups[group.parent].children.push(group.group_id);
-                } catch (err) {
-                  working_groups[group.parent].children = [group.group_id];
-                }
-              }
-              callback();
-            },
-            function() {
-              req.user.allWorkingGroupsObj = working_groups;
+            req.user.allWorkingGroups, req.user.allWorkingGroupsObj = allWorkingGroupsObj;
+            req.user.all_working_groups_arr, req.user.working_groups_arr = allWorkingGroupsArray;
 
-              async.eachOf(
-                req.user.working_groups,
-                function(wg, i, callback) {
-                  req.user.working_groups[i] =
-                    working_groups[req.user.working_groups[i]];
 
-                  if (req.user.working_groups[i].parent) {
-                    req.user.working_groups[i].full_name =
-                      req.user.allWorkingGroupsObj[
-                        req.user.working_groups[i].parent
-                      ].name + ": ";
+            next();
 
-                    req.user.working_groups[i].name;
-                  } else {
-                    req.user.working_groups[i].full_name =
-                      req.user.working_groups[i].name;
-                  }
-
-                  callback();
-                },
-                function(err) {
-                  var working_groups = req.user.working_groups || [];
-
-                  req.user.working_groups_arr = working_groups.map(function(
-                    obj
-                  ) {
-                    return obj.group_id;
-                  });
-                  req.user.all_working_groups_arr = all_working_groups_arr;
-                  next();
-                }
-              );
-            }
-          );
+          });
         });
-      });
+
+
     } else {
       res.locals.user = null;
       req.logout();

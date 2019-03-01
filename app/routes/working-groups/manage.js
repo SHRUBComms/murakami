@@ -11,8 +11,10 @@ var Auth = require(rootDir + "/app/configs/auth");
 
 
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+  console.log(req.user.working_groups);
   if (req.user.working_groups) {
-    var group = req.user.working_groups[0].group_id;
+    var group = req.user.working_groups[0];
+
     res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + group);
   } else {
     req.flash("error", "You're not an admin of any working groups!");
