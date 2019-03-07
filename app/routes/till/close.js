@@ -58,7 +58,7 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
               till.till_id,
               status.timestamp,
               function(total_sales) {
-                console.log(total_sales);
+                
                 try {
                   total_sales = parseFloat(total_sales);
                 } catch(err) {

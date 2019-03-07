@@ -1,7 +1,28 @@
 
 
   <tr>
-    <td>{{first_name}} {{last_name}}</td>
+    <td>
+      {{first_name}} {{last_name}}
+
+      {{#unless is_member}}
+
+        <br />
+        <span class="text-danger font-weight-bold">
+          Membership expired
+        </span>
+        <br />
+        <small>
+          <span class="text-danger">
+            {{#if active}}
+              Log a shift or pay to renew!
+            {{else}}
+              Register as a volunteer or pay to renew!
+            {{/if}}
+
+          </span>
+        </small>
+      {{/unless}}
+    </td>
     <td>
       {{#if roles}}
 
@@ -47,7 +68,6 @@
     </td>
 
     <td>
-      {{#if is_member}}
         <span
           class="
             {{#ifCond needsToVolunteer '==' 'now'}}
@@ -61,53 +81,67 @@
             {{/ifCond}}
             "
           >
-          {{#if lastVolunteered}}
-            <b>
-              {{lastVolunteered}}
-            </b>
-          {{else}}
-            Never
-          {{/if}}
 
-          {{#if lastVolunteeredMessage}}
-          - {{lastVolunteeredMessage}}
-          {{/if}}
-        </span>
-      {{else}}
-        <span class="text-danger font-weight-bold">
-          Membership expired
-        </span>
-        <br />
-        <span class="text-danger">
-          {{#if activeVolunteer}}
-            Volunteer or pay to renew!
-          {{else}}
-            Register as a volunteer or pay to renew!
-          {{/if}}
+          Next shift due by <b>{{nextShiftDue}}</b>
           <br />
-          Last volunteered: {{lastVolunteered}}
+
+          {{#if lastVolunteered}}
+            <small><i>Last shift was <b>{{lastVolunteered}}</b></i></small>
+          {{else}}
+            <small><i>No shifts on record</i></small>
+          {{/if}}
+
+
         </span>
 
-      {{/if}}
+    </td>
+
+
+    <td>
+
+      <span
+        class="
+          {{#ifCond needsToCheckin '==' 'now'}}
+            text-danger
+          {{/ifCond}}
+          {{#ifCond needsToCheckin '==' 'soon'}}
+            text-warning
+          {{/ifCond}}
+          {{#ifCond needsToCheckin '==' false}}
+            text-success
+          {{/ifCond}}
+          "
+        >
+
+        Next check-in due by <b>{{nextCheckinDue}}</b>
+        <br />
+
+        {{#if lastCheckin}}
+          <small><i>Last check-in was <b>{{lastCheckin}}</b></i></small>
+        {{else}}
+          <small><i>No check-ins on record</i></small>
+        {{/if}}
+
+      </span>
+
     </td>
 
     <td>
-      <div class="btn-group d-flex">
 
-        {{#if is_member}}
+      {{#if active}}
+        <a class="btn btn-info btn-block mb-2" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
+      {{else}}
+        <a class="btn btn-info btn-block mb-2" href="{{public_address}}/members/make-volunteer/{{member_id}}">Register As Volunteer</a>
+      {{/if}}
 
-          <a class="btn btn-danger w-100" onclick='removeVolunteer("{{member_id}}", "{{name}}", {{{json roles}}}, {{{json old_working_groups}}})' >Remove</a>
+      {{#ifCond needsToCheckin '==' "soon"}}
+        <a class="btn btn-warning btn-block mb-2" href="{{public_address}}/volunteers/check-in/{{member_id}}">Conduct Check-in</a>
+      {{/ifCond}}
+      {{#ifCond needsToCheckin '==' "now"}}
+        <a class="btn btn-danger btn-block mb-2" href="{{public_address}}/volunteers/check-in/{{member_id}}">Conduct Check-in</a>
+      {{/ifCond}}
 
-        {{else}}
-          <a class="btn btn-danger w-100" onclick='removeVolunteer("{{member_id}}", "{{name}}", {{{json roles}}}, {{{json old_working_groups}}})'>Remove</a>
-        {{/if}}
-
-        {{#ifCond roles.length '>' 0}}
-          <a class="btn btn-info w-100" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
-        {{else}}
-          <a class="btn btn-info w-100" href="{{public_address}}/members/make-volunteer/{{member_id}}">Register As Volunteer</a>
-        {{/ifCond}}
-      </div>
+      <a class="btn btn-danger mb-2 btn-block" onclick='removeVolunteer("{{member_id}}", "{{name}}", {{{json roles}}}, {{{json old_working_groups}}})'>Remove</a>
 
     </td>
   </tr>

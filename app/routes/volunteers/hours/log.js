@@ -109,6 +109,7 @@ router.post("/", function(req, res) {
                         );
                       });
                     } else {
+                      Members.updateStatus(member.member_id, 1, function() {});
                       res.send(message);
                     }
                   }

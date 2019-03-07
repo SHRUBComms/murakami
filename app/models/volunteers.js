@@ -22,6 +22,8 @@ RIGHT JOIN members ON volunteers.member_id = members.member_id
 
 LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
 
+LEFT JOIN (SELECT member_id checkins_member_id, checkin_id, MAX(timestamp) lastCheckin  FROM volunteer_checkins GROUP BY member_id, checkin_id) checkins ON members.member_id=checkins.checkins_member_id
+
 ORDER BY lastVolunteered ASC`;
 
   con.query(query, function(err, returnedVolunteers) {
@@ -76,6 +78,10 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
     function(volunteer, callback) {
       if (volunteer) {
         if (volunteer.lastVolunteered) {
+          volunteer.nextShiftDue = moment(volunteer.lastVolunteered)
+            .add(3, "months")
+            .format("l");
+
           if (
             moment(volunteer.lastVolunteered).isBefore(
               moment().subtract(1, "months")
@@ -99,18 +105,46 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             "l"
           );
         } else {
-          volunteer.lastVolunteered = "Never";
+          volunteer.nextShiftDue = moment(volunteer.dateCreated)
+            .add(1, "months")
+            .format("l");
+
           if (
             moment(volunteer.dateCreated).isBefore(
               moment().subtract(2, "weeks")
             )
           ) {
             volunteer.needsToVolunteer = "now";
-            volunteer.lastVolunteeredMessage = "needs to volunteer now";
           } else {
             volunteer.needsToVolunteer = "soon";
-            volunteer.lastVolunteeredMessage = "needs to volunteer soon";
           }
+        }
+
+        if (
+          moment(volunteer.lastCheckin || volunteer.dateCreated).isBefore(
+            moment().subtract(3, "months")
+          )
+        ) {
+          volunteer.needsToCheckin = "now";
+        } else if (
+          moment(volunteer.lastCheckin || volunteer.dateCreated).isBetween(
+            moment().subtract(3, "months"),
+            moment().subtract(2, "months")
+          )
+        ) {
+          volunteer.needsToCheckin = "soon";
+        } else {
+          volunteer.needsToCheckin = false;
+        }
+
+        volunteer.nextCheckinDue = moment(
+          volunteer.lastCheckin || volunteer.dateCreated
+        )
+          .add(3, "months")
+          .format("l");
+
+        if (volunteer.lastCheckin) {
+          volunteer.lastCheckin = moment(volunteer.lastCheckin).format("l");
         }
 
         if (volunteer.firstVolunteered) {
@@ -118,7 +152,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             volunteer.firstVolunteered
           ).format("l");
         } else {
-          volunteer.firstVolunteered = "Never!";
+          volunteer.firstVolunteered = null;
         }
 
         volunteer.lastUpdated = moment(volunteer.lastUpdated).format("L");
@@ -272,7 +306,7 @@ Volunteers.updateRoles = function(member_id, roles, callback) {
 };
 
 Volunteers.getVolunteerById = function(member_id, user, callback) {
-  var query = `SELECT * FROM volunteer_info volunteers LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered, MIN(date) firstVolunteered FROM volunteer_hours GROUP BY member_id) hours ON volunteers.member_id=hours.hours_member_id WHERE volunteers.member_id = ?`;
+  var query = `SELECT * FROM volunteer_info volunteers RIGHT JOIN members ON volunteers.member_id = members.member_id LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id LEFT JOIN (SELECT member_id checkins_member_id, checkin_id, MAX(timestamp) lastCheckin FROM volunteer_checkins GROUP BY member_id, checkin_id) checkins ON members.member_id=checkins.checkins_member_id WHERE volunteers.member_id = ?`;
   var inserts = [member_id];
   var sql = mysql.format(query, inserts);
   con.query(sql, function(err, volInfo) {
@@ -291,6 +325,28 @@ Volunteers.updateActiveStatus = function(member_id, active, callback) {
   var inserts = [active, member_id];
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
+};
+
+Volunteers.createInvite = function(action, member_id, user, callback) {
+  var query =
+    "INSERT INTO access_tokens (token, action, user_id, timestamp, used) VALUES (?,?,?,?,?)";
+  Helpers.uniqueBase64Id(25, "access_tokens", "token", function(token) {
+    var inserts = [token, action, user.id, new Date(), 0];
+    var sql = mysql.format(query, inserts);
+    con.query(sql, function(err) {
+      var link;
+      if (action == "make-volunteer") {
+        link =
+          process.env.PUBLIC_ADDRESS + "/members/make-volunteer/" + member_id;
+      } else if (action == "add-volunteer") {
+        link = process.env.PUBLIC_ADDRESS + "/volunteers/add";
+      }
+
+      link += "?token=" + token;
+
+      callback(err, link);
+    });
+  });
 };
 
 Volunteers.addExistingMember = function(member_id, volInfo, callback) {

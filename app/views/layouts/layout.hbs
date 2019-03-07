@@ -72,6 +72,7 @@
 
                                       <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
                                       <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
+                                      <!--<li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>-->
 
                                     </ul>
                                 </li>
@@ -437,7 +438,7 @@ $('body').on('input', ":input", function(){
   var noChars = $(this).val().length || 0;
   if(maxLength){
     var charsRemaining = (maxLength - noChars);
-    console.log($(this).next());
+
     if($(this).next().hasClass("charsRemaining")){
       $(this).next().replaceWith("<span class=\"badge badge-info float-right mb-2 charsRemaining \">" + charsRemaining +"/"+ maxLength + "</span>");
     } else {

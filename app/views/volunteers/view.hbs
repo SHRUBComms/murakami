@@ -40,6 +40,13 @@
 					<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="btn btn-block btn-primary">Update Volunteer</a>
 				</div>
 			</div>
+
+      <div class="row mt-2">
+				<div class="col-md-5">
+					<a href="{{public_address}}/volunteers/check-in/{{member.member_id}}" class="btn btn-block btn-primary">Conduct Check-in</a>
+				</div>
+			</div>
+
 		{{/if}}
 
 
@@ -72,17 +79,24 @@
 						{{else}}
 							<p class="text-danger">No assigned coordinator!</p>
 						{{/if}}
-						<p>Profile last updated:
-							<span class="text-{{#ifCond volInfo.needsToUpdate '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToUpdate '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToUpdate '==' false}}success{{/ifCond}}">{{volInfo.lastUpdated}}</span>
-						</p>
-						<p>Last volunteered:
-							<span class="text-{{#ifCond volInfo.needsToVolunteer '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' false}}success{{/ifCond}}">{{volInfo.lastVolunteered}}</span>
-						</p>
+
 
 						<hr />
 
 						<p>Registered as a volunteer: {{volInfo.dateCreated}}</p>
-						<p>First volunteered: {{volInfo.firstVolunteered}}</p>
+
+            {{#if volInfo.lastCheckin}}
+  						<p>Last Check-in:
+  							<span class="text-{{#ifCond volInfo.needsToCheckin '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToCheckin '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToCheckin '==' false}}success{{/ifCond}}">{{volInfo.lastCheckin}}</span>
+  						</p>
+            {{/if}}
+
+            {{#if volInfo.lastVolunteered}}
+  						<p>Last volunteered:
+  							<span class="text-{{#ifCond volInfo.needsToVolunteer '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' false}}success{{/ifCond}}">{{volInfo.lastVolunteered}}</span>
+  						</p>
+            {{/if}}
+
           </div>
 				</div>
 			</div>

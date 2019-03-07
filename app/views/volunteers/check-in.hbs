@@ -1,0 +1,92 @@
+<script src="{{public_address}}/assets/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="{{public_address}}/assets/css/bootstrap-select.min.css" />
+
+<form method="POST" action="{{public_address}}/volunteers/check-in/{{member.member_id}}">
+	<div class="row mt-4 mb-2 mx-auto">
+    <div class="col-md-10 mx-auto">
+			<div class="card mb-4">
+				<div class="card-body text-center">
+						<h1>{{member.first_name}} {{member.last_name}}</h1>
+            <p class="{{#if volInfo.active}}text-success{{else}}text-danger{{/if}}">
+							{{#if volInfo.active}}
+								Active volunteer
+							{{else}}
+								Inactive volunteer
+							{{/if}}
+						</p>
+            <p class="text-muted">
+              {{#if lastCheckIn}}
+                Last check-in: {{lastCheckIn.timestamp}}<br />
+								Conducted by: {{lookup (lookup allUsers lastCheckIn.user_id) 'full_name'}}
+              {{else}}
+                No check-ins on record
+              {{/if}}
+            </p>
+				</div>
+			</div>
+
+
+			<h3 class="mb-3">Questionnaire</h3>
+      <ol>
+        {{#each questionnaire}}
+					<div class="row mb-2">
+
+						<div class="col-6 mx-auto">
+							<div class="card">
+								<div class="card-body">
+		              <li class="mb-2"><p>{{question}}</p></li>
+
+		              <textarea name="questionnaire[{{question_id}}]" class="form-control mb-4" placeholder="{{#if help}}{{help}}{{else}}Volunteer's response...{{/if}}" required></textarea>
+								</div>
+							</div>
+						</div>
+
+
+						<div class="col-6 mx-auto">
+
+							<div class="card">
+								<div class="card-body">
+
+									<p class="font-weight-bold">Previous Answer</p>
+
+									<p class="text-muted">
+
+										{{#if (lookup (lookup ../lastCheckIn 'questionnaire') question_id)}}
+											{{lookup (lookup ../lastCheckIn 'questionnaire') question_id}}
+										{{else}}
+											No answer on record
+			              {{/if}}
+
+									</p>
+
+
+									{{#if fromInitialSurvey}}
+										<p class="font-weight-bold mt-2">Answer From Registration</p>
+										{{#if (lookup ../volInfo.survey fromInitialSurvey)}}
+											<p class="text-muted">
+												{{lookup ../volInfo.survey fromInitialSurvey}}
+											</p>
+										{{else}}
+										<p class="text-muted">
+											No answer on record
+										</p>
+										{{/if}}
+									{{/if}}
+
+
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+        {{/each}}
+      </ol>
+
+			<br />
+
+			<button type="submit" class="btn btn-primary btn-lg btn-block mt-4">Complete Questionnaire</button>
+
+		</div>
+  </div>
+</form>

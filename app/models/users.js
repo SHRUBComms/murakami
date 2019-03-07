@@ -15,8 +15,8 @@ Users.getAll = function(loggedInUser, callback) {
     LEFT JOIN (SELECT user_id login_user_id, MAX(login_timestamp) lastLogin
     FROM attempts GROUP BY user_id) attempts ON login.id=attempts.login_user_id`;
   con.query(query, function(err, users) {
-    Users.sanitizeUser(users, loggedInUser, function(sanitizedUsers) {
-      callback(err, sanitizedUsers);
+    Users.sanitizeUser(users, loggedInUser, function(sanitizedUsers, sanitizedUsersObj) {
+      callback(err, sanitizedUsers, sanitizedUsersObj);
     });
   });
 };
@@ -205,9 +205,13 @@ Users.comparePassword = function(candidatePassword, hash, callback) {
 };
 
 Users.sanitizeUser = function(users, loggedInUser, callback) {
+  var usersObj = {};
   async.eachOf(
     users,
     function(user, i, callback) {
+      if(!loggedInUser){
+        delete user.password;
+      }
       var hasPermission = false;
       if (loggedInUser.class == "admin" || user.id == loggedInUser.id) {
         hasPermission = true;
@@ -241,14 +245,16 @@ Users.sanitizeUser = function(users, loggedInUser, callback) {
         } else {
           user.lastLogin = "Never";
         }
+        usersObj[user.id] = user;
         callback();
       } else {
         users[i] = {};
+
         callback();
       }
     },
     function() {
-      callback(users);
+      callback(users, usersObj);
     }
   );
 };

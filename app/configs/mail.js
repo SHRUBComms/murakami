@@ -110,9 +110,6 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                       function(working_group, i, callback) {
                         if (allWorkingGroups[working_group]) {
                           if (allWorkingGroups[working_group].welcomeMessage) {
-                            console.log(
-                              allWorkingGroups[working_group].welcomeMessage
-                            );
                             workingGroupsMarkup +=
                               allWorkingGroups[working_group].welcomeMessage;
 
