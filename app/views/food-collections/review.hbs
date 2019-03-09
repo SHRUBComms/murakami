@@ -1,0 +1,50 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row mt-4">
+
+  <div class="col-lg-10 mx-auto">
+
+  <div id="vol_hours_info" class="row"></div>
+
+  <div class="row">
+    <div class="col-lg-12">
+     <table id="vol_hours" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/food-collections">
+     	<thead>
+     		<th data-field="name">Name</th>
+        <th data-field="organisation">Organisation</th>
+     		<th data-sortable="true" data-field="date">Date</th>
+     		<th data-field="amount">Amount</th>
+        <th data-field="note">Note</th>
+     		<th data-field="options"></th>
+     	</thead>
+     	<tbody>
+     	</tbody>
+     </table>
+   </div>
+  </div>
+</div>
+</div>
+
+<script>
+function foodCollectionsAjax(url){
+   $.ajax({
+      type: "GET",
+      url: url,
+      success: function(response){
+
+      	if(response.status == "ok"){
+        	$("#vol_hours_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+			    $("#vol_hours").bootstrapTable('refresh');
+      	} else {
+      		$("#vol_hours_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+      	}
+      }
+   });
+}
+
+
+</script>

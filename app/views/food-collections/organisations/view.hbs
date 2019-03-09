@@ -1,0 +1,116 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row">
+  <div class="col-md-6 mx-auto">
+    <div class="row mt-4">
+      <div class="col-sm-5 mx-auto">
+        <a class="btn btn-primary btn-block" href="{{public_address}}/food-collections/organisations/update/{{organisation.organisation_id}}">Update</a>
+      </div>
+      <div class="col-sm-5 mx-auto">
+        {{#if organisation.active}}
+          <a class="btn btn-danger btn-block" href="{{public_address}}/api/get/food-collections/organisations/mark-as-inactive/{{organisation.organisation_id}}">Mark As Inactive</a>
+        {{else}}
+          <a class="btn btn-success btn-block" href="{{public_address}}/api/get/food-collections/organisations/mark-as-active/{{organisation.organisation_id}}">Mark As Active</a>
+        {{/if}}
+      </div>
+    </div>
+    <div class="row mt-2">
+      <div class="col-md-12">
+        <table class="table-light mt-4 mx-auto" style="width: 100%;">
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Name</b></p>
+            </td>
+            <td class="p-3">
+              <p>{{organisation.name}}</p>
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Status</b></p>
+            </td>
+            <td class="p-3">
+              {{#if organisation.active}}
+                <p class="text-success">Active</p>
+              {{else}}
+                <p class="text-danger">Inactive</p>
+              {{/if}}
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Organisation ID</b></p>
+            </td>
+            <td class="p-3">
+              <p>{{organisation.organisation_id}}</p>
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Date Created</b></p>
+            </td>
+            <td class="p-3">
+              <p>
+                {{niceDate organisation.dateCreated}}
+              </p>
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Last Collection</b></p>
+            </td>
+            <td class="p-3">
+              <p>
+                {{niceTimestamp organisation.lastCollection}}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row mt-2">
+  <div class="col-md-8 mx-auto">
+
+
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <h4 class="mb-3">Collection History</h4>
+        <table id="collections" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true">
+         <thead>
+           <th>Date</th>
+           <th>Amount (kilos)</th>
+           <th>Collected By</th>
+           <th>Note</th>
+         </thead>
+         <tbody>
+           {{#each collections}}
+             <tr>
+               <tr>
+                 <td>{{niceTimestamp timestamp}}</td>
+                 <td>{{amount}}</td>
+                 <td>{{collectedBy}}</td>
+                 <td>{{note}}</td>
+               </tr>
+             </tr>
+           {{/each}}
+         </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

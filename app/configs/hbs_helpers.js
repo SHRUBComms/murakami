@@ -132,10 +132,24 @@ var register = function(Handlebars) {
       options.data.root[varName] = varValue;
     },
     niceDate: function(date) {
-      return moment(date).format("L");
+      if (date) {
+        return moment(date).format("L");
+      } else {
+        return "Never";
+      }
+    },
+    niceTimestamp: function(date) {
+      if (date) {
+        return moment(date).format("L hh:mm A");
+      } else {
+        return "Never";
+      }
     },
     concat: function(str1, str2) {
       return str1 + str2;
+    },
+    uriencode: function(str) {
+      return encodeURIComponent(str);
     }
   };
 

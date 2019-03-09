@@ -21,6 +21,7 @@ router.use("/working-groups", require("./working-groups/root"));
 router.use("/users", require("./users/root"));
 router.use("/volunteers", require("./volunteers/root"));
 router.use("/carbon-accounting", require("./carbon-accounting/root"));
+router.use("/food-collections", require("./food-collections/root"));
 
 router.use("/error", require("./error"));
 router.use("/log", require("./log"));

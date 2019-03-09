@@ -1,0 +1,50 @@
+<script src="{{public_address}}/assets/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="{{public_address}}/assets/css/bootstrap-select.min.css" />
+
+<div class="row mt-4">
+  <div class="col-md-6 mx-auto">
+    <form method="post" action="{{public_address}}/food-collections/log{{#if uriOrganisations}}?organisations={{uriOrganisations}}{{/if}}">
+      {{#if user}}
+
+          <select class="form-control mb-2 selectpicker show-tick" name="member_id" title="Select a member" data-style="btn-info" data-size="auto" data-header="Select a member" data-live-search="true" required />
+            {{#each members}}
+              <option value="{{member_id}}" {{#ifCond member_id '==' ../member_id}}selected{{/ifCond}}>{{first_name}} {{last_name}}</option>
+            {{/each}}
+          </select>
+
+      {{else}}
+        <input type="text" name="member_id" class="form-control mb-2" placeholder="Member ID" value="{{member_id}}" />
+      {{/if}}
+
+
+      <select name="organisation_id" class="form-control mb-2">
+        {{#if user}}
+          {{#each allOrganisations}}
+
+              <option value="{{organisation_id}}">{{name}}</option>
+
+          {{/each}}
+        {{else}}
+          {{#each organisations}}
+
+              {{#if (lookup ../allOrganisations this)}}
+                <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}">{{lookup (lookup ../allOrganisations this) 'name'}}</option>
+              {{/if}}
+          {{else}}
+            <option disabled selected>No organisations - please contact a staff member</option>
+          {{/each}}
+        {{/if}}
+      </select>
+      <div class="form-inline mb-4">
+        <div class="mx-auto">
+          <span class="text-muted mr-0 mr-xs-0 mr-sm-0 mr-md-2 mr-lg-2 mr-xl-2">Weight (kilos)</span>
+          <input type="number" name="amount" class="form-control" step="0.1" placeholder="0" />
+        </div>
+      </div>
+
+      <textarea name="note" class="form-control col-md-8 mx-auto" placeholder="Note (optional)"></textarea>
+
+      <button class="btn btn-success btn-block btn-lg mt-4">Log Food Collection</button>
+    </form>
+  </div>
+</div>

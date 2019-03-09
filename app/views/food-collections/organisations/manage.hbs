@@ -1,0 +1,44 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+<div class="row mt-4">
+
+  <div class="col-lg-10 mx-auto">
+    <div class="row">
+      <div class="col-lg-12">
+       <table id="organisations" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-sort-name="status"
+  data-sort-order="desc">
+       	<thead>
+       		<th>Name</th>
+          <th>Date Created</th>
+          <th>Last Collection</th>
+          <th data-field="status">Status</th>
+       		<th></th>
+       	</thead>
+       	<tbody>
+          {{#each organisations}}
+            <tr>
+              <tr>
+                <td>{{name}}</td>
+                <td>{{niceDate dateCreated}}</td>
+                <td>{{niceTimestamp lastCollection}}</td>
+                <td>
+                  {{#if active}}
+                    <span class="text-success">Active</span>
+                  {{else}}
+                    <span class="text-danger">Inactive</span>
+                  {{/if}}
+                </td>
+                <td><a class="btn btn-primary btn-block" href="{{public_address}}/food-collections/organisations/view/{{organisation_id}}">View/Update</a></td>
+              </tr>
+            </tr>
+          {{/each}}
+       	</tbody>
+       </table>
+     </div>
+    </div>
+  </div>
+</div>

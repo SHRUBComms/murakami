@@ -99,6 +99,19 @@
                                     </ul>
                                 </li>
 
+                                <li {{#if foodCollectionsActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
+                                    <ul class="collapse plain-list">
+
+                                      <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
+                                      <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
+
+                                      <li><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
+
+                                      <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
+                                    </ul>
+                                </li>
+
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
 
                                   <li {{#if tillsActive}}class="active"{{/if}}>

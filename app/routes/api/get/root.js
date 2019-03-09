@@ -8,5 +8,6 @@ router.use("/users", require("./users/root"));
 router.use("/tills", require("./tills/root"));
 router.use("/notifications", require("./notifications/root"));
 router.use("/volunteers", require("./volunteers/root"));
+router.use("/food-collections", require("./food-collections/root"));
 
 module.exports = router;
