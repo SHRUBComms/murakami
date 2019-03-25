@@ -34,7 +34,7 @@
             <option disabled selected>Select a working group...</option>
               <option value='' {{#ifCond ../group.group_id '==' null}}selected{{/ifCond}}>All My Working Groups</option>
               {{#each user.working_groups}}
-                <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
+                <option value='{{this}}'{{#ifCond this '==' ../group.group_id}} selected{{/ifCond}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
               {{/each}}
           </select>
         </div>

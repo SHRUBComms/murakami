@@ -63,7 +63,6 @@ router.get("/:member_id", function(req, res) {
                 }
               } catch (err) {}
 
-              
               res.render("contact-preferences.hbs", {
                 title: "Contact Preferences",
                 member: member
@@ -202,14 +201,15 @@ router.post("/:member_id", function(req, res) {
         contactPreferences,
         function(err) {
           if (!err) {
-            res.render("contact-preferences", {
-              success_msg: "Contact preferences successfully updated!",
-              title: "Contact Preferences",
-              member: {
-                member_id: req.params.member_id,
-                contactPreferences: contactPreferences
-              }
-            });
+            req.flash(
+              "success_msg",
+              "Contact preferences successfully updated!"
+            );
+            res.redirect(
+              process.env.PUBLIC_ADDRESS +
+                "/contact-preferences/" +
+                member.member_id
+            );
           } else {
             req.flash("error_msg", "Something went wrong!");
             res.redirect(

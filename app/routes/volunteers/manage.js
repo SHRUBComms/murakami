@@ -30,10 +30,8 @@ router.get(
         err,
         volunteers
       ) {
-        console.log(volunteers[0]);
-        userBelongsToGroup = Helpers.hasOneInCommon(
-          req.user.working_groups_arr,
-          [req.query.group_id]
+        userBelongsToGroup = req.user.working_groups.includes(
+          req.query.group_id
         );
 
         if (

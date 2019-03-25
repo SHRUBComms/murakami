@@ -7,29 +7,48 @@ var rootDir = process.env.CWD;
 var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-
+  Auth.isOfClass(["admin", "staff", "till"]),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
         req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage")
+        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
-        res.render("members/update", {
-          title: "Update Member",
-          membersActive: true,
+        if (
+          req.user.class == "admin" ||
+          req.user.class == "till" ||
+          (req.user.class == "staff" &&
+            Helpers.hasOneInCommon(
+              member.working_groups,
+              req.user.working_groups
+            ))
+        ) {
+          res.render("members/update", {
+            title: "Update Member",
+            membersActive: true,
 
-          member_id: req.params.member_id,
-          first_name: member.first_name,
-          last_name: member.last_name,
-          email: member.email,
-          phone_no: member.phone_no,
-          address: member.address,
-          free: member.free
-        });
+            member_id: req.params.member_id,
+            first_name: member.first_name,
+            last_name: member.last_name,
+            email: member.email,
+            phone_no: member.phone_no,
+            address: member.address,
+            free: member.free
+          });
+        } else {
+          req.flash(
+            "error_msg",
+            "You must have a common working group with this member to update their profile!"
+          );
+          res.redirect(
+            process.env.PUBLIC_ADDRESS + "/members/view/" + member.member_id
+          );
+        }
       }
     });
   }
@@ -46,7 +65,9 @@ router.post(
     ) {
       if (err || !member) {
         req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id);
+        res.redirect(
+          process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id
+        );
       } else {
         var first_name = req.body.first_name.trim();
         var last_name = req.body.last_name.trim();
@@ -137,7 +158,11 @@ router.post(
             if (err) throw err;
 
             req.flash("success_msg", first_name + " updated!");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
+            res.redirect(
+              process.env.PUBLIC_ADDRESS +
+                "/members/view/" +
+                req.params.member_id
+            );
           });
         }
       }

@@ -10,9 +10,14 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res){
-  res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-})
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.isOfClass(["admin", "volunteer", "staff"]),
+  function(req, res) {
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
+  }
+);
 
 router.use("/add", require("./add"));
 router.use("/manage", require("./manage"));

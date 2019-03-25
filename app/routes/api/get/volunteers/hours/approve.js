@@ -31,40 +31,49 @@ router.get(
 
       var shift = shift[0];
 
-      Members.getById(shift.member_id, req.user, function(err, member) {
-        if (req.user.allWorkingGroupsObj[shift.working_group]) {
-          var group = req.user.allWorkingGroupsObj[shift.working_group];
-          VolunteerHours.approveShift(req.params.shift_id, function(err) {
-            message.status = "ok";
-            message.msg =
-              "Shift approved - " +
-              member.full_name +
-              ", " +
-              shift.duration_as_decimal +
-              " hour(s) for " +
-              group.name;
+      if (
+        req.user.working_groups.includes(shift.working_group) ||
+        req.user.class == "admin"
+      ) {
+        Members.getById(shift.member_id, req.user, function(err, member) {
+          if (req.user.allWorkingGroupsObj[shift.working_group]) {
+            var group = req.user.allWorkingGroupsObj[shift.working_group];
+            VolunteerHours.approveShift(req.params.shift_id, function(err) {
+              message.status = "ok";
+              message.msg =
+                "Shift approved - " +
+                member.full_name +
+                ", " +
+                shift.duration_as_decimal +
+                " hour(s) for " +
+                group.name;
 
-            if (
-              moment(member.current_exp_membership).isBefore(
-                moment().add(3, "months")
-              )
-            ) {
-              Members.renew(member.member_id, "3_months", function() {
-                Members.updateFreeStatus(member.member_id, 1, function() {
-                  message.msg += ".<br/>Membership renewed!";
-                  res.send(message);
+              if (
+                moment(member.current_exp_membership).isBefore(
+                  moment().add(3, "months")
+                )
+              ) {
+                Members.renew(member.member_id, "3_months", function() {
+                  Members.updateFreeStatus(member.member_id, 1, function() {
+                    message.msg += ".<br/>Membership renewed!";
+                    res.send(message);
+                  });
                 });
-              });
-            } else {
-              res.send(message);
-            }
-          });
-        } else {
-          message.status = "fail";
-          message.msg = "Please select a valid group!";
-          res.send(message);
-        }
-      });
+              } else {
+                res.send(message);
+              }
+            });
+          } else {
+            message.status = "fail";
+            message.msg = "Please select a valid group!";
+            res.send(message);
+          }
+        });
+      } else {
+        message.status = "fail";
+        message.msg = "You don't have permission to approve this shift!";
+        res.send(message);
+      }
     });
   }
 );

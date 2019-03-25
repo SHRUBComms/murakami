@@ -10,32 +10,41 @@
 
             <option disabled selected>Select a working group...</option>
 
-            {{#if parentsOnly}}
-              <option value='none' {{#unless selectedGroup}}selected{{/unless}}>No Parent</option>
-              {{#each user.allWorkingGroupsObj}}
-                {{#unless parent}}
-                  <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}}</option>
-                {{/unless}}
+            {{#ifCond allGroups '==' false}}
+
+              {{#each user.working_groups}}
+
+                <option value="{{this}}"{{#ifCond this '==' ../selectedGroup}} selected{{/ifCond}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
+
               {{/each}}
+
             {{else}}
-              {{#each user.allWorkingGroupsObj}}
-                {{#unless parent}}
-
-                  {{#ifCond children.length '>' 0}}
-                    <optgroup label="{{name}}">
-                      <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}} (General)</option>
-                      {{#each children}}
-                       <option value='{{this}}'{{#ifCond this '==' ../../selectedGroup}} selected{{/ifCond}}>{{lookup (lookup ../../user.allWorkingGroupsObj this) 'name'}}</option>
-                      {{/each}}
-                    </optgroup>
-                  {{else}}
+              {{#if parentsOnly}}
+                <option value='none' {{#unless selectedGroup}}selected{{/unless}}>No Parent</option>
+                {{#each user.allWorkingGroupsObj}}
+                  {{#unless parent}}
                     <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}}</option>
-                  {{/ifCond}}
+                  {{/unless}}
+                {{/each}}
+              {{else}}
+                {{#each user.allWorkingGroupsObj}}
+                  {{#unless parent}}
 
-                {{/unless}}
-              {{/each}}
-            {{/if}}
+                    {{#ifCond children.length '>' 0}}
+                      <optgroup label="{{name}}">
+                        <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}} (General)</option>
+                        {{#each children}}
+                         <option value='{{this}}'{{#ifCond this '==' ../../selectedGroup}} selected{{/ifCond}}>{{lookup (lookup ../../user.allWorkingGroupsObj this) 'name'}}</option>
+                        {{/each}}
+                      </optgroup>
+                    {{else}}
+                      <option value='{{group_id}}'{{#ifCond group_id '==' ../selectedGroup}} selected{{/ifCond}}>{{name}}</option>
+                    {{/ifCond}}
 
+                  {{/unless}}
+                {{/each}}
+              {{/if}}
+            {{/ifCond}}
         </select>
       </div>
 

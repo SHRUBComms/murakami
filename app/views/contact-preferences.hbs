@@ -77,28 +77,30 @@
         </div>
       </div>
 
-      <div class="card mt-4">
-        <div class="card-body">
-          <h3>Volunteering Opportunities</h3>
-          <p>Receive a weekly email with new volunteering opportunities at Shrub.</p>
-          <p class="mb-3">If you are an exisiting volunteer the opportunities you are sent will be tailored to your availability and skills!</p>
+      {{#if member.volunteer_id}}
+        <div class="card mt-4">
+          <div class="card-body">
+            <h3>Volunteering Opportunities</h3>
+            <p>Receive a weekly email with new volunteering opportunities at Shrub.</p>
+            <p class="mb-3">If you are an exisiting volunteer the opportunities you are sent will be tailored to your availability and skills!</p>
 
-            {{#if member.contactPreferences.volunteeringOpportunities}}
-              <div class="btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-danger btn-block">
-                  <input type="checkbox" name="volunteeringOpportunities[unsubscribe]" autocomplete="off"> Unsubscribe From Volunteering Opportunities
-                </label>
-              </div>
-            {{else}}
-              <div class="btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-success btn-block">
-                  <input type="checkbox" name="volunteeringOpportunities[subscribe]" autocomplete="off"> Subscribe To Volunteering Opportunities
-                </label>
-              </div>
-            {{/if}}
+              {{#if member.contactPreferences.volunteeringOpportunities}}
+                <div class="btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-danger btn-block">
+                    <input type="checkbox" name="volunteeringOpportunities[unsubscribe]" autocomplete="off"> Unsubscribe From Volunteering Opportunities
+                  </label>
+                </div>
+              {{else}}
+                <div class="btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-success btn-block">
+                    <input type="checkbox" name="volunteeringOpportunities[subscribe]" autocomplete="off"> Subscribe To Volunteering Opportunities
+                  </label>
+                </div>
+              {{/if}}
 
+          </div>
         </div>
-      </div>
+        {{/if}}
 
       <div class="row mt-4">
         <div class="col-md-12">

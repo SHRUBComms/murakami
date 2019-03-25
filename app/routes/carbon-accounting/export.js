@@ -11,7 +11,10 @@ var Auth = require(rootDir + "/app/configs/auth");
 var Carbon = require(rootDir + "/app/models/carbon-calculations");
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+  req,
+  res
+) {
   try {
     var startDate = new Date(req.query.startDate) || new Date();
   } catch (err) {

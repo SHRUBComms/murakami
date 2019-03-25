@@ -95,9 +95,13 @@
                                     <ul class="collapse plain-list">
                                       <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
                                       <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
-                                      <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>
+                                      {{#ifUserClass user.class '["admin", "staff"]'}}
+                                        <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>
+                                      {{/ifUserClass}}
                                     </ul>
                                 </li>
+
+                                <!-- if admin or belong to fs group -->
 
                                 <li {{#if foodCollectionsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
@@ -155,7 +159,7 @@
                                     </ul>
                                 </li>
                                 {{/ifUserClass}}
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                {{#ifUserClass user.class '["admin"]'}}
 
 
                                   <li {{#if settingsActive}}class="active"{{/if}}>

@@ -258,6 +258,8 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
               new Set(volunteer.working_groups)
             );
 
+            volunteer.canUpdate = false;
+
             if (user.class != "admin") {
               //Redact info if common working group
               volunteer.address = null;
@@ -265,8 +267,11 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
               if (
                 !Helpers.hasOneInCommon(
                   volunteer.working_groups || [],
-                  user.working_groups_arr || []
-                )
+                  user.working_groups || []
+                ) ||
+                !Helpers.hasOneInCommon(volunteer.assignedCoordinators || [], [
+                  user.id
+                ])
               ) {
                 if (volunteer.survey.gdpr) {
                   if (

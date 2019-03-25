@@ -29,12 +29,7 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            if (
-              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              req.user.class == "admin"
-            ) {
+            if (volInfo.canUpdate || req.user.class == "admin") {
               Users.getCoordinators(req.user, function(err, coordinators) {
                 Volunteers.getSignUpInfo(function(
                   skills,
@@ -94,12 +89,7 @@ router.post(
           oldVolInfo
         ) {
           if (oldVolInfo) {
-            if (
-              Helpers.hasOneInCommon(oldVolInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              req.user.class == "admin"
-            ) {
+            if (volInfo.canUpdate || req.user.class == "admin") {
               Users.getCoordinators(req.user, function(
                 err,
                 coordinators,

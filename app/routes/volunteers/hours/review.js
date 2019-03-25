@@ -16,12 +16,18 @@ router.get(
     WorkingGroups.getById(req.params.group_id, function(err, group) {
       if (group) {
         group = group[0];
-
-        res.render("volunteers/hours/review", {
-          title: "Review Volunteer Hours",
-          volunteerHoursActive: true,
-          group: group
-        });
+        if (
+          req.user.class == "admin" ||
+          req.user.working_groups.includes(group.group_id)
+        ) {
+          res.render("volunteers/hours/review", {
+            title: "Review Volunteer Hours",
+            volunteerHoursActive: true,
+            group: group
+          });
+        } else {
+          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/review");
+        }
       } else {
         res.redirect(process.env.PUBLIC_ADDRESS + "/error");
       }

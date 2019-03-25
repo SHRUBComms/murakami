@@ -16,41 +16,52 @@ var job = new CronJob({
 
     var memberMails = {};
     // Begone expired members!
-    Members.getAllCurrentMembers({class: "admin"}, function(err, members) {
+    Members.getAllCurrentMembers({ class: "admin" }, function(err, members) {
       async.each(
         members,
         function(member, callback) {
-          if(member.activeVolunteer == 1){
+          if (member.activeVolunteer == 1) {
+            try {
+              if (member.contactPreferences.volunteeringOpportunities == true) {
+              }
+            } catch (err) {}
+
             callback();
           } else {
-
-            if(moment(member.current_exp_membership).format("YYYY-MM-DD") == (moment().format("YYYY-MM-DD"))){
-              
-
+            if (
+              moment(member.current_exp_membership).format("YYYY-MM-DD") ==
+              moment().format("YYYY-MM-DD")
+            ) {
               try {
                 memberMails[member.member_id].push("goodbye");
               } catch (err) {
                 memberMails[member.member_id] = ["goodbye"];
               }
 
-              Members.updateStatus(member.member_id, 0, function(err) {
-
-              });
-
-            } else if(moment(member.current_exp_membership).isBefore(moment().format("YYYY-MM-DD"))) {
-              
-              Members.updateStatus(member.member_id, 0, function(err) {
-
-              });
-            } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment().add(1, "months").format("YYYY-MM-DD")){
-              
-                try {
-                  memberMails[member.member_id].push("renewal_notice_long");
-                } catch (err) {
-                  memberMails[member.member_id] = ["renewal_notice_long"];
-                }
-            } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment().add(1, "week").format("YYYY-MM-DD")){
-              
+              Members.updateStatus(member.member_id, 0, function(err) {});
+            } else if (
+              moment(member.current_exp_membership).isBefore(
+                moment().format("YYYY-MM-DD")
+              )
+            ) {
+              Members.updateStatus(member.member_id, 0, function(err) {});
+            } else if (
+              moment(member.current_exp_membership).format("YYYY-MM-DD") ==
+              moment()
+                .add(1, "months")
+                .format("YYYY-MM-DD")
+            ) {
+              try {
+                memberMails[member.member_id].push("renewal_notice_long");
+              } catch (err) {
+                memberMails[member.member_id] = ["renewal_notice_long"];
+              }
+            } else if (
+              moment(member.current_exp_membership).format("YYYY-MM-DD") ==
+              moment()
+                .add(1, "week")
+                .format("YYYY-MM-DD")
+            ) {
               try {
                 memberMails[member.member_id].push("renewal_notice_short");
               } catch (err) {
@@ -60,10 +71,8 @@ var job = new CronJob({
 
             callback();
           }
-
         },
         function() {
-          
           async.eachOf(
             memberMails,
             function(membersMail, member_id, callback) {
@@ -71,8 +80,6 @@ var job = new CronJob({
                 membersMail,
                 function(mail, callback) {
                   Mail.sendAutomated(mail, member_id, function(err) {
-
-                    
                     callback();
                   });
                 },
@@ -112,12 +119,9 @@ var job = new CronJob({
         function() {}
       );
     });
-
   },
   start: false,
   timeZone: "Europe/London"
 });
-
-
 
 module.exports = job;
