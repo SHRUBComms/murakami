@@ -77,6 +77,10 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
     volInfo,
     function(volunteer, callback) {
       if (volunteer) {
+        volunteer.dateCreated =
+          volunteer.dateCreated ||
+          volunteer.firstVolunteered ||
+          volunteer.earliest_membership_date;
         if (volunteer.lastVolunteered) {
           volunteer.nextShiftDue = moment(volunteer.lastVolunteered)
             .add(3, "months")

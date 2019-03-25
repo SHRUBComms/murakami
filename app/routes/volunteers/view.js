@@ -8,6 +8,7 @@ var Users = require(rootDir + "/app/models/users");
 var Members = require(rootDir + "/app/models/members");
 var Volunteers = require(rootDir + "/app/models/volunteers");
 var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var FoodCollections = require(rootDir + "/app/models/food-collections");
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -48,13 +49,19 @@ router.get(
                   rolesGroupedByGroup,
                   rolesGroupedById
                 ) {
-                  res.render("volunteers/view", {
-                    title: "View Volunteer",
-                    volunteersActive: true,
-                    member: member,
-                    volInfo: volInfo,
-                    coordinators: coordinatorsObj,
-                    roles: rolesGroupedById
+                  FoodCollections.getOrganisations(function(
+                    err,
+                    allOrganisations
+                  ) {
+                    res.render("volunteers/view", {
+                      title: "View Volunteer",
+                      volunteersActive: true,
+                      member: member,
+                      volInfo: volInfo,
+                      coordinators: coordinatorsObj,
+                      roles: rolesGroupedById,
+                      allOrganisations: allOrganisations
+                    });
                   });
                 });
               });

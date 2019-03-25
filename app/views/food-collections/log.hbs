@@ -16,25 +16,32 @@
         <input type="text" name="member_id" class="form-control mb-2" placeholder="Member ID" value="{{member_id}}" />
       {{/if}}
 
+        {{#ifCond user '||' allOrganisations}}
+          <select name="organisation_id" class="form-control mb-2">
 
-      <select name="organisation_id" class="form-control mb-2">
-        {{#if user}}
-          {{#each allOrganisations}}
+          {{#if user}}
+            {{#each allOrganisations}}
 
-              <option value="{{organisation_id}}">{{name}}</option>
+                <option value="{{organisation_id}}"{{#ifCond active '==' '0'}} disabled{{/ifCond}}>{{name}}</option>
 
-          {{/each}}
-        {{else}}
-          {{#each organisations}}
-
-              {{#if (lookup ../allOrganisations this)}}
-                <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}">{{lookup (lookup ../allOrganisations this) 'name'}}</option>
-              {{/if}}
+            {{/each}}
           {{else}}
-            <option disabled selected>No organisations - please contact a staff member</option>
-          {{/each}}
-        {{/if}}
-      </select>
+          
+            {{#each organisations}}
+
+                {{#if (lookup ../allOrganisations this)}}
+
+                  <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}"{{#ifCond (lookup (lookup ../allOrganisations this) 'active') '==' '0'}} disabled{{/ifCond}}>{{lookup (lookup ../allOrganisations this) 'name'}}</option>
+
+                {{/if}}
+            {{else}}
+              <option disabled selected>No organisations - please contact a staff member</option>
+            {{/each}}
+          {{/if}}
+        </select>
+      {{else}}
+        <input type="text" name="organisation_id" class="form-control mb-2" placeholder="Organisation ID" value="{{organisation_id}}" />
+      {{/ifCond}}
       <div class="form-inline mb-4">
         <div class="mx-auto">
           <span class="text-muted mr-0 mr-xs-0 mr-sm-0 mr-md-2 mr-lg-2 mr-xl-2">Weight (kilos)</span>

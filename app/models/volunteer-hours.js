@@ -30,6 +30,15 @@ VolunteerHours.getUnreviewedShiftsByGroupId = function(group_id, callback) {
   con.query(sql, callback);
 };
 
+VolunteerHours.getByMemberId = function(member_id, callback) {
+  var query =
+    "SELECT * FROM volunteer_hours WHERE member_id = ? AND approved = 1 ORDER BY date DESC";
+  var inserts = [member_id];
+
+  var sql = mysql.format(query, inserts);
+  con.query(sql, callback);
+};
+
 VolunteerHours.getShiftById = function(shift_id, callback) {
   var query = "SELECT * FROM volunteer_hours WHERE shift_id = ?";
   var inserts = [shift_id];

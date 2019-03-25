@@ -4,6 +4,11 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
+<script src="{{public_address}}/assets/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="{{public_address}}/assets/css/bootstrap-select.min.css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+
 <div class="row mt-4">
   <div class="col-md-6 mx-auto">
     <div id="activeMessageAlert" class="alert alert-danger alert-dismissible d-none fade show p-3" role="alert">
@@ -43,18 +48,12 @@
 
       <div class="row mt-2">
 				<div class="col-md-5">
-					<a href="{{public_address}}/volunteers/check-in/{{member.member_id}}" class="btn btn-block btn-primary">Conduct Check-in</a>
+					<a href="{{public_address}}/volunteers/check-in/{{member.member_id}}" class="btn btn-block btn-info">Conduct Check-in</a>
 				</div>
 			</div>
 
 		{{/if}}
 
-
-			<div class="row mt-2">
-				<div class="col-md-5">
-			     <a class='btn btn-success form-control' href="{{public_address}}/api/get/members/id-remind/{{member.member_id}}">Send Volunteer Their ID ({{member.member_id}})</a>
-				</div>
-			</div>
 
 
 
@@ -96,6 +95,15 @@
   							<span class="text-{{#ifCond volInfo.needsToVolunteer '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' false}}success{{/ifCond}}">{{volInfo.lastVolunteered}}</span>
   						</p>
             {{/if}}
+
+            <div class="row mt-4">
+      			   <a class='btn btn-success form-control' href="{{public_address}}/api/get/members/id-remind/{{member.member_id}}">Send Volunteer Their ID ({{member.member_id}})</a>
+      			</div>
+
+      			<div class="row mt-1">
+      			   <a class='btn btn-info form-control' data-toggle="modal" data-target="#foodCollectionLink">Create Food Collection Link</a>
+      			</div>
+
 
           </div>
 				</div>
@@ -200,10 +208,123 @@
       </div>
 		</div>
 
+    <div class="row">
+      <div class="col-lg-12">
+
+            <h3 class="mb-3 mt-3">Volunteering History</h3>
+
+            <table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="{{public_address}}/api/get/volunteers/hours/by-member-id/{{member.member_id}}">
+                <thead>
+
+                    <tr>
+                      <th data-field="date">Date</th>
+                      <th data-field="working_group">Working Group</th>
+                      <th data-field="duration">Duration</th>
+                      <th data-field="note">Note</th>
+                    </tr>
+                </thead>
+
+              <tbody>
+              </tbody>
+            </table>
+
+          </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div class="modal fade" id="foodCollectionLink" tabindex="-1" role="dialog" aria-labelledby="foodCollectionLinkLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="foodCollectionLinkLabel">Create Food Collection Link</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div id="foodCollectionLinkResponseBox" class="alert alert-dismissible fade show d-none" role="alert">
+          <span id="foodCollectionLinkResponse"></span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <select class="form-control mb-2 selectpicker show-tick" id="organisations" title="Select organisations" data-style="btn-info" data-size="auto" data-header="Select organisations" data-live-search="true" multiple required />
+
+
+          {{#each allOrganisations}}
+
+              <option value="{{organisation_id}}"{{#ifCond active '==' '0'}} disabled{{/ifCond}}>{{name}}</option>
+
+          {{/each}}
+
+
+
+        </select>
+
+
+        <div class="input-group">
+          <input type="text" class="form-control"
+              value="" placeholder="Food Collection Logging Link..." id="foodCollectionLinkOutput" readonly>
+           <div class="input-group-append">
+            <button id="copy-btn" class="btn btn-default" type="button" data-clipboard-target="#foodCollectionLinkOutput"
+                title="Copy to Clipboard">
+              Copy
+            </button>
+          </div>
+        </div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="sendFoodCollectionsLink()">Email Link</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
+
+new ClipboardJS('#copy-btn');
+
+$("#organisations").on('change', function(){
+  var link = "{{public_address}}/food-collections/log?member_id={{member.member_id}}";
+  var organisations = $("#organisations").val();
+  if(!Array.isArray(organisations)){
+    organisations = [organisations];
+  }
+  link += "&organisations=" + encodeURIComponent(JSON.stringify(organisations));
+  $("#foodCollectionLinkOutput").val(link)
+})
+
+function sendFoodCollectionsLink() {
+  console.log($("#foodCollectionLinkOutput").val());
+  $.ajax({
+    type:"post",
+    url:"{{public_address}}/api/post/volunteers/send-food-collection-link",
+    data: {
+      member_id: "{{member.member_id}}",
+      link: $("#foodCollectionLinkOutput").val()
+    }, success: function(response) {
+      if(response.status == "ok") {
+        $("#foodCollectionLinkResponseBox").removeClass("alert-danger");
+        $("#foodCollectionLinkResponseBox").addClass("alert-success");
+      } else {
+        $("#foodCollectionLinkResponseBox").removeClass("alert-success");
+        $("#foodCollectionLinkResponseBox").addClass("alert-danger");
+
+      }
+      $("#foodCollectionLinkResponseBox").removeClass("d-none");
+      $("#foodCollectionLinkResponse").text(response.msg);
+    }
+  })
+}
 
 function markAsInactive(member_id, row){
   var confirmed = confirm("Are you sure you want to mark this volunteer as inactive?");
