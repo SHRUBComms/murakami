@@ -39,7 +39,7 @@
 				{{#unless group_id}}
 
 					{{#each rolesGroupedByGroupId}}
-						{{#if (lookupArray ../user.working_groups_arr @key)}}
+						{{#if (lookupArray ../user.working_groups @key)}}
 							{{#each this}}
 								<tr>
 									<td>

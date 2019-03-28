@@ -17,9 +17,9 @@ router.get(
   Auth.isOfClass(["admin", "staff"]),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
-      if (err || !user[0]) {
+      if (err || !user[0].first_name || user[0].deactivated == 1) {
         req.flash("error_msg", "User not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/users");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
       } else {
         user = user[0];
 
@@ -47,15 +47,18 @@ router.post(
   Auth.isOfClass(["admin", "staff"]),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
-      if (err || !user[0] || user[0].deactivated) {
+      if (err || !user[0] || user[0].deactivated || !user[0].first_name) {
         req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id);
+        res.redirect(
+          process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id
+        );
       } else {
         user = user[0];
         var first_name = req.body.first_name.trim();
         var last_name = req.body.last_name.trim();
         var userClass = req.body.class;
         var working_groups = req.body.working_groups || [];
+
         if (req.user.id == req.params.user_id) {
           var notification_preferences = req.body.notification_preferences;
 
@@ -162,10 +165,7 @@ router.post(
         }
 
         if (req.user.class == "staff") {
-          
           if (req.user.id == req.params.user_id) {
-            
-            
             validClasses.push("staff");
           }
         }
@@ -182,7 +182,7 @@ router.post(
         }
 
         if (
-          !Helpers.allBelongTo(working_groups, req.user.all_working_groups_arr)
+          !Helpers.allBelongTo(working_groups, req.user.allWorkingGroupsFlat)
         ) {
           errors.push({
             msg: "Please select valid working groups."
@@ -218,7 +218,9 @@ router.post(
 
           Users.update(updatedUser, function(err, user) {
             req.flash("success_msg", "User updated!");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id);
+            res.redirect(
+              process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id
+            );
           });
         }
       }

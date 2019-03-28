@@ -44,7 +44,7 @@ router.get(
           }
         );
       } else {
-        console.log(err, shifts);
+        
         res.send([]);
       }
     });

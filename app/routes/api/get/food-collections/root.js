@@ -86,12 +86,12 @@ router.get(
               }
             );
           } else {
-            console.log(err);
+            
             res.send([]);
           }
         });
       } else {
-        console.log(err);
+        
         res.send([]);
       }
     });

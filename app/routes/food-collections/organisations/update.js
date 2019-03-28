@@ -51,7 +51,7 @@ router.post("/:organisation_id", Auth.isLoggedIn, function(req, res) {
                 req.params.organisation_id
             );
           } else {
-            console.log(err);
+            
             res.render("food-collections/organisations/update", {
               errors: [{ msg: "Something went wrong!" }],
               title: "Update Food Collection Organisations",

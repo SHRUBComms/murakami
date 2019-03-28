@@ -38,10 +38,14 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     working_groups = [working_groups];
   }
 
+  var validClasses, validWorkingGroups;
+
   if (req.user.class == "admin") {
     validClasses = ["admin", "till", "volunteer", "staff"];
+    validWorkingGroups = req.user.allWorkingGroupsFlat;
   } else {
     validClasses = ["till", "volunteer"];
+    validWorkingGroups = req.user.working_groups;
   }
 
   if (!validClasses.includes(userClass)) {
@@ -117,7 +121,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     .checkBody("working_groups", "Please select at least one working group")
     .notEmpty();
 
-  if (!Helpers.allBelongTo(working_groups, req.user.all_working_groups_arr)) {
+  if (!Helpers.allBelongTo(validWorkingGroups, req.user.allWorkingGroupsFlat)) {
     req
       .checkBody("placeholder", "Please select valid working groups")
       .notEmpty();
@@ -216,6 +220,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         last_name: last_name,
         username: username,
         email: email,
+        working_groups: working_groups,
         class: userClass,
         password: password,
         notification_preferences: notification_preferences,

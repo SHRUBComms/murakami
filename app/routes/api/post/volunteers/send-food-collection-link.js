@@ -18,7 +18,7 @@ router.post(
     response.status = "fail";
     var member_id = req.body.member_id;
     var link = req.body.link;
-    console.log(member_id, link);
+    
     var validURL = new RegExp(
       "^(https?:\\/\\/)?" + // protocol
       "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name

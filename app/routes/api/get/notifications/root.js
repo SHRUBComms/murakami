@@ -36,7 +36,8 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
 
   if (["staff", "admin", "volunteer"].includes(req.user.class)) {
     VolunteerHours.getAllUnreviewedShifts(function(err, shifts) {
-      var working_groups = req.user.working_groups_arr;
+      var working_groups = req.user.working_groups;
+      console.log(working_groups);
       var shiftsNeedAttention = [];
 
       async.each(

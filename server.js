@@ -82,7 +82,34 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 // Express Validator
-app.use(validator(require("./app/configs/custom-express-validators")));
+app.use(
+  validator({
+    customValidators: {
+      isEmailAvailable: function(email) {
+        return new Promise(function(resolve, reject) {
+          Users.getByEmail(email, function(err, results) {
+            if (results.length == 0) {
+              return resolve();
+            } else {
+              return reject();
+            }
+          });
+        });
+      },
+      isUsernameAvailable: function(username) {
+        return new Promise(function(resolve, reject) {
+          Users.getByUsername(username, function(err, results) {
+            if (results.length == 0) {
+              return resolve();
+            } else {
+              return reject();
+            }
+          });
+        });
+      }
+    }
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -111,13 +138,15 @@ app.use(function(req, res, next) {
         WorkingGroups.getAll(function(
           err,
           allWorkingGroupsObj,
-          allWorkingGroupsArray
+          allWorkingGroupsArray,
+          allWorkingGroupsFlat
         ) {
           req.user.allWorkingGroups,
             (req.user.allWorkingGroupsObj = allWorkingGroupsObj);
           req.user.all_working_groups_arr,
             (req.user.working_groups_arr = allWorkingGroupsArray);
 
+          req.user.allWorkingGroupsFlat = allWorkingGroupsFlat;
           next();
         });
       });
