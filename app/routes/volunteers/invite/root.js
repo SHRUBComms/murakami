@@ -130,12 +130,16 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
                               token;
                             Mail.sendGeneral(
                               first_name + " " + last_name + " <" + email + ">",
-                              "You've been invited to register as a volunteer by " +
+                              "Volunteer Registration",
+                              "<p>Hey " +
+                                first_name +
+                                ",</p>" +
+                                "<p>You've been invited to register as a volunteer with SHRUB by " +
                                 req.user.first_name +
                                 " " +
                                 req.user.last_name +
-                                "!",
-                              "<p>Follow the link to register as a volunteer (expires in 24 hours)</p>" +
+                                "!</p>" +
+                                "<p>Please follow the link below to register. It will expire in 24 hours.</p>" +
                                 "<p><a href='" +
                                 inviteLink +
                                 "'>" +
