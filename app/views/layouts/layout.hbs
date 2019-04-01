@@ -243,7 +243,7 @@
               </div>
               <div class="modal-body p-4">
 
-                <div id="notificationsArea" class="col-10 offset-2"></div>
+                <div id="notificationsArea" class="col-10"></div>
 
               </div>
               <div class="modal-footer">
@@ -433,6 +433,7 @@ function markAsRead(notification_id){
 
       $("#notificationsBagde").html(notifications.length);
       $("#notificationsBagde").removeClass("d-none");
+      $("#notificationsArea").addClass("offset-2");
       for(i=0;i<notifications.length;i++){
 
         $("#notificationsArea").html($("#notificationsArea").html() +
@@ -450,6 +451,7 @@ function markAsRead(notification_id){
                 </a>`)
       }
     } else {
+        $("#notificationsArea").addClass("offset-1");
       $("#notificationsArea").html("<p class='text-muted text-center'>Nothing to see here...</p>");
     }
   });

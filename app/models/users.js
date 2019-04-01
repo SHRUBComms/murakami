@@ -15,7 +15,10 @@ Users.getAll = function(loggedInUser, callback) {
     LEFT JOIN (SELECT user_id login_user_id, MAX(login_timestamp) lastLogin
     FROM attempts GROUP BY user_id) attempts ON login.id=attempts.login_user_id`;
   con.query(query, function(err, users) {
-    Users.sanitizeUser(users, loggedInUser, function(sanitizedUsers, sanitizedUsersObj) {
+    Users.sanitizeUser(users, loggedInUser, function(
+      sanitizedUsers,
+      sanitizedUsersObj
+    ) {
       callback(err, sanitizedUsers, sanitizedUsersObj);
     });
   });
@@ -209,17 +212,22 @@ Users.sanitizeUser = function(users, loggedInUser, callback) {
   async.eachOf(
     users,
     function(user, i, callback) {
-      if(!loggedInUser){
+      if (user.working_groups) {
+        user.working_groups = JSON.parse(user.working_groups) || [];
+      }
+
+      if (!loggedInUser) {
         delete user.password;
       }
       var hasPermission = false;
       if (loggedInUser.class == "admin" || user.id == loggedInUser.id) {
         hasPermission = true;
       } else {
+        
         if (
           Helpers.hasOneInCommon(
             user.working_groups,
-            loggedInUser.working_groups_arr
+            loggedInUser.working_groups
           ) &&
           ["till", "volunteer"].includes(user.class)
         ) {
@@ -230,10 +238,6 @@ Users.sanitizeUser = function(users, loggedInUser, callback) {
       if (hasPermission) {
         // Full name
         user.full_name = user.first_name + " " + user.last_name;
-
-        if (user.working_groups) {
-          user.working_groups = JSON.parse(user.working_groups) || [];
-        }
 
         if (user.notification_preferences) {
           user.notification_preferences =

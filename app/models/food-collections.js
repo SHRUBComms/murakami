@@ -70,7 +70,7 @@ FoodCollections.getCollectionsBetweenTwoDatesByOrganisation = function(
     inserts = [startDate, endDate];
     sql = mysql.format(query, inserts);
   }
-  console.log(sql);
+  
   con.query(sql, function(err, collections) {
     if (collections) {
       Members.getAll(function(err, members, membersObj) {
@@ -81,7 +81,7 @@ FoodCollections.getCollectionsBetweenTwoDatesByOrganisation = function(
             FoodCollections.sanitizeCollection(collection, membersObj, function(
               sanitizedCollection
             ) {
-              console.log(sanitizedCollection);
+              
               sanitizedCollections.push(sanitizedCollection);
               callback();
             });
@@ -115,7 +115,7 @@ FoodCollections.getCollectionsByOrganisationId = function(
             FoodCollections.sanitizeCollection(collection, membersObj, function(
               sanitizedCollection
             ) {
-              console.log(sanitizedCollection);
+              
               sanitizedCollections.push(sanitizedCollection);
               callback();
             });

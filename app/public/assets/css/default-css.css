@@ -415,3 +415,7 @@ img {
 .grey {
   color: #8a8a8a;
 }
+
+.user-name {
+  font-size: 1rem;
+}

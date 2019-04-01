@@ -11,10 +11,12 @@ var WorkingGroups = {};
 WorkingGroups.getAll = function(callback) {
   var query = "SELECT * FROM working_groups";
   con.query(query, function(err, working_groups_raw) {
-    working_groups = {};
+    var working_groups = {};
+    var working_groups_arr = [];
     async.each(
       working_groups_raw,
       function(group, callback) {
+        working_groups_arr.push(group.group_id);
         working_groups[group.group_id] = group;
 
         if (group.parent) {
@@ -28,7 +30,7 @@ WorkingGroups.getAll = function(callback) {
         callback();
       },
       function() {
-        callback(err, working_groups, working_groups_raw);
+        callback(err, working_groups, working_groups_raw, working_groups_arr);
       }
     );
   });

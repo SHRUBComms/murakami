@@ -6,7 +6,10 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+  req,
+  res
+) {
   req.logout();
   req.session = null;
   res.redirect(process.env.PUBLIC_ADDRESS + "/recover");

@@ -33,7 +33,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
             organisation_id
         );
       } else {
-        console.log(err);
+        
         res.render("food-collections/organisations/add", {
           errors: [{ msg: "Something went wrong!" }],
           title: "Add Food Collection Organisations",
