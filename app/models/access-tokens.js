@@ -9,10 +9,38 @@ AccessTokens.getById = function(token, callback) {
   var query =
     "SELECT * FROM access_tokens WHERE token = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 1 DAY) AND used = 0";
   var dt = new Date();
-  var inserts = [token, new Date(dt.setMonth(dt.getMonth()))];
+  var inserts = [token, new Date()];
   var sql = mysql.format(query, inserts);
 
-  con.query(sql, callback);
+  con.query(sql, function(err, invite) {
+    try {
+      invite = invite[0];
+      invite.details = JSON.parse(invite.details);
+    } catch (err) {
+      invite = {};
+    }
+
+    callback(err, invite);
+  });
+};
+
+AccessTokens.createToken = function(details, callback) {
+  var query =
+    "INSERT INTO access_tokens (token, timestamp, details, used) VALUES (?,?,?,?)";
+
+  Helpers.uniqueBase64Id(25, "access_tokens", "token", function(token) {
+    var inserts = [token, new Date(), JSON.stringify(details), 0];
+    console.log(details);
+    var sql = mysql.format(query, inserts);
+    con.query(sql, function(err) {
+      console.log(err);
+      if (!err) {
+        callback(null, token);
+      } else {
+        callback(err, null);
+      }
+    });
+  });
 };
 
 AccessTokens.markAsUsed = function(token, callback) {

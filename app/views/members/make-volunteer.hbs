@@ -1,5 +1,9 @@
-<form method="post" action="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="form-group" autocomplete="off">
 
+{{#if user}}
+<form method="post" action="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="form-group" autocomplete="off">
+{{else}}
+<form method="post" action="{{public_address}}/volunteers/invite/make-volunteer/{{invite.token}}" class="form-group" autocomplete="off">
+{{/if}}
   <div class="row mt-4 mb-4">
     <div class="col-lg-5 mx-auto">
 

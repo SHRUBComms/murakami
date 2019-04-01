@@ -34,63 +34,77 @@
 
     <h3 class="mb-2">Roles <span class="text-danger">*</span></h3>
 
+    {{#if user}}
+
+      <div class="row-fluid mb-1">
+        <select class="selectpicker volunteer-roles show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
 
 
-    <div class="row-fluid mb-1">
-      <select class="selectpicker volunteer-roles show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
-
-
-          <optgroup id="na_optgroup" label="SHRUB-wide">
-            {{#each (lookup roles "na")}}
-              <option value="{{role_id}}"
-              {{#if (lookupArray ../volInfo.roles role_id)}}
-                selected
-              {{else}}
-                {{#ifUserClass ../user.class '["volunteer"]'}}disabled{{/ifUserClass}}
-              {{/if}}
-
-              >{{details.title}}</option>
-            {{else}}
-              <option disabled>This group has no roles.</option>
-            {{/each}}
-          </optgroup>
-
-          {{#each user.allWorkingGroupsObj}}
-            <optgroup id="{{group_id}}_optgroup" label="{{name}}">
-              {{#each (lookup ../roles group_id)}}
+            <optgroup id="na_optgroup" label="SHRUB-wide">
+              {{#each (lookup roles "na")}}
                 <option value="{{role_id}}"
-                {{#if (lookupArray ../../volInfo.roles role_id)}}
+                {{#if (lookupArray ../volInfo.roles role_id)}}
                   selected
                 {{else}}
-                  {{#ifUserClass ../../user.class '["volunteer", "staff"]'}}
-                    {{#unless (lookupArray ../../user.working_groups_arr group_id)}}
-                      disabled
-                    {{/unless}}
-                  {{/ifUserClass}}
+                  {{#ifUserClass ../user.class '["volunteer"]'}}disabled{{/ifUserClass}}
                 {{/if}}
+
                 >{{details.title}}</option>
               {{else}}
                 <option disabled>This group has no roles.</option>
               {{/each}}
             </optgroup>
+
+            {{#each user.allWorkingGroupsObj}}
+              <optgroup id="{{group_id}}_optgroup" label="{{name}}">
+                {{#each (lookup ../roles group_id)}}
+                  <option value="{{role_id}}"
+                  {{#if (lookupArray ../../volInfo.roles role_id)}}
+                    selected
+                  {{else}}
+                    {{#ifUserClass ../../user.class '["volunteer", "staff"]'}}
+                      {{#unless (lookupArray ../../user.working_groups_arr group_id)}}
+                        disabled
+                      {{/unless}}
+                    {{/ifUserClass}}
+                  {{/if}}
+                  >{{details.title}}</option>
+                {{else}}
+                  <option disabled>This group has no roles.</option>
+                {{/each}}
+              </optgroup>
+            {{/each}}
+
+
+        </select>
+      </div>
+
+      <a class="btn btn-primary mb-3" data-toggle="modal" data-target="#quickAddRoleDialog">Quick Add Role</a>
+
+      <div class="row-fluid">
+        <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
+
+          {{#each coordinators}}
+              <option value="{{id}}" {{#if (lookupArray ../volInfo.assignedCoordinators id)}}selected{{/if}}>{{first_name}} {{last_name}}</option>
           {{/each}}
 
+        </select>
+      </div>
+    {{else}}
+      <p>You will be assigned the following role(s):</p>
+      <div class="container">
 
-      </select>
-    </div>
-
-    <a class="btn btn-primary mb-3" data-toggle="modal" data-target="#quickAddRoleDialog">Quick Add Role</a>
-
-    <div class="row-fluid">
-      <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
-
-        {{#each coordinators}}
-            <option value="{{id}}" {{#if (lookupArray ../volInfo.assignedCoordinators id)}}selected{{/if}}>{{first_name}} {{last_name}}</option>
+        {{#each assignedRoles}}
+          <li>{{lookup (lookup (lookup ../roles this) 'details') 'title'}}</li>
         {{/each}}
-
-      </select>
-    </div>
-
+      </div>
+      <p class="mt-2">and your assigned coordinator(s) will be:</p>
+      <div class="container">
+        {{#each assignedCoordinators}}
+          <li>{{lookup (lookup ../coordinators this) 'first_name'}} {{lookup (lookup ../coordinators this) 'last_name'}}</li>
+        {{/each}}
+      </div>
+    {{/if}}
     <div class="row mt-3" id="volunteerAgreeButtonContainer">
       <div class="col-md-6">
         <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#volunteerAgreement">
@@ -310,7 +324,7 @@ function quickAddRole() {
       working_group: $("#roleWorkingGroup").val()
     },
     function(response){
-      
+
       if(response.status == "ok"){
         $("#quickAddRoleDialog").modal("hide");
         $("#roleTitle").val("");
@@ -358,7 +372,7 @@ function quickAddRole() {
 
   $('.selectpicker').on('change', function(e){
     if($(e.target).attr("name") == "volInfo[roles]"){
-      
+
       roleChanged = true;
       toggleVolunteerAgreement();
     }

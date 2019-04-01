@@ -256,7 +256,10 @@ Members.getMembersWhoJoinedToday = function(callback) {
 };
 
 Members.getByEmail = function(email, callback) {
-  var query = "SELECT * FROM members WHERE email = ?";
+  var query = `SELECT * FROM members
+                LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
+                FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
+                WHERE members.email = ?`;
   var inserts = [email];
   var sql = mysql.format(query, inserts);
 

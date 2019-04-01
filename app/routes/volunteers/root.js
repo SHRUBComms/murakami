@@ -18,6 +18,6 @@ router.use("/add", require("./add"));
 router.use("/view", require("./view"));
 router.use("/update", require("./update"));
 router.use("/check-in", require("./check-in"));
-router.use("/invite", require("./invite"));
+router.use("/invite", require("./invite/root"));
 
 module.exports = router;

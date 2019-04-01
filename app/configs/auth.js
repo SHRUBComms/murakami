@@ -1,3 +1,6 @@
+var rootDir = process.env.CWD;
+var AccessTokens = require(rootDir + "/app/models/access-tokens");
+
 var Auth = {};
 
 Auth.isLoggedIn = function(req, res, next) {
@@ -5,6 +8,14 @@ Auth.isLoggedIn = function(req, res, next) {
     return next();
   } else {
     res.redirect("/login");
+  }
+};
+
+Auth.isNotLoggedIn = function(req, res, next) {
+  if (!req.isAuthenticated()) {
+    return next();
+  } else {
+    res.redirect("/");
   }
 };
 
@@ -20,8 +31,7 @@ Auth.isOfClass = function(allowedClasses) {
 
 // TEMPORARY
 Auth.verifyByKey = function(req, res, next) {
-
-  if(req.query.key){
+  if (req.query.key) {
     if (req.query.key === process.env.TEMPORARY_API_KEY) {
       return next();
     } else {
@@ -30,6 +40,26 @@ Auth.verifyByKey = function(req, res, next) {
   } else {
     res.send({ message: "Permission denied" });
   }
+};
+
+Auth.hasValidToken = function(action) {
+  return function(req, res, next) {
+    AccessTokens.getById(req.params.token || req.query.token, function(
+      err,
+      invite
+    ) {
+      if (invite.details) {
+        if (invite.details.action == action) {
+          res.invite = invite;
+          return next();
+        } else {
+          res.redirect("/");
+        }
+      } else {
+        res.redirect("/");
+      }
+    });
+  };
 };
 
 module.exports = Auth;

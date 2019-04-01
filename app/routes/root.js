@@ -30,6 +30,7 @@ router.use("/login", require("./login"));
 router.use("/contact-preferences", require("./contact-preferences"));
 router.use("/recover", require("./recover"));
 router.use("/logout", require("./logout"));
+router.use("/success", require("./success"));
 
 // Legacy path.
 router.get("/get-carbon-calculations", function(req, res) {

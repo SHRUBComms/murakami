@@ -1,61 +1,37 @@
-// volunteers/add
+// /volunteers/invite/add-volunteer
 
 var router = require("express").Router();
 var async = require("async");
 var moment = require("moment");
-var Mailchimp = require("mailchimp-api-v3");
-var md5 = require("md5");
-
 moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
 var Users = require(rootDir + "/app/models/users");
+var Members = require(rootDir + "/app/models/members");
 var Volunteers = require(rootDir + "/app/models/volunteers");
+var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var AccessTokens = require(rootDir + "/app/models/access-tokens");
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  "/:token",
+  Auth.isNotLoggedIn,
+  Auth.hasValidToken("add-volunteer"),
   function(req, res) {
-    Users.getCoordinators(req.user, function(err, coordinators) {
-      Volunteers.getSignUpInfo(function(
-        skills,
-        contactMethods,
-        roles,
-        rolesGroupedByGroup,
-        rolesGroupedById,
-        volunteerAgreement,
-        ourVision,
-        saferSpacesPolicy,
-        membershipBenefits
-      ) {
-        res.render("volunteers/add", {
-          title: "Add Volunteer",
-          volunteersActive: true,
-          volunteerAgreement: volunteerAgreement,
-          ourVision: ourVision,
-          saferSpacesPolicy: saferSpacesPolicy,
-          membershipBenefitsInfo: membershipBenefits,
-          coordinators: coordinators,
-          roles: rolesGroupedByGroup,
-          skills: skills,
-          contactMethods: contactMethods
-        });
-      });
-    });
+    res.redirect(
+      process.env.PUBLIC_ADDRESS + "/volunteers/invite/" + res.invite.token
+    );
   }
 );
 
 router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  "/:token",
+  Auth.isNotLoggedIn,
+  Auth.hasValidToken("add-volunteer"),
   function(req, res) {
     Users.getCoordinators(req.user, function(
       err,
@@ -68,7 +44,11 @@ router.post(
         contactMethods,
         roles,
         rolesGroupedByGroup,
-        rolesGroupedById
+        rolesGroupedById,
+        volunteerAgreement,
+        ourVision,
+        saferSpacesPolicy,
+        membershipBenefits
       ) {
         // Membership validation
         var first_name = req.body.first_name.trim();
@@ -231,10 +211,6 @@ router.post(
           .notEmpty();
 
         req
-          .checkBody("volInfo.roles", "Please select at least one role")
-          .notEmpty();
-
-        req
           .checkBody(
             "volInfo.survey.goals",
             "Please enter what the volunteer wants to achieve through their work with Shrub"
@@ -302,6 +278,9 @@ router.post(
           errors.push(error);
         }
 
+        volInfo.assignedCoordinators = res.invite.details.assignedCoordinators;
+        volInfo.assignedRoles = res.invite.details.assignedRoles;
+
         if (!Array.isArray(volInfo.assignedCoordinators)) {
           volInfo.assignedCoordinators = [volInfo.assignedCoordinators];
         }
@@ -311,7 +290,7 @@ router.post(
         ) {
           let error = {
             param: "volInfo.assignedCoordinators",
-            msg: "Please select a valid staff coordinators",
+            msg: "Please select valid staff coordinator(s)",
             value: req.body.volInfo.assignedCoordinators
           };
 
@@ -356,40 +335,18 @@ router.post(
           errors.push(error);
         }
 
-        var rolesValid = true;
         if (!Array.isArray(volInfo.roles)) {
           volInfo.roles = [volInfo.roles];
         }
-        async.each(
-          volInfo.roles,
-          function(role, callback) {
-            if (!rolesGroupedById[role]) {
-              rolesValid = false;
-            }
-            callback();
-          },
-          function() {
-            if (rolesValid == false) {
-              let error = {
-                param: "volInfo.roles",
-                msg: "Please select valid roles",
-                value: req.body.volInfo.roles
-              };
-
-              errors.push(error);
-            }
-          }
-        );
 
         if (errors[0]) {
-          res.render("members/make-volunteer", {
+          res.render("volunteers/add", {
             errors: errors,
-            title: "Induct Volunteer",
+            title: "Add Volunteer",
             volunteerActive: true,
             volInfo: volInfo,
-            member: member,
-            coordinators: coordinators,
-            roles: rolesGroupedByGroup,
+            coordinators: coordinatorsObj,
+            roles: rolesGroupedById,
             skills: skills,
             contactMethods: contactMethods,
             first_name: first_name,
@@ -402,7 +359,12 @@ router.post(
             membershipBenefits: membershipBenefits,
             contactConsent: contactConsent,
             gdprConsent: gdprConsent,
-            dob: dob
+            dob: dob,
+            invite: res.invite,
+            volunteerAgreement: volunteerAgreement,
+            ourVision: ourVision,
+            saferSpacesPolicy: saferSpacesPolicy,
+            membershipBenefitsInfo: membershipBenefits
           });
         } else {
           var newMember = {
@@ -423,12 +385,11 @@ router.post(
               if (err) {
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
-                  title: "Induct Volunteer",
+                  title: "Add Volunteer",
                   volunteerActive: true,
                   volInfo: volInfo,
-                  member: member,
-                  coordinators: coordinators,
-                  roles: rolesGroupedByGroup,
+                  coordinators: coordinatorsObj,
+                  roles: rolesGroupedById,
                   skills: skills,
                   contactMethods: contactMethods,
                   first_name: first_name,
@@ -441,7 +402,12 @@ router.post(
                   membershipBenefits: membershipBenefits,
                   contactConsent: contactConsent,
                   gdprConsent: gdprConsent,
-                  dob: dob
+                  dob: dob,
+                  invite: res.invite,
+                  volunteerAgreement: volunteerAgreement,
+                  ourVision: ourVision,
+                  saferSpacesPolicy: saferSpacesPolicy,
+                  membershipBenefitsInfo: membershipBenefits
                 });
               } else {
                 var subscribeBody = {
@@ -481,9 +447,15 @@ router.post(
                 Mail.sendAutomated("welcome_volunteer", member_id, function(
                   err
                 ) {});
-
-                req.flash("success_msg", "Volunteer successfully added!");
-                res.redirect(process.env.PUBLIC_ADDRESS + "/success");
+                if (res.invite) {
+                  AccessTokens.markAsUsed(res.invite.token, function() {});
+                  res.redirect(process.env.PUBLIC_ADDRESS + "/success");
+                } else {
+                  req.flash("success_msg", "Volunteer successfully added!");
+                  res.redirect(
+                    process.env.PUBLIC_ADDRESS + "/volunteers/view/" + member_id
+                  );
+                }
               }
             });
           });

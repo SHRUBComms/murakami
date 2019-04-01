@@ -34,7 +34,7 @@ router.get(
               ]) ||
               Helpers.hasOneInCommon(
                 member.working_groups,
-                req.user.working_groups_arr
+                req.user.working_groups
               ) ||
               req.user.class == "admin"
             ) {
