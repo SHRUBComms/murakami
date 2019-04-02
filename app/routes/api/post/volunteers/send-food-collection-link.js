@@ -18,7 +18,7 @@ router.post(
     response.status = "fail";
     var member_id = req.body.member_id;
     var link = req.body.link;
-    
+
     var validURL = new RegExp(
       "^(https?:\\/\\/)?" + // protocol
       "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
@@ -38,16 +38,17 @@ router.post(
               "<" +
               volunteer.email +
               ">",
-            "Your Food Collections Link",
+            "Logging Food Collections",
             "<p>Hey " +
               volunteer.first_name +
               ",</p>" +
-              "<p>To log your food collections please use the link below.</p>" +
+              "<p>Please use the link below to log your food collections!</p>" +
               "<a href='" +
               link +
               "'>" +
               link +
-              "</a>",
+              "</a>" +
+              "<p><small>Please note that this is an automated email.</small></p>",
             function(err) {
               if (!err) {
                 response.status = "ok";

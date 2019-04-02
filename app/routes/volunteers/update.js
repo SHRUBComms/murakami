@@ -89,7 +89,7 @@ router.post(
           oldVolInfo
         ) {
           if (oldVolInfo) {
-            if (volInfo.canUpdate || req.user.class == "admin") {
+            if (oldVolInfo.canUpdate || req.user.class == "admin") {
               Users.getCoordinators(req.user, function(
                 err,
                 coordinators,

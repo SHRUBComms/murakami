@@ -22,8 +22,12 @@ router.get("/", function(req, res) {
 
   FoodCollections.getOrganisations(function(err, allOrganisations) {
     Members.getAll(function(err, members) {
+      var noOrganisationSelect;
       if (!req.user) {
         members = null;
+        if (organisations.length == 0) {
+          noOrganisationSelect = true;
+        }
       }
       res.render("food-collections/log", {
         title: "Log Food Collection",
@@ -32,7 +36,8 @@ router.get("/", function(req, res) {
         allOrganisations: allOrganisations,
         organisations: organisations,
         uriOrganisations: encodeURIComponent(req.query.organisations),
-        members: members
+        members: members,
+        noOrganisationSelect: noOrganisationSelect || false
       });
     });
   });

@@ -16,7 +16,7 @@
         <input type="text" name="member_id" class="form-control mb-2" placeholder="Member ID" value="{{member_id}}" />
       {{/if}}
 
-        {{#ifCond user '||' allOrganisations}}
+        {{#unless noOrganisationSelect}}
           <select name="organisation_id" class="form-control mb-2">
 
           {{#if user}}
@@ -26,7 +26,7 @@
 
             {{/each}}
           {{else}}
-          
+
             {{#each organisations}}
 
                 {{#if (lookup ../allOrganisations this)}}
@@ -41,7 +41,7 @@
         </select>
       {{else}}
         <input type="text" name="organisation_id" class="form-control mb-2" placeholder="Organisation ID" value="{{organisation_id}}" />
-      {{/ifCond}}
+      {{/unless}}
       <div class="form-inline mb-4">
         <div class="mx-auto">
           <span class="text-muted mr-0 mr-xs-0 mr-sm-0 mr-md-2 mr-lg-2 mr-xl-2">Weight (kilos)</span>
