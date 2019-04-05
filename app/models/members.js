@@ -168,9 +168,9 @@ Members.searchByName = function(search, callback) {
   var query = `SELECT * FROM members
     LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
     FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
-    WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND first_name != '[redacted]'
+    WHERE CONCAT(first_name, ' ', last_name) LIKE ? OR barcode = ? AND first_name != '[redacted]'
     ORDER BY first_name ASC LIMIT 3`;
-  var inserts = ["%" + search + "%"];
+  var inserts = ["%" + search + "%", search];
 
   var sql = mysql.format(query, inserts);
   con.query(sql, callback);
@@ -392,6 +392,14 @@ Members.updateWorkingGroups = function(
 ) {
   var query = "UPDATE members SET working_groups = ? WHERE member_id = ?";
   var inserts = [new_working_groups, member_id];
+  var sql = mysql.format(query, inserts);
+
+  con.query(sql, callback);
+};
+
+Members.updateBarcode = function(member_id, barcode, callback) {
+  var query = "UPDATE members SET barcode = ? WHERE member_id = ?";
+  var inserts = [barcode, member_id];
   var sql = mysql.format(query, inserts);
 
   con.query(sql, callback);

@@ -74,6 +74,22 @@
 						<p><span id="carbon">0</span> kilos of carbon saved!</p>
 
 						<p>Balance: <b><span id="balance">{{member.balance}}</span> tokens</b></p>
+
+
+						<div class="row mt-2">
+							<div class="col-md-12">
+								<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary" data-toggle="modal" data-target="#exampleModal">
+
+									{{#if member.barcode}}
+										Manage Barcode
+									{{else}}
+										Assign Barcode
+									{{/if}}
+
+								</a>
+							</div>
+						</div>
+
 					</div>
 				</div>
 			</div>
@@ -203,14 +219,83 @@
   </div>
 </div>
 
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">
+					{{#if member.barcode}}
+						Manage Barcode
+					{{else}}
+						Add Barcode
+					{{/if}}
+				</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+				<div id="barcodeResponseBox" class="alert alert-dismissible fade show d-none" role="alert">
+          <span id="barcodeResponse"></span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+				<p>Scan a barcode into the box below</p>
+
+				<div class="input-group mt-2">
+
+					<div class="input-group-prepend">
+						<span class="input-group-text"><i class="fas fa-barcode"></i></span>
+					</div>
+					<input type="text" id="barcodeInput" class="form-control" placeholder="New Barcode" value="{{member.barcode}}" />
+
+				</div>
+      </div>
+      <div class="modal-footer">
+				{{#if member.barcode}}
+        	<button type="button" class="btn btn-primary" onclick="updateBarcode()">Update Barcode</button>
+				{{else}}
+					<button type="button" class="btn btn-primary" onclick="updateBarcode()">Assign Barcode</button>
+				{{/if}}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 
 function getSavedCarbon(){
 	$.ajax({
 	    type: "GET",
-	    url: "/api/get/members/carbon-saved/" + "{{member.member_id}}",
+	    url: "{{public_address}}/api/get/members/carbon-saved/" + "{{member.member_id}}",
 	    success: function(response){
 			$('#carbon').html(response.carbon);
+	    }
+	});
+}
+
+function updateBarcode(){
+	$.ajax({
+	    type: "POST",
+	    url: "{{public_address}}/api/post/members/update-barcode/" + "{{member.member_id}}",
+			data: {
+				barcode: $("#barcodeInput").val()
+			},
+	    success: function(response){
+				if(response.status == "ok") {
+	        $("#barcodeResponseBox").removeClass("alert-danger");
+	        $("#barcodeResponseBox").addClass("alert-success");
+	      } else {
+	        $("#barcodeResponseBox").removeClass("alert-success");
+	        $("#barcodeResponseBox").addClass("alert-danger");
+
+	      }
+	      $("#barcodeResponseBox").removeClass("d-none");
+	      $("#barcodeResponse").text(response.msg);
 	    }
 	});
 }
