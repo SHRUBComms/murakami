@@ -465,6 +465,25 @@ Members.renew = function(member_id, length, callback) {
   });
 };
 
+Members.updateExpiryDate = function(member_id, date, callback) {
+  var query =
+    "UPDATE members SET current_exp_membership = ? WHERE member_id = ?";
+  var inserts = [date, member_id];
+  var sql = mysql.format(query, inserts);
+  con.query(sql, function(err) {
+    if (err) {
+      callback(err);
+    } else {
+      if (moment(date).isBefore(moment())) {
+        Members.updateStatus(member_id, 0, function() {});
+      } else {
+        Members.updateStatus(member_id, 1, function() {});
+      }
+      callback(null);
+    }
+  });
+};
+
 Members.delete = function(member_id, callback) {
   var query =
     "DELETE FROM members WHERE member_id = ?;" +

@@ -37,13 +37,27 @@
         <div class="card mb-4">
           <div class="card-body">
             <h3 class="mb-2">Membership Info</h3>
-            <select class="form-control" name="free" onchange="membership_type_update()">
-              <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
-              <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
-            </select>
+
+              <select class="form-control" name="free" onchange="membership_type_update()">
+                <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
+                <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
+              </select>
+
+
+
+              <div class="form-group row mt-3">
+                <label for="staticEmail" class="col-sm-5 col-form-label">Membership expires</label>
+                <div class="col-sm-7">
+                  <input type="date" class="form-control" name="current_exp_membership" value="{{current_exp_membership}}" required />
+                </div>
+              </div>
+
           </div>
         </div>
+
       {{/ifUserClass}}
+
+
 
       <div class="row mt-4">
         <div class="col-md-12">

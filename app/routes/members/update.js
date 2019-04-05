@@ -1,6 +1,8 @@
 // /members/update
 
 var router = require("express").Router();
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -38,7 +40,11 @@ router.get(
             email: member.email,
             phone_no: member.phone_no,
             address: member.address,
-            free: member.free
+            free: member.free,
+            current_exp_membership: moment(
+              member.current_exp_membership,
+              "l"
+            ).format("YYYY-MM-DD")
           });
         } else {
           req.flash(
@@ -71,11 +77,19 @@ router.post(
       } else {
         var first_name = req.body.first_name.trim();
         var last_name = req.body.last_name.trim();
+
+        var email;
+        var phone_no;
+        var address;
+        var free;
+        var current_exp_membership;
+
         if (["staff", "admin"].includes(req.user.class)) {
-          var email = req.body.email.trim();
-          var phone_no = req.body.phone_no.trim();
-          var address = req.body.address.trim();
-          var free = req.body.free;
+          email = req.body.email.trim();
+          phone_no = req.body.phone_no.trim();
+          address = req.body.address.trim();
+          free = req.body.free;
+          current_exp_membership = req.body.current_exp_membership;
 
           if (free == "free") {
             free = 1;
@@ -83,10 +97,10 @@ router.post(
             free = 0;
           }
         } else {
-          var email = member.email;
-          var phone_no = member.phone_no;
-          var address = member.address;
-          var free = member.free;
+          email = member.email;
+          phone_no = member.phone_no;
+          address = member.address;
+          free = member.free;
         }
 
         // Validation
@@ -126,6 +140,21 @@ router.post(
               )
               .isLength({ max: 15 });
           }
+
+          if (moment(current_exp_membership)) {
+            console.log(member.current_init_membership, current_exp_membership);
+            if (
+              moment(current_exp_membership).isAfter(
+                moment(member.current_init_membership, "L")
+              )
+            ) {
+              Members.updateExpiryDate(
+                member.member_id,
+                current_exp_membership,
+                function(err) {}
+              );
+            }
+          }
         }
 
         var member = {
@@ -151,7 +180,8 @@ router.post(
             email: email,
             phone_no: phone_no,
             address: address,
-            free: free
+            free: free,
+            current_exp_membership: current_exp_membership
           });
         } else {
           Members.updateBasic(member, function(err, member) {
