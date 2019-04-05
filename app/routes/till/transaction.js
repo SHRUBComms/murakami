@@ -301,7 +301,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                               trans_object: JSON.stringify(carbonTransaction),
                               amount: weight_total,
                               group_id: till.group_id,
-                              method: "recycled"
+                              method: "reused"
                             };
                             Carbon.add(carbon, function(err) {
                               Helpers.calculateCarbon(
@@ -346,7 +346,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                               "&till_id=" +
                                               till.till_id
                                           );
-                                        
 
                                         if (member) {
                                           if (member.email) {
@@ -426,7 +425,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         trans_object: JSON.stringify(carbonTransaction),
                         amount: weight_total,
                         group_id: till.group_id,
-                        method: "recycled"
+                        method: "reused"
                       };
                       Carbon.add(carbon, function(err) {
                         Helpers.calculateCarbon(
@@ -498,7 +497,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     "&membershipBought=" +
                                     membershipBought
                                 );
-                              
+
                               res.send({
                                 status: "redirect",
                                 url: sumupSummon
