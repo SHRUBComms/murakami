@@ -1,7 +1,7 @@
 // /volunteers/check-in
 
 var router = require("express").Router();
-var async = require("async")
+var async = require("async");
 
 var rootDir = process.env.CWD;
 
@@ -14,28 +14,30 @@ var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-
 var expectedQuestionnaire = {
-                    W7cnfJVW: {
-                      question_id: "W7cnfJVW",
-                      question: "What’s going well and what’s not going well?"
-                    },
-                    DuRN9396: {
-                      question_id: "DuRN9396",
-                      question:
-                        "Are you getting what you want from this role? Are you developing the skills you’d like to?",
-                        fromInitialSurvey: "goals"
-                    },
-                    tfM2S2R4: {
-                      question_id: "tfM2S2R4",
-                      question: "Do you need any additional support?"
-                    },
-                    ykCcA43Z: {
-                      question_id: "ykCcA43Z",
-                      question: "Would you like any additional training?"
-                    }
-                  }
-
+  W7cnfJVW: {
+    question_id: "W7cnfJVW",
+    question: "What’s going well and what’s not going well?"
+  },
+  DuRN9396: {
+    question_id: "DuRN9396",
+    question:
+      "Are you getting what you want from this role? Are you developing the skills you’d like to?",
+    fromInitialSurvey: "goals"
+  },
+  tfM2S2R4: {
+    question_id: "tfM2S2R4",
+    question: "Do you need any additional support?"
+  },
+  ykCcA43Z: {
+    question_id: "ykCcA43Z",
+    question: "Would you like any additional training?"
+  },
+  Zmumsq7X: {
+    question_id: "Zmumsq7X",
+    question: "Any additional notes/remarks?"
+  }
+};
 
 router.get("/", function(req, res) {
   res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
@@ -70,8 +72,7 @@ router.get(
                 err,
                 checkin
               ) {
-                Users.getAll(req.user, function(err, users, usersObj){
-
+                Users.getAll(req.user, function(err, users, usersObj) {
                   res.render("volunteers/check-in", {
                     title: "Volunteer Check-in",
                     volunteersActive: true,
@@ -81,8 +82,7 @@ router.get(
                     lastCheckIn: checkin,
                     questionnaire: expectedQuestionnaire
                   });
-                })
-
+                });
               });
             } else {
               req.flash(
@@ -132,29 +132,45 @@ router.post(
             ) {
               var questionnaire = req.body.questionnaire;
               var questionnaireValid = true;
-              async.eachOf(expectedQuestionnaire, function(question, question_id, callback){
-                if(!questionnaire[question_id]){
-                  questionnaireValid = false;
-                }
-                callback();
-              }, function(){
-                if(questionnaireValid){
-                  VolunteerCheckIns.create(req.params.member_id, req.user.id, questionnaire, function(){
-                    req.flash(
-                      "success_msg",
-                      "Questionnaire complete! Please update this volunteer's details to finish check-in"
+              async.eachOf(
+                expectedQuestionnaire,
+                function(question, question_id, callback) {
+                  if (!questionnaire[question_id]) {
+                    questionnaireValid = false;
+                  }
+                  callback();
+                },
+                function() {
+                  if (questionnaireValid) {
+                    VolunteerCheckIns.create(
+                      req.params.member_id,
+                      req.user.id,
+                      questionnaire,
+                      function() {
+                        req.flash(
+                          "success_msg",
+                          "Questionnaire complete! Please update this volunteer's details to finish check-in"
+                        );
+                        res.redirect(
+                          process.env.PUBLIC_ADDRESS +
+                            "/volunteers/update/" +
+                            req.params.member_id
+                        );
+                      }
                     );
-                    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/update/" + req.params.member_id);
-                  })
-                } else {
-                  req.flash(
-                    "error_msg",
-                    "Please complete the questionnaire!"
-                  );
-                  res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/check-in/" + req.params.member_id);
+                  } else {
+                    req.flash(
+                      "error_msg",
+                      "Please complete the questionnaire!"
+                    );
+                    res.redirect(
+                      process.env.PUBLIC_ADDRESS +
+                        "/volunteers/check-in/" +
+                        req.params.member_id
+                    );
+                  }
                 }
-              })
-
+              );
             } else {
               req.flash(
                 "error_msg",
