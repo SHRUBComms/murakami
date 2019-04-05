@@ -42,7 +42,7 @@
 	        <option value="other" {{#ifCond method '==' "other"}}selected{{/ifCond}}>Other</option>
 	      </select>
 	    </div>
-	    <button type="submit" class="btn btn-primary btn-block">Update</button>
+	    <button type="submit" class="btn btn-primary btn-block">Get Carbon</button>
 	  </form>
 	</div>
 </div>
@@ -76,6 +76,11 @@
 					</td>
 					<td class="p-3">
 						<p>{{lookup (lookup ../carbon @key) 'saved'}} {{../unit.name}}</p>
+						<p>
+							<small>
+								<i>Raw weight x <b>{{lookup factors ../method}}</b></i>
+							</small>
+						</p>
 					</td>
 				</tr>
 			{{/each}}

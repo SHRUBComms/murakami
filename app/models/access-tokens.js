@@ -30,10 +30,10 @@ AccessTokens.createToken = function(details, callback) {
 
   Helpers.uniqueBase64Id(25, "access_tokens", "token", function(token) {
     var inserts = [token, new Date(), JSON.stringify(details), 0];
-    console.log(details);
+    
     var sql = mysql.format(query, inserts);
     con.query(sql, function(err) {
-      console.log(err);
+      
       if (!err) {
         callback(null, token);
       } else {

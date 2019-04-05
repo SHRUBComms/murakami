@@ -253,7 +253,7 @@ router.post(
                       volInfo,
                       function(err) {
                         if (err) {
-                          console.log(err);
+                          
                           res.render("members/make-volunteer", {
                             errors: [{ msg: "Something went wrong!" }],
                             title: "Add Volunteer (Existing Member)",

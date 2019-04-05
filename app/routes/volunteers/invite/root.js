@@ -246,7 +246,7 @@ router.get(
           Members.getByEmail(res.invite.details.email, function(err, member) {
             member = member[0] || null;
 
-            console.log(err, member);
+            
             if (member) {
               if (!member.volunteer_id) {
                 res.render("members/make-volunteer", {

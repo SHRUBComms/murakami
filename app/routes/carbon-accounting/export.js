@@ -59,7 +59,7 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
             raw[i].trans_object = JSON.parse(raw[i].trans_object);
             Object.keys(raw[i].trans_object).forEach(function(key) {
               formattedData[key].raw += +raw[i].trans_object[key];
-              console.log(formattedData[key].raw);
+              
               formattedData[key].saved +=
                 +raw[i].trans_object[key] *
                 carbonCategories[key].factors[method];
