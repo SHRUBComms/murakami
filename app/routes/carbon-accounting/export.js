@@ -46,7 +46,8 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
         formattedData = {};
 
         Object.keys(carbonCategories).forEach(function(key) {
-          formattedData[key] = 0;
+          formattedData[key] = {};
+          formattedData[key] = { raw: 0, saved: 0 };
         });
 
         for (let i = 0; i < raw.length; i++) {
@@ -57,14 +58,22 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
           ) {
             raw[i].trans_object = JSON.parse(raw[i].trans_object);
             Object.keys(raw[i].trans_object).forEach(function(key) {
-              formattedData[key] =
-                formattedData[key] + +raw[i].trans_object[key];
+              formattedData[key].raw += +raw[i].trans_object[key];
+              console.log(formattedData[key].raw);
+              formattedData[key].saved +=
+                +raw[i].trans_object[key] *
+                carbonCategories[key].factors[method];
             });
           }
         }
 
         Object.keys(formattedData).forEach(function(key) {
-          formattedData[key] = (formattedData[key] * unit.factor).toFixed(4);
+          formattedData[key].raw = (
+            formattedData[key].raw * unit.factor
+          ).toFixed(4);
+          formattedData[key].saved = Math.abs(
+            formattedData[key].saved * unit.factor
+          ).toFixed(4);
         });
 
         var dates = { start: null, end: null };
