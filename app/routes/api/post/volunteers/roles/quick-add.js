@@ -15,8 +15,7 @@ router.post(
   function(req, res) {
     var working_group = req.body.working_group;
     var title = req.body.title;
-
-    var working_groups = req.user.all_working_groups_arr;
+    var working_groups = req.user.allWorkingGroupsFlat;
     working_groups.push("na");
 
     if (working_groups.includes(working_group) && title) {
