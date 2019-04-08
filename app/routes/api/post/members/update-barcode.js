@@ -13,18 +13,31 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
   var barcode = req.body.barcode;
   var response = { status: "fail" };
+
   Members.getById(req.params.member_id, req.user, function(err, member) {
     if (!err && member) {
-      Members.updateBarcode(member.member_id, barcode, function(err) {
-        if (!err) {
-          response.status = "ok";
-          response.msg = "Barcode successfully assigned!";
-          res.send(response);
+      if (barcode) {
+        barcode = barcode.trim();
+        if (!isNaN(barcode)) {
+          Members.updateBarcode(member.member_id, barcode, function(err) {
+            if (!err) {
+              response.status = "ok";
+              response.msg = "Barcode successfully assigned!";
+              res.send(response);
+            } else {
+              response.msg =
+                "This barcode is already in use! Please try another.";
+              res.send(response);
+            }
+          });
         } else {
-          response.msg = "This barcode is already in use! Please try another.";
+          response.msg = "Please enter a valid barcode!";
           res.send(response);
         }
-      });
+      } else {
+        response.msg = "Please enter a barcode.";
+        res.send(response);
+      }
     } else {
       response.msg = "Member not found!";
       res.send(response);
