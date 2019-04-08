@@ -81,9 +81,9 @@
 								<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary" data-toggle="modal" data-target="#exampleModal">
 
 									{{#if member.barcode}}
-										Manage Barcode
+										Manage Membership Card
 									{{else}}
-										Assign Barcode
+										Issue Membership Card
 									{{/if}}
 
 								</a>
@@ -225,9 +225,9 @@
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">
 					{{#if member.barcode}}
-						Manage Barcode
+						Manage Membership Card
 					{{else}}
-						Add Barcode
+						Issue Membership Card
 					{{/if}}
 				</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -243,7 +243,7 @@
           </button>
         </div>
 
-				<p>Scan a barcode into the box below</p>
+				<p>Scan a barcode into the box below!</p>
 
 				<div class="input-group mt-2">
 
@@ -256,9 +256,9 @@
       </div>
       <div class="modal-footer">
 				{{#if member.barcode}}
-        	<button type="button" class="btn btn-primary" onclick="updateBarcode()">Update Barcode</button>
+        	<button type="button" class="btn btn-primary" onclick="updateBarcode()">Update Membership Card</button>
 				{{else}}
-					<button type="button" class="btn btn-primary" onclick="updateBarcode()">Assign Barcode</button>
+					<button type="button" class="btn btn-primary" onclick="updateBarcode()">Issue Membership Card</button>
 				{{/if}}
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>

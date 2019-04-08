@@ -21,8 +21,7 @@ router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
           response.msg = "Barcode successfully assigned!";
           res.send(response);
         } else {
-          response.msg =
-            "This barcode has already been assigned! Please try another.";
+          response.msg = "This barcode is already in use! Please try another.";
           res.send(response);
         }
       });
