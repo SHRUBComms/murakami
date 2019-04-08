@@ -33,7 +33,8 @@ router.get(
         volunteerAgreement,
         ourVision,
         saferSpacesPolicy,
-        membershipBenefits
+        membershipBenefits,
+        privacyNotice
       ) {
         res.render("volunteers/add", {
           title: "Add Volunteer",
@@ -45,7 +46,8 @@ router.get(
           coordinators: coordinators,
           roles: rolesGroupedByGroup,
           skills: skills,
-          contactMethods: contactMethods
+          contactMethods: contactMethods,
+          privacyNotice: privacyNotice
         });
       });
     });
@@ -68,7 +70,12 @@ router.post(
         contactMethods,
         roles,
         rolesGroupedByGroup,
-        rolesGroupedById
+        rolesGroupedById,
+        volunteerAgreement,
+        ourVision,
+        saferSpacesPolicy,
+        membershipBenefits,
+        privacyNotice
       ) {
         // Membership validation
         var first_name = req.body.first_name.trim();
@@ -402,7 +409,8 @@ router.post(
             membershipBenefits: membershipBenefits,
             contactConsent: contactConsent,
             gdprConsent: gdprConsent,
-            dob: dob
+            dob: dob,
+            privacyNotice: privacyNotice
           });
         } else {
           var newMember = {
@@ -441,7 +449,8 @@ router.post(
                   membershipBenefits: membershipBenefits,
                   contactConsent: contactConsent,
                   gdprConsent: gdprConsent,
-                  dob: dob
+                  dob: dob,
+                  privacyNotice: privacyNotice
                 });
               } else {
                 var subscribeBody = {

@@ -22,7 +22,7 @@ Settings.getAll = function(callback) {
 };
 
 Settings.getStaticContent = function(callback) {
-  var query = `SELECT * FROM global_settings WHERE id = "membershipBenefits" OR id = "saferSpacesPolicy" OR id = "volunteerAgreement" OR id = "ourVision"`;
+  var query = `SELECT * FROM global_settings WHERE id = "membershipBenefits" OR id = "saferSpacesPolicy" OR id = "volunteerAgreement" OR id = "ourVision" OR id = "privacyNotice"`;
   con.query(query, function(err, settings) {
     async.each(
       settings,
@@ -75,7 +75,7 @@ Settings.updateSetting = function(id, data, callback) {
 
   var inserts = [JSON.stringify(data), id];
   var sql = mysql.format(query, inserts);
-  
+
   con.query(sql, callback);
 };
 

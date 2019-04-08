@@ -420,7 +420,8 @@ Volunteers.getSignUpInfo = function(callback) {
         settings.volunteerAgreement,
         settings.ourVision,
         settings.saferSpacesPolicy,
-        settings.membershipBenefits
+        settings.membershipBenefits,
+        settings.privacyNotice
       );
     });
   });

@@ -147,7 +147,8 @@ Members.getSignUpInfo = function(callback) {
     callback(
       settings.ourVision,
       settings.saferSpacesPolicy,
-      settings.membershipBenefits
+      settings.membershipBenefits,
+      settings.privacyNotice
     );
   });
 };

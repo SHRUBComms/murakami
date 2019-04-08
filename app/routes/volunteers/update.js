@@ -36,7 +36,12 @@ router.get(
                   contactMethods,
                   roles,
                   rolesGroupedByGroup,
-                  rolesGroupedById
+                  rolesGroupedById,
+                  volunteerAgreement,
+                  ourVision,
+                  saferSpacesPolicy,
+                  membershipBenefits,
+                  privacyNotice
                 ) {
                   res.render("volunteers/update", {
                     title: "Update Volunteer",
@@ -52,7 +57,8 @@ router.get(
                     coordinators: coordinators,
                     roles: rolesGroupedByGroup,
                     skills: skills,
-                    contactMethods: contactMethods
+                    contactMethods: contactMethods,
+                    privacyNotice: privacyNotice
                   });
                 });
               });
@@ -101,7 +107,12 @@ router.post(
                   contactMethods,
                   roles,
                   rolesGroupedByGroup,
-                  rolesGroupedById
+                  rolesGroupedById,
+                  volunteerAgreement,
+                  ourVision,
+                  saferSpacesPolicy,
+                  membershipBenefits,
+                  privacyNotice
                 ) {
                   // Membership validation
                   var first_name = req.body.first_name.trim();
@@ -427,7 +438,8 @@ router.post(
                       email: email,
                       phone_no: phone_no,
                       address: address,
-                      gdprConsent: gdprConsent
+                      gdprConsent: gdprConsent,
+                      privacyNotice: privacyNotice
                     });
                   } else {
                     var updatedMember = {
@@ -468,7 +480,8 @@ router.post(
                                   email: email,
                                   phone_no: phone_no,
                                   address: address,
-                                  gdprConsent: gdprConsent
+                                  gdprConsent: gdprConsent,
+                                  privacyNotice: privacyNotice
                                 });
                               } else {
                                 var subscribeBody = {

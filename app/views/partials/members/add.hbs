@@ -123,13 +123,26 @@
   <div class="card-body">
     <h3 class="mb-2">Data Protection</h3>
 
-    <div class="form-check mt-4 {{#ifCond addingVolunteer '||' updatingVolunteer}}mb-3{{/ifCond}}">
-      <input class="form-check-input" type="checkbox" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}} >
-      <label class="form-check-label">Agreed to our <a href="#" target="_blank">privacy policy</a>  <span class="text-danger">*</span></label>
-    </div>
+
+
+      <div class="row">
+        <div class="col-12">
+          <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#privacyNoticeModal">
+            Privacy Notice
+          </button>
+        </div>
+      </div>
+
+      <div class="form-check pl-1">
+        <div class="form-check form-check-inline mt-3">
+          <input class="form-check-input" type="checkbox" id="gdprConsent" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}}>
+          <label class="form-check-label">Agreed to privacy notice <span class="text-danger">*</span></label>
+        </div>
+      </div>
+
 
     {{#ifCond addingVolunteer '||' updatingVolunteer}}
-      <p>Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
+      <p class="mt-3">Can we exchange your contact details with other volunteers/staff in relation to this role? (optional)</p>
       <div class="mt-1">
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" name="volInfo[gdpr][email]" {{#if volInfo.gdpr.email}}checked{{/if}} >
@@ -231,6 +244,30 @@
   </div>
 </div>
 
+<div class="modal fade" id="privacyNoticeModal" tabindex="-1" role="dialog" aria-labelledby="ourVisionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Privacy Notice</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-10 mx-auto mt-4">
+            {{{privacyNotice.markup}}}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#gdprConsent').prop('checked', 'true')">Agreed Privacy Notice</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="memberExists" tabindex="-1" role="dialog" aria-labelledby="memberExistsLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -307,7 +344,7 @@ function checkExistence(){
       if(response.msg == "member"){
         $("#memberExists").modal("show");
       } else if(response.msg == "volunteer") {
-        
+
         $("#volunteerExists").modal("show");
       }
     }

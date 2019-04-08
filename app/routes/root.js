@@ -31,6 +31,7 @@ router.use("/contact-preferences", require("./contact-preferences"));
 router.use("/recover", require("./recover"));
 router.use("/logout", require("./logout"));
 router.use("/success", require("./success"));
+router.use("/privacy", require("./privacy"));
 
 // Legacy path.
 router.get("/get-carbon-calculations", function(req, res) {
