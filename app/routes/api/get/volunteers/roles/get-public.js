@@ -1,4 +1,4 @@
-// /api/get/volunteers/roles/get-public_address
+// /api/get/volunteers/roles/get-public
 var router = require("express").Router();
 
 var rootDir = process.env.CWD;

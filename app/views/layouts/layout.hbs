@@ -56,67 +56,94 @@
                           {{#if user}}
                               {{#unless tillMode}}
 
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                {{#if user.permissions.members}}
                                   <li {{#if membersActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
                                       <ul class="collapse plain-list">
+                                        {{#if user.permissions.members.view}}
                                           <li><a href="{{public_address}}/members/manage">Manage Members</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.members.add}}
                                           <li><a href="{{public_address}}/members/add">Add Member</a></li>
+                                        {{/if}}
                                       </ul>
                                   </li>
-                                {{/ifUserClass}}
+                                {{/if}}
 
-                                <li {{#if volunteersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
-                                    <ul class="collapse plain-list">
+                                {{#if user.permissions.volunteers}}
+                                  <li {{#if volunteersActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
+                                      <ul class="collapse plain-list">
+                                        {{#if user.permissions.volunteers.view}}
+                                          <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.volunteers.add}}
+                                          <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.volunteers.invite}}
+                                          <li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>
+                                        {{/if}}
 
-                                      <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
-                                      <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
-                                      <li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>
+                                      </ul>
+                                  </li>
+                                {{/if}}
 
-                                    </ul>
-                                </li>
-
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                {{#if user.permissions.volunteerRoles}}
                                   <li {{#if volunteerRolesActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
                                       <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
-                                        <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
-                                        <!--{{#ifUserClass user.class '["admin"]'}}
-                                          <li><a href="{{public_address}}/volunteers/roles/settings">Settings</a></li>
-                                        {{/ifUserClass}}-->
+                                        {{#if user.permissions.volunteerRoles.view}}
+                                          <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.volunteerRoles.add}}
+                                          <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
+                                          {{/if}}
                                       </ul>
                                   </li>
-                                {{/ifUserClass}}
+                                {{/if}}
 
-                                <li {{#if volunteerHoursActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
-                                    <ul class="collapse plain-list">
-                                      <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
-                                      <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
-                                      {{#ifUserClass user.class '["admin", "staff"]'}}
-                                        <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>
-                                      {{/ifUserClass}}
-                                    </ul>
-                                </li>
+                                {{#if user.permissions.volunteerHours}}
+                                  <li {{#if volunteerHoursActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
+                                      <ul class="collapse plain-list">
+                                        {{#if user.permissions.volunteerHours.log}}
+                                          <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.volunteerHours.review}}
+                                          <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.volunteerHours.export}}
+                                          <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>
+                                        {{/if}}
+                                      </ul>
+                                  </li>
+                                {{/if}}
 
                                 <!-- if admin or belong to fs group -->
+                                {{#if user.permissions.foodCollections}}
+                                  <li {{#if foodCollectionsActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
+                                      <ul class="collapse plain-list">
+                                        {{#if user.permissions.foodCollections.log}}
+                                          <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.foodCollections.review}}
+                                          <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.foodCollections.export}}
+                                          <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
+                                        {{/if}}
 
-                                <li {{#if foodCollectionsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
-                                    <ul class="collapse plain-list">
+                                        {{#if user.permissions.foodCollections.viewOrganisations}}
+                                          <li class="mt-2"><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.foodCollections.addOrganisations}}
+                                          <li><a href="{{public_address}}/food-collections/organisations/add">Add Organisation</a></li>
+                                        {{/if}}
 
-                                      <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
-                                      <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
-                                      <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
-
-                                      <li class="mt-2"><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
-                                      <li><a href="{{public_address}}/food-collections/organisations/add">Add Organisation</a></li>
-
-
-                                    </ul>
-                                </li>
+                                      </ul>
+                                  </li>
+                                {{/if}}
 
                                 {{#ifUserClass user.class '["admin", "staff"]'}}
 
@@ -130,47 +157,74 @@
 
                                 {{/ifUserClass}}
 
-                                <li {{#if carbonActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
-                                    <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/carbon-accounting/log">Log Outgoing Weight</a></li>
-                                        {{#ifUserClass user.class '["admin", "staff"]'}}
+                                {{#if user.permissions.carbonAccounting}}
+
+                                  <li {{#if carbonActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
+                                      <ul class="collapse plain-list">
+                                        {{#if user.permissions.carbonAccounting.log}}
+                                          <li><a href="{{public_address}}/carbon-accounting/log">Log Outgoing Weight</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.carbonAccounting.settings}}
                                           <li><a href="{{public_address}}/carbon-accounting/settings">Update Calculations</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.carbonAccounting.export}}
                                           <li><a href="{{public_address}}/carbon-accounting/export">Export Data</a></li>
-                                        {{/ifUserClass}}
-                                        <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
-                                    </ul>
-                                </li>
-                                {{#ifUserClass user.class '["admin"]'}}
-                                <li {{#if workingGroupsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
-                                    <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/working-groups/manage">Manage Working Groups</a></li>
-                                        <li><a href="{{public_address}}/working-groups/add">Add Working Group</a></li>
-                                    </ul>
-                                </li>
-                                {{/ifUserClass}}
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
-                                <li {{#if usersActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
-                                    <ul class="collapse plain-list">
-                                        <li><a href="{{public_address}}/users/manage">Manage Users</a></li>
-                                        <li><a href="{{public_address}}/users/add">Add User</a></li>
-                                    </ul>
-                                </li>
-                                {{/ifUserClass}}
-                                {{#ifUserClass user.class '["admin"]'}}
+                                        {{/if}}
+                                          <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
+                                      </ul>
+                                  </li>
+
+                                {{/if}}
+
+                                {{#if user.permissions.workingGroups}}
+                                  <li {{#if workingGroupsActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
+                                      <ul class="collapse plain-list">
+                                        {{#if user.permissions.workingGroups.view}}
+                                          <li><a href="{{public_address}}/working-groups/manage">Manage Working Groups</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.workingGroups.add}}
+                                          <li><a href="{{public_address}}/working-groups/add">Add Working Group</a></li>
+                                        {{/if}}
+                                      </ul>
+                                  </li>
+                                {{/if}}
+
+                                {{#if user.permissions.users}}
+                                  <li {{#if usersActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
+                                      <ul class="collapse plain-list">
+                                        {{#if user.permissions.users.view}}
+                                          <li><a href="{{public_address}}/users/manage">Manage Users</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.users.add}}
+                                          <li><a href="{{public_address}}/users/add">Add User</a></li>
+                                        {{/if}}
+                                      </ul>
+                                  </li>
+                                {{/if}}
+
+                                {{#if user.permissions.settings}}
 
 
                                   <li {{#if settingsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
                                       <ul class="collapse plain-list">
+                                        {{#if user.permissions.settings.emailTemplates}}
                                           <li><a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.settings.staticContent}}
                                           <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
+                                        {{/if}}
+                                        {{#ifUserClass user.class '["admin"]'}}
+                                          <li><a href="{{public_address}}/settings/page-permissions"><i class="fas fa-unlock-alt"></i><span>Page Permissions<span></a></li>
+                                          <li><a href="{{public_address}}/settings/data-permissions"><i class="fas fa-unlock-alt"></i><span>Data Permissions<span></a></li>
+                                        {{/ifUserClass}}
                                       </ul>
                                   </li>
 
-                                {{/ifUserClass}}
+                                {{/if}}
 
 
 

@@ -34,7 +34,14 @@
       <p class="pt-3">Shrub may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
       <div class="form-check form-check-inline mt-2">
         <input class="form-check-input" type="checkbox" name="contactConsent" required {{#if contactConsent}}checked{{/if}}>
-        <label class="form-check-label">Consent given <span class="text-danger">*</span></label>
+        <label class="form-check-label">
+          {{#if user}}
+            Consent given
+          {{else}}
+            I consent
+          {{/if}}
+
+          <span class="text-danger">*</span></label>
       </div>
     {{/unless}}
   </div>
@@ -80,17 +87,39 @@
 
     <div class="form-check form-check-inline mt-3">
       <input class="form-check-input" type="checkbox" id="shrubExplained" name="shrubExplained" required {{#if shrubExplained}}checked{{/if}}>
-      <label class="form-check-label">Explained what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings <span class="text-danger">*</span></label>
+      <label class="form-check-label">
+        {{#if user}}
+        Explained
+        {{else}}
+        I understand
+        {{/if}}
+        what SHRUB is, our vision, mission and aims, why we do what we do, how we work, the working group structure and open meetings
+
+        <span class="text-danger">*</span></label>
     </div>
 
     <div class="form-check form-check-inline mt-4">
       <input class="form-check-input" type="checkbox" id="safeSpace" name="safeSpace" required {{#if safeSpace}}checked{{/if}}>
-      <label class="form-check-label">Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure <span class="text-danger">*</span></label>
+      <label class="form-check-label">
+        {{#if user}}
+          Explained the safer spaces policy and made aware of the welfare working group and conflict and complaints procedure
+        {{else}}
+          I agree to comply with the safer spaces policy and am aware of the welfare working group and conflict and complaints procedure
+        {{/if}}
+        <span class="text-danger">*</span></label>
     </div>
 
     <div class="form-check form-check-inline mt-4">
       <input class="form-check-input" type="checkbox" id="membershipBenefits" name="membershipBenefits" required {{#if membershipBenefits}}checked{{/if}}>
-      <label class="form-check-label">Explained membership benefits <span class="text-danger">*</span></label>
+      <label class="form-check-label">
+
+        {{#if user}}
+          Explained membership benefits
+        {{else}}
+          I understand the benefits of membership
+        {{/if}}
+
+        <span class="text-danger">*</span></label>
     </div>
 
   </div>
@@ -108,13 +137,27 @@
     <p class="mt-1">To keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
     <div class="form-check form-check-inline mt-2">
       <input class="form-check-input" type="checkbox" name="generalNewsletterConsent" {{#if generalNewsLetterConsent}}checked{{/if}}>
-      <label class="form-check-label">Consent given to subscribe to general Shrub newsletter</label>
+      <label class="form-check-label">
+        {{#if user}}
+          Consent given to subscribe to general Shrub newsletter
+        {{else}}
+          I agree to subscribe to the general SHRUB newsletter
+        {{/if}}
+      </label>
     </div>
 
     <p class="pt-3 font-weight-bold">Food Sharing Edinburgh newsletter - every 2 weeks</p>
     <div class="form-check form-check-inline mt-2">
       <input class="form-check-input" type="checkbox" name="fseNewsletterConsent" {{#if fseNewsLetterConsent}}checked{{/if}}>
-      <label class="form-check-label">Consent given to subscribe to FSE's newletter</label>
+      <label class="form-check-label">
+
+        {{#if user}}
+          Consent given to subscribe to FSE's newletter
+        {{else}}
+          I agree to subscribe to the FSE's newsletter
+        {{/if}}
+
+      </label>
     </div>
   </div>
 </div>
@@ -136,7 +179,17 @@
       <div class="form-check pl-1">
         <div class="form-check form-check-inline mt-3">
           <input class="form-check-input" type="checkbox" id="gdprConsent" name="gdprConsent" required {{#if gdprConsent}}checked{{/if}}>
-          <label class="form-check-label">Agreed to privacy notice <span class="text-danger">*</span></label>
+          <label class="form-check-label">
+
+            {{#if user}}
+              Agreed to the terms of the privacy notice
+            {{else}}
+              I agree to the terms of the the privacy notice
+            {{/if}}
+
+            <span class="text-danger">*</span>
+
+          </label>
         </div>
       </div>
 
@@ -187,7 +240,13 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#shrubExplained').prop('checked', 'true')">Explained Our Vision</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#shrubExplained').prop('checked', 'true')">
+          {{#if user}}
+            Explained Our Vision
+          {{else}}
+            I Understand SHRUB's Vision
+          {{/if}}
+        </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -213,7 +272,15 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#safeSpace').prop('checked', 'true')">Explained Safer Spaces Policy</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#safeSpace').prop('checked', 'true')">
+
+          {{#if user}}
+            Explained Safer Spaces Policy
+          {{else}}
+            Agree To The Safer Spaces Policy
+          {{/if}}
+
+        </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -237,7 +304,17 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#membershipBenefits').prop('checked', 'true')">Explained Membership Benefits</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#membershipBenefits').prop('checked', 'true')">
+
+
+          {{#if user}}
+            Explained Membership Benefits
+          {{else}}
+            I Understand The Membership Benefits
+          {{/if}}
+
+
+        </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -261,7 +338,13 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#gdprConsent').prop('checked', 'true')">Agreed Privacy Notice</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="$('#gdprConsent').prop('checked', 'true')">
+          {{#if user}}
+            Agreed To Privacy Notice
+          {{else}}
+            I Agree To The Privacy Notice
+          {{/if}}
+        </button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>

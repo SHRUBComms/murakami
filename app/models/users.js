@@ -67,6 +67,7 @@ Users.getById = function(id, loggedInUser, callback) {
   var query = `SELECT * FROM login
               LEFT JOIN (SELECT user_id login_user_id, MAX(login_timestamp) lastLogin
               FROM attempts GROUP BY user_id) attempts ON login.id=attempts.login_user_id
+			  LEFT JOIN data_permissions ON data_permissions.class=login.class
 
               WHERE login.id = ?`;
   var inserts = [id];
@@ -223,7 +224,6 @@ Users.sanitizeUser = function(users, loggedInUser, callback) {
       if (loggedInUser.class == "admin" || user.id == loggedInUser.id) {
         hasPermission = true;
       } else {
-        
         if (
           Helpers.hasOneInCommon(
             user.working_groups,

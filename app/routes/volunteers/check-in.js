@@ -31,7 +31,8 @@ var expectedQuestionnaire = {
   },
   ykCcA43Z: {
     question_id: "ykCcA43Z",
-    question: "Would you like any additional training?"
+    question: "Would you like any additional training?",
+    fromInitialSurvey: "interests"
   },
   Zmumsq7X: {
     question_id: "Zmumsq7X",

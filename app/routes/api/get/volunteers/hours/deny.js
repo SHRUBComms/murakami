@@ -11,7 +11,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:shift_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
     var message = {
       status: "fail",
@@ -19,11 +19,11 @@ router.get(
     };
 
     VolunteerHours.getShiftById(req.params.shift_id, function(err, shift) {
-      if (err) throw err;
       shift = shift[0];
       if (
-        req.user.working_groups.includes(shift.working_group) ||
-        req.user.class == "admin"
+        req.user.permissions.volunteerHours.review == true ||
+        (req.user.permissions.volunteerHours.review == "commonWorkingGroup" &&
+          req.user.working_groups.includes(shift.working_group))
       ) {
         if (shift.approved !== null) {
           message.status = "fail";

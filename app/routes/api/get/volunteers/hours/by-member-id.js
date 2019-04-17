@@ -16,7 +16,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "shiftHistory"),
   function(req, res) {
     VolunteerHours.getByMemberId(req.params.member_id, function(err, shifts) {
       if (!err && shifts) {
@@ -44,7 +44,6 @@ router.get(
           }
         );
       } else {
-        
         res.send([]);
       }
     });

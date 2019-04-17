@@ -10,11 +10,16 @@ var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
-  res.render("food-collections/review", {
-    title: "Review Food Collection",
-    foodCollectionsActive: true
-  });
-});
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("foodCollections", "review"),
+  function(req, res) {
+    res.render("food-collections/review", {
+      title: "Review Food Collection",
+      foodCollectionsActive: true
+    });
+  }
+);
 
 module.exports = router;

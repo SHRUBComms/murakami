@@ -14,7 +14,7 @@
         <div class="col-md-8 mx-auto">
           <div class="form-group form-inline">
             <select class="form-control" id="content">
-              <option selected disbaled>Select static content to update...</option>
+              <option selected disabled>Select static content to update...</option>
               {{#each staticContent}}
                   <option value="{{id}}" {{#ifCond id '==' ../content.id}}selected{{/ifCond}}>
                     {{data.title}}

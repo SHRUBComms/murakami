@@ -14,7 +14,7 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/:user_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("users", "update"),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
       if (err || !user[0].first_name || user[0].deactivated == 1) {
@@ -44,7 +44,7 @@ router.get(
 router.post(
   "/:user_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("users", "update"),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
       if (err || !user[0] || user[0].deactivated || !user[0].first_name) {

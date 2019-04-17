@@ -2,6 +2,7 @@
 
 var moment = require("moment");
 moment.locale("en-gb");
+var lodash = require("lodash");
 
 var register = function(Handlebars) {
   var helpers = {
@@ -150,6 +151,9 @@ var register = function(Handlebars) {
     },
     uriencode: function(str) {
       return encodeURIComponent(str);
+    },
+    camelCaseToPlain: function(str) {
+      return lodash.startCase(str);
     }
   };
 

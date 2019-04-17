@@ -1,0 +1,13 @@
+<!--
+
+this = data subject value.
+{{json this}}
+
+-->
+
+<select class="form-control" name="permissions[{{subject}}][{{specific}}]">
+  <option selected disabled>Select when this data should be available</option>
+  <option value="false" {{#ifCond value '==' false}}selected{{/ifCond}}>No access under any circumstances.</option>
+  <option value="true" {{#ifCond value '==' true}}selected{{/ifCond}}>Access under any circumstances.</option>
+  <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+</select>

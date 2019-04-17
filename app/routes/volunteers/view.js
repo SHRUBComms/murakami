@@ -33,7 +33,7 @@ router.get(
                 req.user.id
               ]) ||
               Helpers.hasOneInCommon(
-                member.working_groups,
+                volInfo.working_groups,
                 req.user.working_groups
               ) ||
               req.user.class == "admin"

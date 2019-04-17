@@ -95,7 +95,12 @@
       <div class="container">
 
         {{#each assignedRoles}}
-          <li>{{lookup (lookup (lookup ../roles this) 'details') 'title'}}</li>
+          <li class="mb-2">
+            {{lookup (lookup (lookup ../roles this) 'details') 'title'}}
+            <br/>
+            {{lookup (lookup (lookup ../roles this) 'details') 'short_description'}}
+
+          </li>
         {{/each}}
       </div>
       <p class="mt-2">and your assigned coordinator(s) will be:</p>

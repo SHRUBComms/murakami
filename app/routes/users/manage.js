@@ -9,7 +9,7 @@ var Users = require(rootDir + "/app/models/users");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "view"), function(
   req,
   res
 ) {
@@ -21,6 +21,5 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     });
   });
 });
-
 
 module.exports = router;

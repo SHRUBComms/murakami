@@ -10,7 +10,7 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
+router.get("/", Auth.canAccessPage("members", "view"), function(req, res) {
   Members.getTotals(function(err, total) {
     Members.getAll(function(err, members) {
       async.eachOf(

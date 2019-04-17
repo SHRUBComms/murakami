@@ -11,34 +11,44 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:group_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
-    WorkingGroups.getById(req.params.group_id, function(err, group) {
-      if (group) {
-        group = group[0];
-        if (
-          req.user.class == "admin" ||
-          req.user.working_groups.includes(group.group_id)
-        ) {
-          res.render("volunteers/hours/review", {
-            title: "Review Volunteer Hours",
-            volunteerHoursActive: true,
-            group: group
-          });
+    if (
+      req.user.permissions.volunterHours.review == true ||
+      (req.user.permissions.volunterHours.review == "commonWorkingGroup" &&
+        req.user.working_groups.includes(req.params.group_id))
+    ) {
+      WorkingGroups.getById(req.params.group_id, function(err, group) {
+        if (group) {
+          group = group[0];
+          if (
+            req.user.class == "admin" ||
+            req.user.working_groups.includes(group.group_id)
+          ) {
+            res.render("volunteers/hours/review", {
+              title: "Review Volunteer Hours",
+              volunteerHoursActive: true,
+              group: group
+            });
+          } else {
+            res.redirect(
+              process.env.PUBLIC_ADDRESS + "/volunteers/hours/review"
+            );
+          }
         } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/review");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/error");
         }
-      } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/error");
-      }
-    });
+      });
+    } else {
+      res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/review");
+    }
   }
 );
 
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
     res.render("volunteers/hours/review", {
       title: "Review Volunteer Hours",

@@ -9,7 +9,7 @@ var Users = require(rootDir + "/app/models/users");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
   req,
   res
 ) {
@@ -19,7 +19,7 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   });
 });
 
-router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
   req,
   res
 ) {

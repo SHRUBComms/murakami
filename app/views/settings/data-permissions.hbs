@@ -1,0 +1,75 @@
+<div class="row">
+  <div class="col-md-8 mx-auto">
+
+    <form action="{{public_address}}/settings/data-permissions/{{userClass}}" method="POST">
+      <div class="row mt-4">
+        <div class="container">
+          <select class="form-control">
+            <option value="till">Till User</option>
+            <option value="volunteer">Volunteer Co-ordinator</option>
+            <option value="staff">Staff Co-ordinator</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <table class="table-light mt-4 mx-auto" style="width: 100%;">
+
+
+            {{#each permissions}}
+              <tr class="p-2">
+                <td></td>
+                <td class="p-3">
+                  <p>
+                    <!--Data Subject-->
+                    {{camelCaseToPlain @key}}
+
+                  </p>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+
+                    {{#each this}}
+
+                    <tr class="p-2">
+                      <td></td>
+                      <td></td>
+                      <td class="p-3">
+                        <p>
+                            <!--Specific Data-->
+                            {{camelCaseToPlain @key}}
+
+                        </p>
+                      </td>
+                      <td>
+                        <div class="container">
+                        <!--Status-->
+                          {{>settings/data-permissions-dropdown value=this userClass=@../../key subject=@../key specific=@key}}
+                        </div>
+                      </td>
+
+                    </tr>
+
+                    {{/each}}
+
+
+                </td>
+
+              </tr>
+              {{/each}}
+
+          </table>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-12">
+          <button class="btn btn-block btn-lg btn-primary" type="submit">Update Permissions</button>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</div>

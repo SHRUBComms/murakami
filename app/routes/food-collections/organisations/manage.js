@@ -9,14 +9,19 @@ var FoodCollections = require(rootDir + "/app/models/food-collections");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
-  FoodCollections.getOrganisations(function(err, organisations) {
-    res.render("food-collections/organisations/manage", {
-      title: "Food Collection Organisations",
-      foodCollectionsActive: true,
-      organisations: organisations
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("foodCollections", "manageOrganisations"),
+  function(req, res) {
+    FoodCollections.getOrganisations(function(err, organisations) {
+      res.render("food-collections/organisations/manage", {
+        title: "Food Collection Organisations",
+        foodCollectionsActive: true,
+        organisations: organisations
+      });
     });
-  });
-});
+  }
+);
 
 module.exports = router;

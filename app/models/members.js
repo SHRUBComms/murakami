@@ -14,6 +14,8 @@ var Settings = require(rootDir + "/app/models/settings");
 var Members = {};
 
 Members.sanitizeMember = function(member, user, callback) {
+  var sanitizedMember = {};
+
   if (member) {
     member.full_name = member.first_name + " " + member.last_name;
     try {
@@ -74,32 +76,105 @@ Members.sanitizeMember = function(member, user, callback) {
       function() {
         member.working_groups = Array.from(new Set(member.working_groups));
 
-        if (user.class != "admin") {
-          //ctct info if common working group
-          member.address = null;
+        var commonWorkingGroup = Helpers.hasOneInCommon(
+          member.working_groups,
+          user.working_groups
+        );
 
-          if (
-            !Helpers.hasOneInCommon(
-              member.working_groups,
-              user.working_groups_arr
-            )
-          ) {
-            if (member.gdpr) {
-              if (member.gdpr.email != "on" && user.class != "staff") {
-                member.email = null;
-              }
-              if (member.gdpr.phone != "on" && user.class != "staff") {
-                member.phone_no = null;
-              }
-            }
-          } else {
-            member.canUpdate = true;
-          }
-        } else {
-          member.canUpdate = true;
+        if (
+          user.permissions.members.name == true ||
+          (user.permissions.members.name == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.first_name = member.first_name;
+          sanitizedMember.last_name = member.last_name;
+          sanitizedMember.name = member.name;
         }
 
-        callback(null, member);
+        if (
+          user.permissions.members.membershipDates == true ||
+          (user.permissions.members.membershipDates == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.current_exp_membership =
+            member.current_exp_membership;
+          sanitizedMember.current_init_membership =
+            member.current_init_membership;
+          sanitizedMember.earliest_membership_date =
+            member.earliest_membership_date;
+        }
+
+        if (
+          user.permissions.members.contactDetails == true ||
+          (user.permissions.members.contactDetails == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.email = member.email;
+          sanitizedMember.phone_no = member.phone_no;
+          sanitizedMember.address = member.address;
+        }
+
+        if (
+          user.permissions.members.balance == true ||
+          (user.permissions.members.balance == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.balance = member.balance;
+        }
+
+        if (
+          user.permissions.members.workingGroups == true ||
+          (user.permissions.members.workingGroups == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.working_groups = member.working_groups;
+        }
+
+        if (
+          user.permissions.members.update == true ||
+          (user.permissions.members.update == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.canUpdate = true;
+        }
+
+        if (
+          user.permissions.members.canRevokeMembership == true ||
+          (user.permissions.members.canRevokeMembership ==
+            "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.canRevokeMembership = true;
+        }
+
+        if (
+          user.permissions.members.delete == true ||
+          (user.permissions.members.delete == "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.canDelete = true;
+        }
+
+        if (
+          user.permissions.members.manageMembershipCard == true ||
+          (user.permissions.members.manageMembershipCard ==
+            "commonWorkingGroup" &&
+            commonWorkingGroup)
+        ) {
+          sanitizedMember.canManageMembershipCard = true;
+        }
+
+        if (Object.keys(sanitizedMember).length > 0) {
+          sanitizedMember.member_id = member.member_id;
+          sanitizedMember.is_member = member.is_member;
+          sanitizedMember.free = member.free;
+          sanitizedMember.gdpr = member.gdpr;
+          sanitizedMember.contactPreferences = member.contactPreferences;
+        } else {
+          sanitizedMember = null;
+        }
+
+        callback(null, sanitizedMember);
       }
     );
   } else {

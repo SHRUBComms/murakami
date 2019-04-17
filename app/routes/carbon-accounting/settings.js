@@ -8,23 +8,25 @@ var Carbon = require(rootDir + "/app/models/carbon-calculations");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
-  req,
-  res
-) {
-  Carbon.getCategories(function(err, carbonCategories) {
-    res.redirect(
-      process.env.PUBLIC_ADDRESS +
-        "/carbon-accounting/settings/" +
-        carbonCategories[Object.keys(carbonCategories)[0]].carbon_id
-    );
-  });
-});
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("carbonAccounting", "settings"),
+  function(req, res) {
+    Carbon.getCategories(function(err, carbonCategories) {
+      res.redirect(
+        process.env.PUBLIC_ADDRESS +
+          "/carbon-accounting/settings/" +
+          carbonCategories[Object.keys(carbonCategories)[0]].carbon_id
+      );
+    });
+  }
+);
 
 router.get(
   "/:carbon_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("carbonAccounting", "settings"),
   function(req, res) {
     Carbon.getCategories(function(err, carbonCategories) {
       var carbon_id = req.params.carbon_id;
@@ -43,7 +45,7 @@ router.get(
 router.post(
   "/:carbon_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("carbonAccounting", "settings"),
   function(req, res) {
     var factors = req.body.factors;
     var carbon_id = req.params.carbon_id;
