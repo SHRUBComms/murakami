@@ -4,11 +4,11 @@
     <form action="{{public_address}}/settings/data-permissions/{{userClass}}" method="POST">
       <div class="row mt-4">
         <div class="container">
-          <select class="form-control">
-            <option value="till">Till User</option>
-            <option value="volunteer">Volunteer Co-ordinator</option>
-            <option value="staff">Staff Co-ordinator</option>
-            <option value="admin">Admin</option>
+          <select class="form-control" id="userClassSelect">
+            <option value="till" {{#ifCond userClass '==' 'till'}}selected{{/ifCond}}>Till User</option>
+            <option value="volunteer" {{#ifCond userClass '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
+            <option value="staff" {{#ifCond userClass '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
+            <option value="admin" {{#ifCond userClass '==' 'admin'}}selected{{/ifCond}}>Admin</option>
           </select>
         </div>
       </div>
@@ -73,3 +73,9 @@
 
   </div>
 </div>
+
+<script>
+  $("#userClassSelect").on('change', function(){
+    location.href = "{{public_address}}/settings/data-permissions/" + this.value;
+  })
+</script>

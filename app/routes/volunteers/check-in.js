@@ -47,7 +47,7 @@ router.get("/", function(req, res) {
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "conductCheckIn"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -60,14 +60,13 @@ router.get(
         ) {
           if (volInfo) {
             if (
-              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              Helpers.hasOneInCommon(
-                member.working_groups,
-                req.user.working_groups_arr
-              ) ||
-              req.user.class == "admin"
+              req.user.permissions.volunteers.conductCheckIn == true ||
+              (req.user.permissions.volunteers.conductCheckIn ==
+                "commonWorkingGroup" &&
+                Helpers.hasOneInCommon(
+                  member.working_groups,
+                  req.user.working_groups_arr
+                ))
             ) {
               VolunteerCheckIns.getById(volInfo.checkin_id, function(
                 err,
@@ -109,7 +108,7 @@ router.get(
 router.post(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "conductCheckIn"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -122,14 +121,13 @@ router.post(
         ) {
           if (volInfo) {
             if (
-              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              Helpers.hasOneInCommon(
-                member.working_groups,
-                req.user.working_groups_arr
-              ) ||
-              req.user.class == "admin"
+              req.user.permissions.volunteers.conductCheckIn == true ||
+              (req.user.permissions.volunteers.conductCheckIn ==
+                "commonWorkingGroup" &&
+                Helpers.hasOneInCommon(
+                  member.working_groups,
+                  req.user.working_groups_arr
+                ))
             ) {
               var questionnaire = req.body.questionnaire;
               var questionnaireValid = true;

@@ -263,38 +263,99 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
 
             volunteer.canUpdate = false;
 
-            if (user.class != "admin") {
-              //Redact info if common working group
-              volunteer.address = null;
+            var sanitizedVolunteer = {};
+            var commonWorkingGroup = Helpers.hasOneInCommon(
+              volunteer.working_groups,
+              user.working_groups
+            );
 
-              if (
-                !Helpers.hasOneInCommon(
-                  volunteer.working_groups || [],
-                  user.working_groups || []
-                ) ||
-                !Helpers.hasOneInCommon(volunteer.assignedCoordinators || [], [
-                  user.id
-                ])
-              ) {
-                if (volunteer.survey.gdpr) {
-                  if (
-                    volunteer.survey.gdpr.email != "on" &&
-                    user.class != "staff"
-                  ) {
-                    volunteer.email = null;
-                  }
-                  if (
-                    volunteer.survey.gdpr.phone != "on" &&
-                    user.class != "staff"
-                  ) {
-                    volunteer.phone_no = null;
-                  }
-                }
+            if (
+              user.permissions.volunteers.shiftHistory == true ||
+              (user.permissions.volunteers.shiftHistory ==
+                "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.nextShiftDue = volunteer.nextShiftDue;
+              sanitizedVolunteer.needsToVolunteer = volunteer.needsToVolunteer;
+              sanitizedVolunteer.lastVolunteeredMessage =
+                volunteer.lastVolunteeredMessage;
+              sanitizedVolunteer.lastVolunteered = volunteer.lastVolunteered;
+              sanitizedVolunteer.firstVolunteered = volunteer.firstVolunteered;
+            }
+
+            if (
+              user.permissions.volunteers.conductCheckIns == true ||
+              (user.permissions.volunteers.conductCheckIns ==
+                "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.needsToCheckin = volunteer.needsToCheckin;
+              sanitizedVolunteer.nextCheckinDue = volunteer.nextCheckinDue;
+              sanitizedVolunteer.lastCheckin = volunteer.lastCheckin;
+            }
+
+            if (
+              user.permissions.volunteers.dates == true ||
+              (user.permissions.volunteers.dates == "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.dateCreated = volunteer.dateCreated;
+              sanitizedVolunteer.lastUpdated = volunteer.lastUpdated;
+              sanitizedVolunteer.needsToUpdate = volunteer.needsToUpdate;
+            }
+
+            if (
+              user.permissions.volunteers.roles == true ||
+              (user.permissions.volunteers.roles == "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.roles = volunteer.roles;
+            }
+
+            if (
+              user.permissions.volunteers.assignedCoordinators == true ||
+              (user.permissions.volunteers.assignedCoordinators ==
+                "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.assignedCoordinators =
+                volunteer.assignedCoordinators;
+            }
+
+            if (
+              user.permissions.volunteers.availability == true ||
+              (user.permissions.volunteers.availability ==
+                "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.availability = volunteer.availability;
+            }
+
+            if (
+              user.permissions.volunteers.emergencyContact == true ||
+              (user.permissions.volunteers.emergencyContact ==
+                "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.emergencyContactName =
+                volunteer.emergencyContactName;
+              sanitizedVolunteer.emergencyContactRelation =
+                volunteer.emergencyContactRelation;
+              sanitizedVolunteer.emergencyContactPhoneNo =
+                volunteer.emergencyContactPhoneNo;
+            }
+
+            if (Object.keys(sanitizedVolunteer).length > 0) {
+              if (sanitizedVolunteer.roles > 0) {
+                sanitizedVolunteer.active = true;
               } else {
-                volunteer.canUpdate = true;
+                sanitizedVolunteer.active = false;
               }
+              sanitizedVolunteer.member_id = volunteer.member_id;
+              sanitizedVolunteer.gdpr = volunteer.gdpr;
+              volunteer = sanitizedVolunteer;
             } else {
-              volunteer.canUpdate = true;
+              volunteer = null;
             }
 
             callback();

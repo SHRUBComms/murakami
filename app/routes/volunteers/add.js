@@ -21,7 +21,7 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "add"),
   function(req, res) {
     Users.getCoordinators(req.user, function(err, coordinators) {
       Volunteers.getSignUpInfo(function(
@@ -57,7 +57,7 @@ router.get(
 router.post(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "add"),
   function(req, res) {
     Users.getCoordinators(req.user, function(
       err,
@@ -363,6 +363,18 @@ router.post(
           errors.push(error);
         }
 
+        var validWorkingGroups;
+
+        if (req.user.permissions.volunteers.add == true) {
+          validWorkingGroups = req.user.allWorkingGroupsFlat;
+        } else if (
+          req.user.permissions.volunteers.add == "commonWorkingGroup"
+        ) {
+          validWorkingGroups = req.user.working_groups;
+        } else {
+          validWorkingGroups = [];
+        }
+
         var rolesValid = true;
         if (!Array.isArray(volInfo.roles)) {
           volInfo.roles = [volInfo.roles];
@@ -372,6 +384,12 @@ router.post(
           function(role, callback) {
             if (!rolesGroupedById[role]) {
               rolesValid = false;
+            } else {
+              if (
+                !validWorkingGroups.includes(rolesGroupedById[role].group_id)
+              ) {
+                rolesValid = false;
+              }
             }
             callback();
           },
@@ -391,7 +409,7 @@ router.post(
         if (errors[0]) {
           res.render("members/make-volunteer", {
             errors: errors,
-            title: "Induct Volunteer",
+            title: "Add Volunteer",
             volunteerActive: true,
             volInfo: volInfo,
             member: member,
@@ -431,7 +449,7 @@ router.post(
               if (err) {
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
-                  title: "Induct Volunteer",
+                  title: "Add Volunteer",
                   volunteerActive: true,
                   volInfo: volInfo,
                   member: member,

@@ -17,7 +17,7 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "view"),
   function(req, res) {
     if (!req.query.group_id) {
       res.redirect(
@@ -26,18 +26,14 @@ router.get(
           req.user.working_groups[0]
       );
     } else {
-      Volunteers.getByGroupId(req.query.group_id || null, req.user, function(
-        err,
-        volunteers
+      if (
+        req.user.permissions.volunteers.view == true ||
+        (req.user.permissions.volunteers.view == "commonWorkingGroup" &&
+          req.user.working_groups.includes(req.query.group_id))
       ) {
-        userBelongsToGroup = req.user.working_groups.includes(
-          req.query.group_id
-        );
-
-        if (
-          (req.query.group_id && userBelongsToGroup) ||
-          !req.query.group_id ||
-          req.user.class == "admin"
+        Volunteers.getByGroupId(req.query.group_id, req.user, function(
+          err,
+          volunteers
         ) {
           VolunteerRoles.getAll(function(
             err,
@@ -63,11 +59,11 @@ router.get(
               });
             });
           });
-        } else {
-          req.flash("error", "You don't belong to that working group.");
-          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-        }
-      });
+        });
+      } else {
+        req.flash("error", "You don't belong to that working group.");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
+      }
     }
   }
 );

@@ -217,8 +217,7 @@
                                         {{#if user.permissions.settings.staticContent}}
                                           <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
                                         {{/if}}
-                                        {{#ifUserClass user.class '["admin"]'}}
-                                          <li><a href="{{public_address}}/settings/page-permissions"><i class="fas fa-unlock-alt"></i><span>Page Permissions<span></a></li>
+                                        {{#ifUserClass user.class '["admin"]'}}                                      
                                           <li><a href="{{public_address}}/settings/data-permissions"><i class="fas fa-unlock-alt"></i><span>Data Permissions<span></a></li>
                                         {{/ifUserClass}}
                                       </ul>
