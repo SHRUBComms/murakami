@@ -16,9 +16,18 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
     var working_groups = req.user.working_groups;
+
+    if (req.user.permissions.volunteerHours.review == true) {
+      working_groups = req.user.allWorkingGroupsFlat;
+    } else if (
+      req.user.permissions.volunteerHours.review == "commonWorkingGroup"
+    ) {
+      working_groups = req.user.working_groups;
+    }
+
     var formattedShifts = [];
 
     async.each(
@@ -91,7 +100,7 @@ router.get(
 router.get(
   "/:group_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
     var formattedShifts = [];
     VolunteerHours.getUnreviewedShiftsByGroupId(req.params.group_id, function(
@@ -102,8 +111,10 @@ router.get(
         shifts,
         function(shift, callback) {
           if (
-            req.user.working_groups.includes(shift.working_group) ||
-            req.user.class == "admin"
+            req.user.permissions.volunteerHours.review == true ||
+            (req.user.permissions.volunteerHours.review ==
+              "commonWorkingGroup" &&
+              req.user.working_groups.includes(shift.working_group))
           ) {
             Members.getById(shift.member_id, req.user, function(err, member) {
               if (member && !err) {

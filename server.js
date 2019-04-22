@@ -1,5 +1,6 @@
 // Load environment variables
 require("dotenv").config();
+Error.stackTraceLimit = Infinity;
 
 // Import resources
 var express = require("express");
@@ -125,8 +126,6 @@ app.use(function(req, res, next) {
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
 
   if (req.user) {
-    req.user.permissions = JSON.parse(req.user.permissions);
-
     res.locals.user = req.user;
     if (req.user.deactivated == 0) {
       req.user[req.user.class] = 1;

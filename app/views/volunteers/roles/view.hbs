@@ -1,34 +1,48 @@
-{{#ifUserClass user.class '["admin", "staff"]'}}
+{{#if role.canView}}
 
 <div class="row mt-4">
   <div class="col-md-6 mx-auto">
-    <div class="row mt-2">
-      <div class="col-md-4 mx-auto">
-        <a class="btn btn-block btn-success" href="{{public_address}}/volunteers/roles/update/{{role.role_id}}">Update</a>
-      </div>
-      <div class="col-md-4 mx-auto">
-          <button class="btn btn-block btn-primary" onclick="location.href='{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}'" {{#if role.removed}}disabled{{/if}} {{#if role.incomplete}}disabled{{/if}}>
-            {{#if role.public}}
-              Unpublish From Website
-            {{else}}
-              Publish To Website
-            {{/if}}
-          </button>
 
-      </div>
-      <div class="col-md-4 mx-auto">
-        {{#if role.removed}}
-          <a class="btn btn-block btn-info" href="{{public_address}}/api/get/volunteers/roles/activate/{{role.role_id}}">Reactivate</a>
-        {{else}}
-          <a class="btn btn-block btn-danger" href="{{public_address}}/api/get/volunteers/roles/remove/{{role.role_id}}">Deactivate</a>
-        {{/if}}
-      </div>
-    </div>
-    <div class="row mt-3">
-      <div class="col-md-4 mx-auto">
-        <a class="btn btn-block btn-primary" href="{{public_address}}/volunteers/roles/make-copy/{{role.role_id}}">Make A Copy</a>
+    {{#if role.canUpdate}}
+      <div class="row mt-2">
+        <div class="col-md-4 mx-auto">
+          <a class="btn btn-block btn-success" href="{{public_address}}/volunteers/roles/update/{{role.role_id}}">Update</a>
         </div>
-    </div>
+        <div class="col-md-4 mx-auto">
+            <button class="btn btn-block btn-primary" onclick="location.href='{{public_address}}/api/get/volunteers/roles/toggle-privacy/{{role.role_id}}'" {{#if role.removed}}disabled{{/if}} {{#if role.incomplete}}disabled{{/if}}>
+              {{#if role.public}}
+                Unpublish From Website
+              {{else}}
+                Publish To Website
+              {{/if}}
+            </button>
+        </div>
+        <div class="col-md-4 mx-auto">
+          {{#if role.removed}}
+            <a class="btn btn-block btn-info" href="{{public_address}}/api/get/volunteers/roles/activate/{{role.role_id}}">Reactivate</a>
+          {{else}}
+            <a class="btn btn-block btn-danger" href="{{public_address}}/api/get/volunteers/roles/remove/{{role.role_id}}">Deactivate</a>
+          {{/if}}
+        </div>
+      </div>
+    {{/if}}
+    {{#unless role.incomplete}}
+      <div class="row mt-3">
+        <div class="col-md-4 mx-auto">
+          <a class="btn btn-block btn-primary" href="{{public_address}}/volunteers/roles/make-copy/{{role.role_id}}">Make A Copy</a>
+        </div>
+      </div>
+    {{/unless}}
+
+    {{#if role.incomplete}}
+      <div class="row mt-4">
+        <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+          This role is incomplete!
+          <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+        </div>
+      </div>
+    {{/if}}
+
     <div class="row mt-4">
       <div class="col-md-12">
         <table class="table-light mt-4 mx-auto" style="width: 100%;">
@@ -161,4 +175,4 @@
   </div>
 </div>
 
-{{/ifUserClass}}
+{{/if}}

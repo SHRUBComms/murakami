@@ -13,8 +13,16 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("volunteerHours", "export"),
   function(req, res) {
+    var group_id;
+    if (
+      req.user.permissions.volunteerHours.export == true ||
+      (req.user.permissions.volunteerHours.export == "commonWorkingGroup" &&
+        req.user.working_groups.includes(req.query.group_id))
+    ) {
+      group_id = req.query.group_id;
+    }
     VolunteerHours.getHoursBetweenTwoDatesByWorkingGroup(
-      req.query.group_id,
+      group_id,
       req.query.startDate,
       req.query.endDate,
       function(err, shifts) {
@@ -22,7 +30,7 @@ router.get(
           volunteerHoursActive: true,
           title: "Export Data",
           group: {
-            group_id: req.query.group_id || null
+            group_id: group_id || null
           },
           startDate: req.query.startDate || null,
           endDate: req.query.endDate || null,

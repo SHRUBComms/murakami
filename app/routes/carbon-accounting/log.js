@@ -58,7 +58,15 @@ router.post(
     formattedTransaction.user_id = req.user.id;
     formattedTransaction.trans_object = {};
     formattedTransaction.amount = 0;
-    formattedTransaction.group_id = req.body.working_group;
+
+    if (
+      req.user.permissions.carbonAccounting.log == true ||
+      (req.user.permissions.carbonAccounting.log == "commonWorkingGroup" &&
+        req.user.working_groups.includes(req.body.working_group))
+    ) {
+      formattedTransaction.group_id = req.body.working_group;
+    }
+
     formattedTransaction.method = req.body.method;
 
     var validMethods = [

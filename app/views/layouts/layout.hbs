@@ -56,7 +56,7 @@
                           {{#if user}}
                               {{#unless tillMode}}
 
-                                {{#if user.permissions.members}}
+                                {{#ifNotEmpty user.permissions.members '["view", "add"]'}}
                                   <li {{#if membersActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
                                       <ul class="collapse plain-list">
@@ -68,9 +68,9 @@
                                         {{/if}}
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.volunteers}}
+                                {{#ifNotEmpty user.permissions.volunteers '["view", "add", "invite"]'}}
                                   <li {{#if volunteersActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
                                       <ul class="collapse plain-list">
@@ -86,9 +86,9 @@
 
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.volunteerRoles}}
+                                {{#ifNotEmpty user.permissions.volunteerRoles '["view", "add"]'}}
                                   <li {{#if volunteerRolesActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
                                       <ul class="collapse plain-list">
@@ -100,9 +100,9 @@
                                           {{/if}}
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.volunteerHours}}
+                                {{#ifNotEmpty user.permissions.volunteerHours '["log", "review", "export"]'}}
                                   <li {{#if volunteerHoursActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
                                       <ul class="collapse plain-list">
@@ -117,10 +117,10 @@
                                         {{/if}}
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
                                 <!-- if admin or belong to fs group -->
-                                {{#if user.permissions.foodCollections}}
+                                {{#ifNotEmpty user.permissions.foodCollections '["log", "review", "export", "viewOrganisations", "addOrganisations"]'}}
                                   <li {{#if foodCollectionsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
                                       <ul class="collapse plain-list">
@@ -143,21 +143,25 @@
 
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                                {{#ifNotEmpty user.permissions.tills '["view"]'}}
 
                                   <li {{#if tillsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
                                       <ul class="collapse plain-list">
-                                          <li><a href="{{public_address}}/till/manage">Manage Tills</a></li>
-                                          <!--<li><a href="{{public_address}}/till/settings">Add Till</a></li>-->
+                                          {{#if user.permissions.tills.view}}
+                                            <li><a href="{{public_address}}/till/manage">Manage Tills</a></li>
+                                          {{/if}}
+                                          {{#if user.permissions.tills.add}}
+                                           <li><a href="{{public_address}}/till/settings">Add Till</a></li>
+                                          {{/if}}
                                       </ul>
                                   </li>
 
-                                {{/ifUserClass}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.carbonAccounting}}
+                                {{#ifNotEmpty user.permissions.carbonAccounting '["log","settings","export"]'}}
 
                                   <li {{#if carbonActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
@@ -171,13 +175,13 @@
                                         {{#if user.permissions.carbonAccounting.export}}
                                           <li><a href="{{public_address}}/carbon-accounting/export">Export Data</a></li>
                                         {{/if}}
-                                          <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
+
                                       </ul>
                                   </li>
 
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.workingGroups}}
+                                {{#ifNotEmpty user.permissions.workingGroups '["view", "add"]'}}
                                   <li {{#if workingGroupsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
                                       <ul class="collapse plain-list">
@@ -189,9 +193,9 @@
                                         {{/if}}
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.users}}
+                                {{#ifNotEmpty user.permissions.users '["view", "add"]'}}
                                   <li {{#if usersActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
                                       <ul class="collapse plain-list">
@@ -203,10 +207,9 @@
                                         {{/if}}
                                       </ul>
                                   </li>
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
-                                {{#if user.permissions.settings}}
-
+                                {{#ifNotEmpty user.permissions.settings '["emailTemplates", "staticContent", "dataPermissions"]'}}
 
                                   <li {{#if settingsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
@@ -217,13 +220,13 @@
                                         {{#if user.permissions.settings.staticContent}}
                                           <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
                                         {{/if}}
-                                        {{#ifUserClass user.class '["admin"]'}}                                      
+                                        {{#ifUserClass user.class '["admin"]'}}
                                           <li><a href="{{public_address}}/settings/data-permissions"><i class="fas fa-unlock-alt"></i><span>Data Permissions<span></a></li>
                                         {{/ifUserClass}}
                                       </ul>
                                   </li>
 
-                                {{/if}}
+                                {{/ifNotEmpty}}
 
 
 

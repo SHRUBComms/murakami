@@ -8,40 +8,18 @@
 
   <div class="col-lg-10 mx-auto">
 
-  {{#ifUserClass user.class '["admin"]'}}
 
   <div class="row">
     <div class="container">
-      <div class="form-group form-inline">
-        <select class="form-control" id="working_groups">
-          <option disabled selected>Select a working group...</option>
-            <option value='' {{#ifCond ../group.group_id '==' null}}selected{{/ifCond}}>All My Working Groups</option>
-            {{#each user.allWorkingGroupsObj}}
-              <option value='{{group_id}}'{{#ifCond group_id '==' ../group.group_id}} selected{{/ifCond}}>{{name}}</option>
-            {{/each}}
-        </select>
-      </div>
+      {{#ifCond user.permissions.volunteerHours.review '==' true}}
+        {{>working-groups/select selectedGroup=group.group_id id="working_groups" user=user path="/volunteers/hours/review/"}}
+      {{else}}
+        {{>working-groups/select selectedGroup=group.group_id allGroups=false id="working_groups" user=user path="/volunteers/hours/review/"}}
+      {{/ifCond}}
     </div>
   </div>
 
-  {{else}}
 
-
-    <div class="row">
-      <div class="container">
-        <div class="form-group form-inline">
-          <select class="form-control" id="working_groups">
-            <option disabled selected>Select a working group...</option>
-              <option value='' {{#ifCond ../group.group_id '==' null}}selected{{/ifCond}}>All My Working Groups</option>
-              {{#each user.working_groups}}
-                <option value='{{this}}'{{#ifCond this '==' ../group.group_id}} selected{{/ifCond}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
-              {{/each}}
-          </select>
-        </div>
-      </div>
-    </div>
-
-  {{/ifUserClass}}
 
   <div id="vol_hours_info" class="row"></div>
 
@@ -80,10 +58,4 @@ function volunteerHoursAjax(url){
       }
    });
 }
-
-$('#working_groups').on('change', function () {
-  var url = "{{public_address}}/volunteers/hours/review/" + $(this).val();
-  window.location = url;
-});
-
 </script>

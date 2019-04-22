@@ -11,11 +11,19 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.post(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerRoles", "quickAdd"),
   function(req, res) {
     var working_group = req.body.working_group;
     var title = req.body.title;
-    var working_groups = req.user.allWorkingGroupsFlat;
+    var working_groups;
+    if (req.user.permissions.volunteerRoles.quickAdd == true) {
+      working_groups = req.user.allWorkingGroupsFlat;
+    } else if (
+      req.user.permissions.volunteerRoles.quickAdd == "commonWorkingGroup"
+    ) {
+      working_groups = req.user.working_groups;
+    }
+
     working_groups.push("na");
 
     if (working_groups.includes(working_group) && title) {

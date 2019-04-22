@@ -11,7 +11,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:organisation_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("foodCollections", "updateOrganisations"),
   function(req, res) {
     FoodCollections.getOrganisationById(req.params.organisation_id, function(
       err,

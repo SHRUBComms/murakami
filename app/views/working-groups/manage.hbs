@@ -5,7 +5,14 @@
 
 <div class="row mt-4">
   <div class="col-md-6 mx-auto">
-    {{>working-groups/select selectedGroup=group.group_id id="working_groups" user=user path=(concat public_address "/working-groups/manage/")}}
+
+    {{#ifCond user.permissions.workingGroups.view '==' true}}
+      {{>working-groups/select selectedGroup=group.group_id id="working_groups" user=user path=(concat public_address "/working-groups/manage/")}}
+    {{else}}
+      {{>working-groups/select selectedGroup=group.group_id id="working_groups" allGroups=false user=user path=(concat public_address "/working-groups/manage/")}}
+    {{/ifCond}}
+
+
   </div>
 </div>
 
@@ -15,58 +22,80 @@
 		<div class="col-md-6 mx-auto">
 
 				<div class="form-group form-inline">
-		        <input type="text" class="form-control mr-2" placeholder="Prefix (optional)" name="prefix" id="prefix" value="{{group.prefix}}">
-		        <input type="text" class="form-control" placeholder="Group Name" name="name" id="name" value="{{group.name}}" required>
+		        <input type="text" class="form-control mr-2" placeholder="Prefix (optional)" name="prefix" id="prefix" value="{{group.prefix}}"{{#unless canUpdate}} readonly{{/unless}}>
+		        <input type="text" class="form-control" placeholder="Group Name" name="name" id="name" value="{{group.name}}"{{#unless canUpdate}} readonly{{/unless}} required>
 				</div>
 
 		</div>
   </div>
 
-  {{#if (lookup (lookup user.allWorkingGroupsObj group.group_id) 'parent')}}
-    <div class="row">
-      <div class="col-md-6 mx-auto">
-          {{>working-groups/select selectedGroup=(lookup (lookup user.allWorkingGroupsObj group.group_id) 'parent') id="parent" user=user label="parent" parentsOnly=true}}
-      </div>
-    </div>
-  {{else}}
-    {{#ifCond (lookup (lookup user.allWorkingGroupsObj group.group_id) 'children') '==' null}}
+  {{#if canUpdate}}
+    {{#if (lookup (lookup user.allWorkingGroupsObj group.group_id) 'parent')}}
       <div class="row">
         <div class="col-md-6 mx-auto">
-          <div class="form-group form-inline">
-            <label class="text-muted mr-2">Parent</label>
 
-            <select class="form-control" id="parent" name="parent">
+          {{#ifCond user.permissions.workingGroups.view '==' true}}
+            {{>working-groups/select selectedGroup=(lookup (lookup user.allWorkingGroupsObj group.group_id) 'parent') id="parent" user=user label="parent" parentsOnly=true}}
+          {{else}}
+            {{>working-groups/select selectedGroup=(lookup (lookup user.allWorkingGroupsObj group.group_id) 'parent') id="parent" user=user label="parent" parentsOnly=true}}
+          {{/ifCond}}
 
-              <option disabled selected>Select a parent working group...</option>
-
-
-                  <option value='none' {{#unless parent}}selected{{/unless}}>No Parent</option>
-                  {{#each user.allWorkingGroupsObj}}
-                    {{#unless parent}}
-                      <option value='{{group_id}}'{{#ifCond group_id '==' ../parent}} selected{{/ifCond}}>{{name}}</option>
-                    {{/unless}}
-                  {{/each}}
-
-
-
-            </select>
-          </div>
         </div>
       </div>
-    {{/ifCond}}
-  {{/if}}
+    {{else}}
+      {{#ifCond (lookup (lookup user.allWorkingGroupsObj group.group_id) 'children') '==' null}}
+        <div class="row">
+          <div class="col-md-6 mx-auto">
+            <div class="form-group form-inline">
+              <label class="text-muted mr-2">Parent</label>
 
+              <select class="form-control" id="parent" name="parent"{{#unless canUpdate}} readonly{{/unless}}>
+
+                <option disabled selected>Select a parent working group...</option>
+
+
+                    <option value='none' {{#unless parent}}selected{{/unless}}>No Parent</option>
+
+
+                    {{#ifCond user.permissions.workingGroups.update '==' true}}
+                      {{#each user.allWorkingGroupsObj}}
+                        {{#unless parent}}
+
+                            <option value='{{group_id}}'{{#ifCond group_id '==' ../parent}} selected{{/ifCond}}>{{name}}</option>
+
+                        {{/unless}}
+                      {{/each}}
+                    {{else}}
+                      {{#each user.working_groups}}
+                        {{#unless (lookup (lookup ../user.allWorkingGroupsObj this) 'parent')}}
+
+                            <option value='{{lookup (lookup ../user.allWorkingGroupsObj this) 'group_id'}}'{{#ifCond (lookup (lookup ../user.allWorkingGroupsObj this) 'group_id') '==' ../../parent}} selected{{/ifCond}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
+
+                        {{/unless}}
+                      {{/each}}
+                    {{/ifCond}}
+
+
+
+              </select>
+            </div>
+          </div>
+        </div>
+      {{/ifCond}}
+    {{/if}}
+  {{/if}}
   <div class="row mb-4">
     <div class="col-md-6 mx-auto">
-      <textarea name="welcomeMessage" id="editor">{{{group.welcomeMessage}}}</textarea>
+      <textarea name="welcomeMessage" id="editor"{{#unless canUpdate}} readonly{{/unless}}>{{{group.welcomeMessage}}}</textarea>
     </div>
   </div>
-
-  <div class="row">
-		<div class="col-md-6 mx-auto">
-    	<button type="submit" class="btn btn-block btn-md btn-primary">Update Group</button>
-		</div>
-  </div>
+  {{#if canUpdate}}
+    <div class="row">
+  		<div class="col-md-6 mx-auto">
+      	<button type="submit" class="btn btn-block btn-md btn-primary">Update Group</button>
+  		</div>
+    </div>
+  {{/if}}
 
 </form>
 
@@ -74,6 +103,12 @@
 $("document").ready(function(){
     $('#editor').summernote({
       placeholder: 'Add a message that will be sent to volunteers when they join your working group!'
+
     });
+
+    {{#unless canUpdate}}
+      $('#editor').summernote('disable');
+    {{/unless}}
+
 });
 </script>

@@ -13,10 +13,10 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "view"), function(
   req,
   res
 ) {
-  Users.getAll(req.user, function(err, users) {
+  Users.getAll(req.user, function(err, users, usersObj) {
     res.render("users/all", {
       title: "Users",
-      users: users,
+      users: usersObj,
       usersActive: true
     });
   });

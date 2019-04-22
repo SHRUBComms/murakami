@@ -19,30 +19,42 @@ router.get(
       req.params.role_id;
     VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
       if (role) {
-        if (role.public == 1) {
-          VolunteerRoles.updateRolePrivacy(req.params.role_id, 0, function(
-            err
-          ) {
-            if (err) {
-              req.flash("error", "Something went wrong!");
-              res.redirect(redirectURI);
-            } else {
-              req.flash("success_msg", "Role set to private.");
-              res.redirect(redirectURI);
-            }
-          });
+        if (
+          req.user.permissions.volunteerRoles.update == true ||
+          (req.user.permissions.volunteerRoles.update == "commonWorkingGroup" &&
+            req.user.working_groups.includes(role.group_id))
+        ) {
+          if (role.public == 1) {
+            VolunteerRoles.updateRolePrivacy(req.params.role_id, 0, function(
+              err
+            ) {
+              if (err) {
+                req.flash("error", "Something went wrong!");
+                res.redirect(redirectURI);
+              } else {
+                req.flash("success_msg", "Role set to private.");
+                res.redirect(redirectURI);
+              }
+            });
+          } else {
+            VolunteerRoles.updateRolePrivacy(req.params.role_id, 1, function(
+              err
+            ) {
+              if (err) {
+                req.flash("error", "Something went wrong!");
+                res.redirect(redirectURI);
+              } else {
+                req.flash("success_msg", "Role set to public.");
+                res.redirect(redirectURI);
+              }
+            });
+          }
         } else {
-          VolunteerRoles.updateRolePrivacy(req.params.role_id, 1, function(
-            err
-          ) {
-            if (err) {
-              req.flash("error", "Something went wrong!");
-              res.redirect(redirectURI);
-            } else {
-              req.flash("success_msg", "Role set to public.");
-              res.redirect(redirectURI);
-            }
-          });
+          req.flash(
+            "error",
+            "You don't have permission to change this role's privacy settings."
+          );
+          res.redirect(redirectURI);
         }
       } else {
         req.flash("error", "Role doesn't exist.");

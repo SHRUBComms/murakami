@@ -16,18 +16,30 @@ router.get(
     var redirectURI = process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage";
     VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
       if (role) {
-        if (role.removed == 0) {
-          VolunteerRoles.removeRole(req.params.role_id, function(err) {
-            if (err) {
-              req.flash("error", "Something went wrong!");
-              res.redirect(redirectURI);
-            } else {
-              req.flash("success_msg", "Role deactivated.");
-              res.redirect(redirectURI);
-            }
-          });
+        if (
+          req.user.permissions.volunteerRoles.update == true ||
+          (req.user.permissions.volunteerRoles.update == "commonWorkingGroup" &&
+            req.user.working_groups.includes(role.group_id))
+        ) {
+          if (role.removed == 0) {
+            VolunteerRoles.removeRole(req.params.role_id, function(err) {
+              if (err) {
+                req.flash("error", "Something went wrong!");
+                res.redirect(redirectURI);
+              } else {
+                req.flash("success_msg", "Role deactivated.");
+                res.redirect(redirectURI);
+              }
+            });
+          } else {
+            req.flash("error_msg", "Role already inactive.");
+            res.redirect(redirectURI);
+          }
         } else {
-          req.flash("error_msg", "Role already inactive.");
+          req.flash(
+            "error",
+            "You don't have permission to deactivate this role!"
+          );
           res.redirect(redirectURI);
         }
       } else {

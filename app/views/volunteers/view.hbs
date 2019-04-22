@@ -45,7 +45,8 @@
 					<a href="{{public_address}}/volunteers/update/{{member.member_id}}" class="btn btn-block btn-primary">Update Volunteer</a>
 				</div>
 			</div>
-
+    {{/if}}
+    {{#if volInfo.conductCheckIn}}
       <div class="row mt-2">
 				<div class="col-md-5">
 					<a href="{{public_address}}/volunteers/check-in/{{member.member_id}}" class="btn btn-block btn-info">Conduct Check-in</a>
@@ -62,27 +63,31 @@
 				<div class="card">
 					<div class="card-body">
             <h4 class="mb-1">Volunteering</h4>
-						{{#if volInfo.assignedCoordinators}}
-							{{#ifCond volInfo.assignedCoordinators.length '==' 1}}
-								<p class="mb-1">Assigned Staff Coordinator: {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'first_name'}} {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'last_name'}}</p>
-							{{else}}
-								<p>Assigned staff coordinators:</p>
-								<ul style="list-style-type: disc;">
-									<div class="container ml-3 mb-1">
-										{{#each volInfo.assignedCoordinators}}
-											<li>{{lookup (lookup ../coordinators this) 'first_name'}} {{lookup (lookup ../coordinators this) 'last_name'}} {{#ifCond (lookup (lookup ../coordinators this) 'id') '==' ../user.id}} (you){{/ifCond}}</li>
-										{{/each}}
-									</div>
-								</ul>
-							{{/ifCond}}
-						{{else}}
-							<p class="text-danger">No assigned coordinator!</p>
-						{{/if}}
+            {{#if volInfo.assignedCoordinators}}
+  						{{#ifCond volInfo.assignedCoordinators.length '>' 0}}
+  							{{#ifCond volInfo.assignedCoordinators.length '==' 1}}
+  								<p class="mb-1">Assigned Staff Coordinator: {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'first_name'}} {{lookup (lookup coordinators volInfo.assignedCoordinators.[0]) 'last_name'}}</p>
+  							{{else}}
+  								<p>Assigned staff coordinators:</p>
+  								<ul style="list-style-type: disc;">
+  									<div class="container ml-3 mb-1">
+  										{{#each volInfo.assignedCoordinators}}
+  											<li>{{lookup (lookup ../coordinators this) 'first_name'}} {{lookup (lookup ../coordinators this) 'last_name'}} {{#ifCond (lookup (lookup ../coordinators this) 'id') '==' ../user.id}} (you){{/ifCond}}</li>
+  										{{/each}}
+  									</div>
+  								</ul>
+  							{{/ifCond}}
+  						{{else}}
+  							<p class="text-danger">No assigned coordinator!</p>
+  						{{/ifCond}}
+              <hr />
+            {{/if}}
 
 
-						<hr />
 
-						<p>Registered as a volunteer: {{volInfo.dateCreated}}</p>
+            {{#if volInfo.dateCreated}}
+						  <p>Registered as a volunteer: {{volInfo.dateCreated}}</p>
+            {{/if}}
 
             {{#if volInfo.lastCheckin}}
   						<p>Last Check-in:
@@ -113,36 +118,49 @@
 					<div class="card-body">
 						<h4>Contact</h4>
 
-            {{#if volInfo.canUpdate}}
-              <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-              <p>{{member.phone_no}}</p>
-              <p>{{member.address}}</p>
-            {{else}}
-              {{#ifCond user.class '==' 'admin'}}
-                <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-                <p>{{member.phone_no}}</p>
-                <p>{{member.address}}</p>
-              {{/ifCond}}
-              {{#ifCond user.class '==' 'staff'}}
-                {{#if member.gdpr.email}}
-  								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-  							{{else}}
-  								<a href="mailto:{{member.email}}"><p class="text-danger">{{member.email}} <b>(permission required)</b></p></a>
-  							{{/if}}
-  							{{#if member.phone_no}}
-                  {{#if member.gdpr.phone}}
-  					        <p>{{member.phone_no}}</p>
-                  {{else}}
-                    <p class="text-danger">{{member.phone_no}} <b>(permission required)</b></p>
-                  {{/if}}
-  							{{/if}}
-              {{/ifCond}}
-              {{#ifCond user.class '==' 'volunteer'}}
-                <p>You can't view this volunteer's email</p>
-                <p>You can't view this volunteer's phone number</p>
-              {{/ifCond}}
+            {{#if member.email}}
+              {{#if member.gdpr.email}}
+                <p>
+              {{else}}
+                {{#if volInfo.isAssignedCoordinator}}
+                  <p>
+                {{else}}
+                  <p class="text-danger">
+                {{/if}}
+              {{/if}}
+              {{member.email}}
+              {{#if member.gdpr.email}}
+              </p>
+              {{else}}
+                {{#if volInfo.isAssignedCoordinator}}
+                  </p>
+                {{else}}
+                  (must ask for permission)</p>
+                {{/if}}
+              {{/if}}
+            {{/if}}
 
-						{{/if}}
+            {{#if member.phone_no}}
+              {{#if member.gdpr.phone}}
+                <p>
+              {{else}}
+                {{#if volInfo.isAssignedCoordinator}}
+                  <p>
+                {{else}}
+                  <p class="text-danger">
+                {{/if}}
+              {{/if}}
+              {{member.phone_no}}
+              {{#if member.gdpr.phone}}
+              </p>
+              {{else}}
+                {{#if volInfo.isAssignedCoordinator}}
+                  </p>
+                {{else}}
+                  (must ask for permission)</p>
+                {{/if}}
+              {{/if}}
+            {{/if}}
 
 					</div>
 				</div>
@@ -158,80 +176,84 @@
 			</div>
 		</div>
 
-		<div class="row mb-4">
-			<div class="col-lg-6">
-				<div class="card">
-					<div class="card-body">
-						<h4 class="mb-1">Roles</h4>
+    {{#if volInfo.roles}}
+  		<div class="row mb-4">
+  			<div class="col-lg-6">
+  				<div class="card">
+  					<div class="card-body">
+  						<h4 class="mb-1">Roles</h4>
 
-						{{#if volInfo.roles}}
-							<div class="container">
-		            <ul style="list-style-type: disc;">
-		              {{#each volInfo.roles}}
-										{{#if (lookup ../roles this)}}
-											<li>
-				                {{lookup (lookup (lookup ../roles this) 'details') 'title'}}
+  						{{#ifCond volInfo.roles.length '>' 0}}
+  							<div class="container">
+  		            <ul style="list-style-type: disc;">
+  		              {{#each volInfo.roles}}
+  										{{#if (lookup ../roles this)}}
+  											<li>
+  				                {{lookup (lookup (lookup ../roles this) 'details') 'title'}}
 
-												{{#ifCond (lookup (lookup ../roles this) 'group_id') '==' 'na'}}
-													(SHRUB-wide)
-												{{else}}
-													with {{lookup (lookup ../user.allWorkingGroupsObj (lookup (lookup ../roles this) 'group_id')) 'name'}}
-												{{/ifCond}}
-											</li>
-										{{/if}}
-		              {{/each}}
-		            </ul>
-							</div>
-						{{else}}
-							<p class="text-danger">Has not been assigned any roles!</p>
-						{{/if}}
-					</div>
-				</div>
-			</div>
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-body">
+  												{{#ifCond (lookup (lookup ../roles this) 'group_id') '==' 'na'}}
+  													(SHRUB-wide)
+  												{{else}}
+  													with {{lookup (lookup ../user.allWorkingGroupsObj (lookup (lookup ../roles this) 'group_id')) 'name'}}
+  												{{/ifCond}}
+  											</li>
+  										{{/if}}
+  		              {{/each}}
+  		            </ul>
+  							</div>
+  						{{else}}
+  							<p class="text-danger">Has not been assigned any roles!</p>
+  						{{/ifCond}}
+  					</div>
+  				</div>
+  			</div>
 
-						<h4 class="mb-1">Membership</h4>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
 
-						<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
+  						<h4 class="mb-1">Membership</h4>
+              {{#if member.earliest_membership_date}}
+    						<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
 
-						<small>Current Membership Period</small>
-						<div class="mb-3">
-							<p>Began: <b>{{member.current_init_membership}}</b></p>
-							<p>Expires: <b>{{member.current_exp_membership}}</b></p>
-						</div>
-
-            <a href="{{public_address}}/members/view/{{member.member_id}}" class="btn btn-block btn-success mt-2">View Full Membership Profile</a>
+    						<small>Current Membership Period</small>
+    						<div class="mb-3">
+    							<p>Began: <b>{{member.current_init_membership}}</b></p>
+    							<p>Expires: <b>{{member.current_exp_membership}}</b></p>
+    						</div>
+              {{/if}}
+              <a href="{{public_address}}/members/view/{{member.member_id}}" class="btn btn-block btn-success mt-2">View Membership Profile</a>
+            </div>
           </div>
         </div>
+  		</div>
+    {{/if}}
+
+    {{#if volInfo.shiftHistory}}
+      <div class="row">
+        <div class="col-lg-12">
+
+              <h3 class="mb-3 mt-3">Volunteering History</h3>
+
+              <table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="{{public_address}}/api/get/volunteers/hours/by-member-id/{{member.member_id}}">
+                  <thead>
+
+                      <tr>
+                        <th data-field="date">Date</th>
+                        <th data-field="working_group">Working Group</th>
+                        <th data-field="duration">Duration</th>
+                        <th data-field="note">Note</th>
+                      </tr>
+                  </thead>
+
+                <tbody>
+                </tbody>
+              </table>
+
+            </div>
+
       </div>
-		</div>
-
-    <div class="row">
-      <div class="col-lg-12">
-
-            <h3 class="mb-3 mt-3">Volunteering History</h3>
-
-            <table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="{{public_address}}/api/get/volunteers/hours/by-member-id/{{member.member_id}}">
-                <thead>
-
-                    <tr>
-                      <th data-field="date">Date</th>
-                      <th data-field="working_group">Working Group</th>
-                      <th data-field="duration">Duration</th>
-                      <th data-field="note">Note</th>
-                    </tr>
-                </thead>
-
-              <tbody>
-              </tbody>
-            </table>
-
-          </div>
-
-    </div>
-
+    {{/if}}
   </div>
 </div>
 

@@ -73,9 +73,9 @@ ORDER BY lastVolunteered ASC`;
 };
 
 Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
-  async.each(
+  async.eachOf(
     volInfo,
-    function(volunteer, callback) {
+    function(volunteer, index, callback) {
       if (volunteer) {
         volunteer.dateCreated =
           volunteer.dateCreated ||
@@ -275,6 +275,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
                 "commonWorkingGroup" &&
                 commonWorkingGroup)
             ) {
+              sanitizedVolunteer.shiftHistory = true;
               sanitizedVolunteer.nextShiftDue = volunteer.nextShiftDue;
               sanitizedVolunteer.needsToVolunteer = volunteer.needsToVolunteer;
               sanitizedVolunteer.lastVolunteeredMessage =
@@ -284,11 +285,13 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             }
 
             if (
-              user.permissions.volunteers.conductCheckIns == true ||
-              (user.permissions.volunteers.conductCheckIns ==
+              user.permissions.volunteers.conductCheckIn == true ||
+              (user.permissions.volunteers.conductCheckIn ==
                 "commonWorkingGroup" &&
                 commonWorkingGroup)
             ) {
+              sanitizedVolunteer.conductCheckIn = true;
+              sanitizedVolunteer.checkin_id = volunteer.checkin_id;
               sanitizedVolunteer.needsToCheckin = volunteer.needsToCheckin;
               sanitizedVolunteer.nextCheckinDue = volunteer.nextCheckinDue;
               sanitizedVolunteer.lastCheckin = volunteer.lastCheckin;
@@ -332,6 +335,14 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             }
 
             if (
+              user.permissions.volunteers.survey == true ||
+              (user.permissions.volunteers.survey == "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.survey = volunteer.survey;
+            }
+
+            if (
               user.permissions.volunteers.emergencyContact == true ||
               (user.permissions.volunteers.emergencyContact ==
                 "commonWorkingGroup" &&
@@ -345,17 +356,31 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
                 volunteer.emergencyContactPhoneNo;
             }
 
+            if (
+              user.permissions.volunteers.update == true ||
+              (user.permissions.volunteers.update == "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedVolunteer.canUpdate = true;
+            }
+
             if (Object.keys(sanitizedVolunteer).length > 0) {
-              if (sanitizedVolunteer.roles > 0) {
+              if (sanitizedVolunteer.roles.length > 0) {
                 sanitizedVolunteer.active = true;
               } else {
                 sanitizedVolunteer.active = false;
               }
+              sanitizedVolunteer.working_groups = volunteer.working_groups;
               sanitizedVolunteer.member_id = volunteer.member_id;
               sanitizedVolunteer.gdpr = volunteer.gdpr;
-              volunteer = sanitizedVolunteer;
+
+              if (sanitizedVolunteer.assignedCoordinators.includes(user.id)) {
+                sanitizedVolunteer.isAssignedCoordinator = true;
+              }
+
+              volInfo[index] = sanitizedVolunteer;
             } else {
-              volunteer = null;
+              volInfo[index] = null;
             }
 
             callback();

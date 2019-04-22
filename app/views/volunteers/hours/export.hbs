@@ -21,7 +21,11 @@
 
 	    <div class="form-group">
 
-					{{>working-groups/select selectedGroup=group.group_id id="group_id" user=user}}
+				{{#ifCond user.permissions.volunteerHours.export '==' true}}
+          {{>working-groups/select selectedGroup=group.group_id id="group_id" user=user}}
+        {{else}}
+          {{>working-groups/select selectedGroup=group.group_id allGroups=false id="group_id" user=user}}
+        {{/ifCond}}
 
 	    </div>
 

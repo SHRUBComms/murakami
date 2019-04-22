@@ -14,6 +14,21 @@ router.get("/:role_id", function(req, res) {
   VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
     WorkingGroups.getById(role.group_id, function(err, group) {
       if (role) {
+        if (
+          req.user.permissions.volunteerRoles.view == true ||
+          (req.user.permissions.volunteerRoles.view == "commonWorkingGroup" &&
+            req.user.working_groups.includes(role.group_id))
+        ) {
+          role.canView = true;
+        }
+
+        if (
+          req.user.permissions.volunteerRoles.update == true ||
+          (req.user.permissions.volunteerRoles.update == "commonWorkingGroup" &&
+            req.user.working_groups.includes(role.group_id))
+        ) {
+          role.canUpdate = true;
+        }
         res.render("volunteers/roles/view", {
           title: "View Volunter Role",
           volunteerRolesActive: true,

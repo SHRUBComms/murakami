@@ -53,22 +53,22 @@
 		{{/if}}
 
 
-		{{#if user.permissions.members.membershipDates}}
+
 			<div class="row mt-4 mb-4">
 				<div class="col-lg-6">
 					<div class="card">
 						<div class="card-body">
 							<h4 class="mb-1">Membership</h4>
+							{{#if member.earliest_membership_date}}
+								<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
 
-							<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
+								<small>Current Membership Period</small>
+								<div class="mb-2">
+									<p>Began: <b>{{member.current_init_membership}}</b></p>
+									<p>Expires: <b>{{member.current_exp_membership}}</b></p>
 
-							<small>Current Membership Period</small>
-							<div class="mb-2">
-								<p>Began: <b>{{member.current_init_membership}}</b></p>
-								<p>Expires: <b>{{member.current_exp_membership}}</b></p>
-
-							</div>
-
+								</div>
+							{{/if}}
 
 							{{#if member.canViewSavedCarbon}}
 								<p><span id="carbon">0</span> kilos of carbon saved!</p>
@@ -92,7 +92,7 @@
 										</a>
 									</div>
 								</div>
-							{{/if}}
+
 
 						</div>
 					</div>
@@ -101,36 +101,50 @@
 					<div class="card">
 						<div class="card-body">
 							<h4>Contact</h4>
-							{{#if volInfo.canUpdate}}
-	              <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-	              <p>{{member.phone_no}}</p>
-	              <p>{{member.address}}</p>
-	            {{else}}
-	              {{#ifCond user.class '==' 'admin'}}
-	                <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-	                <p>{{member.phone_no}}</p>
-	                <p>{{member.address}}</p>
-	              {{/ifCond}}
-	              {{#ifCond user.class '==' 'staff'}}
-	                {{#if member.gdpr.email}}
-	  								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-	  							{{else}}
-	  								<a href="mailto:{{member.email}}"><p class="text-danger">{{member.email}} <b>(permission required)</b></p></a>
-	  							{{/if}}
-	  							{{#if member.phone_no}}
-	                  {{#if member.gdpr.phone}}
-	  					        <p>{{member.phone_no}}</p>
-	                  {{else}}
-	                    <p class="text-danger">{{member.phone_no}} <b>(permission required)</b></p>
-	                  {{/if}}
-	  							{{/if}}
-	              {{/ifCond}}
-	              {{#ifCond user.class '==' 'volunteer'}}
-	                <p>You can't view this volunteer's email</p>
-	                <p>You can't view this volunteer's phone number</p>
-	              {{/ifCond}}
 
-							{{/if}}
+	            {{#if member.email}}
+	              {{#if member.gdpr.email}}
+	                <p>
+	              {{else}}
+	                {{#if volInfo.isAssignedCoordinator}}
+	                  <p>
+	                {{else}}
+	                  <p class="text-danger">
+	                {{/if}}
+	              {{/if}}
+	              {{member.email}}
+	              {{#if member.gdpr.email}}
+	              </p>
+	              {{else}}
+	                {{#if volInfo.isAssignedCoordinator}}
+	                  </p>
+	                {{else}}
+	                  (must ask for permission)</p>
+	                {{/if}}
+	              {{/if}}
+	            {{/if}}
+
+	            {{#if member.phone_no}}
+	              {{#if member.gdpr.phone}}
+	                <p>
+	              {{else}}
+	                {{#if volInfo.isAssignedCoordinator}}
+	                  <p>
+	                {{else}}
+	                  <p class="text-danger">
+	                {{/if}}
+	              {{/if}}
+	              {{member.phone_no}}
+	              {{#if member.gdpr.phone}}
+	              </p>
+	              {{else}}
+	                {{#if volInfo.isAssignedCoordinator}}
+	                  </p>
+	                {{else}}
+	                  (must ask for permission)</p>
+	                {{/if}}
+	              {{/if}}
+	            {{/if}}
 
 
 						</div>
@@ -139,7 +153,7 @@
 			</div>
 		{{/if}}
 
-		{{#ifUserClass user.class '["admin", "staff", "volunteer"]'}}
+		{{#ifCond user.permissions.volunteers.view '||' user.permissions.volunteers.add}}
 			{{#if member.volunteer_id}}
 				<div class="row mb-4">
 					<div class="col-lg-6">
@@ -163,13 +177,15 @@
 					</div>
 				</div>
 			{{else}}
+			{{#if user.permissions.volunteers.add}}
 				<div class="row mb-4">
 					<div class="col-lg-6">
-						<p class="mt-2"><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="btn btn-primary btn-block">Make {{member.first_name.text}} A Volunteer</a></p>
+						<p class="mt-2"><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="btn btn-primary btn-block">Make {{member.first_name}} A Volunteer</a></p>
 					</div>
 				</div>
 			{{/if}}
-		{{/ifUserClass}}
+			{{/if}}
+		{{/ifCond}}
 
 		<!--
 		{{#if member.isMember.text}}

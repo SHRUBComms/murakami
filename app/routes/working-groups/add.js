@@ -29,9 +29,17 @@ router.post(
     var group = {
       prefix: req.body.prefix,
       name: req.body.name,
-      parent: req.body.parent || null,
+
       welcomeMessage: req.body.welcomeMessage || null
     };
+
+    if (
+      req.user.permissions.workingGroups.view == true ||
+      (req.user.permissions.workingGroups.view == "commonWorkingGroup" &&
+        req.user.working_groups.includes(req.body.parent))
+    ) {
+      group.parent = req.body.parent || null;
+    }
 
     if (h2p(group.welcomeMessage) == null) {
       group.welcomeMessage = null;

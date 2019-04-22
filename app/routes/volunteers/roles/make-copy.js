@@ -13,33 +13,39 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/:role_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("volunteerRoles", "add"),
   function(req, res) {
     VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
       if (role) {
-        role.details.working_group = role.group_id;
-        if (!Array.isArray(role.details.activities)) {
-          role.details.activities = [role.details.activities];
-        }
-        if (!Array.isArray(role.details.locations)) {
-          role.details.locations = [role.details.locations];
-        }
-
-        VolunteerRoles.getRoleSignUpInfo(function(
-          allLocations,
-          allActivities,
-          commitmentLengths
+        if (
+          req.user.permissions.volunteerRoles.view == true ||
+          (req.user.permissions.volunteerRoles.view == "commonWorkingGroup" &&
+            req.user.working_groups.includes(role.group_id))
         ) {
-          res.render("volunteers/roles/add", {
-            title: "Duplicate Volunter Role",
-            volunteerRolesActive: true,
-            role: role.details,
-            availability: role.availability,
-            locations: allLocations,
-            commitmentLengths: commitmentLengths,
-            activities: allActivities
+          role.details.working_group = role.group_id;
+          if (!Array.isArray(role.details.activities)) {
+            role.details.activities = [role.details.activities];
+          }
+          if (!Array.isArray(role.details.locations)) {
+            role.details.locations = [role.details.locations];
+          }
+
+          VolunteerRoles.getRoleSignUpInfo(function(
+            allLocations,
+            allActivities,
+            commitmentLengths
+          ) {
+            res.render("volunteers/roles/add", {
+              title: "Duplicate Volunter Role",
+              volunteerRolesActive: true,
+              role: role.details,
+              availability: role.availability,
+              locations: allLocations,
+              commitmentLengths: commitmentLengths,
+              activities: allActivities
+            });
           });
-        });
+        }
       } else {
         res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage");
       }

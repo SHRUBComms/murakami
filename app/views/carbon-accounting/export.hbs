@@ -27,7 +27,11 @@
 	    </div>
 	    <div class="form-group">
 
-					{{>working-groups/select selectedGroup=group_id id="group_id" user=user}}
+					{{#ifCond user.permissions.carbonAccounting.export '==' true}}
+	          {{>working-groups/select selectedGroup=group_id id="group_id" user=user}}
+	        {{else}}
+	          {{>working-groups/select selectedGroup=group_id allGroups=false id="group_id" user=user}}
+	        {{/ifCond}}
 
 	    </div>
 	    <div class="form-group">

@@ -5,7 +5,7 @@
   <div class="col-md-6 mx-auto">
 
     <form method="post" action="{{public_address}}/volunteers/roles/update/{{role.role_id}}" class="form-group" autocomplete="off">
-      {{>volunteers/roles/add}}
+      {{>volunteers/roles/add updatingRole=true}}
       <div class="row mt-4">
         <div class="col-md-8 mx-auto">
           <button type="submit" class="btn btn-success btn-block btn-lg form-control">Update Role</button>

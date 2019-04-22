@@ -3,6 +3,9 @@
 var moment = require("moment");
 moment.locale("en-gb");
 var lodash = require("lodash");
+var async = require("async");
+
+var Helpers = require("./helpful_functions");
 
 var register = function(Handlebars) {
   var helpers = {
@@ -29,6 +32,24 @@ var register = function(Handlebars) {
       }
       return options.inverse(this);
     },
+
+    ifNotEmpty: function(object, values, options) {
+      values = JSON.parse(values);
+      var found = false;
+      if (object) {
+        for (i = 0; i < values.length; i++) {
+          if (object[values[i]] != false) {
+            found = true;
+          }
+        }
+      }
+      if (found) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
+    },
+
     ifUserClass: function(userClass, classes, options) {
       classes = JSON.parse(classes);
       if (classes.includes(userClass)) {

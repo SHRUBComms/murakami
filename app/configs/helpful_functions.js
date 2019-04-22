@@ -40,6 +40,22 @@ Helpers.uniqueIntId = function(length, table, id_name, callback) {
   });
 };
 
+Helpers.onePropertyInCommonWithArray = function(object, values, callback) {
+  var found = false;
+  async.each(
+    values,
+    function(value, callback) {
+      if (object[value]) {
+        found = true;
+      }
+      callback();
+    },
+    function() {
+      callback(found);
+    }
+  );
+};
+
 Helpers.generateGroupId = function(parent, callback) {
   var query = "SELECT group_id FROM working_groups WHERE group_id = ?";
   // Generate ID!

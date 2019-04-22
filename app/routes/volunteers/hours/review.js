@@ -14,29 +14,21 @@ router.get(
   Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
     if (
-      req.user.permissions.volunterHours.review == true ||
-      (req.user.permissions.volunterHours.review == "commonWorkingGroup" &&
+      req.user.permissions.volunteerHours.review == true ||
+      (req.user.permissions.volunteerHours.review == "commonWorkingGroup" &&
         req.user.working_groups.includes(req.params.group_id))
     ) {
       WorkingGroups.getById(req.params.group_id, function(err, group) {
         if (group) {
           group = group[0];
-          if (
-            req.user.class == "admin" ||
-            req.user.working_groups.includes(group.group_id)
-          ) {
-            res.render("volunteers/hours/review", {
-              title: "Review Volunteer Hours",
-              volunteerHoursActive: true,
-              group: group
-            });
-          } else {
-            res.redirect(
-              process.env.PUBLIC_ADDRESS + "/volunteers/hours/review"
-            );
-          }
+
+          res.render("volunteers/hours/review", {
+            title: "Review Volunteer Hours",
+            volunteerHoursActive: true,
+            group: group
+          });
         } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/review");
         }
       });
     } else {

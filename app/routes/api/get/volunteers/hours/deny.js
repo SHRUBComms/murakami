@@ -19,28 +19,34 @@ router.get(
     };
 
     VolunteerHours.getShiftById(req.params.shift_id, function(err, shift) {
-      shift = shift[0];
-      if (
-        req.user.permissions.volunteerHours.review == true ||
-        (req.user.permissions.volunteerHours.review == "commonWorkingGroup" &&
-          req.user.working_groups.includes(shift.working_group))
-      ) {
-        if (shift.approved !== null) {
-          message.status = "fail";
-          message.msg = "Shift has already been reviewed!";
-          res.send(message);
-        } else {
-          VolunteerHours.denyShift(req.params.shift_id, function(err) {
-            if (err) throw err;
-
-            message.status = "ok";
-            message.msg = "Shift rejected!";
+      if (!err && shift[0]) {
+        shift = shift[0];
+        if (
+          req.user.permissions.volunteerHours.review == true ||
+          (req.user.permissions.volunteerHours.review == "commonWorkingGroup" &&
+            req.user.working_groups.includes(shift.working_group))
+        ) {
+          if (shift.approved !== null) {
+            message.status = "fail";
+            message.msg = "Shift has already been reviewed!";
             res.send(message);
-          });
+          } else {
+            VolunteerHours.denyShift(req.params.shift_id, function(err) {
+              if (err) throw err;
+
+              message.status = "ok";
+              message.msg = "Shift rejected!";
+              res.send(message);
+            });
+          }
+        } else {
+          message.status = "fail";
+          message.msg = "You don't have permission to deny this shift!";
+          res.send(message);
         }
       } else {
         message.status = "fail";
-        message.msg = "You don't have permission to deny this shift!";
+        message.msg = "Something went wrong! Try again";
         res.send(message);
       }
     });

@@ -59,15 +59,7 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            if (
-              req.user.permissions.volunteers.conductCheckIn == true ||
-              (req.user.permissions.volunteers.conductCheckIn ==
-                "commonWorkingGroup" &&
-                Helpers.hasOneInCommon(
-                  member.working_groups,
-                  req.user.working_groups_arr
-                ))
-            ) {
+            if (volInfo.conductCheckIn) {
               VolunteerCheckIns.getById(volInfo.checkin_id, function(
                 err,
                 checkin
@@ -120,15 +112,7 @@ router.post(
           volInfo
         ) {
           if (volInfo) {
-            if (
-              req.user.permissions.volunteers.conductCheckIn == true ||
-              (req.user.permissions.volunteers.conductCheckIn ==
-                "commonWorkingGroup" &&
-                Helpers.hasOneInCommon(
-                  member.working_groups,
-                  req.user.working_groups_arr
-                ))
-            ) {
+            if (volInfo.conductCheckIn) {
               var questionnaire = req.body.questionnaire;
               var questionnaireValid = true;
               async.eachOf(

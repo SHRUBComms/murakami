@@ -20,10 +20,10 @@ Auth.canAccessPage = function(parent, page) {
       if (req.user.permissions[parent][page]) {
         return next();
       } else {
-        res.redirect("/");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/");
       }
     } catch (err) {
-      res.redirect("/");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   };
 };
@@ -32,7 +32,7 @@ Auth.isNotLoggedIn = function(req, res, next) {
   if (!req.isAuthenticated()) {
     return next();
   } else {
-    res.redirect("/");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 };
 

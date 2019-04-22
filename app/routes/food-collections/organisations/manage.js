@@ -12,7 +12,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.canAccessPage("foodCollections", "manageOrganisations"),
+  Auth.canAccessPage("foodCollections", "viewOrganisations"),
   function(req, res) {
     FoodCollections.getOrganisations(function(err, organisations) {
       res.render("food-collections/organisations/manage", {
