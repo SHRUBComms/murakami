@@ -26,15 +26,7 @@ router.get(
         res.render("users/update", {
           usersActive: true,
           title: "Update User",
-          user_id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          email: user.email,
-          username: user.username,
-          class: user.class,
-          working_groups: user.working_groups,
-          notification_preferences: user.notification_preferences,
-          last_login: user.lastLogin
+          viewedUser: user
         });
       }
     });

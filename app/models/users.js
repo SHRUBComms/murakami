@@ -306,6 +306,17 @@ Users.sanitizeUser = function(users, loggedInUserObj, callback) {
         }
       } catch (err) {}
 
+      try {
+        if (
+          loggedInUser.permissions.users.update == true ||
+          (loggedInUser.permissions.users.update == "commonWorkingGroup" &&
+            commonWorkingGroup) ||
+          isUser
+        ) {
+          sanitizedUser.canUpdate = true;
+        }
+      } catch (err) {}
+
       if (Object.keys(sanitizedUser).length > 0) {
         sanitizedUser.notification_preferences =
           user.notification_preferences || {};
