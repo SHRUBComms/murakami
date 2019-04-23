@@ -44,7 +44,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
           if (
             req.user.permissions.tills.viewTill == true ||
             (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
-              req.user.working - groups.includes(till.group_id))
+              req.user.working_groups.includes(till.group_id))
           ) {
             Tills.getStatusById(till.till_id, function(status) {
               till.status = status;
@@ -52,6 +52,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
             });
           } else {
             till[key] = {};
+            callback();
           }
         },
         function() {

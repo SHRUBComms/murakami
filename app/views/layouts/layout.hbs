@@ -80,8 +80,10 @@
                                         {{#if user.permissions.volunteers.add}}
                                           <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
                                         {{/if}}
-                                        {{#if user.permissions.volunteers.invite}}
-                                          <li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>
+                                        {{#if (lookupArray user.working_groups 'WG-101-255')}}
+                                          {{#if user.permissions.volunteers.invite}}
+                                            <li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>
+                                          {{/if}}
                                         {{/if}}
 
                                       </ul>
@@ -120,30 +122,32 @@
                                 {{/ifNotEmpty}}
 
                                 <!-- if admin or belong to fs group -->
-                                {{#ifNotEmpty user.permissions.foodCollections '["log", "review", "export", "viewOrganisations", "addOrganisations"]'}}
-                                  <li {{#if foodCollectionsActive}}class="active"{{/if}}>
-                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
-                                      <ul class="collapse plain-list">
-                                        {{#if user.permissions.foodCollections.log}}
-                                          <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
-                                        {{/if}}
-                                        {{#if user.permissions.foodCollections.review}}
-                                          <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
-                                        {{/if}}
-                                        {{#if user.permissions.foodCollections.export}}
-                                          <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
-                                        {{/if}}
+                                {{#if (lookupArray user.working_groups 'WG-101-255')}}
+                                  {{#ifNotEmpty user.permissions.foodCollections '["log", "review", "export", "viewOrganisations", "addOrganisations"]'}}
+                                    <li {{#if foodCollectionsActive}}class="active"{{/if}}>
+                                        <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
+                                        <ul class="collapse plain-list">
+                                          {{#if user.permissions.foodCollections.log}}
+                                            <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
+                                          {{/if}}
+                                          {{#if user.permissions.foodCollections.review}}
+                                            <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
+                                          {{/if}}
+                                          {{#if user.permissions.foodCollections.export}}
+                                            <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
+                                          {{/if}}
 
-                                        {{#if user.permissions.foodCollections.viewOrganisations}}
-                                          <li class="mt-2"><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
-                                        {{/if}}
-                                        {{#if user.permissions.foodCollections.addOrganisations}}
-                                          <li><a href="{{public_address}}/food-collections/organisations/add">Add Organisation</a></li>
-                                        {{/if}}
+                                          {{#if user.permissions.foodCollections.viewOrganisations}}
+                                            <li class="mt-2"><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
+                                          {{/if}}
+                                          {{#if user.permissions.foodCollections.addOrganisations}}
+                                            <li><a href="{{public_address}}/food-collections/organisations/add">Add Organisation</a></li>
+                                          {{/if}}
 
-                                      </ul>
-                                  </li>
-                                {{/ifNotEmpty}}
+                                        </ul>
+                                    </li>
+                                  {{/ifNotEmpty}}
+                                {{/if}}
 
                                 {{#ifNotEmpty user.permissions.tills '["addTill", "viewTill"]'}}
 

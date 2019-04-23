@@ -46,11 +46,11 @@
           <div class="col-md-6">
 
             <select class="form-control" name="class">
-              <option value="till" {{#ifCond class '==' 'till'}}selected{{/ifCond}}>Till User</option>
-              <option value="volunteer" {{#ifCond class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
+              <option value="till" {{#ifCond user.class '==' 'till'}}selected{{/ifCond}}>Till User</option>
+              <option value="volunteer" {{#ifCond user.class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
               {{#ifCond user.class '==' 'admin'}}
-                <option value="staff" {{#ifCond class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
-                <option value="admin" {{#ifCond class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
+                <option value="staff" {{#ifCond user.class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
+                <option value="admin" {{#ifCond user.class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
               {{/ifCond}}
               {{#ifCond user.class '==' 'staff'}}
                 {{#ifCond user.id '==' user_id}}
@@ -84,7 +84,7 @@
               {{else}}
 
                 {{#each user.allWorkingGroupsObj}}
-                  
+
                   <option value="{{group_id}}"
                   {{#if (lookupArray ../working_groups group_id)}}
                     selected

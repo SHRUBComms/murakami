@@ -62,11 +62,11 @@
                   {{#if (lookupArray ../../volInfo.roles role_id)}}
                     selected
                   {{else}}
-                    {{#ifUserClass ../../user.class '["volunteer", "staff"]'}}
-                      {{#unless (lookupArray ../../user.working_groups_arr group_id)}}
+                    {{#ifCond ../../user.permissions.volunteers.add '==' 'commonWorkingGroup'}}
+                      {{#unless (lookupArray ../../user.working_groups group_id)}}
                         disabled
                       {{/unless}}
-                    {{/ifUserClass}}
+                    {{/ifCond}}
                   {{/if}}
                   >{{details.title}}</option>
                 {{else}}
@@ -78,9 +78,9 @@
 
         </select>
       </div>
-
-      <a class="btn btn-primary mb-3" data-toggle="modal" data-target="#quickAddRoleDialog">Quick Add Role</a>
-
+      {{#if user.permissions.volunteerRoles.quickAdd}}
+        <a class="btn btn-primary mb-3" data-toggle="modal" data-target="#quickAddRoleDialog">Quick Add Role</a>
+      {{/if}}
       <div class="row-fluid">
         <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
 

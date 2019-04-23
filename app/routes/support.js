@@ -15,7 +15,8 @@ router.get("/", function(req, res) {
   res.render("support", {
     tillMode: tillMode,
     till: {
-      till_id: till_id
+      till_id: till_id,
+      group_id: req.user.working_groups[0]
     },
     supportActive: true,
     title: "Support"

@@ -151,7 +151,7 @@
   		      					'</div>'
       	}
 
-
+        results[i].email = results[i].email || "Email address not available"
         $('#search-results').html($('#search-results').html() +
           resultStart +
             "<a href='/members/view/" + results[i].member_id + "'><p><b>" +
@@ -159,7 +159,7 @@
             "</p></b></a>" +
 
             "<p>" +
-              results[i].email +
+              results[i].email  +
             "</p>" +
             "<hr />" +
             shiftLogger +

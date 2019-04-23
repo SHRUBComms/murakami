@@ -1,3 +1,23 @@
+
+
+<style>
+
+.nuanceAccess {
+  background-color: orange;
+  color: white;
+}
+
+.alwaysAccess {
+  background-color: green;
+  color: white;
+}
+
+.noAccess {
+  background-color: red;
+  color: white;
+}
+</style>
+
 <div class="row">
   <div class="col-md-8 mx-auto">
 
@@ -26,6 +46,12 @@
                     {{camelCaseToPlain @key}}
 
                   </p>
+
+                  {{#ifCond @key '==' 'foodCollections'}}
+
+                   <small class="text-muted">Restricted to the <b>Food Collections</b> working group.</small>
+
+                  {{/ifCond}}
                 </td>
                 <td></td>
                 <td></td>
@@ -33,7 +59,7 @@
 
                     {{#each this}}
 
-                    <tr class="p-2">
+                    <tr class="p-2{{#ifCond @../key '==' 'volunteers'}}{{#ifCond @key '==' 'invite'}} mt-4{{/ifCond}}{{/ifCond}}">
                       <td></td>
                       <td></td>
                       <td class="p-3">
@@ -43,11 +69,27 @@
 
                         </p>
                       </td>
-                      <td>
+                      <td class="p-3">
                         <div class="container">
                         <!--Status-->
+
+
+
                           {{>settings/data-permissions-dropdown value=this userClass=@../../key subject=@../key specific=@key}}
+
+
+                          {{#ifCond @../key '==' 'volunteers'}}
+                            {{#ifCond @key '==' 'invite'}}
+                              <p>
+                                <small class="text-muted">Restricted to the <b>Food Collections</b> working group.</small>
+                              </p>
+                            {{/ifCond}}
+                          {{/ifCond}}
+
                         </div>
+
+
+
                       </td>
 
                     </tr>
@@ -78,4 +120,27 @@
   $("#userClassSelect").on('change', function(){
     location.href = "{{public_address}}/settings/data-permissions/" + this.value;
   })
+
+  $(document).ready(function(){
+    $(".permissionsDropdown").on("change", function(){
+
+      if(this.value == "false") {
+        $(this).removeClass("nuanceAccess");
+        $(this).removeClass("alwaysAccess");
+        $(this).addClass("noAccess");
+      } else if (this.value == "true") {
+        console.log("true, adding alwaysAccess");
+        $(this).removeClass("nuanceAccess");
+        $(this).removeClass("noAccess");
+        $(this).addClass("alwaysAccess");
+      } else {
+        $(this).removeClass("alwaysAccess");
+        $(this).removeClass("noAccess");
+        $(this).addClass("nuanceAccess");
+      }
+    })
+  })
+
+
+
 </script>

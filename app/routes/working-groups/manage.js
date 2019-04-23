@@ -14,12 +14,14 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("workingGroups", "view"),
   function(req, res) {
-    if (req.user.working_groups) {
+    if (req.user.working_groups.length > 0) {
       var group = req.user.working_groups[0];
 
       res.redirect(
         process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + group
       );
+    } else {
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   }
 );
