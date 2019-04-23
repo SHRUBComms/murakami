@@ -15,7 +15,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   });
 });
 
-router.get("/:group_id", function(req, res) {
+router.get("/:group_id", Auth.isLoggedIn, function(req, res) {
   WorkingGroups.getAllMembersByGroup(req.params.group_id, function(
     err,
     members

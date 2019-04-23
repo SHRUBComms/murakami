@@ -13,15 +13,17 @@
 
 
 <div class="row mt-4">
-	<div class="col-lg-6 mx-auto">
-		<div class="row">
+	{{#if user.permissions.tills.updateCategories}}
+		<div class="col-lg-6 mx-auto">
+			<div class="row">
 
-	     <div class="col-md-12" id="options"> </div>
+		     <div class="col-md-12" id="options"> </div>
 
+			</div>
 		</div>
-	</div>
+	{{/if}}
 
-	{{#ifCond user.class '!==' 'till'}}
+	{{#if user.permissions.tills.updateSettings}}
 		<div class="col-lg-3 mx-auto">
 
 			<div class="card">
@@ -34,7 +36,7 @@
 		    <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
 			</div>
 	  </div>
-	{{/ifCond}}
+	{{/if}}
 
 	</div>
 </div>
@@ -65,28 +67,30 @@
 
 
 <script>
-
-function updateSettings() {
-  var till = {}
-  till.name = $("#till_name").val();
-  till.till_id = "{{{till.till_id}}}"
-  $.ajax({
-    type: "POST",
-    url: "{{public_address}}/api/post/tills/update",
-    data: {
-      "till": till
-    },
-      success: function(response){
-        if(response.status == "ok"){
-          alert(response.msg);
-        } else {
-          alert(response.msg);
-        }
-      }
-  })
-}
+{{#if user.permissions.tills.updateSettings}}
+	function updateSettings() {
+	  var till = {}
+	  till.name = $("#till_name").val();
+	  till.till_id = "{{{till.till_id}}}"
+	  $.ajax({
+	    type: "POST",
+	    url: "{{public_address}}/api/post/tills/update",
+	    data: {
+	      "till": till
+	    },
+	      success: function(response){
+	        if(response.status == "ok"){
+	          alert(response.msg);
+	        } else {
+	          alert(response.msg);
+	        }
+	      }
+	  })
+	}
+{{/if}}
 
 
 </script>
-
-{{> till/categories}}
+{{#if user.permissions.tills.updateCategories}}
+	{{> till/categories}}
+{{/if}}

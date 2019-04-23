@@ -6,7 +6,9 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="mb-3">{{till.name}} <span class="text-success">&#9679;</span></h3>
-				<a href="{{public_address}}/till/manage/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
+				{{#if user.permissions.tills.updatecategories}}
+					<a href="{{public_address}}/till/manage/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
+				{{/if}}
 			</div>
 		</div>
 
@@ -672,7 +674,7 @@ function updateSearchResults(){
 				"<div class='col-md-3 mx-auto member-result'>" +
 					"<div class='card'>" +
 						"<div class='card-body'>" +
-							"<p class='mb-2'><b>" + results[i].name + "</b> (<a href='{{public_address}}/members/view/" + results[i].id + "' target='_blank'>view profile</a>)</p>" +
+							"<p class='mb-2'><b>" + results[i].name + "</b> (<a href='{{public_address}}/members/view/" + results[i].id + "?till_id={{till.till_id}}' target='_blank'>view profile</a>)</p>" +
 							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
 							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
 							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +

@@ -98,60 +98,62 @@
 					</div>
 				</div>
 				<div class="col-lg-6">
-					<div class="card">
-						<div class="card-body">
-							<h4>Contact</h4>
+					{{#if user.permissions.members.contactDetails}}
+						<div class="card">
+							<div class="card-body">
+								<h4>Contact</h4>
 
-	            {{#if member.email}}
-	              {{#if member.gdpr.email}}
-	                <p>
-	              {{else}}
-	                {{#if volInfo.isAssignedCoordinator}}
-	                  <p>
-	                {{else}}
-	                  <p class="text-danger">
-	                {{/if}}
-	              {{/if}}
-	              {{member.email}}
-	              {{#if member.gdpr.email}}
-	              </p>
-	              {{else}}
-	                {{#if volInfo.isAssignedCoordinator}}
-	                  </p>
-	                {{else}}
-	                  (must ask for permission)</p>
-	                {{/if}}
-	              {{/if}}
-	            {{/if}}
+		            {{#if member.email}}
+		              {{#if member.gdpr.email}}
+		                <p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  <p>
+		                {{else}}
+		                  <p class="text-danger">
+		                {{/if}}
+		              {{/if}}
+		              {{member.email}}
+		              {{#if member.gdpr.email}}
+		              </p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  </p>
+		                {{else}}
+		                  (must ask for permission)</p>
+		                {{/if}}
+		              {{/if}}
+		            {{/if}}
 
-	            {{#if member.phone_no}}
-	              {{#if member.gdpr.phone}}
-	                <p>
-	              {{else}}
-	                {{#if volInfo.isAssignedCoordinator}}
-	                  <p>
-	                {{else}}
-	                  <p class="text-danger">
-	                {{/if}}
-	              {{/if}}
-	              {{member.phone_no}}
-	              {{#if member.gdpr.phone}}
-	              </p>
-	              {{else}}
-	                {{#if volInfo.isAssignedCoordinator}}
-	                  </p>
-	                {{else}}
-	                  (must ask for permission)</p>
-	                {{/if}}
-	              {{/if}}
-	            {{/if}}
+		            {{#if member.phone_no}}
+		              {{#if member.gdpr.phone}}
+		                <p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  <p>
+		                {{else}}
+		                  <p class="text-danger">
+		                {{/if}}
+		              {{/if}}
+		              {{member.phone_no}}
+		              {{#if member.gdpr.phone}}
+		              </p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  </p>
+		                {{else}}
+		                  (must ask for permission)</p>
+		                {{/if}}
+		              {{/if}}
+		            {{/if}}
 
 
+							</div>
 						</div>
-					</div>
+					{{/if}}
 				</div>
 			</div>
-		
+
 
 		{{#ifCond user.permissions.volunteers.view '||' user.permissions.volunteers.add}}
 			{{#if member.volunteer_id}}

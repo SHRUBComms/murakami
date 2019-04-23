@@ -16,7 +16,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("foodCollections", "review"),
   function(req, res) {
     var formattedCollections = [];
     Members.getAll(function(err, members, membersObj) {
@@ -86,12 +86,10 @@ router.get(
               }
             );
           } else {
-            
             res.send([]);
           }
         });
       } else {
-        
         res.send([]);
       }
     });

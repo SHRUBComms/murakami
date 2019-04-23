@@ -47,6 +47,8 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
       murakamiMsg: req.query.murakamiMsg || null,
       murakamiStatus: req.query.murakamiStatus || null,
 
+      till_id: till_id,
+
       till: {
         till_id: till_id,
         group_id: req.user.working_groups[0]
@@ -326,7 +328,11 @@ router.post(
             req.flash("success_msg", "New member added!");
 
             res.redirect(
-              process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
+              process.env.PUBLIC_ADDRESS +
+                "/members/view/" +
+                member_id +
+                "?till_id=" +
+                req.query.till_id
             );
           }
         });
