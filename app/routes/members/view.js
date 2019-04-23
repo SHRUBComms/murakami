@@ -23,7 +23,8 @@ router.get("/:member_id", Auth.canAccessPage("members", "view"), function(
         membersActive: true,
         member: member,
         till: {
-          till_id: req.query.till_id
+          till_id: req.query.till_id,
+          group_id: req.user.working_groups[0]
         }
       });
     }

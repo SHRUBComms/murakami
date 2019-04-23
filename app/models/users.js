@@ -151,7 +151,17 @@ Users.add = function(user, callback) {
         var sql = mysql.format(query, inserts);
 
         con.query(sql);
-        Users.getById(user.id, { class: "admin" }, callback);
+        Users.getById(
+          user.id,
+          { permissions: { users: { name: true } } },
+          function(err, user) {
+            if (err) {
+              callback(err, { id: id });
+            } else {
+              callback(null, user);
+            }
+          }
+        );
       });
     });
   });

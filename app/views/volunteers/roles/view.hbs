@@ -27,11 +27,13 @@
       </div>
     {{/if}}
     {{#unless role.incomplete}}
-      <div class="row mt-3">
-        <div class="col-md-4 mx-auto">
-          <a class="btn btn-block btn-primary" href="{{public_address}}/volunteers/roles/make-copy/{{role.role_id}}">Make A Copy</a>
+      {{#if user.permissions.volunteerRoles.add}}
+        <div class="row mt-3">
+          <div class="col-md-4 mx-auto">
+            <a class="btn btn-block btn-primary" href="{{public_address}}/volunteers/roles/make-copy/{{role.role_id}}">Make A Copy</a>
+          </div>
         </div>
-      </div>
+      {{/if}}
     {{/unless}}
 
     {{#if role.incomplete}}

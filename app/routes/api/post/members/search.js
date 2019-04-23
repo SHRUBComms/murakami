@@ -2,6 +2,7 @@
 
 var router = require("express").Router();
 var async = require("async");
+var lodash = require("lodash");
 
 var rootDir = process.env.CWD;
 
@@ -16,34 +17,28 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
     res.send({ status: "ok", results: [] });
   } else {
     Members.searchByName(term, function(err, members) {
-      
+      var sanitizedMembers = [];
       async.eachOf(
         members,
         function(member, i, callback) {
-          Members.sanitizeMember(members[i], req.user, function(err, member) {
-            members[i] = {};
-            members[i].id = member.member_id;
-            members[i].first_name = member.first_name;
-
-            members[i].name = member.full_name;
-            members[i].email = member.email || "Not available";
-            members[i].working_groups = member.working_groups;
-
-            async.eachOf(
-              members[i].working_groups,
-              function(member, j, callback) {
-                members[i].working_groups[j] =
-                  req.user.allWorkingGroupsObj[members[i].working_groups[j]];
-                callback();
-              },
-              function() {
-                callback();
-              }
-            );
+          Members.sanitizeMember(member, req.user, function(
+            err,
+            sanitizedMember
+          ) {
+            if (sanitizedMember) {
+              sanitizedMembers.push(sanitizedMember);
+              callback();
+            } else {
+              callback();
+            }
           });
         },
         function(err) {
-          res.send({ status: "ok", results: members });
+          console.log(sanitizedMembers);
+          res.send({
+            status: "ok",
+            results: sanitizedMembers
+          });
         }
       );
     });
@@ -56,7 +51,6 @@ router.post("/simple", Auth.isLoggedIn, function(req, res) {
     res.send({ status: "ok", results: [] });
   } else {
     Members.searchByName(term, function(err, members) {
-      
       if (err) {
         res.send({ status: "fail", results: [] });
       } else {

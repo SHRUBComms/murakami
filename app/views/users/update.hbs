@@ -31,7 +31,7 @@
 
   <form method="post" action="{{public_address}}/users/update/{{viewedUser.id}}" class="form-group">
 
-    {{>users/add first_name=viewedUser.first_name last_name=viewedUser.last_name userClass=viewedUser.class working_groups=viewedUser.working_groups}}
+    {{>users/add updatingUser=true user=user first_name=viewedUser.first_name last_name=viewedUser.last_name userClass=viewedUser.class working_groups=viewedUser.working_groups}}
 
     {{#ifCond viewedUser.id '==' user.id}}
       {{>users/notification-preferences notification_preferences=viewedUser.notification_preferences}}

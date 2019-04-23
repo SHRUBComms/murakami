@@ -1,13 +1,38 @@
-<!--
-
-this = data subject value.
-{{json this}}
-
--->
-
 <select class="form-control" name="permissions[{{subject}}][{{specific}}]">
   <option selected disabled>Select when this data should be available</option>
-  <option value="false" {{#ifCond value '==' false}}selected{{/ifCond}}>No access under any circumstances.</option>
-  <option value="true" {{#ifCond value '==' true}}selected{{/ifCond}}>Access under any circumstances.</option>
-  <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+
+  <option value="false" {{#ifCond value '==' false}}selected{{/ifCond}}>No access under any circumstances</option>
+  <option value="true" {{#ifCond value '==' true}}selected{{/ifCond}}>Access under any circumstances</option>
+
+  {{#ifCond subject '==' "carbonAccounting"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "members"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "tills"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "users"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "volunteerHours"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "volunteerRoles"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "volunteers"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "workingGroups"}}
+    <option value="commonWorkingGroup" {{#ifCond value '==' 'commonWorkingGroup'}}selected{{/ifCond}}>Access if common working group.</option>
+  {{/ifCond}}
 </select>

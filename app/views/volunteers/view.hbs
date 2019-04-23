@@ -326,7 +326,6 @@ $("#organisations").on('change', function(){
 })
 
 function sendFoodCollectionsLink() {
-  console.log($("#foodCollectionLinkOutput").val());
   $.ajax({
     type:"post",
     url:"{{public_address}}/api/post/volunteers/send-food-collection-link",

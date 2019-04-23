@@ -243,8 +243,10 @@ Members.sanitizeMember = function(member, user, callback) {
 };
 
 Members.getAll = function(callback) {
-  var query =
-    "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
+  var query = `SELECT * FROM members
+                  LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
+                  FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
+                  ORDER BY first_name ASC LIMIT 1000000`;
   con.query(query, function(err, members) {
     var membersObj = {};
     async.each(
@@ -569,36 +571,46 @@ Members.updateBasic = function(member, callback) {
 Members.renew = function(member_id, length, callback) {
   var query =
     "UPDATE members SET current_init_membership = ?, current_exp_membership = ?, is_member = 1 WHERE member_id = ?";
-  Members.getById(member_id, { class: "till" }, function(err, member) {
-    if (length == "full_year") {
-      var dt = new Date();
-      member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
+  Members.getById(
+    member_id,
+    { permissions: { members: { membershipDates: true } } },
+    function(err, member) {
+      if (length == "full_year") {
+        var dt = new Date();
+        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-      var dt = new Date();
-      member.current_exp_membership = new Date(dt.setMonth(dt.getMonth() + 12));
-    } else if (length == "half_year") {
-      var dt = new Date();
-      member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
+        var dt = new Date();
+        member.current_exp_membership = new Date(
+          dt.setMonth(dt.getMonth() + 12)
+        );
+      } else if (length == "half_year") {
+        var dt = new Date();
+        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-      var dt = new Date();
-      member.current_exp_membership = new Date(dt.setMonth(dt.getMonth() + 6));
-    } else if (length == "3_months") {
-      var dt = new Date();
-      member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
+        var dt = new Date();
+        member.current_exp_membership = new Date(
+          dt.setMonth(dt.getMonth() + 6)
+        );
+      } else if (length == "3_months") {
+        var dt = new Date();
+        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-      var dt = new Date();
-      member.current_exp_membership = new Date(dt.setMonth(dt.getMonth() + 2));
+        var dt = new Date();
+        member.current_exp_membership = new Date(
+          dt.setMonth(dt.getMonth() + 2)
+        );
+      }
+
+      var inserts = [
+        member.current_init_membership,
+        member.current_exp_membership,
+        member_id
+      ];
+      var sql = mysql.format(query, inserts);
+
+      con.query(sql, callback);
     }
-
-    var inserts = [
-      member.current_init_membership,
-      member.current_exp_membership,
-      member_id
-    ];
-    var sql = mysql.format(query, inserts);
-
-    con.query(sql, callback);
-  });
+  );
 };
 
 Members.updateExpiryDate = function(member_id, date, callback) {

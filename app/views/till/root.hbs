@@ -22,9 +22,13 @@
     				<select class="form-control" id="tills">
     					<option>Select a till...</option>
     					{{#each tills}}
-
-    						<option value="{{till_id}}">{{name}}</option>
-
+                {{#ifCond ../user.permissions.tills.processTransaction '==' true}}
+                  <option value="{{till_id}}">{{name}}</option>
+                {{else}}
+                  {{#if (lookupArray ../user.working_groups group_id)}}
+        						<option value="{{till_id}}">{{name}}</option>
+                  {{/if}}
+                {{/ifCond}}
     					{{/each}}
     				</select>
           </div>

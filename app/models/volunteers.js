@@ -33,32 +33,37 @@ ORDER BY lastVolunteered ASC`;
       async.eachOf(
         sanitizedVolunteers,
         function(volunteer, i, callback) {
-          if (group_id == "inactive") {
-            if (volunteer.working_groups.length > 0) {
-              sanitizedVolunteers[i] = {};
-              callback();
+          if (volunteer) {
+            if (group_id == "inactive") {
+              if (volunteer.working_groups.length > 0) {
+                sanitizedVolunteers[i] = {};
+                callback();
+              } else {
+                callback();
+              }
+            } else if (group_id) {
+              if (volunteer.working_groups.includes(group_id) == false) {
+                sanitizedVolunteers[i] = {};
+                callback();
+              } else {
+                callback();
+              }
             } else {
-              callback();
-            }
-          } else if (group_id) {
-            if (volunteer.working_groups.includes(group_id) == false) {
-              sanitizedVolunteers[i] = {};
-              callback();
-            } else {
-              callback();
+              if (
+                !Helpers.hasOneInCommon(
+                  volunteer.working_groups,
+                  user.working_groups_arr
+                )
+              ) {
+                sanitizedVolunteers[i] = {};
+                callback();
+              } else {
+                callback();
+              }
             }
           } else {
-            if (
-              !Helpers.hasOneInCommon(
-                volunteer.working_groups,
-                user.working_groups_arr
-              )
-            ) {
-              sanitizedVolunteers[i] = {};
-              callback();
-            } else {
-              callback();
-            }
+            sanitizedVolunteers[i] = {};
+            callback();
           }
         },
         function() {

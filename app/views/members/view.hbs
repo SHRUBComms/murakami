@@ -93,7 +93,7 @@
 									</div>
 								</div>
 
-
+								{{/if}}
 						</div>
 					</div>
 				</div>
@@ -151,7 +151,7 @@
 					</div>
 				</div>
 			</div>
-		{{/if}}
+		
 
 		{{#ifCond user.permissions.volunteers.view '||' user.permissions.volunteers.add}}
 			{{#if member.volunteer_id}}

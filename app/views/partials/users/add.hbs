@@ -73,20 +73,32 @@
 
                   {{/each}}
                 {{else}}
+                  {{#each user.working_groups}}
 
-                {{#each working_groups}}
+                    <option value="{{this}}" {{#if (lookupArray ../working_groups this)}}selected{{/if}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
 
-                  <option value="{{this}}" {{#if (lookupArray ../working_groups this)}}selected{{/if}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
-
-                {{/each}}
+                  {{/each}}
 
                 {{/ifCond}}
 
-                {{#ifUserClass user.class '["staff"]'}}
-                  {{#each user.working_groups}}
-                    <option value="{{this}}"{{#if (lookupArray ../working_groups this)}} selected{{/if}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
-                  {{/each}}
-                {{/ifUserClass}}
+              {{else}}
+
+                {{#each user.allWorkingGroupsObj}}
+                  
+                  <option value="{{group_id}}"
+                  {{#if (lookupArray ../working_groups group_id)}}
+                    selected
+                  {{else}}
+                    {{#ifCond ../user.permissions.users.update '!=' true}}
+                      {{#unless (lookupArray ../user.working_groups group_id)}}
+                        disabled
+                      {{/unless}}
+                    {{/ifCond}}
+                  {{/if}}
+                  >{{name}}</option>
+
+                {{/each}}
+
               {{/if}}
             </select>
           </div>

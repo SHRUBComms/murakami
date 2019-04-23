@@ -145,16 +145,16 @@
                                   </li>
                                 {{/ifNotEmpty}}
 
-                                {{#ifNotEmpty user.permissions.tills '["view"]'}}
+                                {{#ifNotEmpty user.permissions.tills '["addTill", "viewTill"]'}}
 
                                   <li {{#if tillsActive}}class="active"{{/if}}>
                                       <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
                                       <ul class="collapse plain-list">
-                                          {{#if user.permissions.tills.view}}
+                                          {{#if user.permissions.tills.viewTill}}
                                             <li><a href="{{public_address}}/till/manage">Manage Tills</a></li>
                                           {{/if}}
-                                          {{#if user.permissions.tills.add}}
-                                           <li><a href="{{public_address}}/till/settings">Add Till</a></li>
+                                          {{#if user.permissions.tills.addTill}}
+                                           <li><a href="{{public_address}}/till/add">Add Till</a></li>
                                           {{/if}}
                                       </ul>
                                   </li>
@@ -231,24 +231,70 @@
 
 
                               {{else}}
-                                <li {{#if transactionsActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
-                                </li>
-                                <li {{#if donationsActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
-                                </li>
-                                <li {{#if carbonActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/carbon-accounting/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
-                                </li>
-                                <li {{#if addMemberActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
-                                </li>
-                                <li {{#if logVolunteerHoursActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/volunteers/hours/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
-                                </li>
-                                <li {{#if closeTillActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
-                                </li>
+
+                                {{#if till}}
+                                  {{#ifCond user.permissions.tills.processTransaction '==' true}}
+                                    <li {{#if transactionsActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                    </li>
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.processTransaction '==' 'commonWorkingGroup'}}
+                                    {{#if (lookupArray user.working_groups till.group_id)}}
+                                      <li {{#if transactionsActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                      </li>
+                                    {{/if}}
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.processDonations '==' true}}
+                                    <li {{#if donationsActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
+                                    </li>
+                                  {{/ifCond}}
+
+
+                                  {{#ifCond user.permissions.tills.processDonations '==' 'commonWorkingGroup'}}
+                                    {{#if (lookupArray user.working_groups till.group_id)}}
+                                      <li {{#if donationsActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
+                                      </li>
+                                    {{/if}}
+                                  {{/ifCond}}
+
+                                  {{#if user.permissions.carbonAccounting.log}}
+                                    <li {{#if carbonActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/carbon-accounting/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
+                                    </li>
+                                  {{/if}}
+
+                                  {{#if user.permissions.members.add}}
+                                    <li {{#if addMemberActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
+                                    </li>
+                                  {{/if}}
+
+                                  {{#if user.permissions.volunteerHours.log}}
+                                    <li {{#if logVolunteerHoursActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/volunteers/hours/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
+                                    </li>
+                                  {{/if}}
+
+                                  {{#ifCond user.permissions.tills.processDonations '==' true}}
+                                    <li {{#if closeTillActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                    </li>
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.close '==' 'commonWorkingGroup'}}
+                                    {{#if (lookupArray user.working_groups till.group_id)}}
+                                      <li {{#if closeTillActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                      </li>
+                                    {{/if}}
+                                  {{/ifCond}}
+
+                                {{/if}}
 
                               {{/unless}}
                             {{/if}}
@@ -265,12 +311,12 @@
 
 
                             {{#if tillMode}}
-                              {{#ifUserClass user.class '["admin", "staff"]'}}
+                              {{#ifCond user.class '!=' 'till'}}
                                 <hr />
                                 <li>
                                     <a href="{{public_address}}/till/manage" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
                                 </li>
-                              {{/ifUserClass}}
+                              {{/ifCond}}
                             {{/if}}
 
 

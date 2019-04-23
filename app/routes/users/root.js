@@ -8,7 +8,6 @@ router.get("/", function(req, res) {
 
 router.use("/add", require("./add"));
 router.use("/update", require("./update"));
-router.use("/view", require("./view"));
 router.use("/manage", require("./manage"));
 router.use("/deactivate", require("./deactivate"));
 router.use("/change-password", require("./change-password"));

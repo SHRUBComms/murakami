@@ -35,10 +35,11 @@ var register = function(Handlebars) {
 
     ifNotEmpty: function(object, values, options) {
       values = JSON.parse(values);
+      var validOptions = [true, "commonWorkingGroup"];
       var found = false;
       if (object) {
         for (i = 0; i < values.length; i++) {
-          if (object[values[i]] != false) {
+          if (validOptions.includes(object[values[i]])) {
             found = true;
           }
         }

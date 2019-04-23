@@ -10,7 +10,7 @@
 
 <div class="row mt-4">
 	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
-		<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" {{#if pageSize}}data-pagination="false"{{else}}data-pagination="true"{{/if}} data-toggle="table" data-export-data-type="all" data-striped="true" data-url="{{public_address}}/api/get/tills/transactions/{{till.till_id}}?{{#if startDate}}startDate={{startDate}}{{/if}}" data-show-export="true" data-export-options='{
+		<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" {{#if pageSize}}data-pagination="false"{{else}}data-pagination="true"{{/if}} data-toggle="table" data-export-data-type="all" data-striped="true" data-url="{{public_address}}/api/get/tills/transactions/{{till.till_id}}?startDate={{startDate}}&endDate={{endDate}}" data-show-export="true" data-export-options='{
          "fileName": "{{till.name}} Transactions - {{startDate}} to {{endDate}}"
        }'>
 		    <thead>

@@ -27,15 +27,13 @@ router.get(
         res.render("carbon-accounting/log", {
           tillMode: tillMode,
           till: {
-            till_id: till_id
+            till_id: till_id,
+            group_id: req.user.working_groups[0]
           },
           carbonActive: true,
           title: "Log Outgoing Weight",
           carbonCategories: carbonCategories,
-          working_groups: working_groups,
-          till: {
-            till_id: req.query.till_id
-          }
+          working_groups: working_groups
         });
       });
     });

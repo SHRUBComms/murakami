@@ -335,9 +335,18 @@ Tills.getStatusById = function(till_id, callback) {
 
 Tills.open = function(till_id, counted_float, user_id, note, callback) {
   var query =
-    "INSERT INTO till_activity (action_id, till_id, user_id, expected_float, counted_float, opening, note) VALUES (?,?,?,?,?,?,?)";
+    "INSERT INTO till_activity (action_id, till_id, user_id, timestamp, expected_float, counted_float, opening, note) VALUES (?,?,?,?,?,?,?,?)";
   Helpers.uniqueIntId(20, "transactions", "transaction_id", function(id) {
-    var inserts = [id, till_id, user_id, null, counted_float, 1, note];
+    var inserts = [
+      id,
+      till_id,
+      user_id,
+      new Date(),
+      null,
+      counted_float,
+      1,
+      note
+    ];
 
     var sql = mysql.format(query, inserts);
 
@@ -354,12 +363,13 @@ Tills.close = function(
   callback
 ) {
   var query =
-    "INSERT INTO till_activity (action_id, till_id, user_id, expected_float, counted_float, opening, note) VALUES (?,?,?,?,?,?,?)";
+    "INSERT INTO till_activity (action_id, till_id, user_id, timestamp, expected_float, counted_float, opening, note) VALUES (?,?,?,?,?,?,?,?)";
   Helpers.uniqueIntId(20, "transactions", "transaction_id", function(id) {
     var inserts = [
       id,
       till_id,
       user_id,
+      new Date(),
       expected_float,
       counted_float,
       0,
@@ -374,8 +384,9 @@ Tills.close = function(
 
 Tills.getTotalCashTakingsSince = function(till_id, timestamp, callback) {
   var query =
-    "SELECT * FROM transactions WHERE till_id = ? AND (date >= ? AND date <= NOW())";
-  var inserts = [till_id, timestamp];
+    "SELECT * FROM transactions WHERE till_id = ? AND (date >= ? AND date <= ?)";
+  var inserts = [till_id, timestamp, new Date()];
+
   var sql = mysql.format(query, inserts);
 
   con.query(sql, function(err, transactions) {

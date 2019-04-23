@@ -48,7 +48,8 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
       murakamiStatus: req.query.murakamiStatus || null,
 
       till: {
-        till_id: till_id
+        till_id: till_id,
+        group_id: req.user.working_groups[0]
       }
     });
   });

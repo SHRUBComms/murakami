@@ -42,7 +42,8 @@ router.get("/", function(req, res) {
           tillMode: tillMode,
           logVolunteerHoursActive: true,
           till: {
-            till_id: till_id
+            till_id: till_id,
+            group_id: req.user.working_groups[0]
           },
           title: "Log Volunteer Hours",
           volunteerHoursActive: true,
@@ -75,79 +76,99 @@ router.get("/", function(req, res) {
 router.post("/", function(req, res) {
   var message = {};
 
+  var allowed = false;
+
   try {
-    if (!req.user || (req.user && req.user.volunteerHours.log)) {
+    if (!req.user || (req.user && req.user.permissions.volunteerHours.log)) {
       allowed = true;
     }
   } catch (err) {}
+
   if (allowed) {
     if (req.user) {
       var shift = req.body.shift;
-
+      console.log(shift);
       Members.getById(shift.member_id, req.user, function(err, member) {
         if (err || !member) {
           res.send({ status: "fail", msg: "Please select a valid member!" });
         } else {
           if (!isNaN(shift.duration)) {
-            WorkingGroups.getAll(function(err, allWorkingGroups) {
-              if (allWorkingGroups[shift.working_group]) {
-                var group = allWorkingGroups[shift.working_group];
+            if (
+              req.user.permissions.volunteerHours.log == true ||
+              (req.user.permissions.volunteerHours.log ==
+                "commonWorkingGroup" &&
+                req.user.working_groups.includes(shift.working_group))
+            ) {
+              WorkingGroups.getAll(function(err, allWorkingGroups) {
+                if (allWorkingGroups[shift.working_group]) {
+                  var group = allWorkingGroups[shift.working_group];
 
-                if (["admin", "staff", "volunteer"].includes(req.user.class)) {
-                  shift.approved = 1;
-                  VolunteerHours.createShift(shift, function(err) {
-                    if (err) {
-                      res.send({
-                        status: "fail",
-                        msg: "Something went wrong please try again!"
-                      });
-                    } else {
-                      message.status = "ok";
-                      message.msg =
-                        "Shift logged - " +
-                        member.full_name +
-                        ", " +
-                        shift.duration +
-                        " hour(s) for " +
-                        group.name;
-
-                      if (
-                        moment(member.current_exp_membership).isBefore(
-                          moment().add(3, "months")
-                        )
-                      ) {
-                        Members.renew(member.member_id, "3_months", function() {
-                          Members.updateFreeStatus(
-                            member.member_id,
-                            1,
-                            function() {
-                              message.msg += ". Membership renewed!";
-                              res.send(message);
-                            }
-                          );
+                  if (
+                    ["admin", "staff", "volunteer"].includes(req.user.class)
+                  ) {
+                    shift.approved = 1;
+                    VolunteerHours.createShift(shift, function(err) {
+                      if (err) {
+                        res.send({
+                          status: "fail",
+                          msg: "Something went wrong please try again!"
                         });
                       } else {
-                        Members.updateStatus(
-                          member.member_id,
-                          1,
-                          function() {}
-                        );
-                        res.send(message);
-                      }
-                    }
-                  });
-                } else {
-                  shift.approved = null;
+                        message.status = "ok";
+                        message.msg =
+                          "Shift logged - " +
+                          member.name +
+                          ", " +
+                          shift.duration +
+                          " hour(s) for " +
+                          group.name;
 
-                  VolunteerHours.createShift(shift, function(err) {
-                    res.send({
-                      status: "ok",
-                      msg: "Shift logged - awaiting review by an admin!"
+                        if (
+                          moment(member.current_exp_membership).isBefore(
+                            moment().add(3, "months")
+                          )
+                        ) {
+                          Members.renew(
+                            member.member_id,
+                            "3_months",
+                            function() {
+                              Members.updateFreeStatus(
+                                member.member_id,
+                                1,
+                                function() {
+                                  message.msg += ". Membership renewed!";
+                                  res.send(message);
+                                }
+                              );
+                            }
+                          );
+                        } else {
+                          Members.updateStatus(
+                            member.member_id,
+                            1,
+                            function() {}
+                          );
+                          res.send(message);
+                        }
+                      }
                     });
-                  });
+                  } else {
+                    shift.approved = null;
+
+                    VolunteerHours.createShift(shift, function(err) {
+                      res.send({
+                        status: "ok",
+                        msg: "Shift logged - awaiting review by an admin!"
+                      });
+                    });
+                  }
                 }
-              }
-            });
+              });
+            } else {
+              message.status = "fail";
+              message.msg = "Please select a valid working group!";
+              res.send(message);
+            }
           } else {
             message.status = "fail";
             message.msg = "Please enter valid duration!";

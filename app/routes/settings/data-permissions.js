@@ -25,10 +25,17 @@ router.get("/:user_class", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(
 ) {
   if (userClasses.includes(req.params.user_class)) {
     DataPermissions.getAll(function(err, permissions) {
+      var orderedPermissions = {};
+      Object.keys(permissions[req.params.user_class])
+        .sort()
+        .forEach(
+          key =>
+            (orderedPermissions[key] = permissions[req.params.user_class][key])
+        );
       res.render("settings/data-permissions", {
         title: "Data Permissions",
         settingsActive: true,
-        permissions: permissions[req.params.user_class],
+        permissions: orderedPermissions,
         userClass: req.params.user_class
       });
     });

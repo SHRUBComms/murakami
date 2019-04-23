@@ -9,31 +9,47 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
-  Tills.getTillById(req.params.till_id, function(err, till) {
-    if (till) {
-      Tills.getStatusById(req.params.till_id, function(status) {
-        if (status.opening == 0) {
-          WorkingGroups.getAll(function(err, allWorkingGroups) {
-            var group = allWorkingGroups[till.group_id];
-            res.render("till/open", {
-              tillMode: true,
-              openTillActive: true,
-              title: "Open Till",
-              till: till,
-              allWorkingGroups: allWorkingGroups,
-              working_group: group
-            });
+router.get(
+  "/:till_id",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("tills", "open"),
+  function(req, res) {
+    Tills.getTillById(req.params.till_id, function(err, till) {
+      if (till) {
+        if (
+          req.user.permissions.tills.open == true ||
+          (req.user.permissions.tills.open == "commonWorkingGroup" &&
+            req.user.working_groups.includes(till.group_id))
+        ) {
+          Tills.getStatusById(req.params.till_id, function(status) {
+            if (status.opening == 0) {
+              WorkingGroups.getAll(function(err, allWorkingGroups) {
+                var group = allWorkingGroups[till.group_id];
+                res.render("till/open", {
+                  tillMode: true,
+                  openTillActive: true,
+                  title: "Open Till",
+                  till: till,
+                  allWorkingGroups: allWorkingGroups,
+                  working_group: group
+                });
+              });
+            } else {
+              res.redirect(
+                process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id
+              );
+            }
           });
         } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id);
+          req.flash("error", "You don't have permission to open this till!");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/till");
         }
-      });
-    } else {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/till");
-    }
-  });
-});
+      } else {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/till");
+      }
+    });
+  }
+);
 
 router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
   var counted_float = req.body.counted_float;
@@ -52,15 +68,23 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
               function(err) {
                 if (err) {
                   req.flash("error", "Something went wrong!");
-                  res.redirect(process.env.PUBLIC_ADDRESS + "/till/open/" + req.params.till_id);
+                  res.redirect(
+                    process.env.PUBLIC_ADDRESS +
+                      "/till/open/" +
+                      req.params.till_id
+                  );
                 } else {
-                  res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id);
+                  res.redirect(
+                    process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id
+                  );
                 }
               }
             );
           } else {
             req.flash("error", "Till already open!");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id);
+            res.redirect(
+              process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id
+            );
           }
         });
       } else {
@@ -69,7 +93,9 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
     });
   } else {
     req.flash("error", "Enter a valid opening float.");
-    res.redirect(process.env.PUBLIC_ADDRESS + "/till/open/" + req.params.till_id);
+    res.redirect(
+      process.env.PUBLIC_ADDRESS + "/till/open/" + req.params.till_id
+    );
   }
 });
 
