@@ -6,12 +6,13 @@
 		<div class="form-inline">
 
 		    <div class="form-group">
-		      <select class="form-control" id="working_group">
-		      		<option disabled selected>Select a working group...</option>
-			      	{{#each working_groups}}
-			        	<option value="{{group_id}}">{{name}}</option>
-			        {{/each}}
-		      </select>
+
+					{{#ifCond user.permissions.carbonAccounting.log '==' true}}
+	          {{>working-groups/select selectedGroup=group_id id="working_group" user=user}}
+	        {{else}}
+	          {{>working-groups/select selectedGroup=group_id allGroups=false id="working_group" user=user}}
+	        {{/ifCond}}
+
 		    </div>
 		    <div class="form-group">
 		      <select class="form-control" id="method">

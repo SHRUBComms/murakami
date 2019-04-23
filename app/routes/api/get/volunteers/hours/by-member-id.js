@@ -6,6 +6,7 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
+var Volunteers = require(rootDir + "/app/models/volunteers");
 var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
 
 var Tills = require(rootDir + "/app/models/tills");
@@ -16,35 +17,50 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "shiftHistory"),
   function(req, res) {
-    VolunteerHours.getByMemberId(req.params.member_id, function(err, shifts) {
-      if (!err && shifts) {
-        var formattedShifts = [];
-        async.each(
-          shifts,
-          function(shift, callback) {
-            var formattedShift = {};
-            formattedShift.date = moment(shift.date).format("L");
-            formattedShift.working_group =
-              req.user.allWorkingGroupsObj[shift.working_group].name ||
-              "Unknown";
-            formattedShift.duration = shift.duration_as_decimal;
-            if (shift.note && shift.note != "null") {
-              formattedShift.note = shift.note;
-            } else {
-              formattedShift.note = "-";
-            }
+    Volunteers.getVolunteerById(req.params.member_id, req.user, function(
+      err,
+      volunteer
+    ) {
+      if (volunteer) {
+        if (volunteer.shiftHistory == true) {
+          VolunteerHours.getByMemberId(req.params.member_id, function(
+            err,
+            shifts
+          ) {
+            if (!err && shifts) {
+              var formattedShifts = [];
+              async.each(
+                shifts,
+                function(shift, callback) {
+                  var formattedShift = {};
+                  formattedShift.date = moment(shift.date).format("L");
+                  formattedShift.working_group =
+                    req.user.allWorkingGroupsObj[shift.working_group].name ||
+                    "Unknown";
+                  formattedShift.duration = shift.duration_as_decimal;
+                  if (shift.note && shift.note != "null") {
+                    formattedShift.note = shift.note;
+                  } else {
+                    formattedShift.note = "-";
+                  }
 
-            formattedShifts.push(formattedShift);
-            callback();
-          },
-          function() {
-            res.send(formattedShifts);
-          }
-        );
+                  formattedShifts.push(formattedShift);
+                  callback();
+                },
+                function() {
+                  res.send(formattedShifts);
+                }
+              );
+            } else {
+              res.send([]);
+            }
+          });
+        } else {
+          res.send([]);
+        }
       } else {
-        
         res.send([]);
       }
     });

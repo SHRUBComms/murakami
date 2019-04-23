@@ -1,5 +1,8 @@
 var rootDir = process.env.CWD;
+
 var AccessTokens = require(rootDir + "/app/models/access-tokens");
+var Members = require(rootDir + "/app/models/members");
+var Volunteers = require(rootDir + "/app/models/volunteers");
 
 var Auth = {};
 
@@ -11,11 +14,25 @@ Auth.isLoggedIn = function(req, res, next) {
   }
 };
 
+Auth.canAccessPage = function(parent, page) {
+  return function(req, res, next) {
+    try {
+      if (req.user.permissions[parent][page]) {
+        return next();
+      } else {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/");
+      }
+    } catch (err) {
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
+    }
+  };
+};
+
 Auth.isNotLoggedIn = function(req, res, next) {
   if (!req.isAuthenticated()) {
     return next();
   } else {
-    res.redirect("/");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 };
 

@@ -27,15 +27,15 @@
 			</div>
 		</div>
 
-
-		<div class="row mt-4">
-			<div class="col-md-5">
-				<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary">Update Member</a>
+		{{#if member.canUpdate}}
+			<div class="row mt-4">
+				<div class="col-md-5">
+					<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary">Update Member</a>
+				</div>
 			</div>
-		</div>
+		{{/if}}
 
-		{{#ifUserClass user.class '["admin", "staff"]'}}
-
+		{{#if member.canRevokeMembership}}
 			{{#if member.is_member}}
 				<div class="row mt-2">
 					<div class="col-md-5">
@@ -43,98 +43,119 @@
 					</div>
 				</div>
 			{{/if}}
-
-
+		{{/if}}
+		{{#if member.canDelete}}
 			<div class="row mt-2">
 				<div class="col-md-5">
 					<a href="{{public_address}}/api/get/members/destroy/{{member.member_id}}" onclick='return confirm("Are you sure you want to destory this member? *IRREVERSIBLE*")' class="btn btn-block btn-danger">Destroy Member</a>
 				</div>
 			</div>
-		{{/ifUserClass}}
+		{{/if}}
 
 
 
-		<div class="row mt-4 mb-4">
-			<div class="col-lg-6">
-				<div class="card">
-					<div class="card-body">
-						<h4 class="mb-1">Membership</h4>
+			<div class="row mt-4 mb-4">
+				<div class="col-lg-6">
+					<div class="card">
+						<div class="card-body">
+							<h4 class="mb-1">Membership</h4>
+							{{#if member.earliest_membership_date}}
+								<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
 
-						<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
+								<small>Current Membership Period</small>
+								<div class="mb-2">
+									<p>Began: <b>{{member.current_init_membership}}</b></p>
+									<p>Expires: <b>{{member.current_exp_membership}}</b></p>
 
-						<small>Current Membership Period</small>
-						<div class="mb-2">
-							<p>Began: <b>{{member.current_init_membership}}</b></p>
-							<p>Expires: <b>{{member.current_exp_membership}}</b></p>
+								</div>
+							{{/if}}
 
+							{{#if member.canViewSavedCarbon}}
+								<p><span id="carbon">0</span> kilos of carbon saved!</p>
+							{{/if}}
+							{{#if member.balance}}
+								<p>Balance: <b><span id="balance">{{member.balance}}</span> tokens</b></p>
+							{{/if}}
+
+
+							{{#if member.canManageMembershipCard}}
+								<div class="row mt-2">
+									<div class="col-md-12">
+										<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary" data-toggle="modal" data-target="#exampleModal">
+
+											{{#if member.barcode}}
+												Manage Membership Card
+											{{else}}
+												Issue Membership Card
+											{{/if}}
+
+										</a>
+									</div>
+								</div>
+
+								{{/if}}
 						</div>
+					</div>
+				</div>
+				<div class="col-lg-6">
+					{{#if user.permissions.members.contactDetails}}
+						<div class="card">
+							<div class="card-body">
+								<h4>Contact</h4>
+
+		            {{#if member.email}}
+		              {{#if member.gdpr.email}}
+		                <p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  <p>
+		                {{else}}
+		                  <p class="text-danger">
+		                {{/if}}
+		              {{/if}}
+		              {{member.email}}
+		              {{#if member.gdpr.email}}
+		              </p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  </p>
+		                {{else}}
+		                  (ask for permission to use)</p>
+		                {{/if}}
+		              {{/if}}
+		            {{/if}}
+
+		            {{#if member.phone_no}}
+		              {{#if member.gdpr.phone}}
+		                <p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  <p>
+		                {{else}}
+		                  <p class="text-danger">
+		                {{/if}}
+		              {{/if}}
+		              {{member.phone_no}}
+		              {{#if member.gdpr.phone}}
+		              </p>
+		              {{else}}
+		                {{#if volInfo.isAssignedCoordinator}}
+		                  </p>
+		                {{else}}
+		                  (ask for permission to use)</p>
+		                {{/if}}
+		              {{/if}}
+		            {{/if}}
 
 
-
-						<p><span id="carbon">0</span> kilos of carbon saved!</p>
-
-						<p>Balance: <b><span id="balance">{{member.balance}}</span> tokens</b></p>
-
-
-						<div class="row mt-2">
-							<div class="col-md-12">
-								<a href="{{public_address}}/members/update/{{member.member_id}}" class="btn btn-block btn-primary" data-toggle="modal" data-target="#exampleModal">
-
-									{{#if member.barcode}}
-										Manage Membership Card
-									{{else}}
-										Issue Membership Card
-									{{/if}}
-
-								</a>
 							</div>
 						</div>
-
-					</div>
+					{{/if}}
 				</div>
 			</div>
-			<div class="col-lg-6">
-				<div class="card">
-					<div class="card-body">
-						<h4>Contact</h4>
-						{{#if volInfo.canUpdate}}
-              <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-              <p>{{member.phone_no}}</p>
-              <p>{{member.address}}</p>
-            {{else}}
-              {{#ifCond user.class '==' 'admin'}}
-                <a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-                <p>{{member.phone_no}}</p>
-                <p>{{member.address}}</p>
-              {{/ifCond}}
-              {{#ifCond user.class '==' 'staff'}}
-                {{#if member.gdpr.email}}
-  								<a href="mailto:{{member.email}}"><p class="text-primary">{{member.email}}</p></a>
-  							{{else}}
-  								<a href="mailto:{{member.email}}"><p class="text-danger">{{member.email}} <b>(permission required)</b></p></a>
-  							{{/if}}
-  							{{#if member.phone_no}}
-                  {{#if member.gdpr.phone}}
-  					        <p>{{member.phone_no}}</p>
-                  {{else}}
-                    <p class="text-danger">{{member.phone_no}} <b>(permission required)</b></p>
-                  {{/if}}
-  							{{/if}}
-              {{/ifCond}}
-              {{#ifCond user.class '==' 'volunteer'}}
-                <p>You can't view this volunteer's email</p>
-                <p>You can't view this volunteer's phone number</p>
-              {{/ifCond}}
-
-						{{/if}}
 
 
-					</div>
-				</div>
-			</div>
-		</div>
-
-		{{#ifUserClass user.class '["admin", "staff", "volunteer"]'}}
+		{{#ifCond user.permissions.volunteers.view '||' user.permissions.volunteers.add}}
 			{{#if member.volunteer_id}}
 				<div class="row mb-4">
 					<div class="col-lg-6">
@@ -158,13 +179,15 @@
 					</div>
 				</div>
 			{{else}}
+			{{#if user.permissions.volunteers.add}}
 				<div class="row mb-4">
 					<div class="col-lg-6">
-						<p class="mt-2"><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="btn btn-primary btn-block">Make {{member.first_name.text}} A Volunteer</a></p>
+						<p class="mt-2"><a href="{{public_address}}/members/make-volunteer/{{member.member_id}}" class="btn btn-primary btn-block">Make {{member.first_name}} A Volunteer</a></p>
 					</div>
 				</div>
 			{{/if}}
-		{{/ifUserClass}}
+			{{/if}}
+		{{/ifCond}}
 
 		<!--
 		{{#if member.isMember.text}}
@@ -187,39 +210,42 @@
 		{{/if}}
 		-->
 
-		<div class="row">
-			<div class="col-lg-12">
+		{{#if user.permissions.members.transactionHistory}}
+			<div class="row">
+				<div class="col-lg-12">
 
-						<h3 class="mb-3 mt-3">Transaction History</h3>
+							<h3 class="mb-3 mt-3">Transaction History</h3>
 
-						<table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/members/transactions/{{member.member_id}}">
-						    <thead>
-						        <tr>
-						        	<th></th>
-						        	<th></th>
-						        	<th></th>
-						        	<th colspan="2">Totals</th>
-						        </tr>
-						        <tr>
-						        	<th data-field="date">Timestamp</th>
-						        	<th data-field="till_name">Till</th>
-						            <th data-field="bill">Summary</th>
-						        	<th scope="col" data-field="totals.tokens">Tokens</th>
-						        	<th scope="col" data-field="totals.money">Money</th>
-						        </tr>
-						    </thead>
+							<table id="transaction_history" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true" data-url="/api/get/members/transactions/{{member.member_id}}">
+							    <thead>
+							        <tr>
+							        	<th></th>
+							        	<th></th>
+							        	<th></th>
+							        	<th colspan="2">Totals</th>
+							        </tr>
+							        <tr>
+							        	<th data-field="date">Timestamp</th>
+							        	<th data-field="till_name">Till</th>
+							            <th data-field="bill">Summary</th>
+							        	<th scope="col" data-field="totals.tokens">Tokens</th>
+							        	<th scope="col" data-field="totals.money">Money</th>
+							        </tr>
+							    </thead>
 
-							<tbody>
-							</tbody>
-						</table>
+								<tbody>
+								</tbody>
+							</table>
 
-					</div>
+						</div>
 
-		</div>
+			</div>
+		{{/if}}
   </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+{{#if member.canManageMembershipCard}}
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -265,41 +291,45 @@
     </div>
   </div>
 </div>
+{{/if}}
 
 <script>
+{{#if member.canViewSavedCarbon}}
+	function getSavedCarbon(){
+		$.ajax({
+		    type: "GET",
+		    url: "{{public_address}}/api/get/members/carbon-saved/" + "{{member.member_id}}",
+		    success: function(response){
+				$('#carbon').html(response.carbon);
+		    }
+		});
+	}
+{{/if}}
+{{#if member.canManageMembershipCard}}
+	function updateBarcode(){
+		$.ajax({
+		    type: "POST",
+		    url: "{{public_address}}/api/post/members/update-barcode/" + "{{member.member_id}}",
+				data: {
+					barcode: $("#barcodeInput").val()
+				},
+		    success: function(response){
+					if(response.status == "ok") {
+		        $("#barcodeResponseBox").removeClass("alert-danger");
+		        $("#barcodeResponseBox").addClass("alert-success");
+		      } else {
+		        $("#barcodeResponseBox").removeClass("alert-success");
+		        $("#barcodeResponseBox").addClass("alert-danger");
 
-function getSavedCarbon(){
-	$.ajax({
-	    type: "GET",
-	    url: "{{public_address}}/api/get/members/carbon-saved/" + "{{member.member_id}}",
-	    success: function(response){
-			$('#carbon').html(response.carbon);
-	    }
-	});
-}
+		      }
+		      $("#barcodeResponseBox").removeClass("d-none");
+		      $("#barcodeResponse").text(response.msg);
+		    }
+		});
+	}
+{{/if}}
 
-function updateBarcode(){
-	$.ajax({
-	    type: "POST",
-	    url: "{{public_address}}/api/post/members/update-barcode/" + "{{member.member_id}}",
-			data: {
-				barcode: $("#barcodeInput").val()
-			},
-	    success: function(response){
-				if(response.status == "ok") {
-	        $("#barcodeResponseBox").removeClass("alert-danger");
-	        $("#barcodeResponseBox").addClass("alert-success");
-	      } else {
-	        $("#barcodeResponseBox").removeClass("alert-success");
-	        $("#barcodeResponseBox").addClass("alert-danger");
-
-	      }
-	      $("#barcodeResponseBox").removeClass("d-none");
-	      $("#barcodeResponse").text(response.msg);
-	    }
-	});
-}
-
-getSavedCarbon();
-
+{{#if member.canViewSavedCarbon}}
+	getSavedCarbon();
+{{/if}}
 </script>

@@ -9,7 +9,10 @@ var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
+router.get("/:member_id", Auth.canAccessPage("members", "view"), function(
+  req,
+  res
+) {
   Members.getById(req.params.member_id, req.user, function(err, member) {
     if (err || !member) {
       req.flash("error_msg", "Member not found!");
@@ -20,7 +23,8 @@ router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
         membersActive: true,
         member: member,
         till: {
-          till_id: req.query.till_id
+          till_id: req.query.till_id,
+          group_id: req.user.working_groups[0]
         }
       });
     }

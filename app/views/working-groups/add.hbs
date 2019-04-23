@@ -13,15 +13,26 @@
 
           <option disabled selected>Select a parent working group...</option>
 
-
           <option value='none' {{#unless parent}}selected{{/unless}}>No Parent</option>
-          {{#each user.allWorkingGroupsObj}}
-            {{#unless parent}}
-              <option value='{{group_id}}'{{#ifCond group_id '==' ../parent}} selected{{/ifCond}}>{{name}}</option>
-            {{/unless}}
-          {{/each}}
 
 
+          {{#ifCond user.permissions.workingGroups.add '==' true}}
+            {{#each user.allWorkingGroupsObj}}
+              {{#unless parent}}
+
+                  <option value='{{group_id}}'{{#ifCond group_id '==' ../parent}} selected{{/ifCond}}>{{name}}</option>
+
+              {{/unless}}
+            {{/each}}
+          {{else}}
+            {{#each user.working_groups}}
+              {{#unless (lookup (lookup ../user.allWorkingGroupsObj this) 'parent')}}
+
+                  <option value='{{lookup (lookup ../user.allWorkingGroupsObj this) 'group_id'}}'{{#ifCond (lookup (lookup ../user.allWorkingGroupsObj this) 'group_id') '==' ../../parent}} selected{{/ifCond}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
+
+              {{/unless}}
+            {{/each}}
+          {{/ifCond}}
 
         </select>
       </div>

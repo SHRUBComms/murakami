@@ -9,7 +9,7 @@ var Users = require(rootDir + "/app/models/users");
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
   req,
   res
 ) {
@@ -19,7 +19,7 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
   });
 });
 
-router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
   req,
   res
 ) {
@@ -42,9 +42,13 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
 
   if (req.user.class == "admin") {
     validClasses = ["admin", "till", "volunteer", "staff"];
+  } else if (req.user.class == "staff") {
+    validClasses = ["till", "volunteer", "staff"];
+  }
+
+  if (req.user.permissions.users.add == true) {
     validWorkingGroups = req.user.allWorkingGroupsFlat;
-  } else {
-    validClasses = ["till", "volunteer"];
+  } else if (req.user.permissions.users.add == "commonWorkingGroup") {
     validWorkingGroups = req.user.working_groups;
   }
 
@@ -121,7 +125,7 @@ router.post("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "staff"]), function(
     .checkBody("working_groups", "Please select at least one working group")
     .notEmpty();
 
-  if (!Helpers.allBelongTo(validWorkingGroups, req.user.allWorkingGroupsFlat)) {
+  if (!Helpers.allBelongTo(working_groups, validWorkingGroups)) {
     req
       .checkBody("placeholder", "Please select valid working groups")
       .notEmpty();

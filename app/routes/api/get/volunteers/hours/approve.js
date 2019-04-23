@@ -15,7 +15,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:shift_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteerHours", "review"),
   function(req, res) {
     var message = {
       status: "fail",
@@ -27,16 +27,16 @@ router.get(
         message.status = "fail";
         message.msg = "Couldn't find that shift!";
         res.send(message);
-      }
+      } else {
+        shift = shift[0];
 
-      var shift = shift[0];
-
-      if (
-        req.user.working_groups.includes(shift.working_group) ||
-        req.user.class == "admin"
-      ) {
         Members.getById(shift.member_id, req.user, function(err, member) {
-          if (req.user.allWorkingGroupsObj[shift.working_group]) {
+          if (
+            req.user.permissions.volunteerHours.review == true ||
+            (req.user.permissions.volunteerHours.review ==
+              "commonWorkingGroup" &&
+              req.user.working_groups.includes(shift.working_group))
+          ) {
             var group = req.user.allWorkingGroupsObj[shift.working_group];
             VolunteerHours.approveShift(req.params.shift_id, function(err) {
               message.status = "ok";
@@ -65,14 +65,10 @@ router.get(
             });
           } else {
             message.status = "fail";
-            message.msg = "Please select a valid group!";
+            message.msg = "You don't have permission to approve this shift!";
             res.send(message);
           }
         });
-      } else {
-        message.status = "fail";
-        message.msg = "You don't have permission to approve this shift!";
-        res.send(message);
       }
     });
   }

@@ -1,0 +1,25 @@
+<div class="row mt-4">
+  <div class="col-md-4 mx-auto">
+    <div class="row">
+      <div class="container">
+        <div class="card">
+          <div class="card-body">
+            <input type="text" class="form-control mb-4" placeholder="Till Name" id="till_name" value="{{till.name}}">
+            {{#ifCond user.permissions.tills.addTill '==' true}}
+              {{>working-groups/select user=user selectedGroup=till.group_id}}
+            {{else}}
+              {{>working-groups/select user=user allGroups=false selectedGroup=till.group_id}}
+            {{/ifCond}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="container">
+        <button type="submit" class="btn btn-block btn-lg btn-success">Add Till</button>
+      </div>
+    </div>
+
+  </div>
+</div>

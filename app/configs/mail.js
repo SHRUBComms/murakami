@@ -63,7 +63,11 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
     WorkingGroups.getAll(function(err, allWorkingGroups) {
       Members.getById(
         member_id,
-        { class: "admin", allVolunteerRoles: allRoles },
+        {
+          allVolunteerRoles: allRoles,
+          class: "admin",
+          permissions: { members: { contactDetails: true, name: true } }
+        },
         function(err, member) {
           Settings.getEmailTemplateById(mail_id, function(err, template) {
             Settings.getEmailTemplateById("footer", function(err, footer) {

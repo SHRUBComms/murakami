@@ -12,7 +12,7 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/:user_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("users", "deactivate"),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
       if (user[0] && !err && !user[0].deactivated) {

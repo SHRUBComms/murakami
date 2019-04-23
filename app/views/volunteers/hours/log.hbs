@@ -71,8 +71,12 @@
 
 
   <script>
-
   var allWorkingGroups = {{{json user.allWorkingGroupsObj}}};
+  {{#ifCond user.permissions.volunteerHours.log '==' true}}
+    var working_groups = {{{json user.allWorkingGroupsFlat}}};
+  {{else}}
+    var working_groups = {{{json user.working_groups}}};
+  {{/ifCond}}
 
   function search(){
     $.ajax({
@@ -113,23 +117,24 @@
     } else {
       for(let i=0;i<results.length;i++){
 
-      	var workingGroupSelectMarkup =  '<select id="working_group_select_' + results[i].id + '" class="form-control">'+
+      	var workingGroupSelectMarkup =  '<select id="working_group_select_' + results[i].member_id + '" class="form-control">'+
       										'<option>Select a working group...</option>';
-        	Object.keys(allWorkingGroups).forEach(function(key){
+        	working_groups.forEach(function(key){
             workingGroupSelectMarkup += "<option value='" + allWorkingGroups[key].group_id + "'>" + allWorkingGroups[key].name + "</option>";
           })
 
 
 
       	workingGroupSelectMarkup += '</select>';
-        var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].id +  ")'>Log Hours</a>"
-      	if(Object.keys(allWorkingGroups).length > 0){
+        console.log(results[i]);
+        var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].member_id +  ")'>Log Hours</a>"
+      	if(working_groups.length > 0){
   	      	var shiftLogger =   '<div class="row">' +
             		      						'<div class="col-lg-8 mx-auto mb-4">' +
             		      							workingGroupSelectMarkup +
             		      						'</div>' +
                                   '<div class="col-lg-4 mx-auto">' +
-                                    '<input type="number" class="form-control" id="duration_' + results[i].id + '" name="duration" min="0.25" max="1000" step="0.25" value="0" />' +
+                                    '<input type="number" class="form-control" id="duration_' + results[i].member_id + '" name="duration" min="0.25" max="1000" step="0.25" value="0" />' +
                                   '</div>' +
                                 '</div>'  +
 
@@ -146,15 +151,15 @@
   		      					'</div>'
       	}
 
-
+        results[i].email = results[i].email || "Email address not available"
         $('#search-results').html($('#search-results').html() +
           resultStart +
-            "<a href='/members/view/" + results[i].id + "'><p><b>" +
+            "<a href='/members/view/" + results[i].member_id + "'><p><b>" +
               results[i].name +
             "</p></b></a>" +
 
             "<p>" +
-              results[i].email +
+              results[i].email  +
             "</p>" +
             "<hr />" +
             shiftLogger +

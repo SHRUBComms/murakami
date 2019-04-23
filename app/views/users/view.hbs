@@ -1,0 +1,29 @@
+<div class="row m-2 mt-4 mb-4 ">
+  <div class="card mx-auto">
+    <div class="card-body">
+      <h2>{{first_name}} {{last_name}}</h2>
+      <span>{{username}} | {{email}}</span>
+      <p>Last login:
+        {{#if last_login}}
+          {{last_login}}
+        {{else}}
+          never
+        {{/if}}
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="row m-2 mt-4 mb-4">
+  <div class="card mx-auto">
+    <div class="card-body">
+      <h3>Working Groups</h3>
+      <p>{{first_name}} belongs to:</p>
+      <ul>
+        {{#each working_groups}}
+          <li>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+</div>

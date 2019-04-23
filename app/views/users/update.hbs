@@ -1,11 +1,11 @@
 <div class="row m-2 mt-4 mb-4">
   <div class="card mx-auto">
     <div class="card-body">
-      <h2>{{first_name}} {{last_name}}</h2>
-      <span>{{username}} | {{email}}</span>
+      <h2>{{viewedUser.first_name}} {{viewedUser.last_name}}</h2>
+      <span>{{viewedUser.username}} | {{viewedUser.email}}</span>
       <p>Last login:
-        {{#if last_login}}
-          {{last_login}}
+        {{#if viewedUser.last_login}}
+          {{viewedUser.last_login}}
         {{else}}
           never
         {{/if}}
@@ -14,32 +14,35 @@
   </div>
 </div>
 
-<div class="row m-2">
-    <div class="form-group form-inline mx-auto">
-      {{#ifCond user_id '!=' user.id}}
-        <a href="{{public_address}}/users/deactivate/{{user_id}}" class="btn btn-danger">Deactivate User</a>
-      {{ else }}
-        <a href="{{public_address}}/users/deactivate/{{user_id}}" class="btn btn-danger" onclick="return confirm('Are you sure you want to deactivate yourself? This is irreversible.');">Deactivate User</a>
-      {{/ifCond}}
-      {{#ifCond user_id '==' user.id}}
-        &emsp;<a href="{{public_address}}/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
-      {{/ifCond}}
-    </div>
-</div>
 
 
-<form method="post" action="{{public_address}}/users/update/{{user_id}}" class="form-group">
-
-  {{>users/add}}
-
-  {{#ifCond user_id '==' user.id}}
-    {{>users/notification-preferences}}
-  {{/ifCond}}
-
-
-  <div class="row mt-4">
-    <div class="col-md-6 mt-4 mx-auto">
-      <button type="submit" class="btn btn-block btn-primary btn-lg">Update User</button>
-    </div>
+  <div class="row m-2">
+      <div class="form-group form-inline mx-auto">
+        {{#if viewedUser.canDeactivate}}
+          <a href="{{public_address}}/users/deactivate/{{viewedUser.id}}" class="btn btn-danger">Deactivate User</a>
+        {{/if}}
+        {{#ifCond user_id '==' user.id}}
+          &emsp;<a href="{{public_address}}/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
+        {{/ifCond}}
+      </div>
   </div>
-</form>
+
+{{#if viewedUser.canUpdate}}
+
+  <form method="post" action="{{public_address}}/users/update/{{viewedUser.id}}" class="form-group">
+
+    {{>users/add updatingUser=true user=user first_name=viewedUser.first_name last_name=viewedUser.last_name userClass=viewedUser.class working_groups=viewedUser.working_groups}}
+
+    {{#ifCond viewedUser.id '==' user.id}}
+      {{>users/notification-preferences notification_preferences=viewedUser.notification_preferences}}
+    {{/ifCond}}
+
+
+    <div class="row mt-4">
+      <div class="col-md-6 mt-4 mx-auto">
+        <button type="submit" class="btn btn-block btn-primary btn-lg">Update User</button>
+      </div>
+    </div>
+  </form>
+
+{{/if}}

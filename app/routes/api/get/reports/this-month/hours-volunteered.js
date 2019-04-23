@@ -6,7 +6,9 @@ var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-router.get("/", function(req, res) {
+var Auth = require(rootDir + "/app/configs/auth");
+
+router.get("/", Auth.isLoggedIn, function(req, res) {
   WorkingGroups.getHoursThisMonth(function(err, hours) {
     if (hours[0]["SUM(duration_as_decimal)"]) {
       res.send(hours[0]["SUM(duration_as_decimal)"].toString());

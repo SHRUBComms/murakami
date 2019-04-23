@@ -54,147 +54,252 @@
                     <nav>
                         <ul class="metismenu plain-list" id="menu">
                           {{#if user}}
-                              {{#unless tillMode}}
+                              {{#ifCond tillMode '||' user.till}}
 
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
-                                  <li {{#if membersActive}}class="active"{{/if}}>
-                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
-                                      <ul class="collapse plain-list">
-                                          <li><a href="{{public_address}}/members/manage">Manage Members</a></li>
-                                          <li><a href="{{public_address}}/members/add">Add Member</a></li>
-                                      </ul>
-                                  </li>
-                                {{/ifUserClass}}
 
+                                {{#if till}}
+                                  {{#ifCond user.permissions.tills.processTransaction '==' true}}
+                                    <li {{#if transactionsActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                    </li>
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.processTransaction '==' 'commonWorkingGroup'}}
+                                    {{#if (lookupArray user.working_groups till.group_id)}}
+                                      <li {{#if transactionsActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                      </li>
+                                    {{/if}}
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.processDonations '==' true}}
+                                    <li {{#if donationsActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
+                                    </li>
+                                  {{/ifCond}}
+
+
+                                  {{#ifCond user.permissions.tills.processDonations '==' 'commonWorkingGroup'}}
+                                    {{#if (lookupArray user.working_groups till.group_id)}}
+                                      <li {{#if donationsActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
+                                      </li>
+                                    {{/if}}
+                                  {{/ifCond}}
+
+                                  {{#if user.permissions.carbonAccounting.log}}
+                                    <li {{#if carbonActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/carbon-accounting/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
+                                    </li>
+                                  {{/if}}
+
+                                  {{#if user.permissions.members.add}}
+                                    <li {{#if addMemberActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
+                                    </li>
+                                  {{/if}}
+
+                                  {{#if user.permissions.volunteerHours.log}}
+                                    <li {{#if logVolunteerHoursActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/volunteers/hours/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
+                                    </li>
+                                  {{/if}}
+
+                                  {{#ifCond user.permissions.tills.processDonations '==' true}}
+                                    <li {{#if closeTillActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                    </li>
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.close '==' 'commonWorkingGroup'}}
+                                    {{#if (lookupArray user.working_groups till.group_id)}}
+                                      <li {{#if closeTillActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                      </li>
+                                    {{/if}}
+                                  {{/ifCond}}
+
+                                {{/if}}
+
+                              {{else}}
+
+                              {{#ifNotEmpty user.permissions.members '["view", "add"]'}}
+                                <li {{#if membersActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user-friends"></i><span>Members</span></a>
+                                    <ul class="collapse plain-list">
+                                      {{#if user.permissions.members.view}}
+                                        <li><a href="{{public_address}}/members/manage">Manage Members</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.members.add}}
+                                        <li><a href="{{public_address}}/members/add">Add Member</a></li>
+                                      {{/if}}
+                                    </ul>
+                                </li>
+                              {{/ifNotEmpty}}
+
+                              {{#ifNotEmpty user.permissions.volunteers '["view", "add", "invite"]'}}
                                 <li {{#if volunteersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-people-carry"></i><span>Volunteers</span></a>
                                     <ul class="collapse plain-list">
-
-                                      <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
-                                      <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
-                                      <li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>
+                                      {{#if user.permissions.volunteers.view}}
+                                        <li><a href="{{public_address}}/volunteers/manage">Manage Volunteers</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.volunteers.add}}
+                                        <li><a href="{{public_address}}/volunteers/add">Add Volunteer</a></li>
+                                      {{/if}}
+                                      {{#if (lookupArray user.working_groups 'WG-101-255')}}
+                                        {{#if user.permissions.volunteers.invite}}
+                                          <li><a href="{{public_address}}/volunteers/invite">Invite Volunteer</a></li>
+                                        {{/if}}
+                                      {{/if}}
 
                                     </ul>
                                 </li>
+                              {{/ifNotEmpty}}
 
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
-                                  <li {{#if volunteerRolesActive}}class="active"{{/if}}>
-                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
-                                      <ul class="collapse plain-list">
+                              {{#ifNotEmpty user.permissions.volunteerRoles '["view", "add"]'}}
+                                <li {{#if volunteerRolesActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fab fa-black-tie"></i><span>Volunteer Roles</span></a>
+                                    <ul class="collapse plain-list">
+                                      {{#if user.permissions.volunteerRoles.view}}
                                         <li><a href="{{public_address}}/volunteers/roles/manage">Manage Roles</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.volunteerRoles.add}}
                                         <li><a href="{{public_address}}/volunteers/roles/add">Add Role</a></li>
-                                        <!--{{#ifUserClass user.class '["admin"]'}}
-                                          <li><a href="{{public_address}}/volunteers/roles/settings">Settings</a></li>
-                                        {{/ifUserClass}}-->
-                                      </ul>
-                                  </li>
-                                {{/ifUserClass}}
+                                        {{/if}}
+                                    </ul>
+                                </li>
+                              {{/ifNotEmpty}}
 
+                              {{#ifNotEmpty user.permissions.volunteerHours '["log", "review", "export"]'}}
                                 <li {{#if volunteerHoursActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
                                     <ul class="collapse plain-list">
-                                      <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
-                                      <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
-                                      {{#ifUserClass user.class '["admin", "staff"]'}}
+                                      {{#if user.permissions.volunteerHours.log}}
+                                        <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.volunteerHours.review}}
+                                        <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.volunteerHours.export}}
                                         <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>
-                                      {{/ifUserClass}}
+                                      {{/if}}
                                     </ul>
                                 </li>
+                              {{/ifNotEmpty}}
 
-                                <!-- if admin or belong to fs group -->
-
-                                <li {{#if foodCollectionsActive}}class="active"{{/if}}>
-                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
-                                    <ul class="collapse plain-list">
-
-                                      <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
-                                      <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
-                                      <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
-
-                                      <li class="mt-2"><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
-                                      <li><a href="{{public_address}}/food-collections/organisations/add">Add Organisation</a></li>
-
-
-                                    </ul>
-                                </li>
-
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
-
-                                  <li {{#if tillsActive}}class="active"{{/if}}>
-                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
+                              <!-- if admin or belong to fs group -->
+                              {{#if (lookupArray user.working_groups 'WG-101-255')}}
+                                {{#ifNotEmpty user.permissions.foodCollections '["log", "review", "export", "viewOrganisations", "addOrganisations"]'}}
+                                  <li {{#if foodCollectionsActive}}class="active"{{/if}}>
+                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-utensils"></i><span>Food Collections</span></a>
                                       <ul class="collapse plain-list">
-                                          <li><a href="{{public_address}}/till/manage">Manage Tills</a></li>
-                                          <!--<li><a href="{{public_address}}/till/settings">Add Till</a></li>-->
+                                        {{#if user.permissions.foodCollections.log}}
+                                          <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.foodCollections.review}}
+                                          <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.foodCollections.export}}
+                                          <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
+                                        {{/if}}
+
+                                        {{#if user.permissions.foodCollections.viewOrganisations}}
+                                          <li class="mt-2"><a href="{{public_address}}/food-collections/organisations">Manage Organisations</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.foodCollections.addOrganisations}}
+                                          <li><a href="{{public_address}}/food-collections/organisations/add">Add Organisation</a></li>
+                                        {{/if}}
+
                                       </ul>
                                   </li>
+                                {{/ifNotEmpty}}
+                              {{/if}}
 
-                                {{/ifUserClass}}
+                              {{#ifNotEmpty user.permissions.tills '["addTill", "viewTill"]'}}
+
+                                <li {{#if tillsActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-dollar-sign"></i><span>Tills</span></a>
+                                    <ul class="collapse plain-list">
+                                        {{#if user.permissions.tills.viewTill}}
+                                          <li><a href="{{public_address}}/till/manage">Manage Tills</a></li>
+                                        {{/if}}
+                                        {{#if user.permissions.tills.addTill}}
+                                         <li><a href="{{public_address}}/till/add">Add Till</a></li>
+                                        {{/if}}
+                                    </ul>
+                                </li>
+
+                              {{/ifNotEmpty}}
+
+                              {{#ifNotEmpty user.permissions.carbonAccounting '["log","settings","export"]'}}
 
                                 <li {{#if carbonActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-recycle"></i><span>Carbon Accounting</span></a>
                                     <ul class="collapse plain-list">
+                                      {{#if user.permissions.carbonAccounting.log}}
                                         <li><a href="{{public_address}}/carbon-accounting/log">Log Outgoing Weight</a></li>
-                                        {{#ifUserClass user.class '["admin", "staff"]'}}
-                                          <li><a href="{{public_address}}/carbon-accounting/settings">Update Calculations</a></li>
-                                          <li><a href="{{public_address}}/carbon-accounting/export">Export Data</a></li>
-                                        {{/ifUserClass}}
-                                        <!--<li><a href="{{public_address}}/reports/carbon">Export Waste Data</a></li>-->
+                                      {{/if}}
+                                      {{#if user.permissions.carbonAccounting.settings}}
+                                        <li><a href="{{public_address}}/carbon-accounting/settings">Update Calculations</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.carbonAccounting.export}}
+                                        <li><a href="{{public_address}}/carbon-accounting/export">Export Data</a></li>
+                                      {{/if}}
+
                                     </ul>
                                 </li>
-                                {{#ifUserClass user.class '["admin"]'}}
+
+                              {{/ifNotEmpty}}
+
+                              {{#ifNotEmpty user.permissions.workingGroups '["view", "add"]'}}
                                 <li {{#if workingGroupsActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-briefcase"></i><span>Working Groups</span></a>
                                     <ul class="collapse plain-list">
+                                      {{#if user.permissions.workingGroups.view}}
                                         <li><a href="{{public_address}}/working-groups/manage">Manage Working Groups</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.workingGroups.add}}
                                         <li><a href="{{public_address}}/working-groups/add">Add Working Group</a></li>
+                                      {{/if}}
                                     </ul>
                                 </li>
-                                {{/ifUserClass}}
-                                {{#ifUserClass user.class '["admin", "staff"]'}}
+                              {{/ifNotEmpty}}
+
+                              {{#ifNotEmpty user.permissions.users '["view", "add"]'}}
                                 <li {{#if usersActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-user"></i><span>Users</span></a>
                                     <ul class="collapse plain-list">
+                                      {{#if user.permissions.users.view}}
                                         <li><a href="{{public_address}}/users/manage">Manage Users</a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.users.add}}
                                         <li><a href="{{public_address}}/users/add">Add User</a></li>
+                                      {{/if}}
                                     </ul>
                                 </li>
-                                {{/ifUserClass}}
-                                {{#ifUserClass user.class '["admin"]'}}
+                              {{/ifNotEmpty}}
 
+                              {{#ifNotEmpty user.permissions.settings '["emailTemplates", "staticContent", "dataPermissions"]'}}
 
-                                  <li {{#if settingsActive}}class="active"{{/if}}>
-                                      <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
-                                      <ul class="collapse plain-list">
-                                          <li><a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a></li>
-                                          <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
-                                      </ul>
-                                  </li>
-
-                                {{/ifUserClass}}
-
-
-
-                              {{else}}
-                                <li {{#if transactionsActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
-                                </li>
-                                <li {{#if donationsActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/till/donations/{{till.till_id}}" aria-expanded="true"><i class="ti-heart"></i><span>Donation</span></a>
-                                </li>
-                                <li {{#if carbonActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/carbon-accounting/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-reload"></i><span>Log Outgoing Weight</span></a>
-                                </li>
-                                <li {{#if addMemberActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/members/add?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-user"></i><span>Add Member</span></a>
-                                </li>
-                                <li {{#if logVolunteerHoursActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/volunteers/hours/log?till_id={{till.till_id}}" aria-expanded="true"><i class="ti-thumb-up"></i><span>Log Volunteer Hours</span></a>
-                                </li>
-                                <li {{#if closeTillActive}}class="active"{{/if}}>
-                                    <a href="{{public_address}}/till/close/{{till.till_id}}" aria-expanded="true"><i class="ti-close"></i><span>Close Till</span></a>
+                                <li {{#if settingsActive}}class="active"{{/if}}>
+                                    <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-cog"></i><span>Settings</span></a>
+                                    <ul class="collapse plain-list">
+                                      {{#if user.permissions.settings.emailTemplates}}
+                                        <li><a href="{{public_address}}/settings/email-templates"><i class="fas fa-envelope"></i><span>Email Templates<span></a></li>
+                                      {{/if}}
+                                      {{#if user.permissions.settings.staticContent}}
+                                        <li><a href="{{public_address}}/settings/static-content"><i class="fas fa-align-left"></i><span>Static Content<span></a></li>
+                                      {{/if}}
+                                      {{#ifUserClass user.class '["admin"]'}}
+                                        <li><a href="{{public_address}}/settings/data-permissions"><i class="fas fa-unlock-alt"></i><span>Data Permissions<span></a></li>
+                                      {{/ifUserClass}}
+                                    </ul>
                                 </li>
 
-                              {{/unless}}
+                              {{/ifNotEmpty}}
+
+                              {{/ifCond}}
                             {{/if}}
 
                             {{#unless user}}
@@ -209,12 +314,12 @@
 
 
                             {{#if tillMode}}
-                              {{#ifUserClass user.class '["admin", "staff"]'}}
+                              {{#ifCond user.class '!=' 'till'}}
                                 <hr />
                                 <li>
                                     <a href="{{public_address}}/till/manage" aria-expanded="true"><i class="ti-angle-left"></i><span>Back To Till Management</span></a>
                                 </li>
-                              {{/ifUserClass}}
+                              {{/ifCond}}
                             {{/if}}
 
 

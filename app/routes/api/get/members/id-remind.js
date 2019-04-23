@@ -12,34 +12,37 @@ var Mail = require(rootDir + "/app/configs/mail");
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("volunteers", "view"),
   function(req, res) {
-    Members.getById(req.params.member_id, { class: "admin" }, function(
-      err,
-      member
-    ) {
-      if (!member || err) {
-        req.flash("error", "Member not found");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members");
-      } else {
-        Mail.sendAutomated("membership_id_reminder", member.member_id, function(
-          err
-        ) {
-          if (err) {
-            
-            req.flash("error", "Something went wrong!");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/members");
-          } else {
-            req.flash("success_msg", "Volunteer has been sent their ID");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/volunteers/view/" +
-                req.params.member_id
-            );
-          }
-        });
+    Members.getById(
+      req.params.member_id,
+      { permissions: { members: { contactDetails: true, name: true } } },
+      function(err, member) {
+        console.log(member);
+        if (!member || err) {
+          req.flash("error", "Member not found");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/members");
+        } else {
+          Mail.sendAutomated(
+            "membership_id_reminder",
+            member.member_id,
+            function(err) {
+              if (err) {
+                req.flash("error", "Something went wrong!");
+                res.redirect(process.env.PUBLIC_ADDRESS + "/members");
+              } else {
+                req.flash("success_msg", "Volunteer has been sent their ID");
+                res.redirect(
+                  process.env.PUBLIC_ADDRESS +
+                    "/volunteers/view/" +
+                    req.params.member_id
+                );
+              }
+            }
+          );
+        }
       }
-    });
+    );
   }
 );
 

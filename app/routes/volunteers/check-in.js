@@ -31,7 +31,8 @@ var expectedQuestionnaire = {
   },
   ykCcA43Z: {
     question_id: "ykCcA43Z",
-    question: "Would you like any additional training?"
+    question: "Would you like any additional training?",
+    fromInitialSurvey: "interests"
   },
   Zmumsq7X: {
     question_id: "Zmumsq7X",
@@ -46,7 +47,7 @@ router.get("/", function(req, res) {
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "conductCheckIn"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -58,16 +59,7 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            if (
-              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              Helpers.hasOneInCommon(
-                member.working_groups,
-                req.user.working_groups_arr
-              ) ||
-              req.user.class == "admin"
-            ) {
+            if (volInfo.conductCheckIn) {
               VolunteerCheckIns.getById(volInfo.checkin_id, function(
                 err,
                 checkin
@@ -108,7 +100,7 @@ router.get(
 router.post(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "conductCheckIn"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -120,16 +112,7 @@ router.post(
           volInfo
         ) {
           if (volInfo) {
-            if (
-              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              Helpers.hasOneInCommon(
-                member.working_groups,
-                req.user.working_groups_arr
-              ) ||
-              req.user.class == "admin"
-            ) {
+            if (volInfo.conductCheckIn) {
               var questionnaire = req.body.questionnaire;
               var questionnaireValid = true;
               async.eachOf(

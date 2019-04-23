@@ -16,7 +16,7 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "view"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -28,57 +28,39 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            if (
-              Helpers.hasOneInCommon(volInfo.assignedCoordinators, [
-                req.user.id
-              ]) ||
-              Helpers.hasOneInCommon(
-                member.working_groups,
-                req.user.working_groups
-              ) ||
-              req.user.class == "admin"
+            Users.getCoordinators({ class: "admin" }, function(
+              err,
+              coordinators,
+              coordinatorsObj
             ) {
-              Users.getCoordinators({ class: "admin" }, function(
+              VolunteerRoles.getAll(function(
                 err,
-                coordinators,
-                coordinatorsObj
+                roles,
+                rolesGroupedByGroup,
+                rolesGroupedById
               ) {
-                VolunteerRoles.getAll(function(
+                FoodCollections.getOrganisations(function(
                   err,
-                  roles,
-                  rolesGroupedByGroup,
-                  rolesGroupedById
+                  allOrganisations
                 ) {
-                  FoodCollections.getOrganisations(function(
-                    err,
-                    allOrganisations
-                  ) {
-                    res.render("volunteers/view", {
-                      title: "View Volunteer",
-                      volunteersActive: true,
-                      member: member,
-                      volInfo: volInfo,
-                      coordinators: coordinatorsObj,
-                      roles: rolesGroupedById,
-                      allOrganisations: allOrganisations
-                    });
+                  res.render("volunteers/view", {
+                    title: "View Volunteer",
+                    volunteersActive: true,
+                    member: member,
+                    volInfo: volInfo,
+                    coordinators: coordinatorsObj,
+                    roles: rolesGroupedById,
+                    allOrganisations: allOrganisations
                   });
                 });
               });
-            } else {
-              req.flash(
-                "error_msg",
-                "You don't have permission to view this volunteer!"
-              );
-              res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-            }
+            });
           } else {
-            req.flash("error_msg", "Member is not a volunteer!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/members/make-volunteer/" +
-                member.member_id
+            req.flash(
+              "error_msg",
+              "You don't have permission to view this volunteer!"
             );
+            res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
           }
         });
       }
@@ -87,4 +69,3 @@ router.get(
 );
 
 module.exports = router;
-// /volunteers/view

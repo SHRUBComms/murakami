@@ -6,21 +6,18 @@
 
 <div class="row mt-4 ml-1">
   <div class="col-lg-8 col-md-10 mx-auto">
-    {{#ifGreaterThan user.working_groups.length 1}}
+
       <div class="row">
-        <div class="form-group form-inline">
-          <select class="form-control" id="working_groups">
-							{{#ifUserClass user.class '["admin"]'}}
-								<option value="all"{{#ifCond group_id '==' 'all'}} selected{{/ifCond}}>All Working Groups</option>
-							{{/ifUserClass}}
-             	<option value=""{{#unless group_id}} selected{{/unless}}>All My Working Groups</option>
-              {{#each user.allWorkingGroupsObj}}
-                <option value='{{group_id}}'{{#ifCond group_id '==' ../group_id}} selected{{/ifCond}}>{{name}}</option>
-              {{/each}}
-          </select>
-        </div>
+
+        {{#ifCond user.permissions.volunteerRoles.view '==' true}}
+          {{>working-groups/select selectedGroup=group_id id="working_groups" user=user path="/volunteers/roles/manage?group_id="}}
+        {{else}}
+          {{>working-groups/select selectedGroup=group_id allGroups=false id="working_groups" user=user path="/volunteers/roles/manage?group_id="}}
+        {{/ifCond}}
+
       </div>
-    {{/ifGreaterThan}}
+
+
   </div>
 </div>
 
@@ -36,128 +33,53 @@
 					<th></th>
 				</thead>
 				<tbody>
-				{{#unless group_id}}
+          {{#each roles}}
+            {{#ifCond group_id '==' ../group_id}}
+              <tr>
+                <td>
+                  {{details.title}}
+                </td>
+                <td>
+                  {{#if group_id}}
+                    {{lookup (lookup ../user.allWorkingGroupsObj group_id) 'name'}}
+                  {{else}}
+                    Not Applicable
+                  {{/if}}
+                </td>
 
-					{{#each rolesGroupedByGroupId}}
-						{{#if (lookupArray ../user.working_groups @key)}}
-							{{#each this}}
-								<tr>
-									<td>
-										{{details.title}}
-									</td>
-									<td>
-										{{#if group_id}}
-											{{lookup (lookup ../../user.allWorkingGroupsObj group_id) 'name'}}
-										{{else}}
-											Not Applicable
-										{{/if}}
-									</td>
-
-									<td>
-										{{#if incomplete}}
-											<span class="text-danger">Incomplete</span>
-										{{else}}
-											{{#if removed}}
-												<span class="text-danger">Disabled</span>
-											{{else}}
-												<p class="text-success">Active</p>
-											{{/if}}
-										{{/if}}
-									</td>
-
-                  <td>
-                    {{#if public}}
-                      <p class="text-success">Published</p>
+                <td>
+                  {{#if incomplete}}
+                    <p class="text-danger">Incomplete</p>
+                  {{else}}
+                    {{#if removed}}
+                      <p class="text-danger">Disabled</p>
                     {{else}}
-                      <p class="text-muted">Unpublished</p>
+                      <p class="text-success">Active</p>
                     {{/if}}
-                  </td>
-									<td><a href="{{public_address}}/volunteers/roles/view/{{role_id}}" class="btn btn-block btn-primary">View/Update</a></td>
-								</tr>
-							{{/each}}
-						{{/if}}
-					{{/each}}
+                  {{/if}}
+                </td>
+                <td>
+                  {{#if public}}
+                    <p class="text-success">Published</p>
+                  {{else}}
+                    <p class="text-muted">Unpublished</p>
+                  {{/if}}
+                </td>
+                <td>
+                  <a href="{{public_address}}/volunteers/roles/view/{{role_id}}" class="btn btn-block btn-primary">
 
-				{{else}}
-					{{#ifCond group_id '==' 'all'}}
-						{{#each roles}}
-						<tr>
-							<td>
-								{{details.title}}
-							</td>
-							<td>
-								{{#if group_id}}
-									{{lookup (lookup ../user.allWorkingGroupsObj group_id) 'name'}}
-								{{else}}
-									Not Applicable
-								{{/if}}
-							</td>
-
-							<td>
-								{{#if incomplete}}
-									<span class="text-danger">Incomplete</span>
-								{{else}}
-									{{#if removed}}
-										<span class="text-danger">Disabled</span>
-									{{else}}
-										{{#if public}}
-											<p class="text-success">Active (public)</p>
-										{{else}}
-											<p class="text-success">Active (private)</p>
-										{{/if}}
-									{{/if}}
-								{{/if}}
-							</td>
-							<td><a href="{{public_address}}/volunteers/roles/view/{{role_id}}" class="btn btn-block btn-primary">View/Update</a></td>
-						</tr>
-						{{/each}}
-					{{else}}
-						{{#each rolesGroupedByGroupId}}
-							{{#ifCond ../group_id '==' @key}}
-								{{#each this}}
-									<tr>
-										<td>
-											{{details.title}}
-										</td>
-										<td>
-											{{#if group_id}}
-												{{lookup (lookup ../../user.allWorkingGroupsObj group_id) 'name'}}
-											{{else}}
-												Not Applicable
-											{{/if}}
-										</td>
-
-										<td>
-											{{#if incomplete}}
-												<span class="text-danger">Incomplete</span>
-											{{else}}
-												{{#if removed}}
-													<span class="text-danger">Disabled</span>
-												{{else}}
-													{{#if public}}
-														<p class="text-success">Active (public)</p>
-													{{else}}
-														<p class="text-success">Active (private)</p>
-													{{/if}}
-												{{/if}}
-											{{/if}}
-										</td>
-										<td><a href="{{public_address}}/volunteers/roles/view/{{role_id}}" class="btn btn-block btn-primary">View/Update</a></td>
-									</tr>
-								{{/each}}
-							{{/ifCond}}
-						{{/each}}
-					{{/ifCond}}
-				{{/unless}}
+                    {{#if ../user.permissions.volunteers.update}}
+                    View/Update
+                    {{else}}
+                    View
+                    {{/if}}
+                  </a>
+                </td>
+              </tr>
+            {{/ifCond}}
+          {{/each}}
 				</tbody>
 			</table>
 	</div>
 
 </div>
-
-<script>
-$('#working_groups').on('change', function () {
-  var url = "{{public_address}}/volunteers/roles/manage?group_id=" + $(this).val();
-  window.location = url;
-});
-</script>

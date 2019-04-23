@@ -16,50 +16,51 @@ var Tills = require(rootDir + "/app/models/tills");
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "till"]),
-  function(req, res) {
-    var tillMode;
-    var till_id = req.query.till_id || null;
-    if (till_id) {
-      tillMode = true;
-    }
-
-    Members.getSignUpInfo(function(
-      ourVision,
-      saferSpacesPolicy,
-      membershipBenefits,
-      privacyNotice
-    ) {
-      res.render("members/add", {
-        tillMode: res.locals.tillMode || tillMode,
-        title: "Add Member",
-        membersActive: true,
-        addMemberActive: true,
-        membership_length: req.query.membership_length,
-
-        ourVision: ourVision,
-        saferSpacesPolicy: saferSpacesPolicy,
-        membershipBenefitsInfo: membershipBenefits,
-        privacyNotice: privacyNotice,
-
-        murakamiMsg: req.query.murakamiMsg || null,
-        murakamiStatus: req.query.murakamiStatus || null,
-
-        till: {
-          till_id: till_id
-        }
-      });
-    });
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
+  req,
+  res
+) {
+  var tillMode;
+  var till_id = req.query.till_id || null;
+  if (till_id) {
+    tillMode = true;
   }
-);
+
+  Members.getSignUpInfo(function(
+    ourVision,
+    saferSpacesPolicy,
+    membershipBenefits,
+    privacyNotice
+  ) {
+    res.render("members/add", {
+      tillMode: res.locals.tillMode || tillMode,
+      title: "Add Member",
+      membersActive: true,
+      addMemberActive: true,
+      membership_length: req.query.membership_length,
+
+      ourVision: ourVision,
+      saferSpacesPolicy: saferSpacesPolicy,
+      membershipBenefitsInfo: membershipBenefits,
+      privacyNotice: privacyNotice,
+
+      murakamiMsg: req.query.murakamiMsg || null,
+      murakamiStatus: req.query.murakamiStatus || null,
+
+      till_id: till_id,
+
+      till: {
+        till_id: till_id,
+        group_id: req.user.working_groups[0]
+      }
+    });
+  });
+});
 
 router.post(
   "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "till"]),
+  Auth.canAccessPage("members", "add"),
   function(req, res) {
     Members.getSignUpInfo(function(
       ourVision,
@@ -327,7 +328,11 @@ router.post(
             req.flash("success_msg", "New member added!");
 
             res.redirect(
-              process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
+              process.env.PUBLIC_ADDRESS +
+                "/members/view/" +
+                member_id +
+                "?till_id=" +
+                req.query.till_id
             );
           }
         });

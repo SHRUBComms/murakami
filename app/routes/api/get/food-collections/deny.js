@@ -16,7 +16,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:transaction_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("foodCollections", "review"),
   function(req, res) {
     FoodCollections.getCollectionById(req.params.transaction_id, function(
       err,
@@ -41,8 +41,5 @@ router.get(
     });
   }
 );
-
-//router.use("/approve", require("./approve"));
-//router.use("/deny", require("./deny"));
 
 module.exports = router;

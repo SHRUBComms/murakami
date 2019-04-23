@@ -11,7 +11,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("members", "updateBasic"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -34,12 +34,14 @@ router.get(
 router.post(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "volunteer"]),
+  Auth.canAccessPage("members", "updateBasic"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
         req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id);
+        res.redirect(
+          process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id
+        );
       } else {
         var first_name = req.body.first_name.trim();
         var last_name = req.body.last_name.trim();
@@ -82,7 +84,11 @@ router.post(
           Members.updateBasicTill(member, function(err, member) {
             if (err) throw err;
             req.flash("success_msg", first_name + " updated!");
-            res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
+            res.redirect(
+              process.env.PUBLIC_ADDRESS +
+                "/members/view/" +
+                req.params.member_id
+            );
           });
         }
       }

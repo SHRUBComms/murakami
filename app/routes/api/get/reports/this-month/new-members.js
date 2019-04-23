@@ -6,7 +6,9 @@ var rootDir = process.env.CWD;
 
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
 
-router.get("/:group_id", function(req, res) {
+var Auth = require(rootDir + "/app/configs/auth");
+
+router.get("/:group_id", Auth.isLoggedIn, function(req, res) {
   WorkingGroups.getNewMembersByGroupId(req.params.group_id, function(
     err,
     members

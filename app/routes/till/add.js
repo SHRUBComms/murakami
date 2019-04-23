@@ -1,21 +1,23 @@
-// /volunteers/roles/settings
+// /till/add
 
 var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
+var Tills = require(rootDir + "/app/models/tills");
 var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var Volunteers = require(rootDir + "/app/models/volunteers");
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get(
-  "/:role_id",
+  "/",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff"]),
+  Auth.canAccessPage("tills", "addTill"),
   function(req, res) {
-
+    res.render("till/add", {
+      title: "Add Till",
+      tillsActive: true
+    });
   }
 );
 

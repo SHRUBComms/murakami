@@ -2,6 +2,7 @@ var con = require("./index");
 var mysql = require("mysql");
 var bcrypt = require("bcrypt-nodejs");
 var async = require("async");
+var lodash = require("lodash");
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -19,6 +20,7 @@ Users.getAll = function(loggedInUser, callback) {
       sanitizedUsers,
       sanitizedUsersObj
     ) {
+      console.log(sanitizedUsersObj);
       callback(err, sanitizedUsers, sanitizedUsersObj);
     });
   });
@@ -67,6 +69,7 @@ Users.getById = function(id, loggedInUser, callback) {
   var query = `SELECT * FROM login
               LEFT JOIN (SELECT user_id login_user_id, MAX(login_timestamp) lastLogin
               FROM attempts GROUP BY user_id) attempts ON login.id=attempts.login_user_id
+			  LEFT JOIN data_permissions ON data_permissions.class=login.class
 
               WHERE login.id = ?`;
   var inserts = [id];
@@ -148,7 +151,17 @@ Users.add = function(user, callback) {
         var sql = mysql.format(query, inserts);
 
         con.query(sql);
-        Users.getById(user.id, { class: "admin" }, callback);
+        Users.getById(
+          user.id,
+          { permissions: { users: { name: true } } },
+          function(err, user) {
+            if (err) {
+              callback(err, { id: id });
+            } else {
+              callback(null, user);
+            }
+          }
+        );
       });
     });
   });
@@ -207,52 +220,132 @@ Users.comparePassword = function(candidatePassword, hash, callback) {
   });
 };
 
-Users.sanitizeUser = function(users, loggedInUser, callback) {
+Users.sanitizeUser = function(users, loggedInUserObj, callback) {
   var usersObj = {};
   async.eachOf(
     users,
     function(user, i, callback) {
+      var sanitizedUser = {};
+      var loggedInUser = lodash.clone(loggedInUserObj);
+      var isUser = false;
+
+      if (user.id == loggedInUser.id) {
+        isUser = true;
+        loggedInUser.permissions = {
+          users: {
+            name: true,
+            email: true,
+            username: true,
+            working_groups: true
+          }
+        };
+      }
+
       if (user.working_groups) {
         user.working_groups = JSON.parse(user.working_groups) || [];
       }
 
-      if (!loggedInUser) {
+      user.full_name = user.first_name + " " + user.last_name;
+
+      if (user.notification_preferences && isUser) {
+        user.notification_preferences =
+          JSON.parse(user.notification_preferences) || {};
+      } else {
+        user.notification_preferences = {};
+      }
+
+      if (user.lastLogin) {
+        user.lastLogin = moment(user.lastLogin).format("L");
+      } else {
+        user.lastLogin = "Never";
+      }
+
+      if (!isUser) {
         delete user.password;
       }
-      var hasPermission = false;
-      if (loggedInUser.class == "admin" || user.id == loggedInUser.id) {
-        hasPermission = true;
-      } else {
-        
+
+      var commonWorkingGroup = Helpers.hasOneInCommon(
+        loggedInUser.working_groups,
+        user.working_groups
+      );
+
+      try {
         if (
-          Helpers.hasOneInCommon(
-            user.working_groups,
-            loggedInUser.working_groups
-          ) &&
-          ["till", "volunteer"].includes(user.class)
+          loggedInUser.permissions.users.name == true ||
+          (loggedInUser.permissions.users.name == "commonWorkingGroup" &&
+            commonWorkingGroup) ||
+          isUser
         ) {
-          hasPermission = true;
+          sanitizedUser.first_name = user.first_name;
+          sanitizedUser.last_name = user.last_name;
+          sanitizedUser.name = user.first_name + " " + user.last_name;
         }
-      }
+      } catch (err) {}
 
-      if (hasPermission) {
-        // Full name
-        user.full_name = user.first_name + " " + user.last_name;
+      try {
+        if (
+          loggedInUser.permissions.users.email == true ||
+          (loggedInUser.permissions.users.email == "commonWorkingGroup" &&
+            commonWorkingGroup) ||
+          isUser
+        ) {
+          sanitizedUser.email = user.email;
+        }
+      } catch (err) {}
 
-        if (user.notification_preferences) {
-          user.notification_preferences =
-            JSON.parse(user.notification_preferences) || {};
+      try {
+        if (
+          loggedInUser.permissions.users.username == true ||
+          (loggedInUser.permissions.users.username == "commonWorkingGroup" &&
+            commonWorkingGroup) ||
+          isUser
+        ) {
+          sanitizedUser.username = user.username;
+        }
+      } catch (err) {}
+
+      try {
+        if (
+          loggedInUser.permissions.users.workingGroups == true ||
+          (loggedInUser.permissions.users.workingGroups ==
+            "commonWorkingGroup" &&
+            commonWorkingGroup) ||
+          isUser
+        ) {
+          sanitizedUser.working_groups = user.working_groups;
+        }
+      } catch (err) {}
+
+      try {
+        if (
+          loggedInUser.permissions.users.update == true ||
+          (loggedInUser.permissions.users.update == "commonWorkingGroup" &&
+            commonWorkingGroup) ||
+          isUser
+        ) {
+          sanitizedUser.canUpdate = true;
+        }
+      } catch (err) {}
+
+      if (Object.keys(sanitizedUser).length > 0) {
+        sanitizedUser.notification_preferences =
+          user.notification_preferences || {};
+        sanitizedUser.lastLogin = user.lastLogin || "Never";
+        sanitizedUser.password = user.password || null;
+        sanitizedUser.id = user.id;
+        sanitizedUser.class = user.class;
+        sanitizedUser.deactivated = user.deactivated;
+
+        if (user.permissions) {
+          sanitizedUser.permissions = JSON.parse(user.permissions);
         }
 
-        if (user.lastLogin) {
-          user.lastLogin = moment(user.lastLogin).format("L");
-        } else {
-          user.lastLogin = "Never";
-        }
-        usersObj[user.id] = user;
+        usersObj[user.id] = sanitizedUser;
+        users[i] = sanitizedUser;
         callback();
       } else {
         users[i] = {};
+        usersObj[user.id] = {};
 
         callback();
       }

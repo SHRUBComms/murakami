@@ -44,12 +44,13 @@
 
         <div class="row mb-3">
           <div class="col-md-6">
+
             <select class="form-control" name="class">
-              <option value="till" {{#ifCond class '==' 'till'}}selected{{/ifCond}}>Till User</option>
-              <option value="volunteer" {{#ifCond class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
+              <option value="till" {{#ifCond user.class '==' 'till'}}selected{{/ifCond}}>Till User</option>
+              <option value="volunteer" {{#ifCond user.class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
               {{#ifCond user.class '==' 'admin'}}
-                <option value="staff" {{#ifCond class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
-                <option value="admin" {{#ifCond class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
+                <option value="staff" {{#ifCond user.class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
+                <option value="admin" {{#ifCond user.class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
               {{/ifCond}}
               {{#ifCond user.class '==' 'staff'}}
                 {{#ifCond user.id '==' user_id}}
@@ -57,38 +58,48 @@
                 {{/ifCond}}
               {{/ifCond}}
             </select>
+
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-12">
             <select class="selectpicker show-tick form-control" name="working_groups" title="Select one or more working groups" data-style="btn-info" data-size="auto" data-header="Select one or more working groups" data-live-search="true" multiple required />
+              {{#if addingUser}}
+                {{#ifCond user.permissions.users.add '==' true}}
+                  {{#each user.allWorkingGroupsObj}}
 
-              {{#ifUserClass user.class '["admin"]'}}
+                    <option value="{{group_id}}" {{#if (lookupArray ../working_groups group_id)}}selected{{/if}}>{{name}}</option>
+
+                  {{/each}}
+                {{else}}
+                  {{#each user.working_groups}}
+
+                    <option value="{{this}}" {{#if (lookupArray ../working_groups this)}}selected{{/if}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
+
+                  {{/each}}
+
+                {{/ifCond}}
+
+              {{else}}
 
                 {{#each user.allWorkingGroupsObj}}
-                  {{#unless parent}}
 
-                    {{#ifCond children.length '>' 0}}
-                      <optgroup label="{{name}}">
-                        <option value="{{group_id}}" {{#if (lookupArray ../working_groups group_id)}}selected{{/if}}>{{name}} (General)</option>
-                        {{#each children}}
-                          <option value="{{this}}" {{#if (lookupArray ../../working_groups group_id)}}selected{{/if}}>{{lookup (lookup ../../user.allWorkingGroupsObj this) 'name'}}</option>
-                        {{/each}}
-                      </optgroup>
-                    {{else}}
-                      <option value="{{group_id}}" {{#if (lookupArray ../working_groups group_id)}}selected{{/if}}>{{lookup (lookup ../user.allWorkingGroupsObj group_id) 'name'}}</option>
+                  <option value="{{group_id}}"
+                  {{#if (lookupArray ../working_groups group_id)}}
+                    selected
+                  {{else}}
+                    {{#ifCond ../user.permissions.users.update '!=' true}}
+                      {{#unless (lookupArray ../user.working_groups group_id)}}
+                        disabled
+                      {{/unless}}
                     {{/ifCond}}
+                  {{/if}}
+                  >{{name}}</option>
 
-                  {{/unless}}
                 {{/each}}
-              {{/ifUserClass}}
 
-              {{#ifUserClass user.class '["staff"]'}}
-                {{#each user.working_groups}}
-                  <option value="{{this}}"{{#if (lookupArray ../working_groups this)}} selected{{/if}}>{{lookup (lookup ../user.allWorkingGroupsObj this) 'name'}}</option>
-                {{/each}}
-              {{/ifUserClass}}
+              {{/if}}
             </select>
           </div>
         </div>

@@ -8,12 +8,15 @@ var Members = require(rootDir + "/app/models/members");
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:member_id", Auth.isLoggedIn, function(req, res) {
+router.get("/:member_id", Auth.canAccessPage("members", "balance"), function(
+  req,
+  res
+) {
   Members.getById(req.params.member_id, req.user, function(err, member) {
     if (err || !member) {
       res.send({ balance: 0 });
     } else {
-      res.send({ balance: member.balance });
+      res.send({ balance: member.balance || 0 });
     }
   });
 });

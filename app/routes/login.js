@@ -47,7 +47,9 @@ passport.use(
           } else {
             return done(null, false, {
               message:
-                'This account is locked. <a href="' + process.env.PUBLIC_ADDRESS + '/support">Contact support</a>'
+                'This account is locked. <a href="' +
+                process.env.PUBLIC_ADDRESS +
+                '/support">Contact support</a>'
             });
           }
         });
@@ -61,12 +63,18 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  Users.getById(id, { class: "admin" }, function(err, user) {
-    if (err) {
-      return done(null, err);
+  Users.getById(
+    id,
+    {
+      id: id
+    },
+    function(err, user) {
+      if (err) {
+        return done(null, err);
+      }
+      done(null, user[0]);
     }
-    done(null, user[0]);
-  });
+  );
 });
 
 router.post(
@@ -84,7 +92,6 @@ router.post(
 router.get("/", function(req, res) {
   if (!req.user) {
     Settings.getAll(function(err, settings) {
-
       res.render("login", {
         loginActive: true,
         title: "Login",

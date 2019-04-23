@@ -2,9 +2,9 @@
 
 var router = require("express").Router();
 
-router.get("/", function(req, res){
-  res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage")
-})
+router.get("/", function(req, res) {
+  res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
+});
 
 router.use("/add", require("./add"));
 router.use("/update", require("./update"));

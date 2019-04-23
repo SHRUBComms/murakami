@@ -30,7 +30,14 @@
 										No longer a member.
 									{{/if}}
 								</td>
-								<td><a href="{{public_address}}/members/view/{{member_id}}" class="btn btn-block btn-primary">View/Update</a></td>
+								<td>
+									<a href="{{public_address}}/members/view/{{member_id}}" class="btn btn-block btn-primary">
+										View
+										{{#if ../user.permisisons.members.update}}
+										/Update
+										{{/if}}
+									</a>
+								</td>
 							</tr>
 						{{/each}}
 						</tbody>

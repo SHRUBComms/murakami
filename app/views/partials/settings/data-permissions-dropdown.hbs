@@ -1,0 +1,38 @@
+<select class="permissionsDropdown form-control {{#ifCond value '==' false}}noAccess{{else}}{{#ifCond value '==' true}}alwaysAccess{{else}}nuanceAccess{{/ifCond}}{{/ifCond}}" name="permissions[{{subject}}][{{specific}}]">
+  <option selected disabled>Select when this data should be available</option>
+
+  <option value="false" class="noAccess" {{#ifCond value '==' false}}selected{{/ifCond}}>No access under any circumstances</option>
+  <option value="true" class="alwaysAccess" {{#ifCond value '==' true}}selected{{/ifCond}}>Access under any circumstances</option>
+
+  {{#ifCond subject '==' "carbonAccounting"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "members"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "tills"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "users"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "volunteerHours"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "volunteerRoles"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "volunteers"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+
+  {{#ifCond subject '==' "workingGroups"}}
+    {{>settings/commonWorkingGroupOption}}
+  {{/ifCond}}
+</select>

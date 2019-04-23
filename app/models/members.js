@@ -14,6 +14,20 @@ var Settings = require(rootDir + "/app/models/settings");
 var Members = {};
 
 Members.sanitizeMember = function(member, user, callback) {
+  var sanitizedMember = {};
+
+  if (!user.permissions) {
+    user.permissions = {};
+  } else {
+    if (!user.permissions.members) {
+      user.permissions.members = {};
+    }
+
+    if (!user.permissions.volunteers) {
+      user.permissions.volunteers = {};
+    }
+  }
+
   if (member) {
     member.full_name = member.first_name + " " + member.last_name;
     try {
@@ -74,32 +88,153 @@ Members.sanitizeMember = function(member, user, callback) {
       function() {
         member.working_groups = Array.from(new Set(member.working_groups));
 
-        if (user.class != "admin") {
-          //ctct info if common working group
-          member.address = null;
+        var commonWorkingGroup = Helpers.hasOneInCommon(
+          member.working_groups,
+          user.working_groups
+        );
 
+        try {
           if (
-            !Helpers.hasOneInCommon(
-              member.working_groups,
-              user.working_groups_arr
-            )
+            user.permissions.members.name == true ||
+            (user.permissions.members.name == "commonWorkingGroup" &&
+              commonWorkingGroup)
           ) {
-            if (member.gdpr) {
-              if (member.gdpr.email != "on" && user.class != "staff") {
-                member.email = null;
-              }
-              if (member.gdpr.phone != "on" && user.class != "staff") {
-                member.phone_no = null;
-              }
-            }
-          } else {
-            member.canUpdate = true;
+            sanitizedMember.first_name = member.first_name;
+            sanitizedMember.last_name = member.last_name;
+            sanitizedMember.name = member.first_name + " " + member.last_name;
           }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.membershipDates == true ||
+            (user.permissions.members.membershipDates == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.current_exp_membership =
+              member.current_exp_membership;
+            sanitizedMember.current_init_membership =
+              member.current_init_membership;
+            sanitizedMember.earliest_membership_date =
+              member.earliest_membership_date;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.contactDetails == true ||
+            (user.permissions.members.contactDetails == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.email = member.email;
+            sanitizedMember.phone_no = member.phone_no;
+            sanitizedMember.address = member.address;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.balance == true ||
+            (user.permissions.members.balance == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.balance = member.balance;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.workingGroups == true ||
+            (user.permissions.members.workingGroups == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.working_groups = member.working_groups;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.carbonSaved == true ||
+            (user.permissions.members.carbonSaved == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.canViewSavedCarbon = true;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.transactionHistory == true ||
+            (user.permissions.members.transactionHistory ==
+              "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.transactionHistory = true;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.volunteers.view == true ||
+            (user.permissions.volunteers.view == "commonWorkingGroup" &&
+              commonWorkingGroup &&
+              member.volunteer_id)
+          ) {
+            sanitizedMember.volunteer_id = member.volunteer_id;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.update == true ||
+            (user.permissions.members.update == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.canUpdate = true;
+          }
+        } catch (err) {}
+
+        try {
+          if (
+            user.permissions.members.canRevokeMembership == true ||
+            (user.permissions.members.canRevokeMembership ==
+              "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.canRevokeMembership = true;
+          }
+        } catch (err) {}
+        try {
+          if (
+            user.permissions.members.delete == true ||
+            (user.permissions.members.delete == "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.canDelete = true;
+          }
+        } catch (err) {}
+        try {
+          if (
+            user.permissions.members.manageMembershipCard == true ||
+            (user.permissions.members.manageMembershipCard ==
+              "commonWorkingGroup" &&
+              commonWorkingGroup)
+          ) {
+            sanitizedMember.canManageMembershipCard = true;
+          }
+        } catch (err) {}
+
+        if (Object.keys(sanitizedMember).length > 0) {
+          sanitizedMember.member_id = member.member_id;
+          sanitizedMember.is_member = member.is_member;
+          sanitizedMember.free = member.free;
+          sanitizedMember.gdpr = member.gdpr;
+          sanitizedMember.contactPreferences = member.contactPreferences;
         } else {
-          member.canUpdate = true;
+          sanitizedMember = null;
         }
 
-        callback(null, member);
+        callback(null, sanitizedMember);
       }
     );
   } else {
@@ -108,8 +243,10 @@ Members.sanitizeMember = function(member, user, callback) {
 };
 
 Members.getAll = function(callback) {
-  var query =
-    "SELECT * FROM members WHERE first_name != '[redacted]' ORDER BY first_name ASC LIMIT 100000";
+  var query = `SELECT * FROM members
+                  LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
+                  FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
+                  ORDER BY first_name ASC LIMIT 1000000`;
   con.query(query, function(err, members) {
     var membersObj = {};
     async.each(
@@ -434,36 +571,46 @@ Members.updateBasic = function(member, callback) {
 Members.renew = function(member_id, length, callback) {
   var query =
     "UPDATE members SET current_init_membership = ?, current_exp_membership = ?, is_member = 1 WHERE member_id = ?";
-  Members.getById(member_id, { class: "till" }, function(err, member) {
-    if (length == "full_year") {
-      var dt = new Date();
-      member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
+  Members.getById(
+    member_id,
+    { permissions: { members: { membershipDates: true } } },
+    function(err, member) {
+      if (length == "full_year") {
+        var dt = new Date();
+        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-      var dt = new Date();
-      member.current_exp_membership = new Date(dt.setMonth(dt.getMonth() + 12));
-    } else if (length == "half_year") {
-      var dt = new Date();
-      member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
+        var dt = new Date();
+        member.current_exp_membership = new Date(
+          dt.setMonth(dt.getMonth() + 12)
+        );
+      } else if (length == "half_year") {
+        var dt = new Date();
+        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-      var dt = new Date();
-      member.current_exp_membership = new Date(dt.setMonth(dt.getMonth() + 6));
-    } else if (length == "3_months") {
-      var dt = new Date();
-      member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
+        var dt = new Date();
+        member.current_exp_membership = new Date(
+          dt.setMonth(dt.getMonth() + 6)
+        );
+      } else if (length == "3_months") {
+        var dt = new Date();
+        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
 
-      var dt = new Date();
-      member.current_exp_membership = new Date(dt.setMonth(dt.getMonth() + 2));
+        var dt = new Date();
+        member.current_exp_membership = new Date(
+          dt.setMonth(dt.getMonth() + 2)
+        );
+      }
+
+      var inserts = [
+        member.current_init_membership,
+        member.current_exp_membership,
+        member_id
+      ];
+      var sql = mysql.format(query, inserts);
+
+      con.query(sql, callback);
     }
-
-    var inserts = [
-      member.current_init_membership,
-      member.current_exp_membership,
-      member_id
-    ];
-    var sql = mysql.format(query, inserts);
-
-    con.query(sql, callback);
-  });
+  );
 };
 
 Members.updateExpiryDate = function(member_id, date, callback) {

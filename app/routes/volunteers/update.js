@@ -17,7 +17,7 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 router.get(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "update"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -29,7 +29,7 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            if (volInfo.canUpdate || req.user.class == "admin") {
+            if (volInfo.canUpdate) {
               Users.getCoordinators(req.user, function(err, coordinators) {
                 Volunteers.getSignUpInfo(function(
                   skills,
@@ -83,7 +83,7 @@ router.get(
 router.post(
   "/:member_id",
   Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "staff", "volunteer"]),
+  Auth.canAccessPage("volunteers", "update"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
@@ -95,7 +95,7 @@ router.post(
           oldVolInfo
         ) {
           if (oldVolInfo) {
-            if (oldVolInfo.canUpdate || req.user.class == "admin") {
+            if (oldVolInfo.canUpdate) {
               Users.getCoordinators(req.user, function(
                 err,
                 coordinators,
