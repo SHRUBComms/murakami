@@ -14,17 +14,13 @@ var Helpers = require(rootDir + "/app/configs/helpful_functions");
 var Volunteers = {};
 
 Volunteers.getByGroupId = function(group_id, user, callback) {
-  var working_groups = user.working_groups_arr;
+  var working_groups = user.working_groups;
 
   var query = `SELECT * FROM volunteer_info volunteers
-
-RIGHT JOIN members ON volunteers.member_id = members.member_id
-
-LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
-
-LEFT JOIN (SELECT member_id checkins_member_id, checkin_id, MAX(timestamp) lastCheckin  FROM volunteer_checkins GROUP BY member_id, checkin_id) checkins ON members.member_id=checkins.checkins_member_id
-
-ORDER BY lastVolunteered ASC`;
+  RIGHT JOIN members ON volunteers.member_id = members.member_id
+  LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
+  LEFT JOIN (SELECT member_id checkins_member_id, checkin_id, MAX(timestamp) lastCheckin  FROM volunteer_checkins GROUP BY member_id, checkin_id) checkins ON members.member_id=checkins.checkins_member_id
+  ORDER BY lastVolunteered ASC`;
 
   con.query(query, function(err, returnedVolunteers) {
     Volunteers.sanitizeVolunteer(returnedVolunteers, user, function(
@@ -52,7 +48,7 @@ ORDER BY lastVolunteered ASC`;
               if (
                 !Helpers.hasOneInCommon(
                   volunteer.working_groups,
-                  user.working_groups_arr
+                  user.working_groups
                 )
               ) {
                 sanitizedVolunteers[i] = {};
@@ -86,6 +82,19 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
           volunteer.dateCreated ||
           volunteer.firstVolunteered ||
           volunteer.earliest_membership_date;
+
+        volunteer.full_name = volunteer.first_name + " " + volunteer.last_name;
+
+        if (volunteer.contactPreferences) {
+          volunteer.contactPreferences = JSON.parse(
+            volunteer.contactPreferences
+          );
+        } else {
+          volunteer.contactPreferences = {
+            donations: true
+          };
+        }
+
         if (volunteer.lastVolunteered) {
           volunteer.nextShiftDue = moment(volunteer.lastVolunteered)
             .add(3, "months")
@@ -368,6 +377,143 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
             ) {
               sanitizedVolunteer.canUpdate = true;
             }
+
+            try {
+              if (
+                user.permissions.members.name == true ||
+                (user.permissions.members.name == "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.first_name = volunteer.first_name;
+                sanitizedVolunteer.last_name = volunteer.last_name;
+                sanitizedVolunteer.name =
+                  member.first_name + " " + member.last_name;
+                sanitizeVolunteer.name =
+                  member.first_name + " " + member.last_name;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.membershipDates == true ||
+                (user.permissions.members.membershipDates ==
+                  "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.current_exp_membership =
+                  member.current_exp_membership;
+                sanitizedVolunteer.current_init_membership =
+                  member.current_init_membership;
+                sanitizedVolunteer.earliest_membership_date =
+                  member.earliest_membership_date;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.contactDetails == true ||
+                (user.permissions.members.contactDetails ==
+                  "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.email = volunteer.email;
+                sanitizedVolunteer.phone_no = volunteer.phone_no;
+                sanitizedVolunteer.address = volunteer.address;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.balance == true ||
+                (user.permissions.members.balance == "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.balance = volunteer.balance;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.workingGroups == true ||
+                (user.permissions.members.workingGroups ==
+                  "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.working_groups = volunteer.working_groups;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.carbonSaved == true ||
+                (user.permissions.members.carbonSaved == "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.canViewSavedCarbon = true;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.transactionHistory == true ||
+                (user.permissions.members.transactionHistory ==
+                  "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.transactionHistory = true;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.volunteers.view == true ||
+                (user.permissions.volunteers.view == "commonWorkingGroup" &&
+                  commonWorkingGroup &&
+                  member.volunteer_id)
+              ) {
+                sanitizedVolunteer.volunteer_id = volunteer.volunteer_id;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.update == true ||
+                (user.permissions.members.update == "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.canUpdate = true;
+              }
+            } catch (err) {}
+
+            try {
+              if (
+                user.permissions.members.canRevokeMembership == true ||
+                (user.permissions.members.canRevokeMembership ==
+                  "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.canRevokeMembership = true;
+              }
+            } catch (err) {}
+            try {
+              if (
+                user.permissions.members.delete == true ||
+                (user.permissions.members.delete == "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.canDelete = true;
+              }
+            } catch (err) {}
+            try {
+              if (
+                user.permissions.members.manageMembershipCard == true ||
+                (user.permissions.members.manageMembershipCard ==
+                  "commonWorkingGroup" &&
+                  commonWorkingGroup)
+              ) {
+                sanitizedVolunteer.canManageMembershipCard = true;
+              }
+            } catch (err) {}
 
             if (Object.keys(sanitizedVolunteer).length > 0) {
               if (sanitizedVolunteer.roles.length > 0) {

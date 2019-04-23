@@ -130,16 +130,19 @@
 
       {{#if active}}
         <a class="btn btn-info btn-block mb-2" href="{{public_address}}/volunteers/view/{{member_id}}">View/Update</a>
+
+        {{#ifCond needsToCheckin '==' "soon"}}
+          <a class="btn btn-warning btn-block mb-2" href="{{public_address}}/volunteers/check-in/{{member_id}}">Conduct Check-in</a>
+        {{/ifCond}}
+        {{#ifCond needsToCheckin '==' "now"}}
+          <a class="btn btn-danger btn-block mb-2" href="{{public_address}}/volunteers/check-in/{{member_id}}">Conduct Check-in</a>
+        {{/ifCond}}
+
       {{else}}
         <a class="btn btn-info btn-block mb-2" href="{{public_address}}/members/make-volunteer/{{member_id}}">Register As Volunteer</a>
       {{/if}}
 
-      {{#ifCond needsToCheckin '==' "soon"}}
-        <a class="btn btn-warning btn-block mb-2" href="{{public_address}}/volunteers/check-in/{{member_id}}">Conduct Check-in</a>
-      {{/ifCond}}
-      {{#ifCond needsToCheckin '==' "now"}}
-        <a class="btn btn-danger btn-block mb-2" href="{{public_address}}/volunteers/check-in/{{member_id}}">Conduct Check-in</a>
-      {{/ifCond}}
+
 
       <a class="btn btn-danger mb-2 btn-block" onclick='removeVolunteer("{{member_id}}", "{{name}}", {{{json roles}}}, {{{json old_working_groups}}})'>Remove</a>
 
