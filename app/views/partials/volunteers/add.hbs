@@ -283,10 +283,10 @@
             <select class="form-control mb-2" id="roleWorkingGroup">
               <option value="" disabled selected>Select a working group...</option>
               {{#each user.allWorkingGroupsObj}}
-                {{#ifCond user.permissions.volunteerRoles.quickAdd '==' true}}
+                {{#ifCond ../user.permissions.volunteerRoles.quickAdd '==' true}}
                   <option value="{{group_id}}">{{name}}</option>
                 {{else}}
-                  {{#if (lookup ../user.working_groups group_id)}}
+                  {{#if (lookupArray ../user.working_groups group_id)}}
                     <option value="{{group_id}}">{{name}}</option>
                   {{/if}}
                 {{/ifCond}}
