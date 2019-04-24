@@ -412,7 +412,6 @@ router.post(
             title: "Add Volunteer",
             volunteerActive: true,
             volInfo: volInfo,
-            member: member,
             coordinators: coordinators,
             roles: rolesGroupedByGroup,
             skills: skills,
@@ -452,7 +451,6 @@ router.post(
                   title: "Add Volunteer",
                   volunteerActive: true,
                   volInfo: volInfo,
-                  member: member,
                   coordinators: coordinators,
                   roles: rolesGroupedByGroup,
                   skills: skills,
@@ -510,7 +508,9 @@ router.post(
                 ) {});
 
                 req.flash("success_msg", "Volunteer successfully added!");
-                res.redirect(process.env.PUBLIC_ADDRESS + "/success");
+                res.redirect(
+                  process.env.PUBLIC_ADDRESS + "/volunteers/view/" + member_id
+                );
               }
             });
           });

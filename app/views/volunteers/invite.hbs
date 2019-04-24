@@ -28,22 +28,6 @@
       <div class="row-fluid mb-2">
         <select class="selectpicker volunteer-roles show-tick form-control" name="roles" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
 
-
-            <optgroup id="na_optgroup" label="SHRUB-wide">
-              {{#each (lookup roles "na")}}
-                <option value="{{role_id}}"
-                {{#if (lookupArray ../roles role_id)}}
-                  selected
-                {{else}}
-                  {{#ifUserClass ../user.class '["volunteer"]'}}disabled{{/ifUserClass}}
-                {{/if}}
-
-                >{{details.title}}</option>
-              {{else}}
-                <option disabled>This group has no roles.</option>
-              {{/each}}
-            </optgroup>
-
             {{#each user.allWorkingGroupsObj}}
               <optgroup id="{{group_id}}_optgroup" label="{{name}}">
                 {{#each (lookup ../roles group_id)}}

@@ -40,21 +40,6 @@
         <select class="selectpicker volunteer-roles show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
 
 
-            <optgroup id="na_optgroup" label="SHRUB-wide">
-              {{#each (lookup roles "na")}}
-                <option value="{{role_id}}"
-                {{#if (lookupArray ../volInfo.roles role_id)}}
-                  selected
-                {{else}}
-                  {{#ifUserClass ../user.class '["volunteer"]'}}disabled{{/ifUserClass}}
-                {{/if}}
-
-                >{{details.title}}</option>
-              {{else}}
-                <option disabled>This group has no roles.</option>
-              {{/each}}
-            </optgroup>
-
             {{#each user.allWorkingGroupsObj}}
               <optgroup id="{{group_id}}_optgroup" label="{{name}}">
                 {{#each (lookup ../roles group_id)}}
@@ -280,7 +265,7 @@
 
 
 
-
+{{#if user.permissions.volunteerRoles.quickAdd}}
 <div class="modal fade" id="quickAddRoleDialog" tabindex="-1" role="dialog" aria-labelledby="quickAddRoleLabel" aria-hidden="true">
   <div class="modal-dialog modal modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -297,9 +282,14 @@
 
             <select class="form-control mb-2" id="roleWorkingGroup">
               <option value="" disabled selected>Select a working group...</option>
-              <option value="na">Not Applicable</option>
               {{#each user.allWorkingGroupsObj}}
-                <option value="{{group_id}}">{{name}}</option>
+                {{#ifCond user.permissions.volunteerRoles.quickAdd '==' true}}
+                  <option value="{{group_id}}">{{name}}</option>
+                {{else}}
+                  {{#if (lookup ../user.working_groups group_id)}}
+                    <option value="{{group_id}}">{{name}}</option>
+                  {{/if}}
+                {{/ifCond}}
               {{/each}}
             </select>
             <input type="text" id="roleTitle" placeholder="Role Title" class="form-control" />
@@ -314,7 +304,7 @@
     </div>
   </div>
 </div>
-
+{{/if}}
 
 
 <script>

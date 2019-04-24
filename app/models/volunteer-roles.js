@@ -30,7 +30,6 @@ VolunteerRoles.getAll = function(callback) {
           role.incomplete = false;
         }
 
-        if (!role.group_id) role.group_id = "na";
         if (!rolesGroupedByGroup[role.group_id]) {
           rolesGroupedByGroup[role.group_id] = [role];
         } else {
