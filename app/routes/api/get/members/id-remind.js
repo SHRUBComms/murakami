@@ -18,7 +18,7 @@ router.get(
       req.params.member_id,
       { permissions: { members: { contactDetails: true, name: true } } },
       function(err, member) {
-        console.log(member);
+        
         if (!member || err) {
           req.flash("error", "Member not found");
           res.redirect(process.env.PUBLIC_ADDRESS + "/members");

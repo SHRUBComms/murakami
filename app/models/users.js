@@ -20,7 +20,7 @@ Users.getAll = function(loggedInUser, callback) {
       sanitizedUsers,
       sanitizedUsersObj
     ) {
-      console.log(sanitizedUsersObj);
+      
       callback(err, sanitizedUsers, sanitizedUsersObj);
     });
   });

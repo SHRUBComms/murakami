@@ -34,7 +34,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
           });
         },
         function(err) {
-          console.log(sanitizedMembers);
+          
           res.send({
             status: "ok",
             results: sanitizedMembers

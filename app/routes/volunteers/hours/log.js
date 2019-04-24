@@ -87,7 +87,7 @@ router.post("/", function(req, res) {
   if (allowed) {
     if (req.user) {
       var shift = req.body.shift;
-      console.log(shift);
+      
       Members.getById(shift.member_id, req.user, function(err, member) {
         if (err || !member) {
           res.send({ status: "fail", msg: "Please select a valid member!" });

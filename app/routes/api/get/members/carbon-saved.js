@@ -16,7 +16,7 @@ router.get(
   Auth.canAccessPage("members", "carbonSaved"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
-      console.log(member);
+      
       if (member.canViewSavedCarbon) {
         Carbon.getByMemberId(req.params.member_id, function(err, carbon) {
           if (err || carbon.length == 0) {

@@ -202,7 +202,7 @@ router.post(
           }
 
           if (!Helpers.allBelongTo(working_groups, validWorkingGroups)) {
-            console.log(validWorkingGroups);
+            
             errors.push({
               msg: "Please select valid working groups."
             });

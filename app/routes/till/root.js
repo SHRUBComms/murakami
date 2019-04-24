@@ -15,7 +15,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "processTransaction"),
   function(req, res) {
-    console.log("root");
+    
     WorkingGroups.getAll(function(err, allWorkingGroups) {
       Tills.getAllTills(function(err, tills) {
         if (tills.length > 1) {

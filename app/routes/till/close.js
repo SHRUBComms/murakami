@@ -23,7 +23,7 @@ router.get(
         ) {
           Tills.getStatusById(req.params.till_id, function(status) {
             if (status.opening == 1) {
-              console.log(status);
+              
               WorkingGroups.getAll(function(err, allWorkingGroups) {
                 var group = allWorkingGroups[till.group_id];
 

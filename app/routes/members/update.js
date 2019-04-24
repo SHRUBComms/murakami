@@ -142,7 +142,7 @@ router.post(
           }
 
           if (moment(current_exp_membership)) {
-            console.log(member.current_init_membership, current_exp_membership);
+            
             if (
               moment(current_exp_membership).isAfter(
                 moment(member.current_init_membership, "L")
