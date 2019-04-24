@@ -16,6 +16,7 @@ router.post(
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "processTransaction"),
   function(req, res) {
+    console.log("trigged");
     var till_id = req.body.till_id;
     var member_id = req.body.member_id;
     var paymentMethod = req.body.paymentMethod;
@@ -156,7 +157,6 @@ router.post(
                   };
 
                   if (member_id) {
-                    // TODO: Update balance.
                     Members.getById(
                       member_id,
                       {
@@ -457,7 +457,12 @@ router.post(
                     totals.money = (tokens_total + money_total).toFixed(2);
                     formattedTransaction.summary.totals = totals;
 
-                    if (paymentMethod == "cash" || paymentMethod == "card") {
+                    if (totals.money == 0) {
+                      paymentMethod = null;
+                    }
+
+                    if (["cash", "card", null].includes(paymentMethod)) {
+                      console.log("yeet");
                       formattedTransaction.summary.paymentMethod = paymentMethod;
 
                       formattedTransaction.summary = JSON.stringify(

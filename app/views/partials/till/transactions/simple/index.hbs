@@ -545,7 +545,7 @@ function updateButtons(){
 
 	if(transaction.length > 0){
 		$("#changeCalc").addClass("d-none");
-		if(member.name && money_total == 0 && tokens_total == 0){
+		if(money_total == 0 && tokens_total == 0){
 			$("#selectPaymentMethod").addClass("d-none");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
 		} else if(member.name && payWithTokens){
@@ -588,11 +588,9 @@ function updateButtons(){
 			global_money_total = tokens_total + money_total;
 		}
 
-		if((tokens_total > 0 || money_total > 0) || member.name) {
-			$("#transaction_btns").removeClass("d-none");
-		} else {
-			$("#transaction_btns").addClass("d-none");
-		}
+
+		$("#transaction_btns").removeClass("d-none");
+
 
 		if(global_money_total < 1){
 
