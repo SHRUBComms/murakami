@@ -225,6 +225,9 @@ Members.sanitizeMember = function(member, user, callback) {
         } catch (err) {}
 
         if (Object.keys(sanitizedMember).length > 0) {
+          if (member.activeVolunteer) {
+            sanitizedMember.activeVolunteer = true;
+          }
           sanitizedMember.member_id = member.member_id;
           sanitizedMember.is_member = member.is_member;
           sanitizedMember.free = member.free;

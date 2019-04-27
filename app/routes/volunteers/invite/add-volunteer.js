@@ -50,7 +50,8 @@ router.post(
         volunteerAgreement,
         ourVision,
         saferSpacesPolicy,
-        membershipBenefits
+        membershipBenefits,
+        privacyNotice
       ) {
         // Membership validation
         var first_name = req.body.first_name.trim();
@@ -366,7 +367,8 @@ router.post(
             volunteerAgreement: volunteerAgreement,
             ourVision: ourVision,
             saferSpacesPolicy: saferSpacesPolicy,
-            membershipBenefitsInfo: membershipBenefits
+            membershipBenefitsInfo: membershipBenefits,
+            privacyNotice: privacyNotice
           });
         } else {
           var newMember = {
@@ -409,7 +411,8 @@ router.post(
                   volunteerAgreement: volunteerAgreement,
                   ourVision: ourVision,
                   saferSpacesPolicy: saferSpacesPolicy,
-                  membershipBenefitsInfo: membershipBenefits
+                  membershipBenefitsInfo: membershipBenefits,
+                  privacyNotice: privacyNotice
                 });
               } else {
                 var subscribeBody = {

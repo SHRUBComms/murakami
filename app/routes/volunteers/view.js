@@ -28,33 +28,32 @@ router.get(
           volInfo
         ) {
           if (volInfo) {
-            Users.getCoordinators({ class: "admin" }, function(
-              err,
-              coordinators,
-              coordinatorsObj
-            ) {
-              VolunteerRoles.getAll(function(
-                err,
-                roles,
-                rolesGroupedByGroup,
-                rolesGroupedById
-              ) {
-                FoodCollections.getOrganisations(function(
+            Users.getCoordinators(
+              { permissions: { users: { name: true } } },
+              function(err, coordinators, coordinatorsObj) {
+                VolunteerRoles.getAll(function(
                   err,
-                  allOrganisations
+                  roles,
+                  rolesGroupedByGroup,
+                  rolesGroupedById
                 ) {
-                  res.render("volunteers/view", {
-                    title: "View Volunteer",
-                    volunteersActive: true,
-                    member: member,
-                    volInfo: volInfo,
-                    coordinators: coordinatorsObj,
-                    roles: rolesGroupedById,
-                    allOrganisations: allOrganisations
+                  FoodCollections.getOrganisations(function(
+                    err,
+                    allOrganisations
+                  ) {
+                    res.render("volunteers/view", {
+                      title: "View Volunteer",
+                      volunteersActive: true,
+                      member: member,
+                      volInfo: volInfo,
+                      coordinators: coordinatorsObj,
+                      roles: rolesGroupedById,
+                      allOrganisations: allOrganisations
+                    });
                   });
                 });
-              });
-            });
+              }
+            );
           } else {
             req.flash(
               "error_msg",

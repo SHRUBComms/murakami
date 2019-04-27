@@ -42,7 +42,8 @@ router.get(
         volunteerAgreement,
         ourVision,
         saferSpacesPolicy,
-        membershipBenefits
+        membershipBenefits,
+        privacyNotice
       ) {
         res.render("volunteers/invite", {
           title: "Invite Volunteer",
@@ -252,7 +253,8 @@ router.get(
           volunteerAgreement,
           ourVision,
           saferSpacesPolicy,
-          membershipBenefits
+          membershipBenefits,
+          privacyNotice
         ) {
           Members.getByEmail(res.invite.details.email, function(err, member) {
             member = member[0] || null;
@@ -272,7 +274,8 @@ router.get(
                   ourVision: ourVision,
                   saferSpacesPolicy: saferSpacesPolicy,
                   membershipBenefitsInfo: membershipBenefits,
-                  contactMethods: contactMethods
+                  contactMethods: contactMethods,
+                  privacyNotice: privacyNotice
                 });
               } else {
                 res.redirect(process.env.PUBLIC_ADDRESS + "/");
@@ -294,7 +297,8 @@ router.get(
                 membershipBenefitsInfo: membershipBenefits,
                 first_name: res.invite.details.first_name,
                 last_name: res.invite.details.last_name,
-                email: res.invite.details.email
+                email: res.invite.details.email,
+                privacyNotice: privacyNotice
               });
             }
           });

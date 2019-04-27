@@ -87,7 +87,7 @@ router.post("/", function(req, res) {
   if (allowed) {
     if (req.user) {
       var shift = req.body.shift;
-      
+
       Members.getById(shift.member_id, req.user, function(err, member) {
         if (err || !member) {
           res.send({ status: "fail", msg: "Please select a valid member!" });
@@ -194,7 +194,10 @@ router.post("/", function(req, res) {
               ) {
                 Members.getById(
                   member_id,
-                  { class: "admin", allVolunteerRoles: rolesObj },
+                  {
+                    permissions: { members: { name: true } },
+                    allVolunteerRoles: rolesObj
+                  },
                   function(err, member) {
                     if (member) {
                       var shift = {};

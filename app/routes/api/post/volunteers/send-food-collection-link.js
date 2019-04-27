@@ -29,41 +29,45 @@ router.post(
       "i"
     ); // fragment locator
     if (validURL.test(link)) {
-      Members.getById(member_id, { class: "admin" }, function(err, volunteer) {
-        if (volunteer) {
-          Mail.sendGeneral(
-            volunteer.first_name +
-              " " +
-              volunteer.last_name +
-              "<" +
-              volunteer.email +
-              ">",
-            "Logging Food Collections",
-            "<p>Hey " +
+      Members.getById(
+        member_id,
+        { permissions: { members: { name: true, contactDetails: true } } },
+        function(err, volunteer) {
+          if (volunteer) {
+            Mail.sendGeneral(
               volunteer.first_name +
-              ",</p>" +
-              "<p>Please use the link below to log your food collections!</p>" +
-              "<a href='" +
-              link +
-              "'>" +
-              link +
-              "</a>" +
-              "<p><small>Please note that this is an automated email.</small></p>",
-            function(err) {
-              if (!err) {
-                response.status = "ok";
-                response.msg = "Link successfully sent to volunteer!";
-              } else {
-                response.msg = "Something went wrong!";
+                " " +
+                volunteer.last_name +
+                "<" +
+                volunteer.email +
+                ">",
+              "Logging Food Collections",
+              "<p>Hey " +
+                volunteer.first_name +
+                ",</p>" +
+                "<p>Please use the link below to log your food collections!</p>" +
+                "<a href='" +
+                link +
+                "'>" +
+                link +
+                "</a>" +
+                "<p><small>Please note that this is an automated email.</small></p>",
+              function(err) {
+                if (!err) {
+                  response.status = "ok";
+                  response.msg = "Link successfully sent to volunteer!";
+                } else {
+                  response.msg = "Something went wrong!";
+                }
+                res.send(response);
               }
-              res.send(response);
-            }
-          );
-        } else {
-          response.msg = "Volunteer does not exist.";
-          res.send(response);
+            );
+          } else {
+            response.msg = "Volunteer does not exist.";
+            res.send(response);
+          }
         }
-      });
+      );
     } else {
       response.msg = "Invalid link.";
       res.send(response);

@@ -65,11 +65,8 @@ router.post(
   Auth.canAccessPage("members", "update"),
 
   function(req, res) {
-    Members.getById(req.params.member_id, { class: "admin" }, function(
-      err,
-      member
-    ) {
-      if (err || !member) {
+    Members.getById(req.params.member_id, req.user, function(err, member) {
+      if (err || !member || !member.canUpdate) {
         req.flash("error_msg", "Something went wrong, please try again!");
         res.redirect(
           process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id
@@ -142,7 +139,6 @@ router.post(
           }
 
           if (moment(current_exp_membership)) {
-            
             if (
               moment(current_exp_membership).isAfter(
                 moment(member.current_init_membership, "L")
