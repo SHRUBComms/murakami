@@ -165,8 +165,10 @@ app.use(function(req, res, next) {
   }
 });
 
-var job = require("./app/configs/cron");
-job.start();
+var automatedMails = require("./app/configs/automated-mails");
+var automatedReports = require("./app/configs/automated-reports");
+automatedMails.start();
+automatedReports.start();
 
 // Define routers
 app.use(path, require("./app/routes/root"));

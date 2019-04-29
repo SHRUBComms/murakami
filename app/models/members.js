@@ -274,11 +274,8 @@ Members.getTotals = function(callback) {
   con.query(query, callback);
 };
 
-Members.getAllCurrentMembers = function(user, callback) {
-  var query = `SELECT * FROM members
-                LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles, active activeVolunteer
-                FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
-                WHERE members.first_name != "[redacted]" AND members.is_member = 1`;
+Members.getAllCurrentMembers = function(callback) {
+  var query = `SELECT * FROM members WHERE is_member = 1`;
   con.query(query, callback);
 };
 

@@ -31,7 +31,7 @@ Volunteers.getByGroupId = function(group_id, user, callback) {
         function(volunteer, i, callback) {
           if (volunteer) {
             if (group_id == "inactive") {
-              if (volunteer.working_groups.length > 0) {
+              if (volunteer.active) {
                 sanitizedVolunteers[i] = {};
                 callback();
               } else {
@@ -45,12 +45,7 @@ Volunteers.getByGroupId = function(group_id, user, callback) {
                 callback();
               }
             } else {
-              if (
-                !Helpers.hasOneInCommon(
-                  volunteer.working_groups,
-                  user.working_groups
-                )
-              ) {
+              if (!volunteer.active) {
                 sanitizedVolunteers[i] = {};
                 callback();
               } else {
@@ -525,7 +520,7 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
               sanitizedVolunteer.member_id = volunteer.member_id;
               sanitizedVolunteer.gdpr = volunteer.gdpr;
 
-              if (sanitizedVolunteer.assignedCoordinators.includes(user.id)) {
+              if (volunteer.assignedCoordinators.includes(user.id)) {
                 sanitizedVolunteer.isAssignedCoordinator = true;
               }
 

@@ -9,8 +9,8 @@ var Volunteers = require("../models/volunteers");
 var Transactions = require("../models/transactions");
 var Mail = require("./mail");
 
-var job = new CronJob({
-  cronTime: "0 9 30 * * *",
+var automatedMails = new CronJob({
+  cronTime: "0 30 9 * * *",
   onTick: function() {
     // Async email.
 
@@ -129,4 +129,4 @@ var job = new CronJob({
   timeZone: "Europe/London"
 });
 
-module.exports = job;
+module.exports = automatedMails;
