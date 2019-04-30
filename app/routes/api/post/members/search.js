@@ -34,7 +34,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
           });
         },
         function(err) {
-          
           res.send({
             status: "ok",
             results: sanitizedMembers
@@ -58,28 +57,20 @@ router.post("/simple", Auth.isLoggedIn, function(req, res) {
         async.each(
           members,
           function(member, callback) {
-            var isMember;
-            if (member.is_member == 1) {
-              isMember = true;
-            }
-
-            var formattedMember = {};
-            formattedMember.id = member.member_id;
-            formattedMember.name = member.first_name + " " + member.last_name;
-            formattedMember.balance = member.balance;
-            formattedMember.is_member = isMember;
-            formattedMember.membership_expires = member.current_exp_membership;
-            if (!["admin"].includes(req.user.class)) {
-              formattedMember.email = "Not available";
-            } else {
-              formattedMember.email = member.email;
-            }
-
-            formattedMembers.push(formattedMember);
-            callback();
+            Members.sanitizeMember(member, req.user, function(
+              err,
+              sanitizedMember
+            ) {
+              sanitizedMember.id = member.member_id;
+              sanitizedMember.membership_expires =
+                sanitizedMember.current_exp_membership;
+              formattedMembers.push(sanitizedMember);
+              callback();
+            });
           },
           function(err) {
             res.send({ status: "ok", results: formattedMembers });
+            console.log(formattedMembers);
           }
         );
       }

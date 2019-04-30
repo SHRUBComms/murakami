@@ -139,7 +139,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                   ]
                                 ) {
                                   let value =
-                                    transaction.summary.bill[i].tokens;
+                                    transaction.summary.bill[i].tokens ||
+                                    transaction.summary.bill[i].value;
                                   let discount;
                                   if (transaction.summary.discount_info) {
                                     if (
@@ -174,7 +175,8 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                                       discount +
                                       "% off from " +
                                       parseFloat(
-                                        transaction.summary.bill[i].tokens
+                                        transaction.summary.bill[i].tokens ||
+                                          transaction.summary.bill[i].value
                                       ).toFixed(2) +
                                       ")</span>";
                                   }

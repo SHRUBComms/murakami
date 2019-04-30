@@ -569,6 +569,7 @@ Members.updateBasic = function(member, callback) {
 };
 
 Members.renew = function(member_id, length, callback) {
+  console.log("RENEW");
   var query =
     "UPDATE members SET current_init_membership = ?, current_exp_membership = ?, is_member = 1 WHERE member_id = ?";
   Members.getById(
@@ -576,29 +577,20 @@ Members.renew = function(member_id, length, callback) {
     { permissions: { members: { membershipDates: true } } },
     function(err, member) {
       if (length == "full_year") {
-        var dt = new Date();
-        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
-
-        var dt = new Date();
-        member.current_exp_membership = new Date(
-          dt.setMonth(dt.getMonth() + 12)
-        );
+        member.current_init_membership = moment().format("YYYY-MM-DD");
+        member.current_exp_membership = moment()
+          .add(12, "months")
+          .format("YYYY-MM-DD");
       } else if (length == "half_year") {
-        var dt = new Date();
-        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
-
-        var dt = new Date();
-        member.current_exp_membership = new Date(
-          dt.setMonth(dt.getMonth() + 6)
-        );
+        member.current_init_membership = moment().format("YYYY-MM-DD");
+        member.current_exp_membership = moment()
+          .add(6, "months")
+          .format("YYYY-MM-DD");
       } else if (length == "3_months") {
-        var dt = new Date();
-        member.current_init_membership = new Date(dt.setMonth(dt.getMonth()));
-
-        var dt = new Date();
-        member.current_exp_membership = new Date(
-          dt.setMonth(dt.getMonth() + 2)
-        );
+        member.current_init_membership = moment().format("YYYY-MM-DD");
+        member.current_exp_membership = moment()
+          .add(3, "months")
+          .format("YYYY-MM-DD");
       }
 
       var inserts = [
@@ -607,7 +599,7 @@ Members.renew = function(member_id, length, callback) {
         member_id
       ];
       var sql = mysql.format(query, inserts);
-
+      console.log(sql);
       con.query(sql, callback);
     }
   );

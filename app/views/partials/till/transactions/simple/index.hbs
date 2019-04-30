@@ -6,7 +6,7 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="mb-3">{{till.name}} <span class="text-success">&#9679;</span></h3>
-				{{#if user.permissions.tills.updatecategories}}
+				{{#if user.permissions.tills.updateCategories}}
 					<a href="{{public_address}}/till/manage/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
 				{{/if}}
 			</div>
@@ -154,7 +154,7 @@
 
       </div>
       <div class="modal-footer">
-      	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal" onclick="completeTrans()" disabled="disabled">Complete Transaction</button>
+      	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal" onclick="completeTransaction()" disabled="disabled">Complete Transaction</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -259,10 +259,29 @@
 </div>
 
 <script>
-if (navigator.appVersion.includes("Android")){
+
+var transaction = [];
+
+var tokens_total = 0;
+var weight_total = 0;
+var money_total = 0;
+var global_money_total = 0;
+
+var paymentMethod;
+
+var itemToAdd = {};
+
+var categories = {}
+categories.options = {{{json categories}}}
+categories.parent = null
+
+var payWithTokens = false;
+var results = [];
+var member = {};
+
+
+if (navigator.appVersion.includes("Android") || navigator.appVersion.includes("Apple")){
     $("#cardOption").removeClass("d-none");
-} else if(navigator.appVersion.includes("Apple")) {
-		$("#cardOption").removeClass("d-none");
 } else {
 	$("#cardOption").addClass("d-none");
 }
@@ -279,80 +298,78 @@ $('#isMemberCheck').click(function () {
 });
 
 
-var transaction = [];
-
-var tokens_total = 0;
-var weight_total = 0;
-var money_total = 0;
-
-var paymentMethod;
-
-var itemToAdd = {};
 
 $('input[name="itemCondition"]:radio').change(function(){
 	let condition = this.value;
 	let option = itemToAdd;
 
 	if(itemToAdd){
-
-		$("#addItemConditionToTrans").attr("onclick", "addToTrans('" + option.id + "', '" + option.category.replace(/'/g, "\\\'") + " (" + condition + ")" + "', '" + option.tokens + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "', '" + condition + "')");
-
+		document.getElementById("addItemConditionToTrans").onclick = function(){
+			addToTransaction(option)
+		}
 	}
 });
-function addToTrans(id, category, value, carbon_id, allowTokens, member_discount, weight, condition){
-	var item = {};
-	item.id = id;
-	item.category = category;
-	item.weight = weight || 0;
 
-	item.allowTokens = allowTokens;
-	item.carbon_id = carbon_id;
-	item.member_discount = member_discount;
+function addToTransaction(item){
 
-	if(value > 0){
-		item.tokens = value;
-		item.setValue = true;
+	var sanitizedItem = {};
+	sanitizedItem.id = item.item_id;
+	sanitizedItem.name = item.name;
+	sanitizedItem.absoluteName = item.absolute_name;
+	sanitizedItem.weight = item.weight || 0;
+
+	sanitizedItem.allowTokens = item.allowTokens;
+	sanitizedItem.carbon_id = item.carbon_id;
+	sanitizedItem.member_discount = item.member_discount;
+
+	if(item.value > 0){
+		sanitizedItem.value = item.value;
+		sanitizedItem.setValue = true;
 	} else {
-		item.tokens = 0;
-		item.setValue = false;
+		sanitizedItem.value = 0;
+		sanitizedItem.setValue = false;
 	}
 
-	if(carbon_id == "IT-101"){
-		$("#electricalSafetyModal").modal("show");
-		$("#removeUnsafe").attr("onclick", "removeFromTrans(null)");
+
+
+	if("{{diodeIntegrationOn}}"){
+		if(sanitizedItem.carbon_id == "IT-101"){
+			$("#electricalSafetyModal").modal("show");
+			$("#removeUnsafe").attr("onclick", "removeFromTransaction(null)");
+		}
 	}
 
-	if(condition == 1){
+	if(item.condition == 1){
 		$('input[name="itemCondition"]:radio').prop('checked', false);
 		$("#addItemConditionToTrans").attr("onclick", "return false;");
-		$("#itemConditionName").text(item.category);
+		$("#itemConditionName").text(sanitizedItem.name);
 		$('#itemConditionModal').modal('show');
-		itemToAdd = item;
+		itemToAdd = sanitizedItem;
 	} else {
-		if(condition != 1){
-			item.condition = condition;
+		if(item.condition != 1){
+			sanitizedItem.condition = item.condition;
 		}
 
 		itemToAdd = {};
-		transaction.push(item);
-		update();
+		transaction.push(sanitizedItem);
+
 	}
+
+	updateTransactionList();
 
 }
 
-function removeFromTrans(index){
+function removeFromTransaction(index){
 	if(index){
 		transaction.splice(index, 1);
 	} else {
 		transaction.pop();
 	}
 
-	update();
+	updateTransactionList();
 }
 
-var categories = {}
-categories.options = {{{json categories}}}
-categories.parent = null
+
 
 function calculateChange(e){
 	let cashGiven = parseFloat(e.value);
@@ -369,56 +386,78 @@ function calculateChange(e){
 }
 
 // Updates UI
-function update(){
+function updateTransactionList(){
 	$("#transaction-info").html("");
 	var tokens_total = 0;
 	var weight_total = 0;
+	var row, categoryColumn, valueColumn, weightColumn, deleteColumn;
 
 	for(let i=0;i<transaction.length;i++){
 		var value = 0;
 		var note = "";
 		if(member.name){
-			value = +transaction[i].tokens
+			value = +transaction[i].value
 			tokens_total += +value;
 			if(transaction[i].member_discount > 0){
 				note = " (<span class='fail'>-" + transaction[i].member_discount + "%</span>)";
 			}
 		} else {
-			value = +transaction[i].tokens;
-			tokens_total += +transaction[i].tokens;
+			value = +transaction[i].value;
+			tokens_total += +transaction[i].value;
 		}
 
 		weight_total += +transaction[i].weight;
 
-		if(transaction[i].carbon_id !== ""  && transaction[i].setValue == false){
-			$('<tr>',{
-			    html:"<td>" + transaction[i].category + note + "</td>" +
-			    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" +
-			    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" +
-			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');
-		} else if(transaction[i].carbon_id == "" && transaction[i].setValue == false) {
-			$('<tr>',{
-			    html:"<td>" + transaction[i].category + note + "</td>" +
-			    "<td id='tokens_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].tokens + "</td>" +
-			    "<td id='weight_" + i + "'>-</td>" +
-			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');
-		} else if(transaction[i].carbon_id == "" && transaction[i].setValue == true){
-			$('<tr>',{
-			    html:"<td>" + transaction[i].category + note + "</td>" +
-			    "<td id='tokens_" + i + "'>" + value + "</td>" +
-			    "<td id='weight_" + i + "'>-</td>" +
-			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');
-		} else if(transaction[i].carbon_id !== "" && transaction[i].setValue == true){
-			$('<tr>',{
-			    html:"<td>" + transaction[i].category + note + "</td>" +
-			    "<td id='tokens_" + i + "'>" + value + "</td>" +
-			    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" +
-			    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
-			}).appendTo('#transaction-info');
+		row = document.createElement("tr");
+
+		categoryColumn = document.createElement("td");
+		categoryColumn.innerHTML = transaction[i].name + note;
+
+		valueColumn = document.createElement("td");
+		valueColumn.id = "value_" + i;
+		valueColumn.oninput = function(){
+			updateTransaction(i)
+		};
+		valueColumn.onblur = function(){
+			updateTransaction(i)
+		};
+
+		valueColumn.textContent = transaction[i].value;
+
+		if(transaction[i].setValue == false){
+			valueColumn.contentEditable = true;
 		}
+
+		weightColumn = document.createElement("td");
+		weightColumn.id = "weight_" + i;
+		weightColumn.oninput = function(){
+			updateTransaction(i)
+		};
+		weightColumn.onblur = function(){
+			updateTransaction(i)
+		};
+		if(transaction[i].carbon_id != ""){
+			weightColumn.contentEditable = true;
+			weightColumn.textContent = transaction[i].weight;
+		} else {
+			weightColumn.textContent = "-";
+
+		}
+
+		removeColumn = document.createElement("td");
+		removeColumn.className = "remove-item clickable"
+		removeColumn.textContent = "x"
+		removeColumn.onclick = function(){
+			removeFromTransaction(i)
+		}
+
+		row.appendChild(categoryColumn)
+		row.appendChild(valueColumn)
+		row.appendChild(weightColumn)
+		row.appendChild(removeColumn)
+
+		document.getElementById("transaction-info").appendChild(row);
+
 	}
 
 	if(transaction.length > 0){
@@ -438,60 +477,52 @@ function update(){
 
 updateOptions("categories.options");
 
-var payWithTokens = false;
-
-
 function updateOptions(path){
 
 	$("#options").html("")
 
 	options = eval(path);
-	var markup = "";
+
+	var currentRow, option, optionDOMObject;
 
 	for(let i=0;i<options.length;i++){
 
-		var option = options[i];
-		if(!option.value){
-			option.value = 0;
-		}
+		option = options[i];
 
-		if(!option.weight){
-			option.weight = 0;
-		}
-
-		if(option.children && option.children.length > 0){
-			option.onclick =  "updateOptions('" + path + "[" + i + "].children" + "')";
-		} else {
-
-				option.onclick = "addToTrans('" + option.item_id + "', '" + option.name.replace(/'/g, "\\\'") + "', '" + option.value + "', '" + option.carbon_id + "', '" + option.allowTokens +"', '" + option.member_discount + "', '" + option.weight + "', " + option.needsCondition + ")";
-
-		}
-		var wrapper, wrapperEnd = "";
 
 		if((i+1)%3 == 1){
-			markup = markup + "<div class='row'>";
+			currentRow = document.createElement("div");
+		 	currentRow.className = "row";
+			document.getElementById("options").appendChild(currentRow);
+
 		}
 
-		markup = markup +
+		optionDOMObject = {
+			parent: document.createElement("div"),
+			text:document.createElement("p")
+		};
 
-							'<div id="' + i + '" class="col-xs-5 col-sm-3 item-options" onclick="' + option.onclick + '">' +
-				      			'<center>' +
-									'<span>' + option.name + '</span>' +
-								'</center>' +
-				      		'</div>';
+		optionDOMObject.parent.id = i;
+		optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options";
 
-		if((i+1)%3 == 0){
-			markup = markup + "</div>";
+		if(option.children && option.children.length > 0){
+			optionDOMObject.parent.onclick = function() {
+				updateOptions(path + "[" + i + "].children")
+			};
+		} else {
+			optionDOMObject.parent.onclick = function(){
+				addToTransaction(options[i]);
+			}
 		}
 
+		optionDOMObject.text.className = "text-center";
+		optionDOMObject.text.textContent = option.name;
 
-		option.onclick = "";
-
-
+		optionDOMObject.parent.appendChild(optionDOMObject.text)
+		currentRow.appendChild(optionDOMObject.parent);
 
 	}
 
-	$("#options").html(markup);
 
 	var parent = path.split(".")
 	parent.splice(-1, 1);
@@ -500,21 +531,33 @@ function updateOptions(path){
 		parent = parent.join(".");
 		parent = parent.slice(0, -3);
 
-		$("#options").html($("#options").html() + '<div class="row">' +
+		var row = document.createElement("div");
+		row.className = "row";
 
-							'<div class="col-sm-3 item-options" onclick="' +  "updateOptions('" + parent + "')" + '">' +
-				      			'<center>' +
-									'<span>← Back</span>' +
-								'</center>' +
-				      		'</div>');
+
+		var optionDOMObject = {
+			parent: document.createElement("div"),
+			text:document.createElement("p")
+		}
+
+		optionDOMObject.parent.className = "col-sm-3 item-options";
+		optionDOMObject.parent.onclick = function() { updateOptions(parent) }
+
+		optionDOMObject.text.className = "text-center";
+		optionDOMObject.text.textContent = "← Back";
+
+		optionDOMObject.parent.appendChild(optionDOMObject.text)
+		row.appendChild(optionDOMObject.parent);
+		document.getElementById("options").appendChild(row);
+
+
+
 	}
 
 
 
 
 }
-
-var global_money_total = 0;
 
 function updateButtons(){
 
@@ -525,22 +568,22 @@ function updateButtons(){
 	for(let i=0;i<transaction.length;i++){
 		if(transaction[i].allowTokens == 1){
 			if(member.name){
-				tokens_total += +(transaction[i].tokens - (transaction[i].tokens * (transaction[i].member_discount/100)));
+				tokens_total += +(transaction[i].value - (transaction[i].value * (transaction[i].member_discount/100)));
 			} else {
-				tokens_total += +transaction[i].tokens;
+				tokens_total += +transaction[i].value;
 			}
 
 		} else {
 			if(member.name){
-				money_total += +(transaction[i].tokens - (transaction[i].tokens * (transaction[i].member_discount/100)));
+				money_total += +(transaction[i].value - (transaction[i].value * (transaction[i].member_discount/100)));
 			} else {
-				money_total += +transaction[i].tokens;
+				money_total += +transaction[i].value;
 			}
 		}
 		weight_total += +transaction[i].weight;
 	}
 
-	$("#tokens_total").html((tokens_total + money_total).toFixed(2));
+	$("#value_total").html((tokens_total + money_total).toFixed(2));
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0){
@@ -560,12 +603,14 @@ function updateButtons(){
 
 
 				} else {
+
 					let difference = tokens_total - member.balance;
 					$(".transaction-total").html("Pay <b>£" + (difference).toFixed(2) + "</b> and <b>" + (tokens_total - difference) +  " tokens</b>")
 					$("#selectPaymentMethod").removeClass("d-none");
 					global_money_total = (difference).toFixed(2);
 				}
 			} else {
+
 				let difference = member.balance - tokens_total;
 				var money = 0;
 				var tokens = 0;
@@ -615,7 +660,7 @@ function isNumeric(n) {
 	return !isNaN(parseFloat(n)) && n >= 0;
 }
 
-function updateTrans(index){
+function updateTransaction(index){
 
 	if(isNumeric($("#weight_" + index).html())){
 		transaction[index].weight = $("#weight_" + index).html();
@@ -624,11 +669,11 @@ function updateTrans(index){
 		transaction[index].weight = 0;
 	}
 
-	if(isNumeric($("#tokens_" + index).html())){
-		transaction[index].tokens = $("#tokens_" + index).html();
+	if(isNumeric($("#value_" + index).text())){
+		transaction[index].value = $("#value_" + index).html();
 	} else {
-		$("#tokens_" + index).html("");
-		transaction[index].tokens = 0;
+		$("#value_" + index).html("");
+		transaction[index].value = 0;
 	}
 
 	if(transaction.length > 0){
@@ -642,8 +687,7 @@ function updateTrans(index){
 
 }
 
-var results = [];
-var member = {};
+
 
 function searchMember(){
   $.ajax({
@@ -667,64 +711,128 @@ function updateSearchResults(){
 	member = {};
 	$("#searchResults").html("");
 	for(let i=0;i<results.length;i++){
-		if(results[i].is_member){
-			$("#searchResults").html($("#searchResults").html() +
-				"<div class='col-md-3 mx-auto member-result'>" +
-					"<div class='card'>" +
-						"<div class='card-body'>" +
-							"<p class='mb-2'><b>" + results[i].name + "</b> (<a href='{{public_address}}/members/view/" + results[i].id + "?till_id={{till.till_id}}' target='_blank'>view profile</a>)</p>" +
-							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
-							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
-							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
-						"</div>" +
-					"</div>" +
-				"</div>")
-		} else {
-			$("#searchResults").html($("#searchResults").html() +
-			"<div class='col-md-3 mx-auto member-result'>" +
-				"<div class='card'>" +
-					"<div class='card-body'>"  +
-						"<p class='mb-3'><b>" + results[i].name + "</b></p>" +
-						"<p class='mb-3'>Membership expired!<p>" +
-						"<a class='btn btn-primary mb-2' onclick='selectMember(" + i + ")'>Select Member</a>" +
-					"</div>" +
-				"</div>" +
-			"</div>")
+
+		var memberMarkup = {}
+
+		memberMarkup.column = document.createElement("div")
+		memberMarkup.column.className = "col-md-3 mx-auto member-result";
+
+		memberMarkup.card = document.createElement("div")
+		memberMarkup.card.className = "card";
+
+		memberMarkup.cardBody = document.createElement("div")
+		memberMarkup.cardBody.className = "card-body";
+
+		memberMarkup.name = document.createElement("p")
+		memberMarkup.name.className = "mb-2";
+		memberMarkup.name.innerHTML = "<b>" + results[i].name + "</b> (<a href='{{public_address}}/members/view/" + results[i].id + "?till_id={{till.till_id}}' target='_blank'>view profile</a>)"
+
+		memberMarkup.balance = document.createElement("p")
+		memberMarkup.balance.className = "mb-2";
+		memberMarkup.balance.textContent = results[i].balance + " tokens";
+
+		memberMarkup.membershipDates = document.createElement("p")
+		memberMarkup.membershipDates.className = "mb-2";
+		memberMarkup.membershipDates.textContent = "Membership expires: " + results[i].membership_expires;
+
+		memberMarkup.selectMember = document.createElement("a")
+		memberMarkup.selectMember.className = "btn btn-primary";
+		memberMarkup.selectMember.textContent = "Select Member";
+		memberMarkup.selectMember.onclick = function(){
+			selectMember(i)
 		}
+
+		memberMarkup.cardBody.appendChild(memberMarkup.name)
+
+		if(results[i].is_member == true){
+			memberMarkup.cardBody.appendChild(memberMarkup.balance);
+			memberMarkup.cardBody.appendChild(memberMarkup.membershipDates);
+			memberMarkup.cardBody.appendChild(memberMarkup.selectMember);
+		} else {
+			memberMarkup.membershipDates.textContent = "Membership expired!"
+			memberMarkup.membershipDates.className = "mb-3"
+			memberMarkup.cardBody.appendChild(memberMarkup.membershipDates);
+			memberMarkup.cardBody.appendChild(memberMarkup.selectMember);
+		}
+
+		memberMarkup.card.appendChild(memberMarkup.cardBody);
+		memberMarkup.column.appendChild(memberMarkup.card);
+
+
+
+		document.getElementById("searchResults").appendChild(memberMarkup.column)
+
+
 	}
 }
 
-
-
 function selectMember(index){
+
+	$("#searchResults").html("")
 
 	member = results[index];
 
-	if(member.is_member){
-		$("#searchResults").html(
-			"<div class='col-md-3 mb-4 mx-auto member-result'>" +
-				"<div class='card member-selected'>" +
-					"<div class='card-body'>" +
-						"<p class='mb-2'><b>" + member.name + "</b> (<a href='{{public_address}}/members/view/" + member.id + "' target='_blank'>view profile</a>)</p>" +
-						"<p class='mb-2'>" + member.balance + " tokens</p>" +
-						"<p class='mb-2'><input type='checkbox' id='payWithTokens' /> Use tokens</p>" +
-						"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
-					"</div>" +
-				"</div>" +
-			"</div>")
+	var selectedMemberMarkup = {}
+
+	selectedMemberMarkup.column = document.createElement("div")
+	selectedMemberMarkup.column.className = "col-md-3 mb-4 mx-auto member-result";
+
+	selectedMemberMarkup.card = document.createElement("div")
+	selectedMemberMarkup.card.className = "card member-selected";
+
+	selectedMemberMarkup.cardBody = document.createElement("div")
+	selectedMemberMarkup.cardBody.className = "card-body";
+
+	selectedMemberMarkup.name = document.createElement("p")
+	selectedMemberMarkup.name.className = "mb-2";
+	selectedMemberMarkup.name.innerHTML = "<b>" + member.name + "</b> (<a href='{{public_address}}/members/view/" + member.id + "?till_id={{till.till_id}}' target='_blank'>view profile</a>)"
+
+	selectedMemberMarkup.balance = document.createElement("p")
+	selectedMemberMarkup.balance.className = "mb-2";
+	selectedMemberMarkup.balance.textContent = member.balance + " tokens";
+
+	selectedMemberMarkup.membershipDates = document.createElement("p")
+	selectedMemberMarkup.membershipDates.className = "mb-2";
+	selectedMemberMarkup.membershipDates.textContent = "Membership expires: " + member.membership_expires;
+
+
+	selectedMemberMarkup.payWithTokens = document.createElement("p")
+	selectedMemberMarkup.payWithTokens.className = "mb-2";
+
+	selectedMemberMarkup.payWithTokensText = document.createTextNode(' Pay With Tokens')
+
+	selectedMemberMarkup.payWithTokensCheckbox = document.createElement("input")
+	selectedMemberMarkup.payWithTokensCheckbox.type = "checkbox";
+	selectedMemberMarkup.payWithTokensCheckbox.id = "payWithTokens";
+	selectedMemberMarkup.payWithTokens.appendChild(selectedMemberMarkup.payWithTokensCheckbox);
+	selectedMemberMarkup.payWithTokens.appendChild(selectedMemberMarkup.payWithTokensText);
+
+
+
+	selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.name)
+
+	if(member.is_member == true){
+		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.balance);
+		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.payWithTokens);
+		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.membershipDates);
 	} else {
-		$("#searchResults").html(
-			"<div class='col-md-3 mb-4 mx-auto member-result'>" +
-				"<div class='card member-result member-selected-expired'>" +
-					"<div class='card-body'>" +
-						"<p class='mb-2'><b>" + member.name + "</b></p>" +
-						"<p class='mb-2'>" + member.balance + " tokens (unavailable)</p>" +
-						"<p class='mb-2'>Membership expired!</p>" +
-					"</div>" +
-				"</div>" +
-			"</div>")
+		selectedMemberMarkup.card.className = "card member-result member-selected-expired";
+		selectedMemberMarkup.balance.textContent += " (unavailable)"
+		selectedMemberMarkup.membershipDates.textContent = "Membership expired!"
+
+		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.balance);
+		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.membershipDates);
+
 		member.balance = 0;
 	}
+
+	selectedMemberMarkup.card.appendChild(selectedMemberMarkup.cardBody);
+	selectedMemberMarkup.column.appendChild(selectedMemberMarkup.card);
+
+
+
+	document.getElementById("searchResults").appendChild(selectedMemberMarkup.column)
+
 
 	$("#payWithTokens").change(function(){
 
@@ -736,16 +844,12 @@ function selectMember(index){
 		updateButtons();
 	})
 
-	update();
+	updateTransactionList();
 	$("#memberStatement").html("Member selected: <b>" + member.name + "</b>");
 	updateButtons();
 }
 
-
-
-
-
-function completeTrans(type){
+function completeTransaction(type){
 	let member_id = member.id || null;
     $.ajax({
         type: "POST",
@@ -766,9 +870,8 @@ function completeTrans(type){
 
         	if(response.status == "ok"){
         		$("#note").val("")
-
 	            transaction = [];
-	            update();
+	            updateTransactionList();
 	            payWithTokens = false;
 	            $("#transaction_info").removeClass("d-none");
 	            $("#transaction_info").css("display", "block")
@@ -811,20 +914,6 @@ function getBalance(){
 	});
 }
 
-function workingGroupAjaxReq(url){
-   $.ajax({
-      type: "GET",
-      url: url,
-      success: function(response){
-      	if(response.status == "ok"){
-        	$("#working_group_info").html('<div class="alert alert-success col-md-6 mx-auto" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
-      	} else {
-      		$("#working_group_info").html('<div class="alert alert-danger col-md-6 mx-auto" onclick="dismiss(\'#working_group_info\')">' + response.msg + '</div>');
-      	}
-      }
-   });
-}
-
 
 $("#memberToggle").change(function() {
     if(this.checked) {
@@ -836,7 +925,7 @@ $("#memberToggle").change(function() {
     	$("memberInput").val("");
     	$("#memberStatement").html("");
     	$("#memberOptions").addClass("d-none");
-			update();
+			updateTransactionList();
     	updateButtons();
     }
 });
@@ -905,7 +994,5 @@ function resetElectricalColours(){
 	$("#electricalSafetyMessage").text("");
 
 }
-
-getSavedCarbon();
 
 </script>

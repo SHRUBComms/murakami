@@ -1,6 +1,8 @@
 // /till/transaction
 
 var router = require("express").Router();
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -16,7 +18,6 @@ router.post(
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "processTransaction"),
   function(req, res) {
-    
     var till_id = req.body.till_id;
     var member_id = req.body.member_id;
     var paymentMethod = req.body.paymentMethod;
@@ -63,17 +64,17 @@ router.post(
                       let id = transaction[i].id;
                       if (categoriesAsObj[id].active == 1) {
                         let weight = transaction[i].weight;
-                        let tokens = 0;
+                        let value = 0;
                         let condition = transaction[i].condition;
                         if (categoriesAsObj[id].value) {
-                          tokens = categoriesAsObj[id].value;
+                          value = categoriesAsObj[id].value;
                         } else {
-                          tokens = transaction[i].tokens;
+                          value = transaction[i].value;
                         }
 
                         transaction[i] = categoriesAsObj[id];
                         transaction[i].weight = weight;
-                        transaction[i].tokens = tokens;
+                        transaction[i].value = value;
                         transaction[i].condition = condition;
 
                         if (categoriesAsObj[id].action) {
@@ -90,18 +91,18 @@ router.post(
                         }
 
                         if (transaction[i].allowTokens == 1) {
-                          tokens_total = +tokens_total + +transaction[i].tokens;
+                          tokens_total = +tokens_total + +transaction[i].value;
                           if (categoriesAsObj[id].member_discount) {
                             member_discount_tokens +=
                               (categoriesAsObj[id].member_discount / 100) *
-                              transaction[i].tokens;
+                              transaction[i].value;
                           }
                         } else {
-                          money_total = +money_total + +transaction[i].tokens;
+                          money_total = +money_total + +transaction[i].value;
                           if (categoriesAsObj[id].member_discount) {
                             member_discount_money +=
                               (categoriesAsObj[id].member_discount / 100) *
-                              transaction[i].tokens;
+                              transaction[i].value;
                           }
                         }
 
@@ -134,7 +135,7 @@ router.post(
                         }
 
                         transaction[i] = {};
-                        transaction[i].tokens = tokens;
+                        transaction[i].value = value;
                         transaction[i].item_id = id;
                         transaction[i].condition = condition;
                         transactionSanitized.push(transaction[i]);
@@ -268,7 +269,7 @@ router.post(
                             returnedMember.is_member = isMember;
                             returnedMember.membership_expires =
                               member.current_exp_membership;
-
+                            console.log(returnedMember.membership_expires);
                             if (membershipBought == "MEM-FY") {
                               Members.renew(
                                 member_id,
@@ -278,10 +279,9 @@ router.post(
                               response.msg +=
                                 " Membership renewed for 12 months.";
                               returnedMember.is_member = true;
-                              var dt = new Date();
-                              returnedMember.membership_expires = new Date(
-                                dt.setMonth(dt.getMonth() + 12)
-                              );
+                              returnedMember.membership_expires = moment()
+                                .add(12, "months")
+                                .format("L");
                             } else if (membershipBought == "MEM-HY") {
                               Members.renew(
                                 member_id,
@@ -291,10 +291,10 @@ router.post(
                               response.msg +=
                                 " Membership renewed for 6 months.";
                               returnedMember.is_member = true;
-                              var dt = new Date();
-                              returnedMember.membership_expires = new Date(
-                                dt.setMonth(dt.getMonth() + 6)
-                              );
+
+                              returnedMember.membership_expires = moment()
+                                .add(6, "months")
+                                .format("L");
                             } else if (membershipBought == "MEM-QY") {
                               Members.renew(
                                 member_id,
@@ -304,11 +304,12 @@ router.post(
                               response.msg +=
                                 " Membership renewed for 3 months.";
                               returnedMember.is_member = true;
-                              var dt = new Date();
-                              returnedMember.membership_expires = new Date(
-                                dt.setMonth(dt.getMonth() + 3)
-                              );
+                              returnedMember.membership_expires = moment()
+                                .add(3, "months")
+                                .format("L");
                             }
+
+                            console.log(returnedMember.membership_expires);
 
                             if (
                               formattedTransaction.summary.totals.tokens > 0
@@ -462,7 +463,6 @@ router.post(
                     }
 
                     if (["cash", "card", null].includes(paymentMethod)) {
-                      
                       formattedTransaction.summary.paymentMethod = paymentMethod;
 
                       formattedTransaction.summary = JSON.stringify(
