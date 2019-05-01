@@ -2,7 +2,7 @@
 --
 -- Host: 209.97.188.20    Database: murakami_dev
 -- ------------------------------------------------------
--- Server version	5.7.25-0ubuntu0.16.04.2
+-- Server version	5.7.26-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -91,7 +91,7 @@ CREATE TABLE `attempts` (
   `outcome` tinyint(4) NOT NULL DEFAULT '1',
   `login_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=431 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=432 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -464,6 +464,7 @@ INSERT INTO `attempts` VALUES (427,'01746918155','::ffff:192.168.1.128',1,'2019-
 INSERT INTO `attempts` VALUES (428,'01746918155','::ffff:192.168.1.128',1,'2019-04-23 13:06:29');
 INSERT INTO `attempts` VALUES (429,'01746918152','::ffff:192.168.1.128',1,'2019-04-23 14:24:21');
 INSERT INTO `attempts` VALUES (430,'01746919992','::ffff:192.168.1.128',1,'2019-04-24 07:48:53');
+INSERT INTO `attempts` VALUES (431,'01746919992','::ffff:192.168.1.172',1,'2019-04-30 16:01:51');
 /*!40000 ALTER TABLE `attempts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -500,6 +501,7 @@ INSERT INTO `carbon` VALUES ('1234567892','WG-100','','retro','{\"IT-100\":\"996
 INSERT INTO `carbon` VALUES ('1234567893','WG-100','','retro','{\"IT-100\":\"303578\",\"IT-101\":\"2670\",\"IT-102\":\"73483\",\"IT-103\":\"16225\",\"IT-104\":\"18288\",\"IT-105\":\"1607\",\"IT-106\":\"5151\"}','recycled','2018-04-01 00:00:00');
 INSERT INTO `carbon` VALUES ('1234567894','WG-100','','retro','{\"IT-100\":\"104577\",\"IT-101\":\"12518\",\"IT-102\":\"361278\",\"IT-103\":\"17795\",\"IT-104\":\"9889\",\"IT-105\":\"3120\",\"IT-106\":\"12016\"}','recycled','2018-05-01 00:00:00');
 INSERT INTO `carbon` VALUES ('1234567895','WG-100','','retro','{\"IT-100\":\"7334\",\"IT-101\":\"1735\",\"IT-102\":\"16993\",\"IT-103\":\"2594\",\"IT-104\":\"54\",\"IT-105\":\"208\",\"IT-106\":\"6362\"}','recycled','2018-06-01 00:00:00');
+INSERT INTO `carbon` VALUES ('13585490430781130000','WG-100','01746919992','383039112','{\"IT-107\":\"1000\"}','reused','2019-04-30 10:23:23');
 INSERT INTO `carbon` VALUES ('15658330833747173000','WG-100','01746918152','anon','{\"IT-100\":\"100\"}','recycled','2019-01-28 08:34:08');
 INSERT INTO `carbon` VALUES ('15965043895968050000','WG-100','01746918152','anon','{\"IT-100\":\"100\"}','recycled','2019-01-28 08:36:52');
 INSERT INTO `carbon` VALUES ('16373527399227953000','WG-100','01746919992','anon','{\"IT-102\":\"1\"}','recycled','2019-04-22 07:17:26');
@@ -513,6 +515,7 @@ INSERT INTO `carbon` VALUES ('20703547064337506000','WG-100','01746919992','anon
 INSERT INTO `carbon` VALUES ('23383006031283840000','WG-100','01746919992','anon','{\"IT-108\":\"5\",\"IT-104\":\"100\"}','recycled','2018-11-20 19:26:08');
 INSERT INTO `carbon` VALUES ('24067929008285590000','WG-100','01746918152','12849542116','{\"IT-100\":\"1000\"}','recycled','2018-11-17 03:51:55');
 INSERT INTO `carbon` VALUES ('26242162385522280000','WG-100','','383039112','{\"IT-101\":\"1000\",\"IT-104\":\"278\"}','recycled','2018-09-18 12:33:32');
+INSERT INTO `carbon` VALUES ('27353167692616745000','WG-100','01746919992','anon','{\"IT-107\":\"1000\"}','reused','2019-04-29 17:17:57');
 INSERT INTO `carbon` VALUES ('27981332454422663000','WG-100','01746919992','anon','{\"IT-100\":\"100\"}','reused','2019-04-24 08:19:42');
 INSERT INTO `carbon` VALUES ('29334874821798765000','WG-100','01746918152','12849542116','{\"IT-107\":\"1000\"}','recycled','2019-01-26 10:45:18');
 INSERT INTO `carbon` VALUES ('30086152221155054000','WG-100','01746918152','anon','{\"IT-101\":\"430\"}','recycled','2019-01-23 10:12:46');
@@ -527,6 +530,7 @@ INSERT INTO `carbon` VALUES ('36822980460318950000','WG-100','01746918152','anon
 INSERT INTO `carbon` VALUES ('37169935488935985000','WG-100','','anon','{\"IT-101\":\"500\"}','recycled','2018-11-12 14:10:44');
 INSERT INTO `carbon` VALUES ('38411763214418490000','WG-100','01746919992','92187273873','{\"IT-104\":\"100\",\"IT-102\":\"100\"}','recycled','2018-11-13 17:09:51');
 INSERT INTO `carbon` VALUES ('38520749864333710000','WG-100-933','01746918155','anon','{\"IT-102\":\"1\"}','recycled','2019-03-25 13:27:16');
+INSERT INTO `carbon` VALUES ('38560525127556310000','WG-100','01746919992','anon','{\"IT-107\":\"1000\"}','reused','2019-04-30 09:54:37');
 INSERT INTO `carbon` VALUES ('39402730965508510000','WG-100','','anon','{\"IT-100\":\"100\"}','recycled','2018-11-10 12:43:37');
 INSERT INTO `carbon` VALUES ('41082020974841790000','WG-100','','anon','{\"IT-100\":\"1000\"}','recycled','2018-11-12 14:09:10');
 INSERT INTO `carbon` VALUES ('41336728741544840000','WG-100','01746919992','anon','{\"IT-107\":\"1000\"}','reused','2019-04-24 08:18:36');
@@ -576,6 +580,7 @@ INSERT INTO `carbon` VALUES ('85565493127765820000','WG-100','01746918152','anon
 INSERT INTO `carbon` VALUES ('85657451719432550000','WG-100','01746919992','anon','{\"IT-108\":\"100\"}','recycled','2018-11-22 18:11:41');
 INSERT INTO `carbon` VALUES ('87093254092513070000','WG-100','','anon','{\"IT-100\":\"500\"}','recycled','2018-11-12 14:10:00');
 INSERT INTO `carbon` VALUES ('87428516636555260000','WG-100','','anon','{\"IT-100\":\"157\"}','recycled','2018-11-07 15:38:15');
+INSERT INTO `carbon` VALUES ('87511116255564200000','WG-100','01746919992','383039112','{\"IT-107\":\"1000\"}','reused','2019-04-30 09:56:47');
 INSERT INTO `carbon` VALUES ('91694484404340420000','WG-100','01746918152','anon','{\"IT-100\":\"1000\"}','recycled','2018-11-17 03:50:53');
 INSERT INTO `carbon` VALUES ('91859230901390520000','WG-100','01746919992','anon','{\"IT-102\":\"5\"}','recycled','2019-02-27 07:31:20');
 INSERT INTO `carbon` VALUES ('92036992067115960000','WG-100','01746918152','anon','{\"IT-100\":\"100\"}','recycled','2019-01-28 08:38:49');
@@ -585,6 +590,7 @@ INSERT INTO `carbon` VALUES ('93775619393842350000','WG-100','','anon','{\"IT-10
 INSERT INTO `carbon` VALUES ('93830173813391980000','WG-100','','16695049487','{\"IT-100\":356}','recycled','2018-11-06 18:00:08');
 INSERT INTO `carbon` VALUES ('94119700195157410000','WG-100','01746918152','92187273873','{\"IT-102\":\"1000\"}','recycled','2018-11-20 23:19:11');
 INSERT INTO `carbon` VALUES ('96011341100380180000','WG-100','01746918152','anon','{\"IT-100\":\"1000\"}','recycled','2019-01-23 09:57:32');
+INSERT INTO `carbon` VALUES ('96133466793653260000','WG-100','01746919992','anon','{\"IT-107\":\"1000\"}','reused','2019-04-30 12:27:50');
 INSERT INTO `carbon` VALUES ('96923628742524320000','WG-104','','anon','{\"IT-103\":\"1000\"}','generated','2018-11-12 15:19:08');
 INSERT INTO `carbon` VALUES ('97966215665975530000','WG-100','','anon','{\"IT-100\":\"10000\"}','recycled','2018-11-12 14:13:11');
 INSERT INTO `carbon` VALUES ('98392713660048700000','WG-100','01746919992','anon','{\"IT-107\":\"1000\"}','reused','2019-04-24 08:19:32');
@@ -909,30 +915,31 @@ CREATE TABLE `members` (
 
 LOCK TABLES `members` WRITE;
 /*!40000 ALTER TABLE `members` DISABLE KEYS */;
-INSERT INTO `members` VALUES ('12849542116','000000002','Ross','Hudson','rosshudson8@googlemaile.com','','',1,1,'','{\"volunteeringOpportunities\":true,\"donations\":true}',58,'2018-09-04','2019-04-01','2019-06-01');
-INSERT INTO `members` VALUES ('14004524227',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1,'2019-01-28','2019-04-01','2019-06-01');
+INSERT INTO `members` VALUES ('12849542116','000000002','Ross','Hudson','rosshudson8@googlemaile.com','','',1,1,'','{\"volunteeringOpportunities\":true,\"donations\":true}',57,'2018-09-04','2019-04-30','2019-07-30');
+INSERT INTO `members` VALUES ('14004524227',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1,'2019-01-28','2019-04-30','2019-09-01');
 INSERT INTO `members` VALUES ('14971713977',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1,'2019-01-28','2019-04-02','2019-06-02');
 INSERT INTO `members` VALUES ('16456573405',NULL,'Potato','Jackson','jackson@potato.com','','',1,0,NULL,NULL,1,'2019-04-27','2019-04-27','2019-07-27');
-INSERT INTO `members` VALUES ('16695049487',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',0,0,'[]',NULL,10,'2018-07-20','2018-11-05','2019-05-05');
-INSERT INTO `members` VALUES ('18877294603',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,'[]',NULL,1,'2019-01-28','2019-02-13','2019-04-13');
+INSERT INTO `members` VALUES ('16695049487','01','Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',0,0,'[]',NULL,10,'2018-07-20','2018-11-05','2019-05-05');
+INSERT INTO `members` VALUES ('18877294603',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,'[]',NULL,1,'2019-01-28','2019-02-13','2019-04-13');
 INSERT INTO `members` VALUES ('20806453336',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,'[]',NULL,0,'2019-01-08','2019-01-08','2019-04-08');
-INSERT INTO `members` VALUES ('21166729709',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','',1,0,'[]',NULL,1,'2019-01-15','2019-01-15','2019-04-15');
+INSERT INTO `members` VALUES ('21166729709',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','',0,0,'[]',NULL,1,'2019-01-15','2019-01-15','2019-04-15');
 INSERT INTO `members` VALUES ('22090875739',NULL,'Ross','Hudson','potato@rosshudson.co.uk','7745311065','',1,0,'[]',NULL,0,'2019-01-08','2019-01-08','2020-01-08');
-INSERT INTO `members` VALUES ('22581214864',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',1,1,NULL,NULL,5,'2019-01-08','2019-02-14','2019-04-14');
+INSERT INTO `members` VALUES ('22581214864',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,1,NULL,NULL,5,'2019-01-08','2019-02-14','2019-04-14');
 INSERT INTO `members` VALUES ('23015296025','1','Test','Test','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,NULL,NULL,5,'2019-04-08','2019-04-23','2020-04-23');
 INSERT INTO `members` VALUES ('25561861829',NULL,'[redacted]','[redacted]','[redacted]','[redacted]','[redacted]',0,0,'[]',NULL,1,'2019-02-26','2019-02-26','2019-05-26');
 INSERT INTO `members` VALUES ('25582342024',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,'[]',NULL,5,'2018-11-14','2018-11-14','2019-11-14');
 INSERT INTO `members` VALUES ('29036707394',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','',1,1,'[]',NULL,0,'2018-07-19','2019-03-07','2019-05-07');
 INSERT INTO `members` VALUES ('29519950061',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,NULL,NULL,1,'2019-02-28','2019-02-28','2019-05-28');
+INSERT INTO `members` VALUES ('29643649277',NULL,'Test','Member','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,NULL,NULL,5,'2019-04-30','2019-04-30','2020-04-30');
 INSERT INTO `members` VALUES ('29729623482',NULL,'Test','Test','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,NULL,NULL,1,'2019-02-11','2019-02-11','2019-05-11');
 INSERT INTO `members` VALUES ('30073129901',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2019-01-14','2019-01-14','2020-01-14');
 INSERT INTO `members` VALUES ('30947926395',NULL,'test','test','test@test.com','','',1,0,NULL,NULL,5,'2019-04-23','2019-04-23','2020-04-23');
 INSERT INTO `members` VALUES ('32518288323',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',0,0,'[]',NULL,5,'2018-09-18','2018-09-18','2019-09-18');
 INSERT INTO `members` VALUES ('34107775270',NULL,'[redacted]','[redacted]','[redacted]','[redacted]','[redacted]',0,0,'[]',NULL,1,'2019-02-26','2019-02-26','2019-05-26');
 INSERT INTO `members` VALUES ('35830015576',NULL,'Test','Test','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,NULL,NULL,1,'2019-02-28','2019-02-28','2019-05-28');
-INSERT INTO `members` VALUES ('37635736393','123','John','Poo','potato@potato.net','asdasd','asdasdasd',1,0,NULL,NULL,1,'2019-04-01','2019-04-01','2019-07-01');
+INSERT INTO `members` VALUES ('37635736393','123','John','Poo','potato@potato.net','asdasd','asdasdasd',1,0,NULL,NULL,1,'2019-04-01','2019-04-30','2020-04-30');
 INSERT INTO `members` VALUES ('38197511713',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,'[]',NULL,5,'2018-11-14','2018-11-14','2019-11-14');
-INSERT INTO `members` VALUES ('383039112','0000010101','Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1109,'2017-11-30','2019-04-23','2019-06-23');
+INSERT INTO `members` VALUES ('383039112','0000010101','Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1104,'2017-11-30','2019-04-30','2019-07-30');
 INSERT INTO `members` VALUES ('38861429946',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,'[]',NULL,5,'2018-12-11','2018-12-11','2019-12-11');
 INSERT INTO `members` VALUES ('39363380328',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2019-01-18','2019-01-18','2019-04-18');
 INSERT INTO `members` VALUES ('40471383077',NULL,'Ross','Hudson','rosshudson8@googlemail.com','+447745311065','23 Ross Way',0,0,'[]',NULL,5,'2018-09-18','2018-09-18','2019-09-18');
@@ -958,7 +965,7 @@ INSERT INTO `members` VALUES ('55679931561',NULL,'sdfsdf','dfsdfsdf','sdfsd@sdfs
 INSERT INTO `members` VALUES ('59408595423',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',0,0,'[]',NULL,0,'2018-09-06','2018-09-06','2019-09-06');
 INSERT INTO `members` VALUES ('59514086149',NULL,'Test','Test','hello@rosshudson.co.uk','7745311065','23\r\nROSS WAY',1,0,NULL,NULL,1,'2019-04-24','2019-04-24','2019-07-24');
 INSERT INTO `members` VALUES ('59843861392',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2019-01-08','2019-01-08','2019-04-08');
-INSERT INTO `members` VALUES ('60853501100',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',1,0,'[]',NULL,1,'2019-01-15','2019-01-15','2019-04-15');
+INSERT INTO `members` VALUES ('60853501100',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,'[]',NULL,1,'2019-01-15','2019-01-15','2019-04-15');
 INSERT INTO `members` VALUES ('61139437179','000000001','adfadsf','sdfsdf','sdfsdf@sdfsdfsf.com','asdasd','',1,0,NULL,NULL,1,'2019-04-02','2019-07-03','2019-07-31');
 INSERT INTO `members` VALUES ('62420918053',NULL,'Someone','McSomething','god@only.knows','','',1,0,NULL,NULL,1,'2019-04-01','2019-04-01','2019-07-01');
 INSERT INTO `members` VALUES ('63335220204',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,NULL,'{\"volunteeringOpportunities\":true,\"donations\":null}',5,'2019-01-22','2019-01-22','2020-01-22');
@@ -968,7 +975,7 @@ INSERT INTO `members` VALUES ('67689669648',NULL,'Ross','Hudson','rosshudson8@go
 INSERT INTO `members` VALUES ('68195475320',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2018-12-07','2018-12-07','2019-12-07');
 INSERT INTO `members` VALUES ('68197998737',NULL,'Ross','Hudson','ewecownconwcwnec@scsidcksc.com','','',1,0,NULL,NULL,1,'2019-04-01','2019-04-01','2019-07-01');
 INSERT INTO `members` VALUES ('68302782691',NULL,'Mike','Love','mike@unleashthelove.com','','',1,0,'[]',NULL,5,'2019-04-23','2019-04-23','2020-04-23');
-INSERT INTO `members` VALUES ('69125667686',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','',1,1,'[]',NULL,0,'2019-01-08','2019-02-19','2019-04-19');
+INSERT INTO `members` VALUES ('69125667686',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','',0,1,'[]',NULL,0,'2019-01-08','2019-02-19','2019-04-19');
 INSERT INTO `members` VALUES ('69995144570',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',1,0,NULL,NULL,0,'2019-01-08','2019-01-08','9999-01-01');
 INSERT INTO `members` VALUES ('71443108429',NULL,'Lifetime','Member','hello@rosshudson.co.uk','7745311065','',1,0,'[]',NULL,3,'2019-01-08','2019-01-08','9999-01-01');
 INSERT INTO `members` VALUES ('72727830037',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2019-01-08','2019-01-08','2020-01-08');
@@ -976,7 +983,7 @@ INSERT INTO `members` VALUES ('73703153726',NULL,'Ross','Hudson','rosshudson8@go
 INSERT INTO `members` VALUES ('73986260942',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',1,0,NULL,NULL,0,'2018-07-19','2018-07-19','2019-07-19');
 INSERT INTO `members` VALUES ('74696312131',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,'[\"WG-101-001\",\"WG-104\"]',NULL,0,'2018-11-14','2018-11-14','2019-11-14');
 INSERT INTO `members` VALUES ('77784759491',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2019-01-08','2019-01-08','2019-04-08');
-INSERT INTO `members` VALUES ('80180013047',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,1,'[]',NULL,5,'2019-01-28','2019-02-19','2019-04-19');
+INSERT INTO `members` VALUES ('80180013047',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,1,'[]',NULL,5,'2019-01-28','2019-02-19','2019-04-19');
 INSERT INTO `members` VALUES ('84270782783',NULL,'Someone','McSomething','god@only.knows','','',1,0,NULL,NULL,1,'2019-04-01','2019-04-01','2019-07-01');
 INSERT INTO `members` VALUES ('84834369421',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',0,0,'[]',NULL,5,'2018-09-06','2018-09-06','2019-09-06');
 INSERT INTO `members` VALUES ('85926779484',NULL,'Ross','Hudson','hello@rosshudson.co.uk','7745311065','23 Ross Way',0,0,NULL,NULL,0,'2019-01-08','2019-01-08','2020-01-08');
@@ -997,7 +1004,7 @@ INSERT INTO `members` VALUES ('94907681447',NULL,'Ross','Hudson','hello@rosshuds
 INSERT INTO `members` VALUES ('96866985676',NULL,'sdfsdf','sdfsdf','fsdfsdf@sdfsdf.com','dsfsdf','',1,0,NULL,NULL,1,'2019-02-07','2019-02-07','2019-05-07');
 INSERT INTO `members` VALUES ('97294158119',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',0,0,'[]',NULL,5,'2018-09-18','2018-09-18','2019-09-18');
 INSERT INTO `members` VALUES ('97992178113',NULL,'Ross','Hudson','rosshudson8@googlemail.com','','23 Ross Way',1,0,'[]',NULL,5,'2018-07-20','2018-07-20','2019-07-20');
-INSERT INTO `members` VALUES ('99180639048',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',1,0,'[]',NULL,1,'2019-01-28','2019-01-28','2019-04-28');
+INSERT INTO `members` VALUES ('99180639048',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','23 Ross Way',0,0,'[]',NULL,1,'2019-01-28','2019-01-28','2019-04-28');
 /*!40000 ALTER TABLE `members` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1131,6 +1138,7 @@ INSERT INTO `stock_categories` VALUES ('hqqUSS2yHn','DYtx5CtTLZNnFhV5','IT-101',
 INSERT INTO `stock_categories` VALUES ('I-FSoGWk9G','12345678','IT-103','CD/DVD/Bluray',NULL,NULL,0,NULL,1,0,NULL,'tIhWWQhJUR',1);
 INSERT INTO `stock_categories` VALUES ('ihZWhYjwWj','12345678','IT-100','Shoes',NULL,NULL,0,NULL,0,0,NULL,'xvDUhgBhX5',0);
 INSERT INTO `stock_categories` VALUES ('j7swgjxdZ9','DYtx5CtTLZNnFhV5','','Cafe',NULL,NULL,0,NULL,0,0,NULL,NULL,1);
+INSERT INTO `stock_categories` VALUES ('kPXgmsosL2','DYtx5CtTLZNnFhV5','IT-112','Test!',1,0,0,NULL,1,50,NULL,NULL,1);
 INSERT INTO `stock_categories` VALUES ('kQSjvdg9_S','DYtx5CtTLZNnFhV5','','ksadsadc',NULL,NULL,0,NULL,0,0,NULL,NULL,1);
 INSERT INTO `stock_categories` VALUES ('Lzil6p0h5j','12345678','IT-100','Trousers',NULL,NULL,0,NULL,0,0,NULL,'xvDUhgBhX5',0);
 INSERT INTO `stock_categories` VALUES ('membership',NULL,NULL,'Membership',NULL,NULL,0,NULL,1,0,NULL,NULL,1);
@@ -1152,7 +1160,7 @@ INSERT INTO `stock_categories` VALUES ('xAVnWvmQ29','12345678','IT-100','Hat',NU
 INSERT INTO `stock_categories` VALUES ('xvDUhgBhX5','12345678','IT-100','Clothes',NULL,NULL,0,NULL,1,0,NULL,'uuhUkeE7gC',1);
 INSERT INTO `stock_categories` VALUES ('Y3w6ZVAN_l','12345678','','Bric-a-brac',NULL,NULL,0,NULL,0,0,NULL,'uuhUkeE7gC',0);
 INSERT INTO `stock_categories` VALUES ('yLURq8hsZu','12345678','','Books',NULL,NULL,0,NULL,0,0,NULL,'uuhUkeE7gC',0);
-INSERT INTO `stock_categories` VALUES ('YStpi5o60o','DYtx5CtTLZNnFhV5','IT-107','Potato',NULL,1000,0,NULL,0,0,NULL,'j7swgjxdZ9',1);
+INSERT INTO `stock_categories` VALUES ('YStpi5o60o','DYtx5CtTLZNnFhV5','IT-107','Potato',NULL,1000,0,NULL,1,0,NULL,'j7swgjxdZ9',1);
 INSERT INTO `stock_categories` VALUES ('zA3EU_9gPW','12345678','IT-102','Hardback',NULL,NULL,0,NULL,1,0,NULL,'yLURq8hsZu',0);
 /*!40000 ALTER TABLE `stock_categories` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1306,15 +1314,18 @@ INSERT INTO `transactions` VALUES ('1045339941',NULL,'01746919992','383039112','
 INSERT INTO `transactions` VALUES ('1045339947',NULL,'01746919992','383039112','2019-01-18 10:12:24','{\"totals\":{\"tokens\":3},\"bill\":[{\"item_id\":\"volunteering\",\"tokens\":3}],\"comment\":\"with Wee Spoke Hub\"}');
 INSERT INTO `transactions` VALUES ('1051843260','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-15 12:12:27','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('1101859615','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-27 07:59:34','{\"totals\":{\"tokens\":\"1\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"1\"}]}');
+INSERT INTO `transactions` VALUES ('1210128653','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 09:58:39','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1260307735','DYtx5CtTLZNnFhV5','automatic','80180013047','2019-01-28 08:57:32','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
 INSERT INTO `transactions` VALUES ('1275168403','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 07:01:50','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('1327522903','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-07 10:01:50','{\"totals\":{\"tokens\":\"1\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"1\"}]}');
 INSERT INTO `transactions` VALUES ('1362225388','DYtx5CtTLZNnFhV5','01746919992','383039112','2018-11-27 21:23:26','{\"totals\":{\"money\":\"1.60\",\"tokens\":3},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"},{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"},{\"tokens\":\"5\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"Member\'s only discount(s) applied!<br/>20% off tea, 20% off tea, 50% off toaster\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('1370526733','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-04-30 10:14:47','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1386840496','DYtx5CtTLZNnFhV5','01746918152','anon','2018-11-22 23:19:29','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"sdfsdfsdf\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1407647487','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-07 11:28:37','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1413370047',NULL,'01746919992','383039112','2019-02-11 16:02:27','{\"totals\":{\"tokens\":5},\"bill\":[{\"item_id\":\"volunteering\",\"tokens\":5}],\"comment\":\"with Welfare\"}');
 INSERT INTO `transactions` VALUES ('1466393232','DYtx5CtTLZNnFhV5','01746918152','anon','2018-11-22 23:18:25','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1627643611','DYtx5CtTLZNnFhV5','01746918152','383039112','2019-02-02 11:10:40','{\"totals\":{\"money\":\"0.80\",\"tokens\":0},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('1628302921','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:41:42','{\"totals\":{\"money\":\"20.00\",\"tokens\":0},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1663782023','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-13 16:27:16','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('1734804799','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 08:39:01','{\"totals\":{\"money\":\"5.00\"},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('1771995715','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-13 17:52:25','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
@@ -1324,9 +1335,12 @@ INSERT INTO `transactions` VALUES ('1809597338','DYtx5CtTLZNnFhV5','01746919992'
 INSERT INTO `transactions` VALUES ('1831662925','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-28 08:34:08','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"0\",\"item_id\":\"E_Js1cfoJy\",\"condition\":null},{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('1843615606','DYtx5CtTLZNnFhV5','01746919992','71443108429','2019-02-07 09:52:23','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('1856278881','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 07:16:25','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
+INSERT INTO `transactions` VALUES ('1875584119','DYtx5CtTLZNnFhV5','01746919992','14004524227','2019-04-30 10:17:33','{\"totals\":{\"money\":\"4.00\",\"tokens\":0},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2034675608',NULL,'01746919992','383039112','2019-01-28 15:26:45','{\"totals\":{\"tokens\":3},\"bill\":[{\"item_id\":\"volunteering\",\"tokens\":3}],\"comment\":\"with Swapshop\"}');
+INSERT INTO `transactions` VALUES ('2046208935','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-29 17:17:56','{\"totals\":{\"money\":\"NaN\"},\"bill\":[{\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2100144664','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 08:59:41','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2154639097','DYtx5CtTLZNnFhV5','01746919992','16695049487','2018-11-27 22:14:49','{\"totals\":{\"money\":\"0.80\",\"tokens\":0},\"bill\":[{\"tokens\":\"0\",\"item_id\":\"WDwBgfzrS2\"},{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"discount_info\":{\"WDwBgfzrS2\":50,\"2H5xJgmGyo\":20},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('2156151645','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:25:25','{\"totals\":{\"money\":\"4.00\",\"tokens\":0},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2156732397','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-02-02 11:02:10','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('2160202898','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-28 08:36:52','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2185300089','DYtx5CtTLZNnFhV5','01746918152','16695049487','2018-12-08 08:37:43','{\"totals\":{\"money\":\"0.80\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"cash\"}');
@@ -1337,12 +1351,15 @@ INSERT INTO `transactions` VALUES ('2264458462','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('2304914033','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-23 10:11:46','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2345797655','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-04-23 14:27:53','{\"totals\":{\"tokens\":\"1\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"1\"}]}');
 INSERT INTO `transactions` VALUES ('2384428777','DYtx5CtTLZNnFhV5','01746919992','12849542116','2018-12-11 12:34:19','{\"totals\":{\"tokens\":\"5\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"5\"}]}');
+INSERT INTO `transactions` VALUES ('2411233113','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:27:46','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2503299996','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-28 08:43:21','{\"totals\":{\"money\":\"5.00\"},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"E_Js1cfoJy\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2537956676','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:46:47','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('2567397223','DYtx5CtTLZNnFhV5','01746919992','16695049487','2018-12-08 08:30:07','{\"totals\":{\"money\":\"0.00\"},\"bill\":[{\"tokens\":\"0\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"discount_info\":{\"E_Js1cfoJy\":33}}');
+INSERT INTO `transactions` VALUES ('2585800519','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-04-30 10:11:38','{\"totals\":{\"money\":\"20.00\",\"tokens\":0},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2599009103','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-01-07 11:26:24','{\"totals\":{\"money\":\"0.80\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2630160634','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-28 08:55:26','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"wo2IPpXSgl\",\"condition\":\"Reused\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2650218555','DYtx5CtTLZNnFhV5','01746918152','anon','2019-04-23 11:33:32','{\"totals\":{\"money\":\"2.00\"},\"bill\":[{\"tokens\":\"2\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('2666533070','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-30 10:55:36','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"value\":8,\"item_id\":\"pdN6RMaP6S\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2692388694','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-13 16:30:53','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('2694106487','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-08 09:18:39','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('2734073711','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-23 10:12:45','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
@@ -1353,6 +1370,8 @@ INSERT INTO `transactions` VALUES ('2885326466','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('2946696246','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-28 08:38:25','{\"totals\":{\"money\":\"NaN\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\",\"condition\":\"Reused\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('2981102467','DYtx5CtTLZNnFhV5','01746919992','anon','2018-12-08 05:50:42','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3115312547','DYtx5CtTLZNnFhV5','01746919992','anon','2018-12-08 05:59:22','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('3150787789','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:23:23','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"value\":\"0\",\"item_id\":\"YStpi5o60o\",\"condition\":null},{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('3163065019','DYtx5CtTLZNnFhV5','01746919992','37635736393','2019-04-30 10:58:19','{\"totals\":{\"money\":\"20.00\",\"tokens\":0},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3235366999','DYtx5CtTLZNnFhV5','01746918152','16695049487','2018-12-08 09:19:31','{\"totals\":{\"tokens\":\"5\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"5\"}]}');
 INSERT INTO `transactions` VALUES ('3245319532','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:36:40','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3479871194','DYtx5CtTLZNnFhV5','01746919992','16695049487','2018-12-08 08:29:17','{\"totals\":{\"tokens\":3,\"money\":0},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"discount_info\":{\"WDwBgfzrS2\":50}}');
@@ -1361,6 +1380,7 @@ INSERT INTO `transactions` VALUES ('3519040868','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('3597491254','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:04:04','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"tokens\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3618227087','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 08:39:34','{\"totals\":{\"money\":\"3.00\"},\"bill\":[{\"tokens\":\"3\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3651180422','DYtx5CtTLZNnFhV5','01746918152','383039112','2018-12-15 11:58:14','{\"totals\":{\"money\":\"1.60\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"},{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"card\"}');
+INSERT INTO `transactions` VALUES ('3699344769','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-04-30 10:13:40','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3763395058','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-08 09:16:31','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('3784867568','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 12:12:40','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('3792875784','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-13 17:52:45','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
@@ -1371,6 +1391,7 @@ INSERT INTO `transactions` VALUES ('3997875358','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('4002589347','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 06:58:02','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('4120583222','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-15 12:07:57','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('4138961826','DYtx5CtTLZNnFhV5','01746918152','12849542116','2018-12-08 09:23:35','{\"totals\":{\"tokens\":\"5\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"5\"}]}');
+INSERT INTO `transactions` VALUES ('4203662346','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 09:56:46','{\"totals\":{\"money\":\"4.00\",\"tokens\":5},\"bill\":[{\"value\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null},{\"value\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null},{\"value\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null},{\"value\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null},{\"value\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null},{\"value\":\"5\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4244127630','DYtx5CtTLZNnFhV5','01746918152','16695049487','2018-12-08 08:57:48','{\"totals\":{\"money\":\"0.67\",\"tokens\":3},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"},{\"tokens\":\"5\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"discount_info\":{\"E_Js1cfoJy\":33,\"WDwBgfzrS2\":50},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4253766900','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-01-14 12:18:05','{\"totals\":{\"money\":\"1.00\",\"tokens\":0},\"bill\":[{\"tokens\":\"1.5\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"Test\",\"discount_info\":{\"E_Js1cfoJy\":33},\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('4314844030','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-01-26 10:45:18','{\"totals\":{\"money\":\"0.00\"},\"bill\":[{\"tokens\":\"0\",\"item_id\":\"YStpi5o60o\"}],\"comment\":\"\",\"discount_info\":{}}');
@@ -1382,9 +1403,11 @@ INSERT INTO `transactions` VALUES ('4396228493','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('4399711272','DYtx5CtTLZNnFhV5','01746918152','anon','2019-04-23 14:27:40','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4418096508','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-23 14:17:32','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"aWcWhc4nGN\",\"condition\":null}],\"comment\":\"1111\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4421296191','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-01-31 13:08:55','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
+INSERT INTO `transactions` VALUES ('4440275869','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-04-30 10:14:13','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4448221276','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-04-24 08:05:23','{\"totals\":{\"money\":\"0.00\"},\"bill\":[{\"tokens\":\"0\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{}}');
 INSERT INTO `transactions` VALUES ('4471623316','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-23 09:57:32','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4477408408','DYtx5CtTLZNnFhV5','01746919992','383039112','2018-11-27 21:56:04','{\"totals\":{\"money\":\"0.80\",\"tokens\":0},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('4507057967','DYtx5CtTLZNnFhV5','automatic','29643649277','2019-04-30 10:05:30','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
 INSERT INTO `transactions` VALUES ('4623424618','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:20:15','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"tokens\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('4624021187',NULL,'automatic','68302782691','2019-04-23 14:42:25','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
 INSERT INTO `transactions` VALUES ('4630582640','DYtx5CtTLZNnFhV5','automatic','44277364461','2019-02-27 08:00:53','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
@@ -1402,10 +1425,12 @@ INSERT INTO `transactions` VALUES ('5226794461','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('5289896808','RKreaw5PjCr6Bxgg','01746918152','anon','2018-12-08 09:58:46','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5296954867','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 09:20:36','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('5315772532','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-24 08:02:29','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('5373477471','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-05-01 11:20:32','{\"totals\":{\"tokens\":1,\"money\":0},\"bill\":[{\"value\":1,\"item_id\":\"kPXgmsosL2\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{\"kPXgmsosL2\":50}}');
 INSERT INTO `transactions` VALUES ('5421654253','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 09:03:20','{\"totals\":{\"money\":\"5.00\"},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5451959122','DYtx5CtTLZNnFhV5','01746918152','anon','2018-11-22 23:16:53','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"tokens\":20,\"item_id\":\"v8H4GDSvQ5\"}],\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5685934907','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:46:11','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\",\"condition\":\"Bought New\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5688920379',NULL,'01746919992','383039112','2019-01-30 10:23:10','{\"totals\":{\"tokens\":3},\"bill\":[{\"item_id\":\"volunteering\",\"tokens\":3}],\"comment\":\"with Swapshop\"}');
+INSERT INTO `transactions` VALUES ('5797438274','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-30 09:54:37','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"value\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5842204594','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 08:59:02','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5937976189','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-01-31 14:18:30','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('6125672320','DYtx5CtTLZNnFhV5','automatic','45032457340','2019-04-23 14:31:20','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
@@ -1424,6 +1449,7 @@ INSERT INTO `transactions` VALUES ('6756814889','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('6800903621','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-07 10:06:18','{\"totals\":{\"tokens\":\"1\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"1\"}]}');
 INSERT INTO `transactions` VALUES ('6838843529','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-01-14 12:36:51','{\"totals\":{\"tokens\":\"5\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"5\"}]}');
 INSERT INTO `transactions` VALUES ('6889166699','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-28 08:36:17','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('6955901268','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-30 12:27:50','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"value\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('6961464917','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-01-31 13:07:50','{\"totals\":{\"tokens\":\"3\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"3\"}]}');
 INSERT INTO `transactions` VALUES ('7010488207','DYtx5CtTLZNnFhV5','01746919992','383039112','2018-12-08 06:29:14','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\"}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('7031676219','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:46:21','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
@@ -1439,9 +1465,12 @@ INSERT INTO `transactions` VALUES ('7347371775','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('7517838404','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 08:58:38','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('7527122632','DYtx5CtTLZNnFhV5','01746918152','383039112','2018-12-08 09:28:23','{\"totals\":{\"tokens\":\"4\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"4\"}]}');
 INSERT INTO `transactions` VALUES ('7567917426',NULL,'automatic','63335220204','2019-01-22 20:41:43','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
+INSERT INTO `transactions` VALUES ('7587691774','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:27:16','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('7596622337','DYtx5CtTLZNnFhV5','01746919992','anon','2019-02-27 07:58:12','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('7610383775','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 09:16:20','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('7659658556','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 07:11:59','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
+INSERT INTO `transactions` VALUES ('7753868032','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:27:23','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('7786715629','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-04-30 10:12:13','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('7819539729','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-08 09:15:13','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('8094618773','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 08:59:17','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('8170744645',NULL,'automatic','22581214864','2019-01-08 17:00:16','{\"totals\":{\"tokens\":5},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"membership\"}],\"comment\":\"\",\"paymentMethod\":null}');
@@ -1452,11 +1481,14 @@ INSERT INTO `transactions` VALUES ('8382460095','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('8440905474','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-13 17:47:40','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('8460320710','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-29 10:09:30','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('8542149879','DYtx5CtTLZNnFhV5','01746918152','12849542116','2018-12-13 17:20:45','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1.25\",\"item_id\":\"2H5xJgmGyo\"}],\"comment\":\"\",\"discount_info\":{\"2H5xJgmGyo\":20},\"paymentMethod\":\"card\"}');
+INSERT INTO `transactions` VALUES ('8717012075','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:24:40','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('8723398178','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:43:13','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"value\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('8776823215','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-01-31 13:08:35','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('8858591663','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-01-28 08:57:00','{\"totals\":{\"money\":\"1.00\",\"tokens\":0},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"wo2IPpXSgl\",\"condition\":\"Reused\"}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('8872272531','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-23 10:13:34','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('8917072922','DYtx5CtTLZNnFhV5','01746918152','12849542116','2018-11-28 12:07:58','{\"totals\":{\"money\":\"2.50\"},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"discount_info\":{\"WDwBgfzrS2\":50},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('9038951507','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-02-02 11:00:28','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"tokens\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('9092412077','DYtx5CtTLZNnFhV5','01746919992','383039112','2019-04-30 10:38:58','{\"totals\":{\"money\":\"20.00\",\"tokens\":0},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('9130656340','DYtx5CtTLZNnFhV5','01746919992','12849542116','2018-11-27 20:53:28','{\"totals\":{\"money\":\"6.80\",\"tokens\":4},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"2H5xJgmGyo\"},{\"tokens\":\"20\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('9139697715','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-24 08:18:36','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('9166663625','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-02-08 09:17:27','{\"totals\":{\"tokens\":\"1\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"1\"}]}');
@@ -1472,6 +1504,7 @@ INSERT INTO `transactions` VALUES ('9886002990','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('9911908466','DYtx5CtTLZNnFhV5','01746918152','12849542116','2019-01-24 16:21:02','{\"totals\":{\"tokens\":\"2\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"2\"}]}');
 INSERT INTO `transactions` VALUES ('9927781119','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:02:44','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"tokens\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('9933847409','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:33:13','{\"totals\":{\"money\":\"4.00\"},\"bill\":[{\"tokens\":4,\"item_id\":\"v8H4dvscttW\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('9972896027','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-30 10:03:37','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 /*!40000 ALTER TABLE `transactions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1677,7 +1710,7 @@ LOCK TABLES `volunteer_info` WRITE;
 INSERT INTO `volunteer_info` VALUES ('12849542116','asdas','asdasd','asdasdasdasd','[\"NVia2ACAGh\",\"YNmgnpKCJQ\"]','[\"01746918155\"]','{\"goals\":\"asdasdasd\",\"interests\":\"\",\"preferredCommMethods\":[\"Text message\",\"WhatsApp\"]}','{\"mon_m\":\"on\",\"tue_a\":\"on\",\"wed_e\":\"on\"}','{\"email\":\"on\",\"phone\":\"on\"}','2019-04-01 15:10:12','2019-04-01 15:10:12');
 INSERT INTO `volunteer_info` VALUES ('14004524227','et','Ross Hudson','g','[\"QGJfmaaWY-\"]','[\"01746918155\"]','{\"goals\":\"dfgdfg\",\"interests\":\"\",\"skills\":[\"Administration/office work\"],\"preferredCommMethods\":[\"Phone call\",\"Text message\"]}','{\"mon_m\":\"on\"}','{\"email\":\"on\"}','2019-01-28 12:28:42','2019-04-01 22:56:50');
 INSERT INTO `volunteer_info` VALUES ('14971713977','asdasdasd','Ross Hudson','sdasdasda','[\"8y9cjJTHYP\",\"Gek6bHnqt8\",\"cP70Q_BYoN\"]','[\"01746918155\",\"01746919992\"]','{\"goals\":\"Donec facilisis nisl neque, in elementum sem tempus at.\",\"interests\":\"asdasdasd\",\"preferredCommMethods\":[\"Text message\",\"WhatsApp\"]}','{\"mon_m\":\"on\"}','{\"email\":\"on\",\"phone\":\"on\"}','2019-01-28 12:33:23','2019-03-07 09:24:22');
-INSERT INTO `volunteer_info` VALUES ('16456573405','asdas','dasd','asdasdasdasd','[\"JrzCZtQk6U\",\"FwEkCOOx9M\",\"zBTaVcpZ-M\"]','[\"01746918155\",\"01746919992\"]','{\"goals\":\"asdasdasdasd\",\"interests\":\"\",\"preferredCommMethods\":[\"Email\",\"Phone call\",\"Text message\"]}','{\"mon_m\":\"on\",\"tue_a\":\"on\",\"wed_e\":\"on\"}','{\"email\":\"on\",\"phone\":\"on\"}','2019-04-27 10:42:08','2019-04-27 10:42:08');
+INSERT INTO `volunteer_info` VALUES ('16456573405','asdas','dasd','asdasdasdasd','[\"JrzCZtQk6U\",\"FwEkCOOx9M\"]','[\"01746918155\",\"01746919992\"]','{\"goals\":\"asdasdasdasd\",\"interests\":\"\",\"preferredCommMethods\":[\"Email\",\"Phone call\",\"Text message\"]}','{\"mon_m\":\"on\",\"tue_a\":\"on\",\"wed_e\":\"on\"}','{\"email\":\"on\",\"phone\":\"on\"}','2019-04-27 10:42:08','2019-05-01 15:32:18');
 INSERT INTO `volunteer_info` VALUES ('18877294603','sdfsdf','Ross Hudson','sdfsdf','[]','[\"01746918155\"]','{\"goals\":\"sdfsdf\",\"interests\":\"sdfsdf\",\"skills\":[\"Befriending/Mentoring\"],\"preferredCommMethods\":[\"Text message\",\"Facebook Messenger\"]}','{\"mon_m\":\"on\"}','{\"email\":\"on\",\"phone\":\"on\"}','2019-01-28 12:26:25','2019-02-14 11:06:06');
 INSERT INTO `volunteer_info` VALUES ('20806453336','a','a','a','[\"NVia2ACAGh\",\"YNmgnpKCJQ\"]','[\"01746918155\"]','{\"goals\":\"aa\",\"interests\":\"\",\"preferredCommMethods\":[\"Phone call\",\"Text message\"]}','{\"mon_m\":\"on\",\"tue_a\":\"on\",\"wed_e\":\"on\"}','{\"email\":\"on\"}','2019-04-01 14:10:23','2019-04-01 14:10:23');
 INSERT INTO `volunteer_info` VALUES ('21166729709','Ross','Ross Hudson','1234','[]','[\"01746918155\",\"01746919992\"]','{\"goals\":\"No.\",\"interests\":\"\",\"preferredCommMethods\":[\"Email\",\"Facebook Messenger\"]}','{\"mon_e\":\"on\",\"tue_e\":\"on\",\"fri_a\":\"on\",\"fri_e\":\"on\",\"sat_a\":\"on\",\"sat_e\":\"on\"}','{\"email\":\"on\",\"phone\":\"on\"}','2019-01-15 14:13:32','2019-02-14 11:18:30');
@@ -1889,4 +1922,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-29 14:26:04
+-- Dump completed on 2019-05-01 16:33:00

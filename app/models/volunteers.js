@@ -435,6 +435,8 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
                   commonWorkingGroup)
               ) {
                 sanitizedVolunteer.working_groups = volunteer.working_groups;
+                sanitizedVolunteer.old_working_groups =
+                  volunteer.old_working_groups;
               }
             } catch (err) {}
 
