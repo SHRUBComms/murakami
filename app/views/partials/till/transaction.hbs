@@ -58,7 +58,7 @@
 <div class="row mt-4 no-gutters">
 	<div class="col-lg-6 mx-auto">
 
-				<div class="col-md-12 mx-auto" id="options"></div>
+				{{>till/selection-ui mode="transaction"}}
 
 	</div>
 
@@ -163,47 +163,6 @@
 </div>
 
 
-<div id="electricalSafetyModal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-			<div class="modal-header">
-        <h5 class="modal-title">Electrical Safety Check</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-				<div class="row">
-
-					<div class="col-md-12">
-
-						<div id="electricalSafety" class="p-4">
-
-							<h5 class="mb-1">Please check the safety of any outgoing electronics!</h5>
-							<p class="mb-3">If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
-
-				      <div class="form-inline mx-auto">
-		              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
-		              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
-				      </div>
-
-						  <h5 class="mt-2" id="electricalSafetyMessage"></h5>
-
-						</div>
-					</div>
-				</div>
-
-      </div>
-      <div class="modal-footer">
-      	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal">Item Safe</button>
-        <button type="button" class="btn btn-danger" id="removeUnsafe" onclick="" data-dismiss="modal">Not Safe</button>
-      </div>
-    </div>
-
-  </div>
-</div>
 
 
 <div id="itemConditionModal" class="modal fade" role="dialog">
@@ -258,6 +217,10 @@
   </div>
 </div>
 
+{{#if diode_api_key}}
+	{{>till/electrical-safety}}
+{{/if}}
+
 <script>
 
 var transaction = [];
@@ -270,10 +233,6 @@ var global_money_total = 0;
 var paymentMethod;
 
 var itemToAdd = {};
-
-var categories = {}
-categories.options = {{{json categories}}}
-categories.parent = null
 
 var payWithTokens = false;
 var results = [];
@@ -332,7 +291,7 @@ function addToTransaction(item){
 
 
 
-	if("{{diodeIntegrationOn}}"){
+	if("{{diode_api_key}}"){
 		if(sanitizedItem.carbon_id == "IT-101"){
 			$("#electricalSafetyModal").modal("show");
 			$("#removeUnsafe").attr("onclick", "removeFromTransaction(null)");
@@ -369,8 +328,6 @@ function removeFromTransaction(index){
 	updateTransactionList();
 }
 
-
-
 function calculateChange(e){
 	let cashGiven = parseFloat(e.value);
 	let change = 0;
@@ -385,7 +342,6 @@ function calculateChange(e){
 	$("#change").val(change.toFixed(2));
 }
 
-// Updates UI
 function updateTransactionList(){
 	$("#transaction-info").html("");
 	var tokens_total = 0;
@@ -470,90 +426,6 @@ function updateTransactionList(){
 	}
 
 	updateButtons();
-
-
-
-}
-
-updateOptions("categories.options");
-
-function updateOptions(path){
-
-	$("#options").html("")
-
-	options = eval(path);
-
-	var currentRow, option, optionDOMObject;
-
-	for(let i=0;i<options.length;i++){
-
-		option = options[i];
-
-
-		if((i+1)%3 == 1){
-			currentRow = document.createElement("div");
-		 	currentRow.className = "row";
-			document.getElementById("options").appendChild(currentRow);
-
-		}
-
-		optionDOMObject = {
-			parent: document.createElement("div"),
-			text:document.createElement("p")
-		};
-
-		optionDOMObject.parent.id = i;
-		optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options";
-
-		if(option.children && option.children.length > 0){
-			optionDOMObject.parent.onclick = function() {
-				updateOptions(path + "[" + i + "].children")
-			};
-		} else {
-			optionDOMObject.parent.onclick = function(){
-				addToTransaction(options[i]);
-			}
-		}
-
-		optionDOMObject.text.className = "text-center";
-		optionDOMObject.text.textContent = option.name;
-
-		optionDOMObject.parent.appendChild(optionDOMObject.text)
-		currentRow.appendChild(optionDOMObject.parent);
-
-	}
-
-
-	var parent = path.split(".")
-	parent.splice(-1, 1);
-	if(parent.length >= 2){
-
-		parent = parent.join(".");
-		parent = parent.slice(0, -3);
-
-		var row = document.createElement("div");
-		row.className = "row";
-
-
-		var optionDOMObject = {
-			parent: document.createElement("div"),
-			text:document.createElement("p")
-		}
-
-		optionDOMObject.parent.className = "col-sm-3 item-options";
-		optionDOMObject.parent.onclick = function() { updateOptions(parent) }
-
-		optionDOMObject.text.className = "text-center";
-		optionDOMObject.text.textContent = "← Back";
-
-		optionDOMObject.parent.appendChild(optionDOMObject.text)
-		row.appendChild(optionDOMObject.parent);
-		document.getElementById("options").appendChild(row);
-
-
-
-	}
-
 
 
 
@@ -687,9 +559,7 @@ function updateTransaction(index){
 
 }
 
-
-
-function searchMember(){
+function searchMember(callback){
   $.ajax({
       type: "POST",
       url: "{{public_address}}/api/post/members/search/simple",
@@ -700,8 +570,14 @@ function searchMember(){
 
         if(response.status == "ok"){
         	results = response.results;
-          	updateSearchResults();
+          updateSearchResults();
         }
+        try{
+          callback();
+        } catch(err){
+
+        }
+
 
       }
   });
@@ -878,7 +754,7 @@ function completeTransaction(type){
 	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 	            if(member.name){
 		            results[0] = response.member;
-		            selectMember(0)
+
 		        	}
 							window.setTimeout(function(){
 								$("#transaction_history").bootstrapTable('refresh');
@@ -914,20 +790,23 @@ function getBalance(){
 	});
 }
 
+function toggleIsMember(e) {
+  if(e.checked) {
+      $("#memberOptions").removeClass("d-none");
+      searchMember();
+  } else {
+    member = {};
+    $("#searchResults").html("");
+    $("memberInput").val("");
+    $("#memberStatement").html("");
+    $("#memberOptions").addClass("d-none");
+    updateTransactionList();
+    updateButtons();
+  }
+}
 
 $("#memberToggle").change(function() {
-    if(this.checked) {
-        $("#memberOptions").removeClass("d-none");
-				searchMember();
-    } else {
-    	member = {};
-    	$("#searchResults").html("");
-    	$("memberInput").val("");
-    	$("#memberStatement").html("");
-    	$("#memberOptions").addClass("d-none");
-			updateTransactionList();
-    	updateButtons();
-    }
+  toggleIsMember(this);
 });
 
 $("#confirmTransaction").change(function() {
@@ -938,38 +817,7 @@ $("#confirmTransaction").change(function() {
     }
 });
 
-function showElectricalSafety() {
-	$("#electricalSafety").removeClass("d-none");
-}
 
-function verifyElectricalSafety() {
-	$.ajax({
-		type: "POST",
-		url: "https://shrub.space/testing/api/verify-safety.php",
-		crossDomain: true,
-		data: {
-			"key": "{{{diode_api_key}}}",
-			"item-id": $("#patTestingNumber").val()
-		},
-        success: function(response){
-        	response = JSON.parse(response);
-        	if(response.status == "fail"){
-        		if(response.msg.includes("DO NOT SELL!!!")){
-	        		$("#electricalSafety").css("background-color", "red")
-	        		$("#electricalSafetyMessage").text(response.msg);
-	        		setTimeout(function(){ alert(response.msg); }, 500);
-        		} else {
-        			$("#electricalSafety").css("background-color", "#FFD24C")
-        			$("#electricalSafetyMessage").text(response.msg);
-        		}
-        	} else {
-        		$("#electricalSafety").css("background-color", "#98FB98")
-        		$("#electricalSafetyMessage").text(response.msg);
-        	}
-
-        }
-	})
-}
 
 function selectPaymentMethod(method){
 	$("#cashOption").removeClass("member-selected");
@@ -987,12 +835,22 @@ function selectPaymentMethod(method){
 	}
 }
 
+{{#if member_id}}
+  $("#memberToggle").prop("checked", true)
+  toggleIsMember({checked: true})
+  $("#memberInput").val("{{member_id}}")
+  searchMember(function(){
+    selectMember(0)
+  });
 
-function resetElectricalColours(){
+{{/if}}
 
-	$("#electricalSafety").css("background-color", "white")
-	$("#electricalSafetyMessage").text("");
+{{#if presetTransaction}}
 
-}
+  {{#each presetTransaction}}
 
+    addToTransaction({{{json this}}})
+  {{/each}}
+
+{{/if}}
 </script>

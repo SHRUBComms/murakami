@@ -306,11 +306,12 @@ Members.searchByName = function(search, callback) {
   var query = `SELECT * FROM members
     LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
     FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
-    WHERE CONCAT(first_name, ' ', last_name) LIKE ? OR barcode = ? AND first_name != '[redacted]'
+    WHERE (CONCAT(first_name, ' ', last_name) LIKE ? OR barcode = ? OR member_id = ?) AND first_name != '[redacted]'
     ORDER BY first_name ASC LIMIT 3`;
-  var inserts = ["%" + search + "%", search];
+  var inserts = ["%" + search + "%", search, search];
 
   var sql = mysql.format(query, inserts);
+
   con.query(sql, callback);
 };
 

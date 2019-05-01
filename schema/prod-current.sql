@@ -45,7 +45,7 @@ CREATE TABLE `attempts` (
   `outcome` tinyint(4) NOT NULL DEFAULT '1',
   `login_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1157 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1167 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,4 +444,4 @@ CREATE TABLE `working_groups` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-30 12:32:54
+-- Dump completed on 2019-05-01 16:29:35

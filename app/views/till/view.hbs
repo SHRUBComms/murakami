@@ -17,7 +17,7 @@
 		<div class="col-lg-6 mx-auto">
 			<div class="row">
 
-		     <div class="col-md-12" id="options"> </div>
+		     {{>till/selection-ui}}
 
 			</div>
 		</div>
@@ -92,6 +92,3 @@
 
 
 </script>
-{{#if user.permissions.tills.updateCategories}}
-	{{> till/categories}}
-{{/if}}

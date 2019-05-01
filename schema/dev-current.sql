@@ -91,7 +91,7 @@ CREATE TABLE `attempts` (
   `outcome` tinyint(4) NOT NULL DEFAULT '1',
   `login_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=431 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=432 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -464,6 +464,7 @@ INSERT INTO `attempts` VALUES (427,'01746918155','::ffff:192.168.1.128',1,'2019-
 INSERT INTO `attempts` VALUES (428,'01746918155','::ffff:192.168.1.128',1,'2019-04-23 13:06:29');
 INSERT INTO `attempts` VALUES (429,'01746918152','::ffff:192.168.1.128',1,'2019-04-23 14:24:21');
 INSERT INTO `attempts` VALUES (430,'01746919992','::ffff:192.168.1.128',1,'2019-04-24 07:48:53');
+INSERT INTO `attempts` VALUES (431,'01746919992','::ffff:192.168.1.172',1,'2019-04-30 16:01:51');
 /*!40000 ALTER TABLE `attempts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -914,7 +915,7 @@ CREATE TABLE `members` (
 
 LOCK TABLES `members` WRITE;
 /*!40000 ALTER TABLE `members` DISABLE KEYS */;
-INSERT INTO `members` VALUES ('12849542116','000000002','Ross','Hudson','rosshudson8@googlemaile.com','','',1,1,'','{\"volunteeringOpportunities\":true,\"donations\":true}',58,'2018-09-04','2019-04-30','2019-07-30');
+INSERT INTO `members` VALUES ('12849542116','000000002','Ross','Hudson','rosshudson8@googlemaile.com','','',1,1,'','{\"volunteeringOpportunities\":true,\"donations\":true}',57,'2018-09-04','2019-04-30','2019-07-30');
 INSERT INTO `members` VALUES ('14004524227',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1,'2019-01-28','2019-04-30','2019-09-01');
 INSERT INTO `members` VALUES ('14971713977',NULL,'Ross','Hudson','rosshudson8@googlemail.com','7745311065','',1,1,'[]',NULL,1,'2019-01-28','2019-04-02','2019-06-02');
 INSERT INTO `members` VALUES ('16456573405',NULL,'Potato','Jackson','jackson@potato.com','','',1,0,NULL,NULL,1,'2019-04-27','2019-04-27','2019-07-27');
@@ -1137,6 +1138,7 @@ INSERT INTO `stock_categories` VALUES ('hqqUSS2yHn','DYtx5CtTLZNnFhV5','IT-101',
 INSERT INTO `stock_categories` VALUES ('I-FSoGWk9G','12345678','IT-103','CD/DVD/Bluray',NULL,NULL,0,NULL,1,0,NULL,'tIhWWQhJUR',1);
 INSERT INTO `stock_categories` VALUES ('ihZWhYjwWj','12345678','IT-100','Shoes',NULL,NULL,0,NULL,0,0,NULL,'xvDUhgBhX5',0);
 INSERT INTO `stock_categories` VALUES ('j7swgjxdZ9','DYtx5CtTLZNnFhV5','','Cafe',NULL,NULL,0,NULL,0,0,NULL,NULL,1);
+INSERT INTO `stock_categories` VALUES ('kPXgmsosL2','DYtx5CtTLZNnFhV5','IT-112','Test!',1,0,0,NULL,1,50,NULL,NULL,1);
 INSERT INTO `stock_categories` VALUES ('kQSjvdg9_S','DYtx5CtTLZNnFhV5','','ksadsadc',NULL,NULL,0,NULL,0,0,NULL,NULL,1);
 INSERT INTO `stock_categories` VALUES ('Lzil6p0h5j','12345678','IT-100','Trousers',NULL,NULL,0,NULL,0,0,NULL,'xvDUhgBhX5',0);
 INSERT INTO `stock_categories` VALUES ('membership',NULL,NULL,'Membership',NULL,NULL,0,NULL,1,0,NULL,NULL,1);
@@ -1423,6 +1425,7 @@ INSERT INTO `transactions` VALUES ('5226794461','DYtx5CtTLZNnFhV5','01746918152'
 INSERT INTO `transactions` VALUES ('5289896808','RKreaw5PjCr6Bxgg','01746918152','anon','2018-12-08 09:58:46','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5296954867','DYtx5CtTLZNnFhV5','01746918152','anon','2019-01-14 09:20:36','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"card\"}');
 INSERT INTO `transactions` VALUES ('5315772532','DYtx5CtTLZNnFhV5','01746919992','anon','2019-04-24 08:02:29','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('5373477471','DYtx5CtTLZNnFhV5','01746919992','12849542116','2019-05-01 11:20:32','{\"totals\":{\"tokens\":1,\"money\":0},\"bill\":[{\"value\":1,\"item_id\":\"kPXgmsosL2\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{\"kPXgmsosL2\":50}}');
 INSERT INTO `transactions` VALUES ('5421654253','DYtx5CtTLZNnFhV5','01746918152','anon','2018-12-08 09:03:20','{\"totals\":{\"money\":\"5.00\"},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"E_Js1cfoJy\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5451959122','DYtx5CtTLZNnFhV5','01746918152','anon','2018-11-22 23:16:53','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"tokens\":20,\"item_id\":\"v8H4GDSvQ5\"}],\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('5685934907','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:46:11','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":\"1\",\"item_id\":\"E_Js1cfoJy\",\"condition\":\"Bought New\"}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
@@ -1919,4 +1922,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-30 12:32:48
+-- Dump completed on 2019-05-01 16:29:30

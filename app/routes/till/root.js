@@ -15,7 +15,6 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "processTransaction"),
   function(req, res) {
-    
     WorkingGroups.getAll(function(err, allWorkingGroups) {
       Tills.getAllTills(function(err, tills) {
         if (tills.length > 1) {
@@ -89,6 +88,17 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                   req.params.till_id,
                   "tree",
                   function(err, categories) {
+                    var presetTransaction;
+                    if (req.query.transaction) {
+                      try {
+                        presetTransaction = JSON.parse(
+                          decodeURIComponent(req.query.transaction)
+                        );
+                      } catch (err) {
+                        presetTransaction = null;
+                      }
+                    }
+                    console.log("presetTransaction", presetTransaction);
                     res.render("till/root", {
                       tillMode: true,
                       title: "Transaction",
@@ -103,7 +113,9 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                       murakamiMsg: req.query.murakamiMsg || null,
                       murakamiStatus: req.query.murakamiStatus || null,
                       smpStatus: req.query["smp-status"] || null,
-                      smpMsg: req.query["smp-failure-cause"] || null
+                      smpMsg: req.query["smp-failure-cause"] || null,
+                      member_id: req.query.member_id || null,
+                      presetTransaction: presetTransaction
                     });
                   }
                 );
