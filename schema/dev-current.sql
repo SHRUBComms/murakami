@@ -571,6 +571,7 @@ INSERT INTO `carbon` VALUES ('76742725870913620000','WG-103','01746918152','anon
 INSERT INTO `carbon` VALUES ('76765393757702360000','WG-100','01746919992','anon','{\"IT-100\":\"1000\"}','landfilled','2018-11-14 12:31:30');
 INSERT INTO `carbon` VALUES ('78481732077882410000','WG-100','01746918152','anon','{\"IT-107\":\"1000\"}','reused','2019-04-23 11:33:32');
 INSERT INTO `carbon` VALUES ('78647963756563000000','WG-100','','383039112','{\"IT-104\":\"500\"}','recycled','2018-08-31 12:09:36');
+INSERT INTO `carbon` VALUES ('79422508146731450000','WG-100','01746919992','anon','{\"IT-107\":\"1000\"}','reused','2019-05-01 16:34:45');
 INSERT INTO `carbon` VALUES ('79883719626944450000','WG-100','01746918152','anon','{\"IT-100\":\"1000\"}','recycled','2018-11-17 03:46:30');
 INSERT INTO `carbon` VALUES ('81104870663791150000','WG-100','01746918152','anon','{\"IT-100\":\"100\"}','recycled','2019-01-28 08:44:15');
 INSERT INTO `carbon` VALUES ('83913066353913900000','WG-101','43695270550','anon','{\"IT-112\":\"5\"}','recycled','2019-04-23 09:04:44');
@@ -1374,6 +1375,7 @@ INSERT INTO `transactions` VALUES ('3150787789','DYtx5CtTLZNnFhV5','01746919992'
 INSERT INTO `transactions` VALUES ('3163065019','DYtx5CtTLZNnFhV5','01746919992','37635736393','2019-04-30 10:58:19','{\"totals\":{\"money\":\"20.00\",\"tokens\":0},\"bill\":[{\"value\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3235366999','DYtx5CtTLZNnFhV5','01746918152','16695049487','2018-12-08 09:19:31','{\"totals\":{\"tokens\":\"5\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"5\"}]}');
 INSERT INTO `transactions` VALUES ('3245319532','DYtx5CtTLZNnFhV5','01746918152','anon','2019-02-02 10:36:40','{\"totals\":{\"money\":\"8.00\"},\"bill\":[{\"tokens\":8,\"item_id\":\"pdN6RMaP6S\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
+INSERT INTO `transactions` VALUES ('3393789409','DYtx5CtTLZNnFhV5','01746919992','anon','2019-05-01 16:34:45','{\"totals\":{\"money\":\"1.00\"},\"bill\":[{\"tokens\":1,\"item_id\":\"2H5xJgmGyo\",\"condition\":null},{\"tokens\":\"0\",\"item_id\":\"YStpi5o60o\",\"condition\":null}],\"comment\":\"\",\"paymentMethod\":\"cash\"}');
 INSERT INTO `transactions` VALUES ('3479871194','DYtx5CtTLZNnFhV5','01746919992','16695049487','2018-12-08 08:29:17','{\"totals\":{\"tokens\":3,\"money\":0},\"bill\":[{\"tokens\":\"5\",\"item_id\":\"WDwBgfzrS2\"}],\"comment\":\"\",\"discount_info\":{\"WDwBgfzrS2\":50}}');
 INSERT INTO `transactions` VALUES ('3481430125','DYtx5CtTLZNnFhV5','01746919992','71443108429','2019-02-08 12:03:39','{\"totals\":{\"tokens\":\"1\"},\"bill\":[{\"item_id\":\"donation\",\"tokens\":\"1\"}]}');
 INSERT INTO `transactions` VALUES ('3519040868','DYtx5CtTLZNnFhV5','01746918152','23015296025','2019-04-23 11:40:00','{\"totals\":{\"money\":\"20.00\"},\"bill\":[{\"tokens\":20,\"item_id\":\"v8H4GDSvQ5\",\"condition\":null}],\"comment\":\"\",\"discount_info\":{},\"paymentMethod\":\"cash\"}');
@@ -1922,4 +1924,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-01 16:33:00
+-- Dump completed on 2019-05-01 16:43:56

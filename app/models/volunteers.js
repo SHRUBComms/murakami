@@ -521,7 +521,10 @@ Volunteers.sanitizeVolunteer = function(volInfo, user, callback) {
               sanitizedVolunteer.working_groups = volunteer.working_groups;
               sanitizedVolunteer.member_id = volunteer.member_id;
               sanitizedVolunteer.gdpr = volunteer.gdpr;
-
+              sanitizedVolunteer.is_member = volunteer.is_member;
+              sanitizedVolunteer.free = volunteer.free;
+              sanitizedVolunteer.contactPreferences =
+                volunteer.contactPreferences;
               if (volunteer.assignedCoordinators.includes(user.id)) {
                 sanitizedVolunteer.isAssignedCoordinator = true;
               }
