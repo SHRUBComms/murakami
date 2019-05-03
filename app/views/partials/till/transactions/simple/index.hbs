@@ -6,7 +6,7 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="mb-3">{{till.name}} <span class="text-success">&#9679;</span></h3>
-				{{#if user.permissions.tills.updatecategories}}
+				{{#if user.permissions.tills.updateCategories}}
 					<a href="{{public_address}}/till/manage/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
 				{{/if}}
 			</div>
