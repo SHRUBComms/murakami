@@ -4,7 +4,9 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Settings = require(rootDir + "/app/models/settings");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Settings = Models.Settings;
 
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 

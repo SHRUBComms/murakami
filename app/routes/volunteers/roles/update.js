@@ -4,8 +4,10 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var WorkingGroups = Models.WorkingGroups;
+var VolunteerRoles = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");

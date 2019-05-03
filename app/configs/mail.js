@@ -9,10 +9,10 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
-var Settings = require(rootDir + "/app/models/settings");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+//var Members = require(rootDir + "/app/models/members");
+//var Settings = require(rootDir + "/app/models/settings");
+//var WorkingGroups = require(rootDir + "/app/models/working-groups");
+//var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
 
 var Mail = {};
 

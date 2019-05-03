@@ -6,7 +6,9 @@ var md5 = require("md5");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Members = Models.Members;
 
 router.get("/:member_id", function(req, res) {
   Members.getById(

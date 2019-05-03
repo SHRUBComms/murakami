@@ -9,12 +9,14 @@ var sanitizeHtml = require("sanitize-html");
 
 var rootDir = process.env.CWD;
 
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
-var Members = require(rootDir + "/app/models/members");
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var WorkingGroups = Models.WorkingGroups;
+var Members = Models.Members;
+var Volunteers = Models.Volunteers;
+var VolunteerRoles = Models.VolunteerRoles;
+var VolunteerHours = Models.VolunteerHours;
+var Tills = Models.Tills;
 
 var recaptcha = new Recaptcha(
   process.env.RECAPTCHA_SITE_KEY,

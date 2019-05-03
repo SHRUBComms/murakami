@@ -7,11 +7,13 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Members = require(rootDir + "/app/models/members");
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
-var AccessTokens = require(rootDir + "/app/models/access-tokens");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Users = Models.Users;
+var Members = Models.Members;
+var Volunteers = Models.Volunteers;
+var VolunteerRoles = Models.VolunteerRoles;
+var AccessTokens = Models.AccessTokens;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");

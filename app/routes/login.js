@@ -6,9 +6,11 @@ var LocalStrategy = require("passport-local").Strategy;
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Attempts = require(rootDir + "/app/models/attempts");
-var Settings = require(rootDir + "/app/models/settings");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Users = Models.Users;
+var Attempts = Models.Attempts;
+var Settings = Models.Settings;
 
 passport.use(
   new LocalStrategy(
@@ -19,40 +21,44 @@ passport.use(
     },
     function(req, username, password, done) {
       Users.getByUsernameOrEmail(username, function(err, user) {
-        if (err) throw err;
-        if (!user[0]) {
+        if (user) {
+          Attempts.getAllFailedAttemptsThisHour(user.id, function(
+            err,
+            attempts
+          ) {
+            if (attempts.length <= 5) {
+              Users.comparePassword(password, user.password, function(
+                err,
+                isMatch
+              ) {
+                if (isMatch) {
+                  Attempts.passed(
+                    user.id,
+                    req.headers["x-forwarded-for"] ||
+                      req.connection.remoteAddress
+                  );
+                  return done(null, user);
+                } else {
+                  Attempts.failed(
+                    user.id,
+                    req.headers["x-forwarded-for"] ||
+                      req.connection.remoteAddress
+                  );
+                  return done(null, false, { message: "Wrong password!" });
+                }
+              });
+            } else {
+              return done(null, false, {
+                message:
+                  'This account is locked. <a href="' +
+                  process.env.PUBLIC_ADDRESS +
+                  '/support">Contact support</a>'
+              });
+            }
+          });
+        } else {
           return done(null, false, { message: "Account not found!" });
         }
-        Attempts.getAllAttemptsThisHour(user[0].id, function(err, attempts) {
-          if (attempts.length <= 5) {
-            Users.comparePassword(password, user[0].password, function(
-              err,
-              isMatch
-            ) {
-              if (err) throw err;
-              if (isMatch) {
-                Attempts.passed(
-                  user[0].id,
-                  req.headers["x-forwarded-for"] || req.connection.remoteAddress
-                );
-                return done(null, user[0]);
-              } else {
-                Attempts.failed(
-                  user[0].id,
-                  req.headers["x-forwarded-for"] || req.connection.remoteAddress
-                );
-                return done(null, false, { message: "Wrong password!" });
-              }
-            });
-          } else {
-            return done(null, false, {
-              message:
-                'This account is locked. <a href="' +
-                process.env.PUBLIC_ADDRESS +
-                '/support">Contact support</a>'
-            });
-          }
-        });
       });
     }
   )
@@ -71,8 +77,9 @@ passport.deserializeUser(function(id, done) {
     function(err, user) {
       if (err) {
         return done(null, err);
+      } else {
+        done(null, user);
       }
-      done(null, user[0]);
     }
   );
 });
@@ -85,6 +92,12 @@ router.post(
     failureFlash: true
   }),
   function(req, res) {
+    if (req.user) {
+      console.log(
+        new Date(),
+        "Passport callback: user authenticated, redirecting"
+      );
+    }
     res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 );

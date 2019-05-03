@@ -1,9 +1,12 @@
 var CronJob = require("cron").CronJob;
 
 // Import models etc.
-var Members = require("../models/members");
-var Volunteers = require("../models/volunteers");
-var Reports = require("../models/reports");
+var rootDir = process.env.CWD;
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Members = Models.Members;
+var Volunteers = Models.Volunteers;
+var Reports = Models.Reports;
 
 var automatedReports = new CronJob({
   cronTime: "0 0 0 1 * *",

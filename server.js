@@ -16,17 +16,12 @@ var back = require("express-back");
 var validator = require("express-validator");
 var async = require("async");
 
-var VolunteerRoles = require(process.env.CWD + "/app/models/volunteer-roles");
-
 if (process.env.NODE_ENV != "development") {
   process.on("uncaughtException", function(err) {
     console.error(err);
     console.log("Exception caught");
   });
 }
-
-var Users = require("./app/models/users");
-var WorkingGroups = require("./app/models/working-groups");
 
 // Setup Handlebars
 app.set("views", path.join(__dirname, "app/views"));
@@ -117,6 +112,19 @@ app.use(passport.session());
 // Connect Flash
 app.use(flash());
 
+// Start server
+app.listen(port);
+console.log("### " + process.env.NODE_ENV.toUpperCase() + " ###");
+console.log("Server started on local port " + port);
+console.log("Running on public address " + process.env.PUBLIC_ADDRESS);
+
+// Initiate DB stuffs
+var Models = require("./app/models/sequelize");
+
+var VolunteerRoles = Models.VolunteerRoles;
+var Users = Models.Users;
+var WorkingGroups = Models.WorkingGroups;
+
 // Global variables
 app.use(function(req, res, next) {
   res.locals.success_msg = req.flash("success_msg");
@@ -167,16 +175,10 @@ app.use(function(req, res, next) {
 
 var automatedMails = require("./app/configs/automated-mails");
 var automatedReports = require("./app/configs/automated-reports");
-automatedMails.start();
-automatedReports.start();
+//automatedMails.start();
+//automatedReports.start();
 
 // Define routers
 app.use(path, require("./app/routes/root"));
-
-// Start server
-app.listen(port);
-console.log("### " + process.env.NODE_ENV.toUpperCase() + " ###");
-console.log("Server started on local port " + port);
-console.log("Running on public address " + process.env.PUBLIC_ADDRESS);
 
 module.exports.getApp = app;

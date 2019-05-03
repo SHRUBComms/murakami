@@ -5,11 +5,13 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Members = require(rootDir + "/app/models/members");
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Users = Models.Users;
+var Members = Models.Members;
+var Volunteers = Models.Volunteers;
+var VolunteerRoles = Models.VolunteerRoles;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -35,6 +37,7 @@ router.get(
           err,
           volunteers
         ) {
+          console.log("Route: no. vols: ", volunteers.length);
           VolunteerRoles.getAll(function(
             err,
             roles,

@@ -38,12 +38,14 @@
     "md5": "^2.2.1",
     "moment": "^2.23.0",
     "mysql": "^2.16.0",
+    "mysql2": "^1.6.5",
     "nodemailer": "^4.7.0",
     "nodemailer-html-to-text": "^2.1.0",
     "passport": "*",
     "passport-local": "*",
     "path": "*",
     "request": "^2.88.0",
-    "sanitize-html": "^1.20.0"
+    "sanitize-html": "^1.20.0",
+    "sequelize": "^5.8.2"
   }
 }

@@ -4,8 +4,10 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Settings = require(rootDir + "/app/models/settings");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Users = Models.Users;
+var Settings = Models.Settings;
 
 var Mail = require(rootDir + "/app/configs/mail");
 
@@ -65,12 +67,18 @@ router.post("/:reset_code", function(req, res) {
           Users.updatePassword(resets[0].user_id, password, function(err) {
             if (err) {
               req.flash("error_msg", "Something went wrong!");
-              res.redirect(process.env.PUBLIC_ADDRESS + "/recover/" + resets[0].reset_code);
+              res.redirect(
+                process.env.PUBLIC_ADDRESS + "/recover/" + resets[0].reset_code
+              );
             } else {
               Users.setResetCodeAsUsed(resets[0].reset_code, function(err) {
                 if (err) {
                   req.flash("error_msg", "Something went wrong!");
-                  res.redirect(process.env.PUBLIC_ADDRESS + "/recover/" + resets[0].reset_code);
+                  res.redirect(
+                    process.env.PUBLIC_ADDRESS +
+                      "/recover/" +
+                      resets[0].reset_code
+                  );
                 } else {
                   req.flash("success_msg", "Password reset!");
                   res.redirect(process.env.PUBLIC_ADDRESS + "/login");
@@ -125,7 +133,9 @@ router.post("/", function(req, res) {
                           function(err, resets) {
                             if (err) {
                               req.flash("error_msg", "Something went wrong!");
-                              res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
+                              res.redirect(
+                                process.env.PUBLIC_ADDRESS + "/recover"
+                              );
                             } else {
                               var name =
                                 user[0].first_name + " " + user[0].last_name;
@@ -150,15 +160,21 @@ router.post("/", function(req, res) {
                                   if (err) {
                                     req.flash(
                                       "error_msg",
-                                      'Something went wrong sending you your recovery link, please <a href="' + process.env.PUBLIC_ADDRESS + '/support">contact support</a>'
+                                      'Something went wrong sending you your recovery link, please <a href="' +
+                                        process.env.PUBLIC_ADDRESS +
+                                        '/support">contact support</a>'
                                     );
-                                    res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
+                                    res.redirect(
+                                      process.env.PUBLIC_ADDRESS + "/recover"
+                                    );
                                   } else {
                                     req.flash(
                                       "success_msg",
                                       "An email with recovery instructions has been sent!"
                                     );
-                                    res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
+                                    res.redirect(
+                                      process.env.PUBLIC_ADDRESS + "/recover"
+                                    );
                                   }
                                 }
                               );

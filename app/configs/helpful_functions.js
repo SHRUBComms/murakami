@@ -1,5 +1,5 @@
-var con = require("../models/index");
-var mysql = require("mysql");
+var rootDir = process.env.CWD;
+//var Models = require(rootDir + "/app/models/sequelize");
 var http = require("http");
 var async = require("async");
 
@@ -31,7 +31,7 @@ Helpers.uniqueIntId = function(length, table, id_name, callback) {
   var inserts = [id_name, table, id_name, id];
   var sql = mysql.format(query, inserts);
 
-  con.query(sql, function(err, result) {
+  Models.sequelize.query(sql).then(function(result) {
     if (result.length == 1) {
       uniqueIntId(length, table, id_name, callback);
     } else if (result.length == 0) {
@@ -69,7 +69,7 @@ Helpers.generateGroupId = function(parent, callback) {
   var inserts = [id];
   var sql = mysql.format(query, inserts);
 
-  con.query(sql, function(err, result) {
+  Models.sequelize.query(sql).then(function(result) {
     if (result.length == 1) {
       Helpers.generateGroupId(parent, callback);
     } else if (result.length == 0) {
@@ -86,7 +86,7 @@ Helpers.uniqueBase64Id = function(length, table, id_name, callback) {
   var inserts = [id_name, table, id_name, id];
   var sql = mysql.format(query, inserts);
 
-  con.query(sql, function(err, result) {
+  Models.sequelize.query(sql).then(function(result) {
     if (result.length == 1) {
       uniqueBase64Id(length, table, id_name, callback);
     } else if (result.length == 0) {

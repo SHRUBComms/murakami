@@ -5,11 +5,13 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Members = require(rootDir + "/app/models/members");
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var VolunteerCheckIns = require(rootDir + "/app/models/volunteer-checkins");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Users = Models.Users;
+var Members = Models.Members;
+var Volunteers = Models.Volunteers;
+var VolunteerCheckIns = Models.VolunteerCheckIns;
+var VolunteerRoles = Models.VolunteerRoles;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");

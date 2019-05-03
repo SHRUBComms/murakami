@@ -1,8 +1,8 @@
 var rootDir = process.env.CWD;
 
-var AccessTokens = require(rootDir + "/app/models/access-tokens");
-var Members = require(rootDir + "/app/models/members");
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var AccessTokens = Models.AccessTokens;
 
 var Auth = {};
 

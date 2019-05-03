@@ -4,11 +4,13 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Members = require(rootDir + "/app/models/members");
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
-var FoodCollections = require(rootDir + "/app/models/food-collections");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Users = Models.Users;
+var Members = Models.Members;
+var Volunteers = Models.Volunteers;
+var VolunteerRoles = Models.VolunteerRoles;
+var FoodCollections = Models.FoodCollections;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
