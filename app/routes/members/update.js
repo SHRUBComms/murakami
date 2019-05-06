@@ -6,7 +6,8 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");

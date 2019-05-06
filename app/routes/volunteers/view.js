@@ -10,7 +10,7 @@ var Users = Models.Users;
 var Members = Models.Members;
 var Volunteers = Models.Volunteers;
 var VolunteerRoles = Models.VolunteerRoles;
-var FoodCollections = Models.FoodCollections;
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -39,10 +39,11 @@ router.get(
                   rolesGroupedByGroup,
                   rolesGroupedById
                 ) {
-                  FoodCollections.getOrganisations(function(
+                  FoodCollectionsOrganisations.getAll(function(
                     err,
                     allOrganisations
                   ) {
+                    console.log(member);
                     res.render("volunteers/view", {
                       title: "View Volunteer",
                       volunteersActive: true,

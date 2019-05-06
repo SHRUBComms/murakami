@@ -2,7 +2,7 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Volunteers = sequelize.define(
-    "volunteers",
+    "volunteer_info",
     {
       member_id: {
         type: DataTypes.STRING(11),
@@ -53,7 +53,8 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "volunteers"
+      tableName: "volunteer_info",
+      timestamps: false
     }
   );
 

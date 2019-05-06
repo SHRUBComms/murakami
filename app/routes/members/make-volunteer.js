@@ -7,9 +7,10 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
-var Users = require(rootDir + "/app/models/users");
-var Volunteers = require(rootDir + "/app/models/volunteers");
+var Models = require(rootDir + "/app/models/sequelize");
+var Members = Models.Members;
+var Users = Models.Users;
+var Volunteers = Models.Volunteers;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -35,8 +36,11 @@ router.get("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
         req.flash("error_msg", "Member not found!");
         res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
-        Members.getVolInfoById(req.params.member_id, function(err, volInfo) {
-          if (!volInfo[0]) {
+        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
+          err,
+          volInfo
+        ) {
+          if (!volInfo) {
             Users.getCoordinators(req.user, function(err, coordinators) {
               Volunteers.getSignUpInfo(function(
                 skills,

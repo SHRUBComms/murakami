@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
-var Carbon = function(sequelize, DataTypes) {
-  return sequelize.define(
+module.exports = function(sequelize, DataTypes) {
+  var Carbon = sequelize.define(
     "carbon",
     {
       transaction_id: {
@@ -36,97 +36,32 @@ var Carbon = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "carbon"
+      tableName: "carbon",
+      timestamps: false
     }
   );
-};
 
-Carbon.getByMemberId = function(member_id, callback) {
-  Carbon.findAll({ where: { member_id: member_id } })
-    .then(function(carbon) {
-      callback(null, carbon);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
+  Carbon.getByMemberId = require("./methods/getByMemberId")(
+    Carbon,
+    sequelize,
+    DataTypes
+  );
 
-Carbon.getAll = function(callback) {
-  Carbon.findAll({})
-    .then(function(carbon) {
-      callback(null, carbon);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
+  Carbon.getAll = require("./methods/getAll")(Carbon, sequelize, DataTypes);
 
-Carbon.getAllThisYear = function(callback) {
-  Carbon.findAll({
-    where: sequelize.where(
-      sequelize.fn("YEAR", sequelize.col("trans_date")),
-      moment().format("YYYY")
-    )
-  })
-    .then(function(carbon) {
-      callback(null, carbon);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
+  Carbon.getAllThisYear = require("./methods/getAllThisYear")(
+    Carbon,
+    sequelize,
+    DataTypes
+  );
 
-Carbon.getToday = function(callback) {
-  Carbon.findAll({
-    where: sequelize.where(
-      sequelize.fn("DATE", sequelize.col("trans_date")),
-      new Date()
-    )
-  })
-    .then(function(carbon) {
-      callback(null, carbon);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
+  Carbon.getToday = require("./methods/getToday")(Carbon, sequelize, DataTypes);
 
-Carbon.add = function(transaction, callback) {
-  if (transaction.amount > 0) {
-    Helpers.uniqueIntId(20, "carbon", "transaction_id", function(id) {
-      Carbon.create({
-        transaction_id: transaction.id,
-        member_id: transaction.member_id,
-        user_id: transaction.user_id,
-        group_id: transaction.group_id,
-        trans_object: ransaction.trans_object,
-        method: transaction.method,
-        trans_date: new Date()
-      })
-        .then(function() {
-          callback(null);
-        })
-        .catch(function(err) {
-          callback(err);
-        });
-    });
-  } else {
-    callback("Error");
-  }
-};
+  Carbon.add = require("./methods/add")(Carbon, sequelize, DataTypes);
 
-Carbon.getAllByWorkingGroup = function(group_id, callback) {
-  Carbon.getToday = function(callback) {
-    Carbon.findAll({
-      where: { group_id: group_id }
-    })
-      .then(function(carbon) {
-        callback(null, carbon);
-      })
-      .catch(function(err) {
-        callback(err, null);
-      });
-  };
+  Carbon.getAllByWorkingGroup = require("./methods/getAllByWorkingGroup")(
+    Carbon,
+    sequelize,
+    DataTypes
+  );
 };
-
-module.exports = Carbon;

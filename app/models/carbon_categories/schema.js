@@ -24,62 +24,25 @@ var CarbonCategories = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "carbon_categories"
+      tableName: "carbon_categories",
+      timestamps: false
     }
   );
-};
-
-CarbonCategories.getById = function(carbon_id, callback) {
-  var query = "SELECT * FROM carbon_categories WHERE carbon_id = ?";
-  var inserts = [carbon_id];
-  var sql = mysql.format(query, inserts);
-
-  CarbonCategories.findOne({ where: { carbon_id: carbon_id } })
-    .then(function(category) {
-      if (category[0]) {
-        category = category[0];
-        category.factors = JSON.parse(category.factors);
-        callback(err, category);
-      } else {
-        callback("No category", null);
-      }
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
-
-CarbonCategories.getAll = function(callback) {
-  CarbonCategories.findAll({ order: [["name", "ASC"]] })
-    .then(function(categories) {
-      categoriesObj = {};
-      async.each(
-        categories,
-        function(category, callback) {
-          category.factors = JSON.parse(category.factors);
-          categoriesObj[category.carbon_id] = category;
-        },
-        function() {
-          callback(null, categoriesObj);
-        }
-      );
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
-
-CarbonCategories.updateCategory = function(category, callback) {
-  CarbonCategories.update(
-    { factors: category.factors },
-    { where: { carbon_id: category.carbon_id } }
-  )
-    .then(function() {
-      callback(null);
-    })
-    .catch(function(err) {
-      callback(err);
-    });
+  CarbonCategories.getById = require("./methods/getById")(
+    CarbonCategories,
+    sequelize,
+    DataTypes
+  );
+  CarbonCategories.getAll = require("./methods/getAll")(
+    CarbonCategories,
+    sequelize,
+    DataTypes
+  );
+  CarbonCategories.updateCategory = require("./methods/updateCategory")(
+    CarbonCategories,
+    sequelize,
+    DataTypes
+  );
 };
 
 module.exports = CarbonCategories;

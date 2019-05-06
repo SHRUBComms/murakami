@@ -466,6 +466,7 @@ router.post(
                             volInfo,
                             function(err) {
                               if (err) {
+                                console.log(err);
                                 res.render("volunteers/update", {
                                   errors: [{ msg: "Something went wrong!" }],
                                   title: "Update Volunteer",

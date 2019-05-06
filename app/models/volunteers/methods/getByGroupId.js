@@ -14,11 +14,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
     ORDER BY lastVolunteered ASC`;
 
     sequelize.query(query).nodeify(function(err, returnedVolunteers) {
-      console.log("Query: no. vols: ", returnedVolunteers[0].length);
       Volunteers.sanitizeVolunteer(returnedVolunteers[0], user, function(
         sanitizedVolunteers
       ) {
-        console.log("Query: no. sanitized vols: ", sanitizedVolunteers.length);
         async.eachOf(
           sanitizedVolunteers,
           function(volunteer, i, callback) {
@@ -28,9 +26,7 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                   volunteers.push(volunteer);
                 }
               } else if (group_id) {
-                //console.log(volunteer.working_groups, group_id);
                 if (volunteer.working_groups.includes(group_id) == true) {
-                  console.log("Volunteer pushed to valid");
                   volunteers.push(volunteer);
                 }
               } else {

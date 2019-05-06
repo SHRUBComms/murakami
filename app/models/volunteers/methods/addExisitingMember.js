@@ -1,22 +1,18 @@
 module.exports = function(Volunteers, sequelize, DataTypes) {
   return function(member_id, volInfo, callback) {
-    var query =
-      "INSERT INTO volunteer_info (member_id, emergencyContactRelation, emergencyContactName, emergencyContactPhoneNo, roles, assignedCoordinators, survey, availability, gdpr) VALUES (?,?,?,?,?,?,?,?,?)";
-    var inserts = [
-      member_id,
-      volInfo.emergencyContactRelation,
-      volInfo.emergencyContactName,
-      volInfo.emergencyContactPhoneNo,
-      JSON.stringify(volInfo.roles),
-      JSON.stringify(volInfo.assignedCoordinators),
-      JSON.stringify(volInfo.survey),
-      JSON.stringify(volInfo.availability),
-      JSON.stringify({
+    Volunteers.create({
+      member_id: member_id,
+      emergencyContactRelation: volInfo.emergencyContactRelation,
+      emergencyContactName: volInfo.emergencyContactName,
+      emergencyContactPhoneNo: volInfo.emergencyContactPhoneNo,
+      roles: JSON.stringify(volInfo.roles),
+      assignedCoordinators: JSON.stringify(volInfo.assignedCoordinators),
+      survey: JSON.stringify(volInfo.survey),
+      availability: JSON.stringify(volInfo.availability),
+      gdpr: JSON.stringify({
         email: volInfo.gdpr.email,
         phone: volInfo.gdpr.phone
       })
-    ];
-    var sql = mysql.format(query, inserts);
-    con.query(sql, callback);
+    }).nodeify(callback);
   };
 };

@@ -41,7 +41,6 @@ sequelize
 var rootDir = process.env.CWD;
 
 var AccessTokensModel = require(rootDir + "/app/models/access_tokens/schema");
-var ActivityModel = require(rootDir + "/app/models/activity/schema");
 var AttemptsModel = require(rootDir + "/app/models/attempts/schema");
 var CarbonCategoriesModel = require(rootDir +
   "/app/models/carbon_categories/schema");
@@ -76,7 +75,6 @@ var WorkingGroupsModel = require(rootDir + "/app/models/working_groups/schema");
 var Models = {
   sequelize: sequelize,
   AccessTokens: AccessTokensModel(sequelize, Sequelize),
-  Activity: ActivityModel(sequelize, Sequelize),
   Attempts: AttemptsModel(sequelize, Sequelize),
   CarbonCategories: CarbonCategoriesModel(sequelize, Sequelize),
   Carbon: CarbonModel(sequelize, Sequelize),
@@ -125,6 +123,17 @@ Models.Volunteers.getSignUpInfo = function(callback) {
         settings.privacyNotice
       );
     });
+  });
+};
+
+Models.Members.getSignUpInfo = function(callback) {
+  Models.Settings.getAll(function(err, settings) {
+    callback(
+      settings.ourVision,
+      settings.saferSpacesPolicy,
+      settings.membershipBenefits,
+      settings.privacyNotice
+    );
   });
 };
 

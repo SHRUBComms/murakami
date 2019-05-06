@@ -38,52 +38,17 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  Attempts.failed = function(user_id, ip_address) {
-    Attempts.create({
-      user_id: user_id,
-      ip_address: ip_address,
-      outcome: 0,
-      login_timestamp: new Date()
-    });
-  };
+  Attempts.getLastLogin = require("./methods/getLastLogin")(
+    Attempts,
+    sequelize,
+    DataTypes
+  );
 
-  Attempts.passed = function(user_id, ip_address) {
-    Attempts.create({
-      user_id: user_id,
-      ip_address: ip_address,
-      outcome: 1,
-      login_timestamp: new Date()
-    });
-  };
+  Attempts.getAllFailedAttemptsThisHour = require("./methods/getAllFailedAttemptsThisHour")(
+    Attempts,
+    sequelize,
+    DataTypes
+  );
 
-  Attempts.getLastLogin = function(user_id, callback) {
-    Attempts.findOne({
-      attributes: ["login_timestamp", "login_timestamp"],
-      where: {
-        user_id: user_id,
-        outcome: 1
-      },
-      order: [["login_timestamp", "DESC"]],
-      limit: 1
-    }).nodeify(function(err, lastLogin) {
-      callback(err, lastLogin);
-    });
-  };
-
-  Attempts.getAllFailedAttemptsThisHour = function(user_id, callback) {
-    Attempts.findAll({
-      where: {
-        user_id: user_id,
-        outcome: 0,
-        login_timestamp: {
-          [DataTypes.Op.gte]: moment()
-            .subtract(60, "minutes")
-            .toDate()
-        }
-      }
-    }).nodeify(function(err, attempts) {
-      callback(err, attempts);
-    });
-  };
   return Attempts;
 };

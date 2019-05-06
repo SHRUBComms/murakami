@@ -13,7 +13,7 @@ router.get("/", function(req, res) {
   }
 });
 
-//router.use("/members", require("./members/root"));
+router.use("/members", require("./members/root"));
 //router.use("/api", require("./api/root"));
 //router.use("/till", require("./till/root"));
 //router.use("/settings", require("./settings/root"));

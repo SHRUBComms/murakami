@@ -32,18 +32,24 @@ passport.use(
                 isMatch
               ) {
                 if (isMatch) {
-                  Attempts.passed(
-                    user.id,
-                    req.headers["x-forwarded-for"] ||
-                      req.connection.remoteAddress
-                  );
+                  Attempts.create({
+                    user_id: user.id,
+                    ip_address:
+                      req.headers["x-forwarded-for"] ||
+                      req.connection.remoteAddress,
+                    outcome: 1,
+                    login_timestamp: new Date()
+                  });
                   return done(null, user);
                 } else {
-                  Attempts.failed(
-                    user.id,
-                    req.headers["x-forwarded-for"] ||
-                      req.connection.remoteAddress
-                  );
+                  Attempts.create({
+                    user_id: user.id,
+                    ip_address:
+                      req.headers["x-forwarded-for"] ||
+                      req.connection.remoteAddress,
+                    outcome: 0,
+                    login_timestamp: new Date()
+                  });
                   return done(null, false, { message: "Wrong password!" });
                 }
               });

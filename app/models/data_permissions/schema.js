@@ -15,43 +15,22 @@ var DataPermissions = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "data_permissions"
+      tableName: "data_permissions",
+      timestamps: false
     }
   );
-};
 
-DataPermissions.getAll = function(callback) {
-  DataPermissions.findAll({ order: [{ class: "ASC" }] })
-    .then(function(dataPermissions) {
-      async.each(
-        dataPermissions,
-        function(classPermission, callback) {
-          formattedPermissions[classPermission.class] = JSON.parse(
-            classPermission.permissions
-          );
-          callback();
-        },
-        function() {
-          callback(null, formattedPermissions);
-        }
-      );
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
+  DataPermissions.getAll = require("./methods/getAll")(
+    DataPermissions,
+    sequelize,
+    DataTypes
+  );
 
-DataPermissions.updatePermission = function(userClass, permissions, callback) {
-  DataPermissions.update(
-    { permissions: JSON.stringify(permissions) },
-    { where: { class: userClass } }
-  )
-    .then(function() {
-      callback(null);
-    })
-    .catch(function(err) {
-      callback(err);
-    });
+  DataPermissions.updatePermission = require("./methods/updatePermission")(
+    DataPermissions,
+    sequelize,
+    DataTypes
+  );
 };
 
 module.exports = DataPermissions;

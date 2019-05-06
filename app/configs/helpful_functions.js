@@ -1,5 +1,3 @@
-var rootDir = process.env.CWD;
-//var Models = require(rootDir + "/app/models/sequelize");
 var http = require("http");
 var async = require("async");
 
@@ -23,17 +21,12 @@ Helpers.generateBase64Id = function(length) {
   return result;
 };
 
-Helpers.uniqueIntId = function(length, table, id_name, callback) {
-  var query = "SELECT ?? FROM ?? WHERE ?? = ?";
-  // Generate ID!
+Helpers.uniqueIntId = function(length, Model, id_name, callback) {
+  console.log(Model);
   var id = Helpers.generateIntId(length);
-
-  var inserts = [id_name, table, id_name, id];
-  var sql = mysql.format(query, inserts);
-
-  Models.sequelize.query(sql).then(function(result) {
-    if (result.length == 1) {
-      uniqueIntId(length, table, id_name, callback);
+  Model.find({ [id_name]: id }).nodeify(function(err, result) {
+    if (result.length > 0) {
+      uniqueIntId(length, Model, id_name, callback);
     } else if (result.length == 0) {
       callback(id);
     }
