@@ -3,8 +3,10 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var StockCategories = Models.StockCategories;
+var CarbonCategories = Models.CarbonCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -17,10 +19,10 @@ router.post(
 
     var category = req.body.category;
     if (category) {
-      Tills.getAllCategories(function(err, categories) {
+      StockCategories.getAllCategories(function(err, categories) {
         if (categories[category.item_id]) {
           if (category.name) {
-            Carbon.getCategories(function(err, carbonCategories) {
+            CarbonCategories.getAll(function(err, carbonCategories) {
               if (carbonCategories[category.carbon_id] || !category.carbon_id) {
                 if (categories[category.parent] || !category.parent) {
                   if (category.value > 0 || !category.value) {
@@ -48,7 +50,7 @@ router.post(
 
                     category.value = category.value || null;
 
-                    Tills.updateCategory(category, function(err) {
+                    StockCategories.updateCategory(category, function(err) {
                       if (err) {
                         res.send(response);
                       } else {

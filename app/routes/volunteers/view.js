@@ -43,7 +43,7 @@ router.get(
                     err,
                     allOrganisations
                   ) {
-                    console.log(member);
+                    
                     res.render("volunteers/view", {
                       title: "View Volunteer",
                       volunteersActive: true,

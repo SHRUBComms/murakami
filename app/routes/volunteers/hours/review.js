@@ -11,6 +11,21 @@ var WorkingGroups = Models.WorkingGroups;
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("volunteerHours", "review"),
+  function(req, res) {
+    res.render("volunteers/hours/review", {
+      title: "Review Volunteer Hours",
+      volunteerHoursActive: true,
+      group: {
+        group_id: null
+      }
+    });
+  }
+);
+
+router.get(
   "/:group_id",
   Auth.isLoggedIn,
   Auth.canAccessPage("volunteerHours", "review"),
@@ -22,8 +37,6 @@ router.get(
     ) {
       WorkingGroups.getById(req.params.group_id, function(err, group) {
         if (group) {
-          group = group[0];
-
           res.render("volunteers/hours/review", {
             title: "Review Volunteer Hours",
             volunteerHoursActive: true,
@@ -36,21 +49,6 @@ router.get(
     } else {
       res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/review");
     }
-  }
-);
-
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteerHours", "review"),
-  function(req, res) {
-    res.render("volunteers/hours/review", {
-      title: "Review Volunteer Hours",
-      volunteerHoursActive: true,
-      group: {
-        group_id: null
-      }
-    });
   }
 );
 

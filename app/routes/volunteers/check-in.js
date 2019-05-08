@@ -127,20 +127,33 @@ router.post(
                 },
                 function() {
                   if (questionnaireValid) {
-                    VolunteerCheckIns.create(
+                    VolunteerCheckIns.add(
                       req.params.member_id,
                       req.user.id,
                       questionnaire,
-                      function() {
-                        req.flash(
-                          "success_msg",
-                          "Questionnaire complete! Please update this volunteer's details to finish check-in"
-                        );
-                        res.redirect(
-                          process.env.PUBLIC_ADDRESS +
-                            "/volunteers/update/" +
-                            req.params.member_id
-                        );
+                      function(err) {
+                        if (!err) {
+                          req.flash(
+                            "success_msg",
+                            "Questionnaire complete! Please update this volunteer's details to finish check-in"
+                          );
+                          res.redirect(
+                            process.env.PUBLIC_ADDRESS +
+                              "/volunteers/update/" +
+                              req.params.member_id
+                          );
+                        } else {
+                          
+                          req.flash(
+                            "error_msg",
+                            "Something went wrong! Try again"
+                          );
+                          res.redirect(
+                            process.env.PUBLIC_ADDRESS +
+                              "/volunteers/check-in/" +
+                              req.params.member_id
+                          );
+                        }
                       }
                     );
                   } else {

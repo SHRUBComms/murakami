@@ -7,7 +7,10 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var Transactions = Models.Transactions;
+var StockCategories = Models.StockCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -39,13 +42,12 @@ router.get("/", Auth.verifyByKey, function(req, res) {
     }
   };
 
-  Tills.getAllTransactionsBetweenDates(startDate, endDate, function(
+  Transactions.getAllTransactionsBetweenDates(startDate, endDate, function(
     err,
     transactions
   ) {
     if (transactions) {
-
-      Tills.getDonationCategories(function(err, donationCategories) {
+      StockCategories.getDonationCategories(function(err, donationCategories) {
         async.each(
           transactions,
           function(transaction, callback) {
@@ -56,7 +58,6 @@ router.get("/", Auth.verifyByKey, function(req, res) {
             ) {
               async.each(transaction.summary.bill, function(item, callback) {
                 if (donationCategories[item.item_id]) {
-
                   revenue.total += +item.tokens;
 
                   if (transaction.summary.paymentMethod == "cash") {

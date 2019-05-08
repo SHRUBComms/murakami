@@ -82,11 +82,11 @@
             "
           >
 
-          Next shift due by <b>{{nextShiftDue}}</b>
+          Next shift due by <b>{{niceDate nextShiftDue}}</b>
           <br />
 
           {{#if lastVolunteered}}
-            <small><i>Last shift was <b>{{lastVolunteered}}</b></i></small>
+            <small><i>Last shift was <b>{{niceDate lastVolunteered}}</b></i></small>
           {{else}}
             <small><i>No shifts on record</i></small>
           {{/if}}
@@ -113,11 +113,11 @@
           "
         >
 
-        Next check-in due by <b>{{nextCheckinDue}}</b>
+        Next check-in due by <b>{{niceDate nextCheckinDue}}</b>
         <br />
 
         {{#if lastCheckin}}
-          <small><i>Last check-in was <b>{{lastCheckin}}</b></i></small>
+          <small><i>Last check-in was <b>{{niceDate lastCheckin}}</b></i></small>
         {{else}}
           <small><i>No check-ins on record</i></small>
         {{/if}}

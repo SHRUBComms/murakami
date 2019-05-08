@@ -1,7 +1,67 @@
 var http = require("http");
 var async = require("async");
+var fs = require("fs");
+var lodash = require("lodash");
 
 var Helpers = {};
+
+Helpers.includeAllModelMethods = function(
+  Model,
+  sequelize,
+  DataTypes,
+  methodsDir
+) {
+  fs.readdir(methodsDir, function(err, methods) {
+    async.each(
+      methods,
+      function(methodName, callback) {
+        methodName = methodName
+          .split(".")
+          .slice(0, -1)
+          .join(".");
+
+        Model[methodName] = require(methodsDir + methodName)(
+          Model,
+          sequelize,
+          DataTypes
+        );
+        callback();
+      },
+      function() {}
+    );
+  });
+};
+
+Helpers.includeAllModels = function(
+  ModelsObject,
+  modelsDir,
+  sequelize,
+  Sequelize
+) {
+  fs.readdir(modelsDir, function(err, models) {
+    models = models.filter(function(e) {
+      return e !== "sequelize.js";
+    });
+
+    async.each(
+      models,
+      function(modelName, callback) {
+        var pascalModelName = lodash
+          .startCase(lodash.camelCase(modelName))
+          .replace(/\s+/g, "");
+
+        ModelsObject[pascalModelName] = require(modelsDir +
+          modelName +
+          "/schema")(sequelize, Sequelize);
+
+        console.log(ModelsObject[pascalModelName].getById);
+
+        callback();
+      },
+      function() {}
+    );
+  });
+};
 
 Helpers.generateIntId = function(length) {
   return Math.floor(
@@ -22,7 +82,6 @@ Helpers.generateBase64Id = function(length) {
 };
 
 Helpers.uniqueIntId = function(length, Model, id_name, callback) {
-  console.log(Model);
   var id = Helpers.generateIntId(length);
   Model.find({ [id_name]: id }).nodeify(function(err, result) {
     if (result.length > 0) {
@@ -49,27 +108,7 @@ Helpers.onePropertyInCommonWithArray = function(object, values, callback) {
   );
 };
 
-Helpers.generateGroupId = function(parent, callback) {
-  var query = "SELECT group_id FROM working_groups WHERE group_id = ?";
-  // Generate ID!
-  var id;
-  if (parent) {
-    id = parent + "-" + Helpers.generateIntId(3);
-  } else {
-    id = "WG-" + Helpers.generateIntId(3);
-  }
-
-  var inserts = [id];
-  var sql = mysql.format(query, inserts);
-
-  Models.sequelize.query(sql).then(function(result) {
-    if (result.length == 1) {
-      Helpers.generateGroupId(parent, callback);
-    } else if (result.length == 0) {
-      callback(id);
-    }
-  });
-};
+Helpers.generateGroupId = function(parent, callback) {};
 
 Helpers.uniqueBase64Id = function(length, table, id_name, callback) {
   var query = "SELECT ?? FROM ?? WHERE ?? = ?";

@@ -1,3 +1,5 @@
+var bcrypt = require("bcrypt-nodejs");
+
 module.exports = function(Users, sequelize, DataTypes) {
   var add = function(user, callback) {
     Helpers.uniqueIntId(11, "users", "id", function(id) {

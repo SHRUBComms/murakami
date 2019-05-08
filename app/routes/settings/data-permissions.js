@@ -6,8 +6,9 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var DataPermissions = require(rootDir + "/app/models/data-permissions");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var DataPermissions = Models.DataPermissions;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -96,7 +97,7 @@ router.post(
             }
           },
           function() {
-            DataPermissions.update(
+            DataPermissions.updatePermission(
               req.params.user_class,
               sanitizedPermissions,
               function(err) {

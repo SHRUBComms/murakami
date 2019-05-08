@@ -5,8 +5,10 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var WorkingGroups = Models.WorkingGroups;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

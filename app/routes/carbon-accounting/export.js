@@ -1,6 +1,7 @@
 // /carbon-accounting/export
 
 var router = require("express").Router();
+var async = require("async");
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -8,8 +9,10 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
+var WorkingGroups = Models.WorkingGroups;
 
 router.get(
   "/",
@@ -50,73 +53,97 @@ router.get(
       unit = { factor: 1e-3, name: "kilos" };
     }
 
-    Carbon.getCategories(function(err, carbonCategories) {
+    CarbonCategories.getAll(function(err, carbonCategories) {
       WorkingGroups.getAll(function(err, working_groups) {
-        Carbon.getAllByWorkingGroup(group_id, function(err, raw) {
-          formattedData = {};
+        Carbon.getAllByWorkingGroupBetweenTwoDates(
+          group_id,
+          startDate,
+          endDate,
+          function(err, rawCarbon) {
+            formattedData = {};
+            async.each(
+              carbonCategories,
+              function(category, callback) {
+                formattedData[category.carbon_id] = { raw: 0, saved: 0 };
+                callback();
+              },
+              function() {
+                async.each(
+                  rawCarbon,
+                  function(transaction, callback) {
+                    if (transaction.method == method) {
+                      transaction.trans_object = JSON.parse(
+                        transaction.trans_object
+                      );
+                      async.eachOf(
+                        transaction.trans_object,
+                        function(amount, itemId, callback) {
+                          console.log(itemId);
+                          formattedData[itemId].raw += amount;
 
-          Object.keys(carbonCategories).forEach(function(key) {
-            formattedData[key] = {};
-            formattedData[key] = { raw: 0, saved: 0 };
-          });
+                          formattedData[itemId].saved +=
+                            +transaction.trans_object[itemId] *
+                            carbonCategories[itemId].factors[method];
+                          callback();
+                        },
+                        function() {
+                          callback();
+                        }
+                      );
+                    } else {
+                      callback();
+                    }
+                  },
+                  function() {
+                    console.log(formattedData);
+                    async.each(
+                      formattedData,
+                      function(carbon, callback) {
+                        carbon.raw = (carbon.raw * unit.factor).toFixed(4);
+                        carbon.saved = Math.abs(
+                          carbon.saved * unit.factor
+                        ).toFixed(4);
+                        callback();
+                      },
+                      function() {
+                        var dates = { start: null, end: null };
 
-          for (let i = 0; i < raw.length; i++) {
-            if (
-              raw[i].trans_date >= startDate &&
-              raw[i].trans_date <= endDate &&
-              raw[i].method == method
-            ) {
-              raw[i].trans_object = JSON.parse(raw[i].trans_object);
-              Object.keys(raw[i].trans_object).forEach(function(key) {
-                formattedData[key].raw += +raw[i].trans_object[key];
+                        dates.start = moment(startDate).format("DD/MM/YY");
+                        dates.end = moment(endDate).format("DD/MM/YY");
 
-                formattedData[key].saved +=
-                  +raw[i].trans_object[key] *
-                  carbonCategories[key].factors[method];
-              });
-            }
+                        try {
+                          startDate = startDate.toISOString().split("T")[0];
+                        } catch (err) {
+                          startDate = null;
+                        }
+                        try {
+                          endDate = endDate.toISOString().split("T")[0] || null;
+                        } catch (err) {
+                          endDate = null;
+                        }
+
+                        res.render("carbon-accounting/export", {
+                          carbonActive: true,
+                          title: "Carbon Report",
+                          carbon: formattedData,
+                          type: type,
+                          unit: unit,
+                          startDate: startDate,
+                          endDate: endDate,
+                          carbonCategories: carbonCategories,
+                          working_groups: working_groups,
+                          group_id: group_id,
+                          method: method,
+                          dates: dates
+                        });
+                      }
+                    );
+                  }
+                );
+              }
+            );
           }
-
-          Object.keys(formattedData).forEach(function(key) {
-            formattedData[key].raw = (
-              formattedData[key].raw * unit.factor
-            ).toFixed(4);
-            formattedData[key].saved = Math.abs(
-              formattedData[key].saved * unit.factor
-            ).toFixed(4);
-          });
-
-          var dates = { start: null, end: null };
-
-          dates.start = moment(startDate).format("DD/MM/YY");
-          dates.end = moment(endDate).format("DD/MM/YY");
-
-          try {
-            startDate = startDate.toISOString().split("T")[0];
-          } catch (err) {
-            startDate = null;
-          }
-          try {
-            endDate = endDate.toISOString().split("T")[0] || null;
-          } catch (err) {
-            endDate = null;
-          }
-
-          res.render("carbon-accounting/export", {
-            carbonActive: true,
-            title: "Carbon Report",
-            carbon: formattedData,
-            type: type,
-            unit: unit,
-            startDate: startDate,
-            endDate: endDate,
-            carbonCategories: carbonCategories,
-            working_groups: working_groups,
-            group_id: group_id,
-            method: method,
-            dates
-          });
-        });
+        );
       });
     });
   }

@@ -6,13 +6,13 @@ var request = require("request");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
-  // Check transaction status via SumUp API
-
   request.post(
     "https://api.sumup.com/token",
     {
@@ -39,8 +39,8 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
           (error, response, body) => {
             body = JSON.parse(body);
             if (body.status == "FAILED") {
-              Tills.getTillById(req.query.till_id, function(err, till) {
-                Tills.removeTransaction(
+              Tills.getById(req.query.till_id, function(err, till) {
+                Transactions.removeTransaction(
                   req.query["foreign-tx-id"],
                   till.group_id,
                   function(err) {}

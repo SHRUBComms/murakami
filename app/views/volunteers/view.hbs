@@ -86,18 +86,18 @@
 
 
             {{#if volInfo.dateCreated}}
-						  <p>Registered as a volunteer: {{volInfo.dateCreated}}</p>
+						  <p>Registered as a volunteer: {{niceDate volInfo.dateCreated}}</p>
             {{/if}}
 
             {{#if volInfo.lastCheckin}}
   						<p>Last Check-in:
-  							<span class="text-{{#ifCond volInfo.needsToCheckin '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToCheckin '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToCheckin '==' false}}success{{/ifCond}}">{{volInfo.lastCheckin}}</span>
+  							<span class="text-{{#ifCond volInfo.needsToCheckin '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToCheckin '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToCheckin '==' false}}success{{/ifCond}}">{{niceDate volInfo.lastCheckin}}</span>
   						</p>
             {{/if}}
 
             {{#if volInfo.lastVolunteered}}
   						<p>Last volunteered:
-  							<span class="text-{{#ifCond volInfo.needsToVolunteer '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' false}}success{{/ifCond}}">{{volInfo.lastVolunteered}}</span>
+  							<span class="text-{{#ifCond volInfo.needsToVolunteer '==' 'now'}}danger{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' 'soon'}}warning{{/ifCond}}{{#ifCond volInfo.needsToVolunteer '==' false}}success{{/ifCond}}">{{niceDate volInfo.lastVolunteered}}</span>
   						</p>
             {{/if}}
 
@@ -214,12 +214,12 @@
 
   						<h4 class="mb-1">Membership</h4>
               {{#if member.earliest_membership_date}}
-    						<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
+    						<p class="mb-1">Since: {{niceDate member.earliest_membership_date}}</p>
 
     						<small>Current Membership Period</small>
     						<div class="mb-3">
-    							<p>Began: <b>{{member.current_init_membership}}</b></p>
-    							<p>Expires: <b>{{member.current_exp_membership}}</b></p>
+    							<p>Began: <b>{{niceDate member.current_init_membership}}</b></p>
+    							<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
     						</div>
               {{/if}}
               <a href="{{public_address}}/members/view/{{member.member_id}}" class="btn btn-block btn-success mt-2">View Membership Profile</a>

@@ -9,10 +9,12 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-//var Members = require(rootDir + "/app/models/members");
-//var Settings = require(rootDir + "/app/models/settings");
-//var WorkingGroups = require(rootDir + "/app/models/working-groups");
-//var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var Models = require(rootDir + "/app/models/sequelize");
+var Members = Models.Members;
+var Settings = Models.Settings;
+var WorkingGroups = Models.WorkingGroups;
+var VolunteerRoles = Models.VolunteerRoles;
+var MailTemplates = Models.MailTemplates;
 
 var Mail = {};
 
@@ -69,12 +71,9 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
           permissions: { members: { contactDetails: true, name: true } }
         },
         function(err, member) {
-          Settings.getEmailTemplateById(mail_id, function(err, template) {
-            Settings.getEmailTemplateById("footer", function(err, footer) {
+          MailTemplates.getById(mail_id, function(err, mail) {
+            MailTemplates.getById("footer", function(err, footer) {
               if (!err) {
-                mail = template[0];
-                footer = footer[0];
-
                 if (mail.active) {
                   if (footer.active) {
                     mail.markup += "<hr />" + footer.markup;
@@ -185,11 +184,8 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
 };
 
 Mail.sendDonation = function(member, callback) {
-  Settings.getEmailTemplateById("donation", function(err, template) {
-    Settings.getEmailTemplateById("footer", function(err, footer) {
-      mail = template[0];
-      footer = footer[0];
-
+  MailTemplates.getById("donation", function(err, mail) {
+    MailTemplates.getById("footer", function(err, footer) {
       if (mail.active) {
         if (footer.active) {
           mail.markup += "<hr />" + footer.markup;

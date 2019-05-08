@@ -4,7 +4,9 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var StockCategories = Models.StockCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -19,7 +21,7 @@ router.post(
     var item_id = req.body.item_id;
 
     if (till_id) {
-      Tills.getTillById(till_id, function(err, till) {
+      Tills.getById(till_id, function(err, till) {
         if (till) {
           if (
             req.user.permissions.tills.updateCategories == true ||
@@ -28,12 +30,12 @@ router.post(
               req.user.working_groups.includes(till.group_id))
           ) {
             if (item_id) {
-              Tills.getCategoriesByTillId(till_id, "kv", function(
+              StockCategories.getCategoriesByTillId(till_id, "kv", function(
                 err,
                 categories
               ) {
                 if (categories[item_id]) {
-                  Tills.removeCategory(item_id, function(err) {
+                  StockCategories.removeCategory(item_id, function(err) {
                     if (err) {
                       res.send(response);
                     } else {

@@ -1,3 +1,5 @@
+var moment = require("moment");
+moment.locale("en-gb");
 module.exports = function(Attempts, sequelize, DataTypes) {
   return function(user_id, callback) {
     Attempts.findAll({

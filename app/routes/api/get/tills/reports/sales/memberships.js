@@ -7,7 +7,10 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var Transactions = Models.Transactions;
+var StockCategories = Models.StockCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -39,12 +42,15 @@ router.get("/", Auth.verifyByKey, function(req, res) {
     }
   };
 
-  Tills.getAllTransactionsBetweenDates(startDate, endDate, function(
+  Transactions.getAllBetweenDates(startDate, endDate, function(
     err,
     transactions
   ) {
     if (transactions) {
-      Tills.getMembershipCategories(function(err, membershipCategories) {
+      StockCategories.getMembershipCategories(function(
+        err,
+        membershipCategories
+      ) {
         async.each(
           transactions,
           function(transaction, callback) {
@@ -58,10 +64,9 @@ router.get("/", Auth.verifyByKey, function(req, res) {
                   revenue.total += +item.tokens;
 
                   if (transaction.summary.paymentMethod == "cash") {
-
-                    revenue.breakdown.cash += +item.tokens
+                    revenue.breakdown.cash += +item.tokens;
                   } else if (transaction.summary.paymentMethod == "card") {
-                    revenue.breakdown.card += +item.tokens
+                    revenue.breakdown.card += +item.tokens;
                   }
                 }
               });

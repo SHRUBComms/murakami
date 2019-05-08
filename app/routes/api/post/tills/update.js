@@ -3,7 +3,8 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -13,7 +14,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
   var till = req.body.till;
 
   if (till.name) {
-    Tills.getTillById(till.till_id, function(err, tillExists) {
+    Tills.getById(till.till_id, function(err, tillExists) {
       if (till) {
         Tills.updateTill(till, function(err) {
           if (err) {

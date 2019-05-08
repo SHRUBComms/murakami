@@ -98,8 +98,11 @@ router.post("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
         req.flash("error_msg", "Member not found!");
         res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
-        Members.getVolInfoById(req.params.member_id, function(err, volInfo) {
-          if (!volInfo[0]) {
+        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
+          err,
+          volInfo
+        ) {
+          if (!volInfo) {
             Users.getCoordinators(req.user, function(
               err,
               coordinators,
@@ -114,6 +117,7 @@ router.post("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
                 rolesGroupedById
               ) {
                 var volInfo = req.body.volInfo;
+
                 if (!volInfo.gdpr) {
                   volInfo.gdpr = {};
                 }
@@ -353,6 +357,8 @@ router.post("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
                     req.params.member_id,
                     volInfo,
                     function(err) {
+                      
+                      
                       if (err) {
                         res.render("members/make-volunteer", {
                           errors: [{ msg: "Something went wrong!" }],
@@ -373,7 +379,7 @@ router.post("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
                         );
 
                         if (
-                          moment(member.current_exp_membership, "L").isBefore(
+                          moment(member.current_exp_membership).isBefore(
                             moment().add(3, "months")
                           )
                         ) {

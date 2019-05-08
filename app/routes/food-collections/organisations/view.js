@@ -5,7 +5,10 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
+var Models = require(rootDir + "/app/models/sequelize");
+var FoodCollections = Models.FoodCollections;
+var Members = Models.Members;
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -14,22 +17,25 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("foodCollections", "viewOrganisations"),
   function(req, res) {
-    FoodCollections.getOrganisationById(req.params.organisation_id, function(
+    FoodCollectionsOrganisations.getById(req.params.organisation_id, function(
       err,
       organisation
     ) {
       if (organisation) {
-        FoodCollections.getCollectionsByOrganisationId(
-          req.params.organisation_id,
-          function(err, collections) {
-            res.render("food-collections/organisations/view", {
-              title: "View Food Collection Organisation",
-              foodCollectionsActive: true,
-              organisation: organisation,
-              collections: collections
-            });
-          }
-        );
+        Members.getAll(function(err, membersArray, membersObj) {
+          FoodCollections.getCollectionsByOrganisationId(
+            req.params.organisation_id,
+            membersObj,
+            function(err, collections) {
+              res.render("food-collections/organisations/view", {
+                title: "View Food Collection Organisation",
+                foodCollectionsActive: true,
+                organisation: organisation,
+                collections: collections
+              });
+            }
+          );
+        });
       } else {
         res.redirect(
           process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage"

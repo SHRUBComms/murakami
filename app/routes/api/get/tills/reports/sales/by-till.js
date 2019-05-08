@@ -7,7 +7,10 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var StockCategories = Models.StockCategories;
+var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -41,15 +44,21 @@ router.get("/:till_id", Auth.verifyByKey, function(req, res) {
     }
   };
 
-  Tills.getTillById(req.params.till_id, function(err, till) {
+  Tills.getById(req.params.till_id, function(err, till) {
     if (till) {
-      Tills.getAllTransactionsBetweenDatesByTillId(
+      Transactions.getAllBetweenTwoDatesByTillId(
         till.till_id,
         startDate,
         endDate,
         function(err, transactions) {
-          Tills.getDonationCategories(function(err, donationCategories) {
-            Tills.getMembershipCategories(function(err, membershipCategories) {
+          StockCategories.getDonationCategories(function(
+            err,
+            donationCategories
+          ) {
+            StockCategories.getMembershipCategories(function(
+              err,
+              membershipCategories
+            ) {
               async.each(
                 transactions,
                 function(transaction, callback) {

@@ -1,3 +1,5 @@
+var async = require("async");
+
 module.exports = function(FoodCollections, sequelize, DataTypes) {
   return function(organisation_id, membersObj, startDate, endDate, callback) {
     var query = {
@@ -5,7 +7,7 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
         approved: 1,
         timestamp: { [DataTypes.Op.between]: [startDate, endDate] }
       },
-      order: [[timestamp, "DESC"]]
+      order: [["timestamp", "DESC"]]
     };
 
     if (organisation_id) {

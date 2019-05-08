@@ -5,8 +5,10 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+var FoodCollections = Models.FoodCollections;
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

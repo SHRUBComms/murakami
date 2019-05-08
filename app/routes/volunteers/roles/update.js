@@ -7,7 +7,7 @@ var rootDir = process.env.CWD;
 var Models = require(rootDir + "/app/models/sequelize");
 
 var WorkingGroups = Models.WorkingGroups;
-var VolunteerRoles = Models.WorkingGroups;
+var VolunteerRoles = Models.VolunteerRoles;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");

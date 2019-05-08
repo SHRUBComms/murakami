@@ -5,7 +5,9 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -14,7 +16,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("foodCollections", "viewOrganisations"),
   function(req, res) {
-    FoodCollections.getOrganisations(function(err, organisations) {
+    FoodCollectionsOrganisations.getAll(function(err, organisations) {
       res.render("food-collections/organisations/manage", {
         title: "Food Collection Organisations",
         foodCollectionsActive: true,

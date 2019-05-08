@@ -1,5 +1,7 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 module.exports = function(sequelize, DataTypes) {
   var Carbon = sequelize.define(
     "carbon",
@@ -41,27 +43,12 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  Carbon.getByMemberId = require("./methods/getByMemberId")(
+  Helpers.includeAllModelMethods(
     Carbon,
     sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/carbon/methods/"
   );
 
-  Carbon.getAll = require("./methods/getAll")(Carbon, sequelize, DataTypes);
-
-  Carbon.getAllThisYear = require("./methods/getAllThisYear")(
-    Carbon,
-    sequelize,
-    DataTypes
-  );
-
-  Carbon.getToday = require("./methods/getToday")(Carbon, sequelize, DataTypes);
-
-  Carbon.add = require("./methods/add")(Carbon, sequelize, DataTypes);
-
-  Carbon.getAllByWorkingGroup = require("./methods/getAllByWorkingGroup")(
-    Carbon,
-    sequelize,
-    DataTypes
-  );
+  return Carbon;
 };

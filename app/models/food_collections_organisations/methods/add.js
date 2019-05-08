@@ -1,8 +1,6 @@
 module.exports = function(FoodCollectionsOrganisations, sequelize, DataTypes) {
   return function(organisation, callback) {
-    Helpers.uniqueBase64Id(15, "fs_organisations", "organisation_id", function(
-      organisation_id
-    ) {
+    FoodCollectionsOrganisations.generateId(function(organisation_id) {
       FoodCollectionsOrganisations.create({
         organisation_id: organisation_id,
         name: organisation.name,

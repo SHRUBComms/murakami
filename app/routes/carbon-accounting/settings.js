@@ -4,7 +4,9 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
+var Models = require(rootDir + "/app/models/sequelize");
+var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -13,7 +15,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("carbonAccounting", "settings"),
   function(req, res) {
-    Carbon.getCategories(function(err, carbonCategories) {
+    CarbonCategories.getAll(function(err, carbonCategories) {
       res.redirect(
         process.env.PUBLIC_ADDRESS +
           "/carbon-accounting/settings/" +
@@ -28,7 +30,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("carbonAccounting", "settings"),
   function(req, res) {
-    Carbon.getCategories(function(err, carbonCategories) {
+    CarbonCategories.getAll(function(err, carbonCategories) {
       var carbon_id = req.params.carbon_id;
       if (carbonCategories[carbon_id]) {
         res.render("carbon-accounting/settings", {
@@ -51,7 +53,7 @@ router.post(
     var carbon_id = req.params.carbon_id;
     var sanitizedFactors = {};
 
-    Carbon.getCategoryById(carbon_id, function(err, category) {
+    CarbonCategories.getById(carbon_id, function(err, category) {
       if (!err || category) {
         var validMethods = [
           "recycled",
@@ -68,7 +70,7 @@ router.post(
           }
         });
         category.factors = JSON.stringify(category.factors);
-        Carbon.updateCategory(category, function(err) {
+        CarbonCategories.updateCategory(category, function(err) {
           if (err) {
             req.flash("error_msg", "Something went wrong!");
             res.redirect(

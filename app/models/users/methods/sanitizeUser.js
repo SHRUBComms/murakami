@@ -41,9 +41,7 @@ module.exports = function(Users, sequelize, DataTypes) {
           user.notification_preferences = {};
         }
 
-        if (user.lastLogin) {
-          user.lastLogin = moment(user.lastLogin).format("L");
-        } else {
+        if (!user.lastLogin) {
           user.lastLogin = "Never";
         }
 
@@ -65,7 +63,8 @@ module.exports = function(Users, sequelize, DataTypes) {
           ) {
             sanitizedUser.first_name = user.first_name;
             sanitizedUser.last_name = user.last_name;
-            sanitizedUser.name = user.first_name + " " + user.last_name;
+            sanitizedUser.full_name = user.full_name;
+            sanitizedUser.name = user.full_name;
           }
         } catch (err) {}
 

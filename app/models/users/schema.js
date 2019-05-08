@@ -1,17 +1,8 @@
 /* jshint indent: 2 */
 
-var con;
-var bcrypt = require("bcrypt-nodejs");
-var async = require("async");
-var mysql = require("mysql");
-var lodash = require("lodash");
-var moment = require("moment");
-moment.locale("en-gb");
-
 var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
 
 module.exports = function(sequelize, DataTypes) {
-  con = sequelize;
   var Users = sequelize.define(
     "users",
     {
@@ -70,70 +61,13 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false
     }
   );
-  Users.getAll = require("./methods/getAll")(Users, sequelize, DataTypes);
 
-  Users.getByUsername = require("./methods/getByUsername")(
+  Helpers.includeAllModelMethods(
     Users,
     sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/users/methods/"
   );
 
-  Users.getCoordinators = require("./methods/getCoordinators")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.getByUsernameOrEmail = require("./methods/getByUsernameOrEmail")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.getByEmail = require("./methods/getByEmail")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.getById = require("./methods/getById")(Users, sequelize, DataTypes);
-
-  Users.sanitizeUser = require("./methods/sanitizeUser")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.comparePassword = require("./methods/comparePassword")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.updateWorkingGroups = require("./methods/updateWorkingGroups")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.add = require("./methods/add")(Users, sequelize, DataTypes);
-
-  Users.updateUser = require("./methods/updateUser")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.updatePassword = require("./methods/updatePassword")(
-    Users,
-    sequelize,
-    DataTypes
-  );
-
-  Users.deactivate = require("./methods/deactivate")(
-    Users,
-    sequelize,
-    DataTypes
-  );
   return Users;
 };

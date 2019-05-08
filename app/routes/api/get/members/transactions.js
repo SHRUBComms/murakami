@@ -7,9 +7,13 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var Members = require(rootDir + "/app/models/members");
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Tills = Models.Tills;
+var Transactions = Models.Transactions;
+var StockCategories = Models.StockCategories;
+var Members = Models.Members;
+var CarbonCategories = Models.CarbonCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -21,13 +25,13 @@ router.get(
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (!err && member.transactionHistory) {
-        Tills.getTransactionsByMemberId(req.params.member_id, function(
+        Transactions.getByMemberId(req.params.member_id, function(
           err,
           transactions
         ) {
           if (transactions.length > 0) {
-            Tills.getCategories("tree", function(err, categories) {
-              Carbon.getCategories(function(err, carbonCategories) {
+            StockCategories.getCategories("tree", function(err, categories) {
+              CarbonCategories.getAll(function(err, carbonCategories) {
                 var flatCategories = Helpers.flatten(categories);
 
                 var flatCategoriesAsObj = {};

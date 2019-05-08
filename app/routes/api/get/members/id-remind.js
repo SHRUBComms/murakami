@@ -4,7 +4,9 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
@@ -18,7 +20,6 @@ router.get(
       req.params.member_id,
       { permissions: { members: { contactDetails: true, name: true } } },
       function(err, member) {
-        
         if (!member || err) {
           req.flash("error", "Member not found");
           res.redirect(process.env.PUBLIC_ADDRESS + "/members");

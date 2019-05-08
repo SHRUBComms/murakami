@@ -1,5 +1,7 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 module.exports = function(sequelize, DataTypes) {
   var FoodCollectionsOrganisations = sequelize.define(
     "food_collections_organisations",
@@ -29,40 +31,12 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false
     }
   );
-  FoodCollectionsOrganisations.getAll = require("./methods/getAll")(
-    FoodCollectionsOrganisations,
-    sequelize,
-    DataTypes
-  );
 
-  FoodCollectionsOrganisations.getById = require("./methods/getById")(
+  Helpers.includeAllModelMethods(
     FoodCollectionsOrganisations,
     sequelize,
-    DataTypes
-  );
-
-  FoodCollectionsOrganisations.add = require("./methods/add")(
-    FoodCollectionsOrganisations,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollectionsOrganisations.updateOrganisation = require("./methods/updateOrganisation")(
-    FoodCollectionsOrganisations,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollectionsOrganisations.updateActiveStatus = require("./methods/updateActiveStatus")(
-    FoodCollectionsOrganisations,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollectionsOrganisations.deleteOrganisation = require("./methods/deleteOrganisation")(
-    FoodCollectionsOrganisations,
-    sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/food_collections_organisations/methods/"
   );
 
   return FoodCollectionsOrganisations;

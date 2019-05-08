@@ -8,10 +8,12 @@ var sanitizeHtml = require("sanitize-html");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
-var Members = require(rootDir + "/app/models/members");
-var Settings = require(rootDir + "/app/models/settings");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var FoodCollections = Models.FoodCollections;
+var VolunteerHours = Models.VolunteerHours;
+var Members = Models.Members;
+var Settings = Models.Settings;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -20,7 +22,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("foodCollections", "review"),
   function(req, res) {
-    FoodCollections.getCollectionById(req.params.transaction_id, function(
+    FoodCollections.getById(req.params.transaction_id, function(
       err,
       collection
     ) {

@@ -1,3 +1,5 @@
+var sanitizeHtml = require("sanitize-html");
+
 module.exports = function() {
   return function(collection, members, callback) {
     if (members[collection.member_id]) {

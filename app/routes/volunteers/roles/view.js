@@ -35,7 +35,7 @@ router.get("/:role_id", function(req, res) {
           title: "View Volunter Role",
           volunteerRolesActive: true,
           role: role,
-          group: group[0]
+          group: group
         });
       } else {
         res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage");

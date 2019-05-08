@@ -1,6 +1,6 @@
 /* jshint indent: 2 */
 
-var async = require("async");
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
 
 module.exports = function(sequelize, DataTypes) {
   var WorkingGroups = sequelize.define(
@@ -34,33 +34,12 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  WorkingGroups.getAll = function(callback) {
-    WorkingGroups.findAll({}).nodeify(function(err, working_groups_raw) {
-      var working_groups = {};
-      var working_groups_arr = [];
-
-      async.each(
-        working_groups_raw,
-        function(group, callback) {
-          working_groups_arr.push(group.group_id);
-          working_groups[group.group_id] = group;
-
-          if (group.parent) {
-            try {
-              working_groups[group.parent].children.push(group.group_id);
-            } catch (err) {
-              working_groups[group.parent].children = [group.group_id];
-            }
-          }
-
-          callback();
-        },
-        function() {
-          callback(err, working_groups, working_groups_raw, working_groups_arr);
-        }
-      );
-    });
-  };
+  Helpers.includeAllModelMethods(
+    WorkingGroups,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/working_groups/methods/"
+  );
 
   return WorkingGroups;
 };

@@ -4,7 +4,8 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
+var Models = require(rootDir + "/app/models/sequelize");
+var Carbon = Models.Carbon;
 
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
@@ -14,7 +15,7 @@ router.get("/", function(req, res) {
       var totalCarbon = 0;
       res.send(totalCarbon.toFixed(3));
     } else {
-      Carbon.getCategories(function(err, carbonCategoriesRaw) {
+      CarbonCategories.getAll(function(err, carbonCategoriesRaw) {
         Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
           totalCarbon
         ) {

@@ -1,7 +1,9 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define(
+  var StockCategories = sequelize.define(
     "stock_categories",
     {
       item_id: {
@@ -63,7 +65,17 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "stock_categories"
+      tableName: "stock_categories",
+      timestamps: false
     }
   );
+
+  Helpers.includeAllModelMethods(
+    StockCategories,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/stock_categories/methods/"
+  );
+
+  return StockCategories;
 };

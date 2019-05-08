@@ -2,6 +2,8 @@
 
 var async = require("async");
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 module.exports = function(sequelize, DataTypes) {
   var Settings = sequelize.define(
     "settings",
@@ -21,21 +23,13 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false
     }
   );
-  Settings.getAll = function(callback) {
-    Settings.findAll({}).nodeify(function(err, settings) {
-      settingsObj = {};
-      async.each(
-        settings,
-        function(setting, callback) {
-          settingsObj[setting.id] = JSON.parse(setting.data);
-          callback();
-        },
-        function() {
-          callback(err, settingsObj);
-        }
-      );
-    });
-  };
+
+  Helpers.includeAllModelMethods(
+    Settings,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/settings/methods/"
+  );
 
   return Settings;
 };

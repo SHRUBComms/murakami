@@ -4,6 +4,7 @@ module.exports = function(DataPermissions, sequelize, DataTypes) {
       { permissions: JSON.stringify(permissions) },
       { where: { class: userClass } }
     ).nodeify(function(err) {
+      console.log(err);
       callback(err);
     });
   };

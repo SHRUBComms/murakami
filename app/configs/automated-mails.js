@@ -9,7 +9,7 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Members = Models.Members;
 var Volunteers = Models.Volunteers;
 var Transactions = Models.Transactions;
-var Mail = Models.Mail;
+var MailTemplates = Models.MailTemplates;
 
 var automatedMails = new CronJob({
   cronTime: "0 30 9 * * *",

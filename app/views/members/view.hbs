@@ -60,12 +60,12 @@
 						<div class="card-body">
 							<h4 class="mb-1">Membership</h4>
 							{{#if member.earliest_membership_date}}
-								<p class="mb-1">Since: {{member.earliest_membership_date}}</p>
+								<p class="mb-1">Since: {{niceDate member.earliest_membership_date}}</p>
 
 								<small>Current Membership Period</small>
 								<div class="mb-2">
-									<p>Began: <b>{{member.current_init_membership}}</b></p>
-									<p>Expires: <b>{{member.current_exp_membership}}</b></p>
+									<p>Began: <b>{{niceDate member.current_init_membership}}</b></p>
+									<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
 
 								</div>
 							{{/if}}

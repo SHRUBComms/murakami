@@ -1,6 +1,9 @@
+var async = require("async");
+
 module.exports = function(DataPermissions, sequelize, DataTypes) {
   return function(callback) {
-    DataPermissions.findAll({ order: [{ class: "ASC" }] }).nodeify(function(
+    var formattedPermissions = {};
+    DataPermissions.findAll({ order: [["class", "ASC"]] }).nodeify(function(
       err,
       dataPermissions
     ) {

@@ -5,7 +5,9 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Notifications = require(rootDir + "/app/models/notifications");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Notifications = Models.Notifications;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

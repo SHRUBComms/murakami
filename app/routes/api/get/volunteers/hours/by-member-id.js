@@ -6,11 +6,13 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
+var Models = require(rootDir + "/app/models/sequelize");
 
-var Tills = require(rootDir + "/app/models/tills");
-var Members = require(rootDir + "/app/models/members");
+var Volunteers = Models.Volunteers;
+var VolunteerHours = Models.VolunteerHours;
+
+var Tills = Models.Tills;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

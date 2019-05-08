@@ -1,5 +1,7 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -36,12 +38,6 @@ module.exports = function(sequelize, DataTypes) {
       tableName: "attempts",
       timestamps: false
     }
-  );
-
-  Attempts.getLastLogin = require("./methods/getLastLogin")(
-    Attempts,
-    sequelize,
-    DataTypes
   );
 
   Attempts.getAllFailedAttemptsThisHour = require("./methods/getAllFailedAttemptsThisHour")(

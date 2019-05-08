@@ -31,75 +31,100 @@ var sequelize = new Sequelize(
 
 sequelize
   .authenticate()
-  .then(function() {
-    console.log("Database connection has been successfully established!");
-  })
+  .then(function() {})
   .catch(function(err) {
     console.error("Unable to connect to the database:", err);
   });
 
-var rootDir = process.env.CWD;
+/*Helpers.includeAllModelMethods(
+    Users,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/users/methods/",
+    function(Users) {}
+  );*/
 
-var AccessTokensModel = require(rootDir + "/app/models/access_tokens/schema");
-var AttemptsModel = require(rootDir + "/app/models/attempts/schema");
-var CarbonCategoriesModel = require(rootDir +
-  "/app/models/carbon_categories/schema");
-var CarbonModel = require(rootDir + "/app/models/carbon/schema");
-var DataPermissionsModel = require(rootDir +
-  "/app/models/data_permissions/schema");
-var FoodCollectionsModel = require(rootDir +
-  "/app/models/food_collections/schema");
-var FoodCollectionsOrganisationsModel = require(rootDir +
-  "/app/models/food_collections_organisations/schema");
-var SettingsModel = require(rootDir + "/app/models/settings/schema");
-var MailTemplatesModel = require(rootDir + "/app/models/mail_templates/schema");
-var MembersModel = require(rootDir + "/app/models/members/schema");
-var NotificationsModel = require(rootDir + "/app/models/notifications/schema");
-var PasswordResetModel = require(rootDir + "/app/models/password_reset/schema");
-var ReportsModel = require(rootDir + "/app/models/reports/schema");
-var StockCategoriesModel = require(rootDir +
-  "/app/models/stock_categories/schema");
-var TillActivityModel = require(rootDir + "/app/models/till_activity/schema");
-var TillsModel = require(rootDir + "/app/models/tills/schema");
-var TransactionsModel = require(rootDir + "/app/models/transactions/schema");
-var UsersModel = require(rootDir + "/app/models/users/schema");
-var VolunteerCheckInsModel = require(rootDir +
-  "/app/models/volunteer_checkins/schema");
-var VolunteerHoursModel = require(rootDir +
-  "/app/models/volunteer_hours/schema");
-var VolunteerRolesModel = require(rootDir +
-  "/app/models/volunteer_roles/schema");
-var VolunteersModel = require(rootDir + "/app/models/volunteers/schema");
-var WorkingGroupsModel = require(rootDir + "/app/models/working_groups/schema");
+var rootDir = process.env.CWD;
 
 var Models = {
   sequelize: sequelize,
-  AccessTokens: AccessTokensModel(sequelize, Sequelize),
-  Attempts: AttemptsModel(sequelize, Sequelize),
-  CarbonCategories: CarbonCategoriesModel(sequelize, Sequelize),
-  Carbon: CarbonModel(sequelize, Sequelize),
-  DataPermissions: DataPermissionsModel(sequelize, Sequelize),
-  FoodCollectionsOrganisations: FoodCollectionsOrganisationsModel(
+  AccessTokens: require(rootDir + "/app/models/access_tokens/schema")(
     sequelize,
     Sequelize
   ),
-  FoodCollections: FoodCollectionsModel(sequelize, Sequelize),
-  MailTemplates: MailTemplatesModel(sequelize, Sequelize),
-  Members: MembersModel(sequelize, Sequelize),
-  Notifications: NotificationsModel(sequelize, Sequelize),
-  PasswordReset: PasswordResetModel(sequelize, Sequelize),
-  Reports: ReportsModel(sequelize, Sequelize),
-  Settings: SettingsModel(sequelize, Sequelize),
-  StockCategories: StockCategoriesModel(sequelize, Sequelize),
-  TillActivity: TillActivityModel(sequelize, Sequelize),
-  Tills: TillsModel(sequelize, Sequelize),
-  Transactions: TransactionsModel(sequelize, Sequelize),
-  Users: UsersModel(sequelize, Sequelize),
-  VolunteerCheckIns: VolunteerCheckInsModel(sequelize, Sequelize),
-  VolunteerHours: VolunteerHoursModel(sequelize, Sequelize),
-  VolunteerRoles: VolunteerRolesModel(sequelize, Sequelize),
-  Volunteers: VolunteersModel(sequelize, Sequelize),
-  WorkingGroups: WorkingGroupsModel(sequelize, Sequelize)
+  Attempts: require(rootDir + "/app/models/attempts/schema")(
+    sequelize,
+    Sequelize
+  ),
+  CarbonCategories: require(rootDir + "/app/models/carbon_categories/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Carbon: require(rootDir + "/app/models/carbon/schema")(sequelize, Sequelize),
+  DataPermissions: require(rootDir + "/app/models/data_permissions/schema")(
+    sequelize,
+    Sequelize
+  ),
+  FoodCollectionsOrganisations: require(rootDir +
+    "/app/models/food_collections_organisations/schema")(sequelize, Sequelize),
+  FoodCollections: require(rootDir + "/app/models/food_collections/schema")(
+    sequelize,
+    Sequelize
+  ),
+  MailTemplates: require(rootDir + "/app/models/mail_templates/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Members: require(rootDir + "/app/models/members/schema")(
+    sequelize,
+    Sequelize
+  ),
+  PasswordReset: require(rootDir + "/app/models/password_reset/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Reports: require(rootDir + "/app/models/reports/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Settings: require(rootDir + "/app/models/settings/schema")(
+    sequelize,
+    Sequelize
+  ),
+  StockCategories: require(rootDir + "/app/models/stock_categories/schema")(
+    sequelize,
+    Sequelize
+  ),
+  TillActivity: require(rootDir + "/app/models/till_activity/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Tills: require(rootDir + "/app/models/tills/schema")(sequelize, Sequelize),
+  Transactions: require(rootDir + "/app/models/transactions/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Users: require(rootDir + "/app/models/users/schema")(sequelize, Sequelize),
+  VolunteerCheckIns: require(rootDir + "/app/models/volunteer_checkins/schema")(
+    sequelize,
+    Sequelize
+  ),
+  VolunteerHours: require(rootDir + "/app/models/volunteer_hours/schema")(
+    sequelize,
+    Sequelize
+  ),
+  VolunteerRoles: require(rootDir + "/app/models/volunteer_roles/schema")(
+    sequelize,
+    Sequelize
+  ),
+  Volunteers: require(rootDir + "/app/models/volunteers/schema")(
+    sequelize,
+    Sequelize
+  ),
+  WorkingGroups: require(rootDir + "/app/models/working_groups/schema")(
+    sequelize,
+    Sequelize
+  )
 };
 
 Models.Volunteers.getSignUpInfo = function(callback) {
@@ -133,6 +158,16 @@ Models.Members.getSignUpInfo = function(callback) {
       settings.saferSpacesPolicy,
       settings.membershipBenefits,
       settings.privacyNotice
+    );
+  });
+};
+
+Models.VolunteerRoles.getRoleSignUpInfo = function(callback) {
+  Models.Settings.getAll(function(err, settings) {
+    callback(
+      settings.locations,
+      settings.activities,
+      settings.commitmentLengths
     );
   });
 };

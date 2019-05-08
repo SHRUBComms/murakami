@@ -1,5 +1,7 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 module.exports = function(sequelize, DataTypes) {
   var FoodCollections = sequelize.define(
     "food_collections",
@@ -40,47 +42,13 @@ module.exports = function(sequelize, DataTypes) {
       timestamps: false
     }
   );
-  FoodCollections.sanitizeCollection = require("./methods/sanitizeCollection");
 
-  FoodCollections.getCollectionsBetweenTwoDatesByOrganisation = require("./methods/getCollectionsBetweenTwoDatesByOrganisation")(
+  Helpers.includeAllModelMethods(
     FoodCollections,
     sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/food_collections/methods/"
   );
 
-  FoodCollections.getCollectionsByOrganisationId = require("./methods/getCollectionsByOrganisationId")(
-    FoodCollections,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollections.getUnreviewedCollections = require("./methods/getUnreviewedCollections")(
-    FoodCollections,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollections.getById = require("./methods/getById")(
-    FoodCollections,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollections.approveCollection = require("./methods/approveCollection")(
-    FoodCollections,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollections.denyCollection = require("./methods/denyCollection")(
-    FoodCollections,
-    sequelize,
-    DataTypes
-  );
-
-  FoodCollections.add = require("./methods/add")(
-    FoodCollections,
-    sequelize,
-    DataTypes
-  );
+  return FoodCollections;
 };

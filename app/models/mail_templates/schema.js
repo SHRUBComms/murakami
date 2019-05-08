@@ -1,7 +1,8 @@
 /* jshint indent: 2 */
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
 
-var MailTemplates = function(sequelize, DataTypes) {
-  return sequelize.define(
+module.exports = function(sequelize, DataTypes) {
+  var MailTemplates = sequelize.define(
     "mail_templates",
     {
       active: {
@@ -32,43 +33,17 @@ var MailTemplates = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "mail_templates"
+      tableName: "mail_templates",
+      timestamps: false
     }
   );
-};
 
-MailTemplates.getAll = function(callback) {
-  var query = "SELECT * FROM mail_templates ORDER BY mail_desc ASC";
-  MailTemplates.findAll({ order: { mail_desc: "ASC" } })
-    .then(function(templates) {
-      callback(null, templates);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
+  Helpers.includeAllModelMethods(
+    MailTemplates,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/mail_templates/methods/"
+  );
 
-MailTemplates.getById = function(mail_id, callback) {
-  MailTemplates.findOne({ where: { mail_id: mail_id } })
-    .then(function(template) {
-      callback(null, template);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
+  return MailTemplates;
 };
-
-MailTemplates.updateMailTemplate = function(mail, callback) {
-  MailTemplates.update(
-    { active: mail.active, subject: mail.subject, markup: mail.markup },
-    { where: { mail_id: mail.id } }
-  )
-    .then(function() {
-      callback(null);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
-
-module.exports = MailTemplates;

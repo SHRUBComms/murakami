@@ -1,6 +1,6 @@
 module.exports = function(FoodCollections, sequelize, DataTypes) {
   return function(callback) {
-    FoodCollections.findAll({ approved: null }).nodeify(function(
+    FoodCollections.findAll({ where: { approved: null } }).nodeify(function(
       err,
       collections
     ) {

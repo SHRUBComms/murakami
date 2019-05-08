@@ -6,8 +6,10 @@ var moment = require("moment");
 
 var rootDir = process.env.CWD;
 
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
-var VolunteerRoles = require(rootDir + "/app/models/volunteer-roles");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var VolunteerHours = Models.VolunteerHours;
+var VolunteerRoles = Models.VolunteerRoles;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -20,24 +22,26 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
 
   // Get volunteer check-ins due
 
+  var pendingHoursOn, incompleteRolesOn;
+
   try {
-    var incompleteRolesOn =
-      req.user.notification_preferences["unfinished-roles"]["murakami"];
+    incompleteRolesOn =
+      req.user.notification_preferences["unfinished-roles"].murakami;
   } catch (err) {
-    var incompleteRolesOn = false;
+    incompleteRolesOn = false;
   }
 
   try {
-    var pendingHoursOn =
-      req.user.notification_preferences["pending-volunteer-hours"]["murakami"];
+    pendingHoursOn = false;
+    req.user.notification_preferences["pending-volunteer-hours"].murakami;
   } catch (err) {
-    var pendingHoursOn = false;
+    pendingHoursOn = false;
   }
 
   if (["staff", "admin", "volunteer"].includes(req.user.class)) {
     VolunteerHours.getAllUnreviewedShifts(function(err, shifts) {
       var working_groups = req.user.working_groups;
-      
+
       var shiftsNeedAttention = [];
 
       async.each(

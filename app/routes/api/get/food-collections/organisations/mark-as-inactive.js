@@ -4,7 +4,9 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -13,7 +15,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("foodCollections", "updateOrganisations"),
   function(req, res) {
-    FoodCollections.getOrganisationById(req.params.organisation_id, function(
+    FoodCollectionsOrganisations.getById(req.params.organisation_id, function(
       err,
       organisation
     ) {
@@ -23,7 +25,7 @@ router.get(
           "/food-collections/organisations/view/" +
           organisation.organisation_id;
         if (organisation.active == 1) {
-          FoodCollections.updateOrganisationActiveStatus(
+          FoodCollectionsOrganisations.updateActiveStatus(
             organisation.organisation_id,
             0,
             function() {

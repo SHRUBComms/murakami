@@ -20,8 +20,6 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
       volInfo.availability
     ];
 
-    var sql = mysql.format(query, inserts);
-
-    sequelize.query(sql, callback);
+    sequelize.query(query, { replacements: inserts }).nodeify(callback);
   };
 };

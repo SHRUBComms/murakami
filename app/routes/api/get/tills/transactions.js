@@ -7,25 +7,29 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var StockCategories = Models.StockCategories;
+var TillActivity = Models.TillActivity;
+var Transactions = Models.Transactions;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
 
 router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
-  Tills.getTillById(req.params.till_id, function(err, till) {
+  Tills.getById(req.params.till_id, function(err, till) {
     if (till) {
-      Tills.getStatusById(req.params.till_id, function(status) {
+      TillActivity.getByTillId(req.params.till_id, function(status) {
         if (status.opening == 1 || req.query.startDate) {
-          Tills.getAllTransactionsBetweenDatesByTillId(
+          Transactions.getAllBetweenTwoDatesByTillId(
             req.params.till_id,
             req.query.startDate || status.timestamp,
             req.query.endDate || new Date(),
             function(err, transactions) {
               if (transactions.length > 0) {
                 Members.getAll(function(err, members, membersObj) {
-                  Tills.getCategoriesByTillId(
+                  StockCategories.getCategoriesByTillId(
                     req.params.till_id,
                     "tree",
                     function(err, categories) {

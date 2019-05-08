@@ -5,10 +5,12 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
-var Members = require(rootDir + "/app/models/members");
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
-var Settings = require(rootDir + "/app/models/settings");
+var Models = require(rootDir + "/app/models/sequelize");
+var FoodCollections = Models.FoodCollections;
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+var Members = Models.Members;
+var VolunteerHours = Models.VolunteerHours;
+var Settings = Models.Settings;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -20,7 +22,10 @@ router.get("/", function(req, res) {
     organisations = [];
   }
 
-  FoodCollections.getOrganisations(function(err, allOrganisations) {
+  FoodCollectionsOrganisations.getAll(function(
+    err,
+    allOrganisations
+  ) {
     Members.getAll(function(err, members) {
       var noOrganisationSelect;
       if (!req.user) {
@@ -90,7 +95,10 @@ router.post("/", function(req, res) {
         function(err, member) {
           if (member) {
             if (organisation_id) {
-              FoodCollections.getOrganisations(function(err, allOrganisations) {
+              FoodCollectionsOrganisations.getAll(function(
+                err,
+                allOrganisations
+              ) {
                 if (allOrganisations[organisation_id]) {
                   if (allOrganisations[organisation_id].active == 1) {
                     if (!isNaN(amount) && amount > 0) {

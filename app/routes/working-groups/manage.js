@@ -5,7 +5,8 @@ var h2p = require("html2plaintext");
 
 var rootDir = process.env.CWD;
 
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -75,8 +76,7 @@ router.post(
         req.user.working_groups.includes(req.params.group_id))
     ) {
       WorkingGroups.getById(req.params.group_id, function(err, group) {
-        if (group[0]) {
-          group = group[0];
+        if (group) {
           var group_id = req.params.group_id;
           var name = req.body.name.trim();
           var prefix = req.body.prefix.trim() || null;

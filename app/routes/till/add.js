@@ -4,9 +4,6 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
-
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get(

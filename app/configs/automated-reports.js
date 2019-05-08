@@ -28,7 +28,7 @@ var automatedReports = new CronJob({
           report.currentVolunteers = Object.keys(volunteers).length;
 
           Reports.add("membership", report, function(err) {
-            console.log(err);
+            
           });
         }
       );

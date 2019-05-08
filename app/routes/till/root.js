@@ -5,8 +5,12 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var TillActivity = Models.TillActivity;
+var Transactions = Models.Transactions;
+var StockCategories = Models.StockCategories;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -16,7 +20,7 @@ router.get(
   Auth.canAccessPage("tills", "processTransaction"),
   function(req, res) {
     WorkingGroups.getAll(function(err, allWorkingGroups) {
-      Tills.getAllTills(function(err, tills) {
+      Tills.getAll(function(err, tills) {
         if (tills.length > 1) {
           res.render("till/root", {
             tillMode: true,
@@ -36,7 +40,7 @@ router.get(
 
 router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
   if (req.params.till_id == "manage" && req.user.permissions.tills.viewTill) {
-    Tills.getAllTills(function(err, tills) {
+    Tills.getAll(function(err, tills) {
       async.eachOf(
         tills,
         function(till, key, callback) {
@@ -45,7 +49,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
             (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
               req.user.working_groups.includes(till.group_id))
           ) {
-            Tills.getStatusById(till.till_id, function(status) {
+            TillActivity.getByTillId(till.till_id, function(status) {
               till.status = status;
               callback();
             });
@@ -72,7 +76,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
       tillsActive: true
     });
   } else if (req.user.permissions.tills.processTransaction) {
-    Tills.getTillById(req.params.till_id, function(err, till) {
+    Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
         if (
           req.user.permissions.tills.processTransaction == true ||
@@ -80,11 +84,11 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
             "commonWorkingGroup" &&
             req.user.working_groups.includes(till.group_id))
         ) {
-          Tills.getStatusById(req.params.till_id, function(status) {
+          TillActivity.getByTillId(req.params.till_id, function(status) {
             if (status.opening == "1") {
               WorkingGroups.getAll(function(err, allWorkingGroups) {
                 var group = allWorkingGroups[till.group_id];
-                Tills.getCategoriesByTillId(
+                StockCategories.getCategoriesByTillId(
                   req.params.till_id,
                   "tree",
                   function(err, categories) {
@@ -98,7 +102,7 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                         presetTransaction = null;
                       }
                     }
-                    console.log("presetTransaction", presetTransaction);
+
                     res.render("till/root", {
                       tillMode: true,
                       title: "Transaction",

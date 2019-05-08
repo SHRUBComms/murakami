@@ -62,7 +62,7 @@ PasswordReset.getUnusedPasswordResetsByUserId = function(user_id, callback) {
       date_issued: {
         [Op.gte]: moment()
           .subtract(60, "minutes")
-          .format("YYYY-MM-DD HH:mm:ss")
+          .toDate()
       }
     }
   })
@@ -85,7 +85,7 @@ PasswordReset.getUnusedPasswordResetsByResetCode = function(
       date_issued: {
         [Op.gte]: moment()
           .subtract(60, "minutes")
-          .format("YYYY-MM-DD HH:mm:ss")
+          .toDate()
       }
     }
   })

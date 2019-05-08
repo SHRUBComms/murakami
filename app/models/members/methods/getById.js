@@ -10,10 +10,20 @@ module.exports = function(Members, sequelize, DataType) {
         replacements: [id]
       })
       .nodeify(function(err, member) {
-        if (member[0][0]) {
-          Members.sanitizeMember(member[0][0], user, callback);
-        } else {
-          callback(err, null);
+        try {
+          if (member[0][0]) {
+            Members.sanitizeMember(member[0][0], user, function(
+              err,
+              sanitizedMember
+            ) {
+              callback(err, sanitizedMember);
+            });
+          } else {
+            callback(err, null);
+          }
+        } catch (err) {
+          console.log(err);
+          callback("Member not found", null);
         }
       });
   };

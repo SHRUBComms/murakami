@@ -6,7 +6,9 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Members = Models.Members;
 
 router.post(
   "/",

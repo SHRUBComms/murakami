@@ -1,7 +1,9 @@
 /* jshint indent: 2 */
 
-var CarbonCategories = function(sequelize, DataTypes) {
-  return sequelize.define(
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
+module.exports = function(sequelize, DataTypes) {
+  var CarbonCategories = sequelize.define(
     "carbon_categories",
     {
       carbon_id: {
@@ -28,21 +30,13 @@ var CarbonCategories = function(sequelize, DataTypes) {
       timestamps: false
     }
   );
-  CarbonCategories.getById = require("./methods/getById")(
-    CarbonCategories,
-    sequelize,
-    DataTypes
-  );
-  CarbonCategories.getAll = require("./methods/getAll")(
-    CarbonCategories,
-    sequelize,
-    DataTypes
-  );
-  CarbonCategories.updateCategory = require("./methods/updateCategory")(
-    CarbonCategories,
-    sequelize,
-    DataTypes
-  );
-};
 
-module.exports = CarbonCategories;
+  Helpers.includeAllModelMethods(
+    CarbonCategories,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/carbon_categories/methods/"
+  );
+
+  return CarbonCategories;
+};

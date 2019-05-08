@@ -4,7 +4,8 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
+var Models = require(rootDir + "/app/models/sequelize");
+var VolunteerHours = Models.VolunteerHours;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

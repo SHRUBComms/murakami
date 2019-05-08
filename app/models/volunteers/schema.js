@@ -1,5 +1,7 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
 module.exports = function(sequelize, DataTypes) {
   var Volunteers = sequelize.define(
     "volunteer_info",
@@ -62,58 +64,11 @@ module.exports = function(sequelize, DataTypes) {
     callback("err", null);
   };
 
-  Volunteers.putVolInfo = require("./methods/putVolInfo")(
+  Helpers.includeAllModelMethods(
     Volunteers,
     sequelize,
-    DataTypes
-  );
-
-  Volunteers.getAllVolunteerInfo = require("./methods/getAllVolunteerInfo")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.getByGroupId = require("./methods/getByGroupId")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.sanitizeVolunteer = require("./methods/sanitizeVolunteer")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.updateRoles = require("./methods/updateRoles")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.getVolunteerById = require("./methods/getVolunteerById")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.updateActiveStatus = require("./methods/updateActiveStatus")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.addExistingMember = require("./methods/updateActiveStatus")(
-    Volunteers,
-    sequelize,
-    DataTypes
-  );
-
-  Volunteers.updateVolunteer = require("./methods/updateVolunteer")(
-    Volunteers,
-    sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/volunteers/methods/"
   );
 
   return Volunteers;

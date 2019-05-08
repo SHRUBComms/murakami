@@ -5,8 +5,10 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -17,7 +19,7 @@ router.get(
   Auth.canAccessPage("carbonAccounting", "log"),
   function(req, res) {
     WorkingGroups.getAll(function(err, working_groups) {
-      Carbon.getCategories(function(err, carbonCategories) {
+      CarbonCategories.getAll(function(err, carbonCategories) {
         carbonCategories = Object.values(carbonCategories);
         var tillMode = false;
         var till_id = req.query.till_id || null;
@@ -81,7 +83,7 @@ router.post(
     WorkingGroups.getAll(function(err, working_groups) {
       if (working_groups[formattedTransaction.group_id]) {
         if (validMethods.indexOf(formattedTransaction.method) !== -1) {
-          Carbon.getCategories(function(err, carbonCategoriesRaw) {
+          CarbonCategories.getAll(function(err, carbonCategoriesRaw) {
             carbonCategories = {};
             async.each(
               carbonCategoriesRaw,

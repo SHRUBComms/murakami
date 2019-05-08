@@ -7,7 +7,9 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -44,7 +46,7 @@ router.get("/:group_id", Auth.verifyByKey, function(req, res) {
       async.each(
         tills,
         function(till, callback) {
-          Tills.getAllTransactionsBetweenDatesByTillId(
+          Transactions.getAllBetweenTwoDatesByTillId(
             till.till_id,
             startDate,
             endDate,
@@ -60,7 +62,6 @@ router.get("/:group_id", Auth.verifyByKey, function(req, res) {
                     revenue.total += +transaction.summary.totals.money;
 
                     if (transaction.summary.paymentMethod == "cash") {
-                      
                       revenue.breakdown.cash += +transaction.summary.totals
                         .money;
                     } else if (transaction.summary.paymentMethod == "card") {

@@ -16,7 +16,7 @@
 						</p>
             <p class="text-muted">
               {{#if lastCheckIn}}
-                Last check-in: {{lastCheckIn.timestamp}}<br />
+                Last check-in: {{niceDate lastCheckIn.timestamp}}<br />
 								Conducted by: {{lookup (lookup allUsers lastCheckIn.user_id) 'full_name'}}
               {{else}}
                 No check-ins on record

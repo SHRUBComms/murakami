@@ -13,6 +13,7 @@ var Members = Models.Members;
 var WorkingGroups = Models.WorkingGroups;
 var AccessTokens = Models.AccessTokens;
 var Tills = Models.Tills;
+var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
@@ -319,7 +320,7 @@ router.post(
                 }
               };
               transaction.summary = JSON.stringify(transaction.summary);
-              Tills.addTransaction(transaction, function(err) {
+              Transactions.addTransaction(transaction, function(err) {
                 Members.updateBalance(member_id, 5, function(err) {});
               });
             }

@@ -125,12 +125,12 @@ function selectMember(index){
 
 function processDonation(type){
 	$("#submitDonation").prop("disabled", true)
-	let member_id = member.id || null;
+	let member_id = member.id || member.member_id || null;
     $.ajax({
         type: "POST",
         url: "{{public_address}}/till/donations",
         data: {
-        	'member_id': member.id,
+        	'member_id': member_id,
         	'till_id': "{{till.till_id}}",
         	'tokens': tokens
         },

@@ -37,7 +37,7 @@ router.get(
           err,
           volunteers
         ) {
-          console.log("Route: no. vols: ", volunteers.length);
+          
           VolunteerRoles.getAll(function(
             err,
             roles,

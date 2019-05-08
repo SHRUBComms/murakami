@@ -4,8 +4,9 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var Attempts = require(rootDir + "/app/models/attempts");
+var Models = require(rootDir + "/app/models/sequelize");
+var Users = Models.Users;
+var Attempts = Models.Attempts;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

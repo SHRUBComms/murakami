@@ -7,10 +7,11 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
   return function(group_id, user, callback) {
     var working_groups = user.working_groups;
     var volunteers = [];
+    var volunteersObj = {};
     var query = `SELECT * FROM volunteer_info volunteers
     RIGHT JOIN members ON volunteers.member_id = members.member_id
     LEFT JOIN (SELECT member_id hours_member_id, MAX(date) lastVolunteered FROM volunteer_hours GROUP BY member_id) hours ON members.member_id=hours.hours_member_id
-    LEFT JOIN (SELECT member_id checkins_member_id, checkin_id, MAX(timestamp) lastCheckin  FROM volunteer_checkins GROUP BY member_id, checkin_id) checkins ON members.member_id=checkins.checkins_member_id
+    LEFT JOIN (SELECT member_id checkins_member_id, MAX(timestamp) lastCheckin  FROM volunteer_checkins GROUP BY member_id) checkins ON members.member_id=checkins.checkins_member_id
     ORDER BY lastVolunteered ASC`;
 
     sequelize.query(query).nodeify(function(err, returnedVolunteers) {

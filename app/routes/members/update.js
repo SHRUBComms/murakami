@@ -23,9 +23,8 @@ router.get(
         res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
         if (
-          req.user.class == "admin" ||
-          req.user.class == "till" ||
-          (req.user.class == "staff" &&
+          req.user.permissions.members.view == true ||
+          (req.user.permissions.members.view == "commonWorkingGroup" &&
             Helpers.hasOneInCommon(
               member.working_groups,
               req.user.working_groups
@@ -42,15 +41,12 @@ router.get(
             phone_no: member.phone_no,
             address: member.address,
             free: member.free,
-            current_exp_membership: moment(
-              member.current_exp_membership,
-              "l"
-            ).format("YYYY-MM-DD")
+            current_exp_membership: member.current_exp_membership
           });
         } else {
           req.flash(
             "error_msg",
-            "You must have a common working group with this member to update their profile!"
+            "You don't have permission to update this member!"
           );
           res.redirect(
             process.env.PUBLIC_ADDRESS + "/members/view/" + member.member_id
@@ -142,7 +138,7 @@ router.post(
           if (moment(current_exp_membership)) {
             if (
               moment(current_exp_membership).isAfter(
-                moment(member.current_init_membership, "L")
+                moment(member.current_init_membership)
               )
             ) {
               Members.updateExpiryDate(
@@ -181,15 +177,30 @@ router.post(
             current_exp_membership: current_exp_membership
           });
         } else {
-          Members.updateBasic(member, function(err, member) {
-            if (err) throw err;
-
-            req.flash("success_msg", first_name + " updated!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/members/view/" +
-                req.params.member_id
-            );
+          Members.updateBasic(member, function(err) {
+            if (!err) {
+              req.flash("success_msg", first_name + " updated!");
+              res.redirect(
+                process.env.PUBLIC_ADDRESS +
+                  "/members/view/" +
+                  req.params.member_id
+              );
+            } else {
+              
+              res.render("members/update", {
+                errors: [{ msg: "Something went wrong! Try again" }],
+                title: "Update Member",
+                membersActive: true,
+                member_id: req.params.member_id,
+                first_name: first_name,
+                last_name: last_name,
+                email: email,
+                phone_no: phone_no,
+                address: address,
+                free: free,
+                current_exp_membership: current_exp_membership
+              });
+            }
           });
         }
       }

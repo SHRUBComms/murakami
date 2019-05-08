@@ -1,7 +1,9 @@
 /* jshint indent: 2 */
 
-var AccessTokens = function(sequelize, DataTypes) {
-  return sequelize.define(
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
+module.exports = function(sequelize, DataTypes) {
+  var AccessTokens = sequelize.define(
     "access_tokens",
     {
       token: {
@@ -29,23 +31,11 @@ var AccessTokens = function(sequelize, DataTypes) {
       timestamps: false
     }
   );
-  AccessTokens.createInvite = require("./methods/createInvite")(
+  Helpers.includeAllModelMethods(
     AccessTokens,
     sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/access_tokens/methods/"
   );
-
-  AccessTokens.getById = require("./methods/getById")(
-    AccessTokens,
-    sequelize,
-    DataTypes
-  );
-
-  AccessTokens.markAsUsed = require("./methods/markAsUsed")(
-    AccessTokens,
-    sequelize,
-    DataTypes
-  );
+  return AccessTokens;
 };
-
-module.exports = AccessTokens;

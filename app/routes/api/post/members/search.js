@@ -6,8 +6,10 @@ var lodash = require("lodash");
 
 var rootDir = process.env.CWD;
 
-var Members = require(rootDir + "/app/models/members");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Members = Models.Members;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -70,7 +72,7 @@ router.post("/simple", Auth.isLoggedIn, function(req, res) {
           },
           function(err) {
             res.send({ status: "ok", results: formattedMembers });
-            console.log(formattedMembers);
+            
           }
         );
       }

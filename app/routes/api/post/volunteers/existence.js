@@ -6,8 +6,10 @@ var rootDir = process.env.CWD;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-var Volunteers = require(rootDir + "/app/models/volunteers");
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var Volunteers = Models.Volunteers;
+var Members = Models.Members;
 
 router.post("/", Auth.canAccessPage("volunteers", "add"), function(req, res) {
   var name = req.body.first_name + " " + req.body.last_name;

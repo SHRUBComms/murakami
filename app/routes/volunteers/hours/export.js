@@ -7,6 +7,7 @@ var rootDir = process.env.CWD;
 var Models = require(rootDir + "/app/models/sequelize");
 
 var VolunteerHours = Models.VolunteerHours;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -23,23 +24,26 @@ router.get(
     ) {
       group_id = req.query.group_id;
     }
-    VolunteerHours.getHoursBetweenTwoDatesByWorkingGroup(
-      group_id,
-      req.query.startDate,
-      req.query.endDate,
-      function(err, shifts) {
-        res.render("volunteers/hours/export", {
-          volunteerHoursActive: true,
-          title: "Export Data",
-          group: {
-            group_id: group_id || null
-          },
-          startDate: req.query.startDate || null,
-          endDate: req.query.endDate || null,
-          shifts: shifts
-        });
-      }
-    );
+    Members.getAll(function(err, members, membersObj) {
+      VolunteerHours.getHoursBetweenTwoDatesByWorkingGroup(
+        group_id,
+        req.query.startDate,
+        req.query.endDate,
+        membersObj,
+        function(err, shifts) {
+          res.render("volunteers/hours/export", {
+            volunteerHoursActive: true,
+            title: "Export Data",
+            group: {
+              group_id: group_id || null
+            },
+            startDate: req.query.startDate || null,
+            endDate: req.query.endDate || null,
+            shifts: shifts
+          });
+        }
+      );
+    });
   }
 );
 

@@ -6,9 +6,14 @@ moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var Members = require(rootDir + "/app/models/members");
-var Carbon = require(rootDir + "/app/models/carbon-calculations");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var TillActivity = Models.TillActivity;
+var Transactions = Models.Transactions;
+var StockCategories = Models.StockCategories;
+var Members = Models.Members;
+var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -27,7 +32,7 @@ router.post(
 
     var membershipBought;
 
-    Tills.getTillById(till_id, function(err, till) {
+    Tills.getById(till_id, function(err, till) {
       if (till && !err) {
         if (
           req.user.permissions.tills.processTransaction == true ||
@@ -35,10 +40,10 @@ router.post(
             "commonWorkingGroup" &&
             req.user.working_groups.includes(till.group_id))
         ) {
-          Tills.getStatusById(till_id, function(status) {
+          TillActivity.getByTillId(till_id, function(status) {
             if (status.opening == 1) {
-              Carbon.getCategories(function(err, carbonCategories) {
-                Tills.getFlatCategoriesByTillId(till_id, function(
+              CarbonCategories.getAll(function(err, carbonCategories) {
+                StockCategories.getFlatCategoriesByTillId(till_id, function(
                   err,
                   categories
                 ) {
@@ -269,7 +274,7 @@ router.post(
                             returnedMember.is_member = isMember;
                             returnedMember.membership_expires =
                               member.current_exp_membership;
-                            console.log(returnedMember.membership_expires);
+
                             if (membershipBought == "MEM-FY") {
                               Members.renew(
                                 member_id,
@@ -309,8 +314,6 @@ router.post(
                                 .format("L");
                             }
 
-                            console.log(returnedMember.membership_expires);
-
                             if (
                               formattedTransaction.summary.totals.tokens > 0
                             ) {
@@ -336,7 +339,7 @@ router.post(
                                 formattedTransaction.summary
                               );
 
-                              Tills.addTransaction(
+                              Transactions.addTransaction(
                                 formattedTransaction,
                                 function(err, transaction_id) {
                                   if (err) {
@@ -469,107 +472,108 @@ router.post(
                         formattedTransaction.summary
                       );
 
-                      Tills.addTransaction(formattedTransaction, function(
-                        err,
-                        transaction_id
-                      ) {
-                        if (err) {
-                          res.send({
-                            status: "fail",
-                            msg: "Something has gone terribly wrong!"
-                          });
-                        } else {
-                          var carbon = {
-                            member_id: "anon",
-                            user_id: req.user.id,
-                            trans_object: JSON.stringify(carbonTransaction),
-                            amount: weight_total,
-                            group_id: till.group_id,
-                            method: "reused"
-                          };
-                          Carbon.add(carbon, function(err) {
-                            Helpers.calculateCarbon(
-                              [carbon],
-                              carbonCategories,
-                              function(carbonSaved) {
-                                let response = {
-                                  status: "ok",
-                                  msg:
-                                    "Transaction complete! £" +
-                                    totals.money +
-                                    " paid."
-                                };
+                      Transactions.addTransaction(
+                        formattedTransaction,
+                        function(err, transaction_id) {
+                          if (err) {
+                            res.send({
+                              status: "fail",
+                              msg: "Something has gone terribly wrong!"
+                            });
+                          } else {
+                            var carbon = {
+                              member_id: "anon",
+                              user_id: req.user.id,
+                              trans_object: JSON.stringify(carbonTransaction),
+                              amount: weight_total,
+                              group_id: till.group_id,
+                              method: "reused"
+                            };
+                            Carbon.add(carbon, function(err) {
+                              Helpers.calculateCarbon(
+                                [carbon],
+                                carbonCategories,
+                                function(carbonSaved) {
+                                  let response = {
+                                    status: "ok",
+                                    msg:
+                                      "Transaction complete! £" +
+                                      totals.money +
+                                      " paid."
+                                  };
 
-                                response.msg +=
-                                  " " +
-                                  Math.abs(carbonSaved.toFixed(2)) +
-                                  "kg of carbon saved.";
+                                  response.msg +=
+                                    " " +
+                                    Math.abs(carbonSaved.toFixed(2)) +
+                                    "kg of carbon saved.";
 
-                                if (membershipBought) {
-                                  response.status = "redirect";
-                                  if (membershipBought == "MEM-FY") {
-                                    membershipBought = "year";
-                                  } else if (membershipBought == "MEM-HY") {
-                                    membershipBought = "half_year";
-                                  } else if (membershipBought == "MEM-QY") {
-                                    membershipBought = "3_months";
-                                  } else {
-                                    membershipBought = null;
+                                  if (membershipBought) {
+                                    response.status = "redirect";
+                                    if (membershipBought == "MEM-FY") {
+                                      membershipBought = "year";
+                                    } else if (membershipBought == "MEM-HY") {
+                                      membershipBought = "half_year";
+                                    } else if (membershipBought == "MEM-QY") {
+                                      membershipBought = "3_months";
+                                    } else {
+                                      membershipBought = null;
+                                    }
+
+                                    response.url =
+                                      process.env.PUBLIC_ADDRESS +
+                                      "/members/add?till_id=" +
+                                      till_id +
+                                      "&murakamiStatus=ok" +
+                                      "&murakamiMsg=" +
+                                      response.msg +
+                                      "&membership_length=" +
+                                      membershipBought;
                                   }
 
-                                  response.url =
-                                    process.env.PUBLIC_ADDRESS +
-                                    "/members/add?till_id=" +
-                                    till_id +
-                                    "&murakamiStatus=ok" +
-                                    "&murakamiMsg=" +
-                                    response.msg +
-                                    "&membership_length=" +
-                                    membershipBought;
-                                }
+                                  if (paymentMethod == "card") {
+                                    var sumupSummon =
+                                      "sumupmerchant://pay/1.0?affiliate-key=" +
+                                      process.env.SUMUP_AFFILIATE_KEY +
+                                      "&app-id=" +
+                                      process.env.SUMUP_APP_ID +
+                                      "&title=" +
+                                      req.user.allWorkingGroupsObj[
+                                        till.group_id
+                                      ].name +
+                                      "&total=" +
+                                      totals.money +
+                                      "&amount=" +
+                                      totals.money +
+                                      "&currency=GBP" +
+                                      "&foreign-tx-id=" +
+                                      transaction_id +
+                                      "&callback=" +
+                                      encodeURIComponent(
+                                        process.env.PUBLIC_ADDRESS +
+                                          "/api/get/tills/smp-callback" +
+                                          "/?murakamiStatus=" +
+                                          response.status +
+                                          "&murakamiMsg=" +
+                                          response.msg +
+                                          "&till_id=" +
+                                          till.till_id +
+                                          "&membershipBought=" +
+                                          membershipBought
+                                      );
 
-                                if (paymentMethod == "card") {
-                                  var sumupSummon =
-                                    "sumupmerchant://pay/1.0?affiliate-key=" +
-                                    process.env.SUMUP_AFFILIATE_KEY +
-                                    "&app-id=" +
-                                    process.env.SUMUP_APP_ID +
-                                    "&title=" +
-                                    req.user.allWorkingGroupsObj[till.group_id]
-                                      .name +
-                                    "&total=" +
-                                    totals.money +
-                                    "&amount=" +
-                                    totals.money +
-                                    "&currency=GBP" +
-                                    "&foreign-tx-id=" +
-                                    transaction_id +
-                                    "&callback=" +
-                                    encodeURIComponent(
-                                      process.env.PUBLIC_ADDRESS +
-                                        "/api/get/tills/smp-callback" +
-                                        "/?murakamiStatus=" +
-                                        response.status +
-                                        "&murakamiMsg=" +
-                                        response.msg +
-                                        "&till_id=" +
-                                        till.till_id +
-                                        "&membershipBought=" +
-                                        membershipBought
-                                    );
-
-                                  res.send({
-                                    status: "redirect",
-                                    url: sumupSummon
-                                  });
-                                } else {
-                                  res.send(response);
+                                    res.send({
+                                      status: "redirect",
+                                      url: sumupSummon
+                                    });
+                                  } else {
+                                    res.send(response);
+                                  }
                                 }
-                              }
-                            );
-                          });
+                              );
+                            });
+                          }
                         }
-                      });
+                      );
                     } else {
                       res.send({
                         status: "fail",

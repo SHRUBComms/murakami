@@ -5,7 +5,9 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
+var Models = require(rootDir + "/app/models/sequelize");
+var FoodCollections = Models.FoodCollections;
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -30,7 +32,7 @@ router.post(
     var formattedOrganisation = {};
     if (organisation.name) {
       formattedOrganisation.name = organisation.name;
-      FoodCollections.addOrganisation(formattedOrganisation, function(
+      FoodCollectionsOrganisations.add(formattedOrganisation, function(
         err,
         organisation_id
       ) {

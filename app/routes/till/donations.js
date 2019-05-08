@@ -4,8 +4,11 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var TillActivity = Models.TillActivity;
+var Transactions = Models.Transactions;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
@@ -15,7 +18,7 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "processDonations"),
   function(req, res) {
-    Tills.getTillById(req.params.till_id, function(err, till) {
+    Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
         if (
           req.user.permissions.tills.processDonations == true ||
@@ -23,7 +26,7 @@ router.get(
             "commonWorkingGroup" &&
             req.user.working_groups.includes(till.group_id))
         ) {
-          Tills.getStatusById(req.params.till_id, function(status) {
+          TillActivity.getByTillId(req.params.till_id, function(status) {
             if (status.opening) {
               res.render("till/donations", {
                 tillMode: true,
@@ -61,7 +64,7 @@ router.post(
     var tokens = req.body.tokens;
     var response = { status: "fail" };
 
-    Tills.getTillById(till_id, function(err, till) {
+    Tills.getById(till_id, function(err, till) {
       if (till && !err) {
         if (
           req.user.permissions.tills.processDonations == true ||
@@ -69,7 +72,7 @@ router.post(
             "commonWorkingGroup" &&
             req.user.working_groups.includes(till.group_id))
         ) {
-          Tills.getStatusById(till_id, function(status) {
+          TillActivity.getByTillId(till_id, function(status) {
             if (status.opening == 1) {
               if (tokens > 0 && tokens <= 50 && tokens % 1 == 0) {
                 Members.getById(
@@ -85,7 +88,7 @@ router.post(
                     }
                   },
                   function(err, member) {
-                    if (member) {
+                    if (!err && member) {
                       Members.updateBalance(
                         member_id,
                         +member.balance + +tokens,
@@ -110,47 +113,48 @@ router.post(
                             member.first_name + " " + member.last_name;
                           member.membership_expires =
                             member.current_exp_membership;
-                          Tills.addTransaction(formattedTransaction, function(
-                            err
-                          ) {
-                            if (member.contactPreferences.donations) {
-                              Mail.sendDonation(
-                                member,
+                          Transactions.addTransaction(
+                            formattedTransaction,
+                            function(err) {
+                              if (member.contactPreferences.donations) {
+                                Mail.sendDonation(
+                                  member,
 
-                                function(err) {
-                                  if (err) {
-                                    response.msg =
-                                      "Tokens added but something went wrong notifying the member!";
-                                  } else {
-                                    response.status = "ok";
-                                    response.msg =
-                                      "Tokens added and member notified!";
-                                    response.member = {
-                                      id: member.member_id,
-                                      name: member.name,
-                                      balance: member.balance,
-                                      is_member: 1,
-                                      membership_expires:
-                                        member.membership_expires
-                                    };
-                                    res.send(response);
+                                  function(err) {
+                                    if (err) {
+                                      response.msg =
+                                        "Tokens added but something went wrong notifying the member!";
+                                    } else {
+                                      response.status = "ok";
+                                      response.msg =
+                                        "Tokens added and member notified!";
+                                      response.member = {
+                                        id: member.member_id,
+                                        name: member.name,
+                                        balance: member.balance,
+                                        is_member: 1,
+                                        membership_expires:
+                                          member.membership_expires
+                                      };
+                                      res.send(response);
+                                    }
                                   }
-                                }
-                              );
-                            } else {
-                              response.status = "ok";
-                              response.msg =
-                                "Tokens added! Member has asked not to be notified by email.";
-                              response.member = {
-                                id: member.member_id,
-                                name: member.name,
-                                balance: member.balance,
-                                is_member: 1,
-                                membership_expires: member.membership_expires
-                              };
-                              res.send(response);
+                                );
+                              } else {
+                                response.status = "ok";
+                                response.msg =
+                                  "Tokens added! Member has asked not to be notified by email.";
+                                response.member = {
+                                  id: member.member_id,
+                                  name: member.name,
+                                  balance: member.balance,
+                                  is_member: 1,
+                                  membership_expires: member.membership_expires
+                                };
+                                res.send(response);
+                              }
                             }
-                          });
+                          );
                         }
                       );
                     } else {

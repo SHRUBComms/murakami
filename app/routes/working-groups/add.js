@@ -5,7 +5,8 @@ var h2p = require("html2plaintext");
 
 var rootDir = process.env.CWD;
 
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

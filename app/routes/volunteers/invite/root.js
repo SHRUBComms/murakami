@@ -13,6 +13,7 @@ var Members = Models.Members;
 var Volunteers = Models.Volunteers;
 var VolunteerRoles = Models.VolunteerRoles;
 var AccessTokens = Models.AccessTokens;
+
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -119,7 +120,7 @@ router.post(
                           details.first_name = first_name;
                           details.last_name = last_name;
 
-                          AccessTokens.createToken(details, function(
+                          AccessTokens.createInvite(details, function(
                             err,
                             token
                           ) {

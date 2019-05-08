@@ -4,8 +4,10 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var Tills = Models.Tills;
+var TillActivity = Models.TillActivity;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -14,14 +16,14 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "open"),
   function(req, res) {
-    Tills.getTillById(req.params.till_id, function(err, till) {
+    Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
         if (
           req.user.permissions.tills.open == true ||
           (req.user.permissions.tills.open == "commonWorkingGroup" &&
             req.user.working_groups.includes(till.group_id))
         ) {
-          Tills.getStatusById(req.params.till_id, function(status) {
+          TillActivity.getByTillId(req.params.till_id, function(status) {
             if (status.opening == 0) {
               WorkingGroups.getAll(function(err, allWorkingGroups) {
                 var group = allWorkingGroups[till.group_id];
@@ -56,11 +58,11 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
   var note = req.body.note;
 
   if (counted_float > 0) {
-    Tills.getTillById(req.params.till_id, function(err, till) {
+    Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
-        Tills.getStatusById(req.params.till_id, function(status) {
+        TillActivity.getByTillId(req.params.till_id, function(status) {
           if (status.opening == "0") {
-            Tills.open(
+            TillActivity.open(
               req.params.till_id,
               counted_float,
               req.user.id,

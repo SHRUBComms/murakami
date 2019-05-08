@@ -8,8 +8,11 @@ var sanitizeHtml = require("sanitize-html");
 
 var rootDir = process.env.CWD;
 
-var FoodCollections = require(rootDir + "/app/models/food-collections");
-var Members = require(rootDir + "/app/models/members");
+var Models = require(rootDir + "/app/models/sequelize");
+
+var FoodCollections = Models.FoodCollections;
+var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -21,15 +24,16 @@ router.get(
     var formattedCollections = [];
     Members.getAll(function(err, members, membersObj) {
       if (!err && membersObj) {
-        FoodCollections.getOrganisations(function(err, organisations) {
+        FoodCollectionsOrganisations.getAll(function(err, organisations) {
           if (!err && organisations) {
             FoodCollections.getUnreviewedCollections(
               function(err, collections) {
                 async.each(
                   collections,
                   function(collection, callback) {
+                    var formattedCollection = {};
                     if (membersObj[collection.member_id]) {
-                      collection.name =
+                      formattedCollection.name =
                         "<a href='" +
                         process.env.PUBLIC_ADDRESS +
                         "/volunteers/view/" +
@@ -40,7 +44,7 @@ router.get(
                         membersObj[collection.member_id].last_name +
                         "</a>";
                     } else {
-                      collection.name =
+                      formattedCollection.name =
                         "<a href='" +
                         process.env.PUBLIC_ADDRESS +
                         "/volunteers/view/" +
@@ -48,19 +52,23 @@ router.get(
                         "'>Unknown</a>";
                     }
 
-                    collection.organisation =
+                    formattedCollection.organisation =
                       organisations[collection.organisation_id].name ||
                       "Unknown";
 
-                    collection.date = moment(collection.timestamp).format("l");
-                    collection.amount = collection.amount;
-                    collection.note = collection.note || "-";
-                    if (collection.note == "null") {
-                      collection.note = "-";
+                    formattedCollection.date = moment(
+                      collection.timestamp
+                    ).format("l");
+                    formattedCollection.amount = collection.amount;
+                    formattedCollection.note = collection.note || "-";
+                    if (formattedCollection.note == "null") {
+                      formattedCollection.note = "-";
                     }
-                    collection.note = sanitizeHtml(collection.note);
+                    formattedCollection.note = sanitizeHtml(
+                      formattedCollection.note
+                    );
 
-                    collection.options =
+                    formattedCollection.options =
                       '<div class="btn-group d-flex">' +
                       '<a class="btn btn-success w-100" onclick="foodCollectionsAjax(\'' +
                       process.env.PUBLIC_ADDRESS +
@@ -73,7 +81,7 @@ router.get(
                       collection.transaction_id +
                       "')\">Deny</a>" +
                       "</div>";
-                    formattedCollections.push(collection);
+                    formattedCollections.push(formattedCollection);
                     callback();
                   },
                   function() {

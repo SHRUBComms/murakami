@@ -1,8 +1,6 @@
 /* jshint indent: 2 */
 
-var async = require("async");
-var moment = require("moment");
-moment.locale("en-gb");
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
 
 module.exports = function(sequelize, DataTypes) {
   var VolunteerRoles = sequelize.define(
@@ -46,10 +44,11 @@ module.exports = function(sequelize, DataTypes) {
     }
   );
 
-  VolunteerRoles.getAll = require("./methods/getAll")(
+  Helpers.includeAllModelMethods(
     VolunteerRoles,
     sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/volunteer_roles/methods/"
   );
 
   return VolunteerRoles;

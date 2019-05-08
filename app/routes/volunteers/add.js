@@ -174,9 +174,9 @@ router.post(
 
         current_exp_membership = moment(today)
           .add(3, "months")
-          .format("YYYY-MM-DD");
+          .toDate("YYYY-MM-DD");
 
-        var earliest_membership_date = moment(today).format("YYYY-MM-DD");
+        var earliest_membership_date = moment(today).toDate();
         var current_init_membership = earliest_membership_date;
 
         //Volunteer Validation

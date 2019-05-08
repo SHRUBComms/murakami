@@ -1,7 +1,9 @@
 /* jshint indent: 2 */
 
-var DataPermissions = function(sequelize, DataTypes) {
-  return sequelize.define(
+var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+
+module.exports = function(sequelize, DataTypes) {
+  var DataPermissions = sequelize.define(
     "data_permissions",
     {
       class: {
@@ -20,17 +22,12 @@ var DataPermissions = function(sequelize, DataTypes) {
     }
   );
 
-  DataPermissions.getAll = require("./methods/getAll")(
+  Helpers.includeAllModelMethods(
     DataPermissions,
     sequelize,
-    DataTypes
+    DataTypes,
+    process.env.CWD + "/app/models/data_permissions/methods/"
   );
 
-  DataPermissions.updatePermission = require("./methods/updatePermission")(
-    DataPermissions,
-    sequelize,
-    DataTypes
-  );
+  return DataPermissions;
 };
-
-module.exports = DataPermissions;

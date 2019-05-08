@@ -46,18 +46,9 @@ module.exports = function(Members, sequelize, DataType) {
       }
 
       try {
-        member.current_exp_membership = moment(
-          member.current_exp_membership
-        ).format("L");
         if (member.current_exp_membership == "01/01/9999") {
           member.current_exp_membership = "never";
         }
-        member.current_init_membership = moment(
-          member.current_init_membership
-        ).format("L");
-        member.earliest_membership_date = moment(
-          member.earliest_membership_date
-        ).format("L");
       } catch (err) {}
 
       async.each(
@@ -122,6 +113,16 @@ module.exports = function(Members, sequelize, DataType) {
               sanitizedMember.email = member.email;
               sanitizedMember.phone_no = member.phone_no;
               sanitizedMember.address = member.address;
+            }
+          } catch (err) {}
+
+          try {
+            if (
+              user.permissions.members.barcode == true ||
+              (user.permissions.members.barcode == "commonWorkingGroup" &&
+                commonWorkingGroup)
+            ) {
+              sanitizedMember.barcode = member.barcode;
             }
           } catch (err) {}
 

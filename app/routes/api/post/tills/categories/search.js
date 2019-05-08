@@ -5,7 +5,8 @@ var async = require("async");
 
 var rootDir = process.env.CWD;
 
-var Tills = require(rootDir + "/app/models/tills");
+var Models = require(rootDir + "/app/models/sequelize");
+var StockCategories = Models.StockCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/configs/helpful_functions");
@@ -17,7 +18,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
   var term = req.body.term;
   var till_id = req.body.till_id;
-  Tills.getCategoriesByTillId(till_id, "tree", function(err, categories) {
+  StockCategories.getCategoriesByTillId(till_id, "tree", function(
+    err,
+    categories
+  ) {
     if (err || !categories) {
       res.send(response);
     } else {

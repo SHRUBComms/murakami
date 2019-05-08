@@ -5,10 +5,11 @@ var moment = require("moment");
 
 var rootDir = process.env.CWD;
 
-var VolunteerHours = require(rootDir + "/app/models/volunteer-hours");
+var Models = require(rootDir + "/app/models/sequelize");
+var VolunteerHours = Models.VolunteerHours;
 
-var Tills = require(rootDir + "/app/models/tills");
-var Members = require(rootDir + "/app/models/members");
+var Tills = Models.Tills;
+var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
@@ -23,13 +24,11 @@ router.get(
     };
 
     VolunteerHours.getShiftById(req.params.shift_id, function(err, shift) {
-      if (err || !shift[0]) {
+      if (err || !shift) {
         message.status = "fail";
         message.msg = "Couldn't find that shift!";
         res.send(message);
       } else {
-        shift = shift[0];
-
         Members.getById(shift.member_id, req.user, function(err, member) {
           if (
             req.user.permissions.volunteerHours.review == true ||
