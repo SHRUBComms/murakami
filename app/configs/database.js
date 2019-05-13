@@ -6,7 +6,7 @@ module.exports = {
     password: process.env.DEV_DB_PASS,
     database: process.env.DEV_DB_NAME,
     host: process.env.DEV_DB_HOST,
-    dialect: "mysql",
+    dialect: "mysql"
   },
   test: {
     username: process.env.TEST_DB_USER,
