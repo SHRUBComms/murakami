@@ -8,7 +8,7 @@ module.exports = function(VolunteerCheckIns, sequelize, DataTypes) {
         checkin_id: checkin_id,
         member_id: member_id,
         user_id: user_id,
-        questionnaire: JSON.stringify(questionnaire),
+        questionnaire: questionnaire,
         timestamp: new Date()
       }).nodeify(callback);
     });

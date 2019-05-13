@@ -1,10 +1,9 @@
 module.exports = function(VolunteerCheckIns, sequelize, DataTypes) {
   return function(checkin, callback) {
-    try {
-      checkin.questionnaire = JSON.parse(checkin.questionnaire);
-    } catch (err) {
+    if (!checkin.questionnaire) {
       checkin.questionnaire = {};
     }
+
     callback(checkin);
   };
 };

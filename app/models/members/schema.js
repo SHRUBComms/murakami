@@ -45,12 +45,14 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       working_groups: {
-        type: DataTypes.TEXT,
-        allowNull: true
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: []
       },
       contactPreferences: {
-        type: DataTypes.TEXT,
-        allowNull: true
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {}
       },
       balance: {
         type: DataTypes.INTEGER(10),

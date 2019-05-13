@@ -12,8 +12,8 @@ module.exports = function(VolunteerRoles, sequelize, DataTypes) {
       VolunteerRoles.create({
         role_id: role_id,
         group_id: group_id,
-        details: JSON.stringify(role),
-        availability: JSON.stringify(availability),
+        details: role,
+        availability: availability,
         dateCreated: new Date(),
         public: 0
       }).nodeify(function(err) {

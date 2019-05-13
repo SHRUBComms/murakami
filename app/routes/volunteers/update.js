@@ -459,14 +459,13 @@ router.post(
                     ) {
                       Members.updateWorkingGroups(
                         member.member_id,
-                        JSON.stringify(member.working_groups),
+                        member.working_groups,
                         function(err) {
                           Volunteers.updateVolunteer(
                             member.member_id,
                             volInfo,
                             function(err) {
                               if (err) {
-                                
                                 res.render("volunteers/update", {
                                   errors: [{ msg: "Something went wrong!" }],
                                   title: "Update Volunteer",

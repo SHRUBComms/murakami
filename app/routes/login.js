@@ -1,6 +1,8 @@
 // /login
 
 var router = require("express").Router();
+var moment = require("moment");
+moment.locale("en-gb");
 var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
 
@@ -9,7 +11,7 @@ var rootDir = process.env.CWD;
 var Models = require(rootDir + "/app/models/sequelize");
 
 var Users = Models.Users;
-var Attempts = Models.Attempts;
+var Activity = Models.Activity;
 var Settings = Models.Settings;
 
 passport.use(
@@ -22,33 +24,45 @@ passport.use(
     function(req, username, password, done) {
       Users.getByUsernameOrEmail(username, function(err, user) {
         if (user) {
-          Attempts.getAllFailedAttemptsThisHour(user.id, function(
-            err,
-            attempts
-          ) {
-            if (attempts.length <= 5) {
+          Activity.findAll({
+            where: {
+              user_id: user.id,
+              action: "login",
+              createdAt: {
+                [Models.Sequelize.Op.gte]: moment()
+                  .subtract(60, "minutes")
+                  .toDate()
+              },
+              details: { outcome: 0 }
+            }
+          }).nodeify(function(err, failedAttempts) {
+            if (failedAttempts.length <= 5) {
               Users.comparePassword(password, user.password, function(
                 err,
                 isMatch
               ) {
                 if (isMatch) {
-                  Attempts.create({
+                  Activity.create({
                     user_id: user.id,
-                    ip_address:
-                      req.headers["x-forwarded-for"] ||
-                      req.connection.remoteAddress,
-                    outcome: 1,
-                    login_timestamp: new Date()
+                    action: "login",
+                    details: {
+                      ip_address:
+                        req.headers["x-forwarded-for"] ||
+                        req.connection.remoteAddress,
+                      outcome: 1
+                    }
                   });
                   return done(null, user);
                 } else {
-                  Attempts.create({
+                  Activity.create({
                     user_id: user.id,
-                    ip_address:
-                      req.headers["x-forwarded-for"] ||
-                      req.connection.remoteAddress,
-                    outcome: 0,
-                    login_timestamp: new Date()
+                    action: "login",
+                    details: {
+                      ip_address:
+                        req.headers["x-forwarded-for"] ||
+                        req.connection.remoteAddress,
+                      outcome: 0
+                    }
                   });
                   return done(null, false, { message: "Wrong password!" });
                 }
@@ -56,9 +70,7 @@ passport.use(
             } else {
               return done(null, false, {
                 message:
-                  'This account is locked. <a href="' +
-                  process.env.PUBLIC_ADDRESS +
-                  '/support">Contact support</a>'
+                  "This account has been temporarily locked due to too many unsuccessful login attempts. Try again in 1 hour."
               });
             }
           });

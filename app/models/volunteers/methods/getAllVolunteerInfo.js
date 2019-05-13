@@ -8,8 +8,6 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
           volunteerInfo,
           function(volunteer, i, callback) {
             if (volunteer.working_groups) {
-              volunteer.working_groups = JSON.parse(volunteer.working_groups);
-
               async.eachOf(
                 volunteer.working_groups,
                 function(wg, j, callback) {
@@ -21,8 +19,6 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                 function(err) {}
               );
             }
-
-            volunteer.survey = JSON.parse(volunteer.survey);
 
             Object.keys(volunteer.survey.preferredCommMethod).forEach(function(
               key
@@ -57,8 +53,6 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
               la: "Late Afternoons (4-6)",
               e: "Evenings (6-8)"
             };
-
-            volunteer.availability = JSON.parse(volunteer.availability);
 
             var plainTimes = [];
 

@@ -10,7 +10,6 @@ module.exports = function(CarbonCategories, sequelize, DataTypes) {
       async.each(
         categories,
         function(category, callback) {
-          category.factors = JSON.parse(category.factors);
           categoriesObj[category.carbon_id] = category;
           callback();
         },

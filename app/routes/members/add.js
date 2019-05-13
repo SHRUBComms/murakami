@@ -319,7 +319,6 @@ router.post(
                   paymentMethod: null
                 }
               };
-              transaction.summary = JSON.stringify(transaction.summary);
               Transactions.addTransaction(transaction, function(err) {
                 Members.updateBalance(member_id, 5, function(err) {});
               });

@@ -29,30 +29,27 @@ var sequelize = new Sequelize(
   }
 );
 
-sequelize
-  .authenticate()
-  .then(function() {})
-  .catch(function(err) {
+sequelize.authenticate().nodeify(function(err) {
+  if (!err) {
+    console.log("Connected to database successfully!");
+    sequelize.sync().nodeify(function() {
+      console.log("Synced tables.");
+    });
+  } else {
     console.error("Unable to connect to the database:", err);
-  });
-
-/*Helpers.includeAllModelMethods(
-    Users,
-    sequelize,
-    DataTypes,
-    process.env.CWD + "/app/models/users/methods/",
-    function(Users) {}
-  );*/
+  }
+});
 
 var rootDir = process.env.CWD;
 
 var Models = {
+  Sequelize: Sequelize,
   sequelize: sequelize,
   AccessTokens: require(rootDir + "/app/models/access_tokens/schema")(
     sequelize,
     Sequelize
   ),
-  Attempts: require(rootDir + "/app/models/attempts/schema")(
+  Activity: require(rootDir + "/app/models/activity/schema")(
     sequelize,
     Sequelize
   ),
@@ -127,49 +124,6 @@ var Models = {
   )
 };
 
-Models.Volunteers.getSignUpInfo = function(callback) {
-  Models.VolunteerRoles.getAll(function(
-    err,
-    roles,
-    rolesGroupedByGroup,
-    rolesGroupedById
-  ) {
-    Models.Settings.getAll(function(err, settings) {
-      callback(
-        settings.activities,
-        settings.contactMethods,
-        roles,
-        rolesGroupedByGroup,
-        rolesGroupedById,
-        settings.volunteerAgreement,
-        settings.ourVision,
-        settings.saferSpacesPolicy,
-        settings.membershipBenefits,
-        settings.privacyNotice
-      );
-    });
-  });
-};
-
-Models.Members.getSignUpInfo = function(callback) {
-  Models.Settings.getAll(function(err, settings) {
-    callback(
-      settings.ourVision,
-      settings.saferSpacesPolicy,
-      settings.membershipBenefits,
-      settings.privacyNotice
-    );
-  });
-};
-
-Models.VolunteerRoles.getRoleSignUpInfo = function(callback) {
-  Models.Settings.getAll(function(err, settings) {
-    callback(
-      settings.locations,
-      settings.activities,
-      settings.commitmentLengths
-    );
-  });
-};
+require("./additional-methods")(Models);
 
 module.exports = Models;

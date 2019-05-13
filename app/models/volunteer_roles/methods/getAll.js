@@ -10,8 +10,6 @@ module.exports = function(VolunteerRoles, sequelize, DataTypes) {
         async.each(
           roles,
           function(role, callback) {
-            role.details = JSON.parse(role.details);
-
             if (Object.keys(role.details).length == 1) {
               role.incomplete = true;
             } else {

@@ -38,11 +38,11 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       working_groups: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: true
       },
       notification_preferences: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: true
       },
       created_at: {

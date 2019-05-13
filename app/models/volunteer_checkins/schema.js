@@ -20,7 +20,7 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       questionnaire: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       timestamp: {

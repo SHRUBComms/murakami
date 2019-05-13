@@ -123,9 +123,6 @@ router.post(
             });
 
             if (formattedTransaction.amount > 0) {
-              formattedTransaction.trans_object = JSON.stringify(
-                formattedTransaction.trans_object
-              );
               Carbon.add(formattedTransaction, function(err) {
                 if (err) {
                   message.status = "fail";

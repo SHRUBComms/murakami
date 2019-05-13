@@ -19,29 +19,22 @@ module.exports = function(Members, sequelize, DataType) {
 
     if (member) {
       member.full_name = member.first_name + " " + member.last_name;
-      try {
-        member.working_groups = JSON.parse(member.working_groups);
-      } catch (err) {
+
+      if (!member.working_groups) {
         member.working_groups = [];
       }
 
-      try {
-        member.roles = JSON.parse(member.roles);
-      } catch (err) {
+      if (!member.roles) {
         member.roles = [];
       }
 
-      if (member.contactPreferences) {
-        member.contactPreferences = JSON.parse(member.contactPreferences);
-      } else {
+      if (!member.contactPreferences) {
         member.contactPreferences = {
           donations: true
         };
       }
 
-      try {
-        member.gdpr = JSON.parse(member.gdpr);
-      } catch (err) {
+      if (!member.gdpr) {
         member.gdpr = {};
       }
 

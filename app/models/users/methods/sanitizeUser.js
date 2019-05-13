@@ -29,14 +29,13 @@ module.exports = function(Users, sequelize, DataTypes) {
         }
 
         if (user.working_groups) {
-          user.working_groups = JSON.parse(user.working_groups) || [];
+          user.working_groups = user.working_groups || [];
         }
 
         user.full_name = user.first_name + " " + user.last_name;
 
         if (user.notification_preferences && isUser) {
-          user.notification_preferences =
-            JSON.parse(user.notification_preferences) || {};
+          user.notification_preferences = user.notification_preferences || {};
         } else {
           user.notification_preferences = {};
         }
@@ -123,7 +122,7 @@ module.exports = function(Users, sequelize, DataTypes) {
           sanitizedUser.deactivated = user.deactivated;
 
           if (user.permissions) {
-            sanitizedUser.permissions = JSON.parse(user.permissions);
+            sanitizedUser.permissions = user.permissions;
           }
 
           usersObj[user.id] = sanitizedUser;

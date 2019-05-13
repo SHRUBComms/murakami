@@ -20,15 +20,7 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
             volunteer.full_name =
               volunteer.first_name + " " + volunteer.last_name;
 
-            if (volunteer.contactPreferences) {
-              try {
-                volunteer.contactPreferences = JSON.parse(
-                  volunteer.contactPreferences
-                );
-              } catch (err) {
-                volunteer.contactPreferences = {};
-              }
-            } else {
+            if (!volunteer.contactPreferences) {
               volunteer.contactPreferences = {
                 donations: true
               };
@@ -117,13 +109,7 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
               volunteer.needsToUpdate = false;
             }
 
-            if (volunteer.roles) {
-              try {
-                volunteer.roles = JSON.parse(volunteer.roles);
-              } catch (err) {
-                volunteer.roles = [];
-              }
-            } else {
+            if (!volunteer.roles) {
               volunteer.roles = [];
             }
 
@@ -134,12 +120,8 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
             }
 
             if (volunteer.working_groups) {
-              try {
-                volunteer.working_groups =
-                  JSON.parse(volunteer.working_groups) || [];
-              } catch (err) {
-                volunteer.working_groups = [];
-              }
+              volunteer.working_groups = volunteer.working_groups || [];
+
               if (!Array.isArray(volunteer.working_groups)) {
                 volunteer.working_groups = [];
               }
@@ -149,41 +131,19 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
               volunteer.old_working_groups = [];
             }
 
-            if (volunteer.assignedCoordinators) {
-              try {
-                volunteer.assignedCoordinators = JSON.parse(
-                  volunteer.assignedCoordinators
-                );
-              } catch (err) {
-                volunteer.assignedCoordinators = [];
-              }
-            } else {
+            if (!volunteer.assignedCoordinators) {
               volunteer.assignedCoordinators = [];
             }
 
-            if (volunteer.survey) {
-              try {
-                volunteer.survey = JSON.parse(volunteer.survey);
-              } catch (err) {
-                volunteer.survey = {};
-              }
-            } else {
+            if (!volunteer.survey) {
               volunteer.survey = {};
             }
 
-            if (volunteer.availability) {
-              try {
-                volunteer.availability = JSON.parse(volunteer.availability);
-              } catch (err) {}
-            } else {
+            if (!volunteer.availability) {
               volunteer.availability = {};
             }
 
-            if (volunteer.gdpr) {
-              try {
-                volunteer.gdpr = JSON.parse(volunteer.gdpr);
-              } catch (err) {}
-            } else {
+            if (!volunteer.gdpr) {
               volunteer.gdpr = {};
             }
             volunteer.dateCreated = moment(volunteer.dateCreated);

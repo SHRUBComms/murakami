@@ -13,8 +13,6 @@ module.exports = function(Transactions, sequelize, DataTypes) {
         async.each(
           transactions,
           function(transaction, callback) {
-            transaction.summary = JSON.parse(transaction.summary);
-
             if (
               transaction.summary.paymentMethod == "cash" &&
               !isNaN(transaction.summary.totals.money)

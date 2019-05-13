@@ -1,0 +1,7 @@
+require("dotenv").config();
+
+module.exports = {
+  'config': process.env.CWD + "/app/configs/database.js",
+  'migrations-path': process.env.CWD + "/app/migrations",
+  'models-path': process.env.CWD + "/app/models"
+};

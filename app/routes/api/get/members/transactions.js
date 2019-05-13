@@ -49,8 +49,6 @@ router.get(
                       function(transaction, callback) {
                         let formattedTransaction = {};
 
-                        transaction.summary = JSON.parse(transaction.summary);
-
                         formattedTransaction.date = moment(transaction.date);
                         formattedTransaction.date = moment(
                           formattedTransaction.date

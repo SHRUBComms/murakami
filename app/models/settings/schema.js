@@ -14,7 +14,7 @@ module.exports = function(sequelize, DataTypes) {
         primaryKey: true
       },
       data: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       }
     },

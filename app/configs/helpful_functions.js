@@ -192,39 +192,11 @@ Helpers.treeify = function(list, callback) {
   callback(roots);
 };
 
-Helpers.calculateCarbon = function(carbon, carbonCategoriesRaw, callback) {
-  var totalCarbon = 0;
-  var carbonCategories = {};
-
-  async.each(
-    carbonCategoriesRaw,
-    function(category, callback) {
-      carbonCategories[category.carbon_id] = category.factors;
-      callback();
-    },
-    function() {
-      for (let i = 0; i < carbon.length; i++) {
-        carbon[i].trans_object = JSON.parse(carbon[i].trans_object);
-
-        Object.keys(carbon[i].trans_object).forEach(function(key) {
-          if (carbonCategories[key]) {
-            totalCarbon +=
-              carbon[i].trans_object[key] *
-              carbonCategories[key][carbon[i].method] *
-              1e-3;
-          }
-        });
-      }
-      callback(totalCarbon);
-    }
-  );
-};
-
 Helpers.calculateCarbon = function(carbon, carbonCategories, callback) {
   var totalCarbon = 0;
 
   for (let i = 0; i < carbon.length; i++) {
-    carbon[i].trans_object = JSON.parse(carbon[i].trans_object);
+    carbon[i].trans_object = carbon[i].trans_object;
 
     Object.keys(carbon[i].trans_object).forEach(function(key) {
       if (carbonCategories[key]) {
@@ -290,7 +262,6 @@ Helpers.getCommonItemsInArray = function(array1, array2) {
 };
 
 Helpers.getRevenue = function(transaction) {
-  transaction.summary = JSON.parse(transaction.summary);
   if (
     !isNaN(transaction.summary.totals.money) &&
     transaction.summary.totals.money > 0

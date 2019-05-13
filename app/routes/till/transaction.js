@@ -468,10 +468,6 @@ router.post(
                     if (["cash", "card", null].includes(paymentMethod)) {
                       formattedTransaction.summary.paymentMethod = paymentMethod;
 
-                      formattedTransaction.summary = JSON.stringify(
-                        formattedTransaction.summary
-                      );
-
                       Transactions.addTransaction(
                         formattedTransaction,
                         function(err, transaction_id) {
@@ -484,7 +480,7 @@ router.post(
                             var carbon = {
                               member_id: "anon",
                               user_id: req.user.id,
-                              trans_object: JSON.stringify(carbonTransaction),
+                              trans_object: carbonTransaction,
                               amount: weight_total,
                               group_id: till.group_id,
                               method: "reused"

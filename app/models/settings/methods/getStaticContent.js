@@ -18,7 +18,7 @@ module.exports = function(Settings, sequelize, DataTypes) {
       async.each(
         settings,
         function(setting, callback) {
-          setting.data = JSON.parse(setting.data);
+          setting.data = setting.data;
           callback();
         },
         function() {

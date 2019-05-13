@@ -62,8 +62,6 @@ router.get("/:till_id", Auth.verifyByKey, function(req, res) {
               async.each(
                 transactions,
                 function(transaction, callback) {
-                  transaction.summary = JSON.parse(transaction.summary);
-
                   if (
                     !isNaN(transaction.summary.totals.money) &&
                     transaction.summary.totals.money > 0

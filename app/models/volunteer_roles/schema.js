@@ -16,11 +16,11 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: true
       },
       details: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       availability: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: true
       },
       dateCreated: {

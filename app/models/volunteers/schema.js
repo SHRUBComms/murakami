@@ -24,23 +24,23 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       roles: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       assignedCoordinators: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       survey: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       availability: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       gdpr: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       dateCreated: {

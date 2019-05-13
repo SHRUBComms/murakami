@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       factors: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       active: {

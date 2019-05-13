@@ -3,7 +3,7 @@ module.exports = function(Members, sequelize, DataTypes) {
     delete contactPreferences.newsletters;
 
     Members.update(
-      { contactPreferences: JSON.stringify(contactPreferences) },
+      { contactPreferences: contactPreferences },
       { where: { member_id: member_id } }
     ).nodeify(callback);
   };

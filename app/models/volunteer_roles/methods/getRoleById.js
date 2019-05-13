@@ -5,14 +5,13 @@ module.exports = function(VolunteerRoles, sequelize, DataTypes) {
       role
     ) {
       if (role) {
-        role.details = JSON.parse(role.details);
         if (Object.keys(role.details).length == 1) {
           role.incomplete = true;
         } else {
           role.incomplete = false;
         }
 
-        role.availability = JSON.parse(role.availability) || {};
+        role.availability = role.availability || {};
 
         callback(err, role);
       } else {

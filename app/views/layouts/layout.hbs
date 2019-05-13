@@ -580,4 +580,12 @@ $('body').on('input', ":input", function(){
   }
 })
 
+$("form").each(function() {
+    $(this).attr("autocomplete", "off")
+});
+$(":input").each(function() {
+    $(this).attr("autocomplete", "__away")
+});
+
+
 </script>

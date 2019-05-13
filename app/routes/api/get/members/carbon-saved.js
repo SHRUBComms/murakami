@@ -7,6 +7,7 @@ var rootDir = process.env.CWD;
 var Models = require(rootDir + "/app/models/sequelize");
 
 var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
 var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");

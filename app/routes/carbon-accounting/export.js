@@ -72,9 +72,6 @@ router.get(
                   rawCarbon,
                   function(transaction, callback) {
                     if (transaction.method == method) {
-                      transaction.trans_object = JSON.parse(
-                        transaction.trans_object
-                      );
                       async.eachOf(
                         transaction.trans_object,
                         function(amount, itemId, callback) {

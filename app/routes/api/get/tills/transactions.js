@@ -50,10 +50,6 @@ router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
                             function(transaction, callback) {
                               let formattedTransaction = {};
 
-                              transaction.summary = JSON.parse(
-                                transaction.summary
-                              );
-
                               formattedTransaction.date = moment(
                                 transaction.date
                               );

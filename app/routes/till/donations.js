@@ -104,9 +104,6 @@ router.post(
                             }
                           };
 
-                          formattedTransaction.summary = JSON.stringify(
-                            formattedTransaction.summary
-                          );
                           member.balance = +member.balance + +tokens;
                           member.tokens = tokens;
                           member.name =

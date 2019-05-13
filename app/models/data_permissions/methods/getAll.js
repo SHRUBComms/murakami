@@ -10,9 +10,9 @@ module.exports = function(DataPermissions, sequelize, DataTypes) {
       async.each(
         dataPermissions,
         function(classPermission, callback) {
-          formattedPermissions[classPermission.class] = JSON.parse(
-            classPermission.permissions
-          );
+          formattedPermissions[classPermission.class] =
+            classPermission.permissions;
+
           callback();
         },
         function() {

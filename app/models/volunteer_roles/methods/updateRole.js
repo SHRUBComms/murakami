@@ -8,8 +8,8 @@ module.exports = function(VolunteerRoles, sequelize, DataTypes) {
     VolunteerRoles.update(
       {
         group_id: group_id,
-        details: JSON.stringify(role),
-        availability: JSON.stringify(role.availability)
+        details: role,
+        availability: role.availability
       },
       { where: { role_id: role_id } }
     ).nodeify(function(err) {

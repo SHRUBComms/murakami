@@ -24,7 +24,7 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       trans_object: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       method: {

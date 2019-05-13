@@ -202,7 +202,6 @@ router.post(
           }
 
           if (!Helpers.allBelongTo(working_groups, validWorkingGroups)) {
-            
             errors.push({
               msg: "Please select valid working groups."
             });
@@ -238,19 +237,13 @@ router.post(
             }
 
             if (req.user.permissions.users.workingGroups || isUser) {
-              updatedUser.working_groups = JSON.stringify(
-                working_groups.sort()
-              );
+              updatedUser.working_groups = working_groups.sort();
             } else {
-              updatedUser.working_groups = JSON.stringify(
-                user.working_groups.sort()
-              );
+              updatedUser.working_groups = user.working_groups.sort();
             }
 
             if (isUser) {
-              updatedUser.notification_preferences = JSON.stringify(
-                sanitized_notification_preferences
-              );
+              updatedUser.notification_preferences = sanitized_notification_preferences;
             }
 
             Users.update(updatedUser, function(err, user) {

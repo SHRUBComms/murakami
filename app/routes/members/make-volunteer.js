@@ -357,8 +357,6 @@ router.post("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
                     req.params.member_id,
                     volInfo,
                     function(err) {
-                      
-                      
                       if (err) {
                         res.render("members/make-volunteer", {
                           errors: [{ msg: "Something went wrong!" }],
@@ -374,7 +372,7 @@ router.post("/:member_id", Auth.canAccessPage("volunteers", "add"), function(
                       } else {
                         Members.updateWorkingGroups(
                           member.member_id,
-                          JSON.stringify(member.working_groups),
+                          member.working_groups,
                           function(err) {}
                         );
 

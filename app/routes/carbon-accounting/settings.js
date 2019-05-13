@@ -69,7 +69,7 @@ router.post(
             category.factors[key] = factors[key] || 0;
           }
         });
-        category.factors = JSON.stringify(category.factors);
+        category.factors;
         CarbonCategories.updateCategory(category, function(err) {
           if (err) {
             req.flash("error_msg", "Something went wrong!");
