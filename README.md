@@ -26,8 +26,9 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 - NPM
 - MySQL
 
-### Installation
+# Contributing
 
+## Set Up
 - Clone the repo
 
 ```sh
@@ -41,8 +42,24 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 
 - Make a copy of .env.sample called .env, and fill out the details
 
-### Deployment
+## Running Locally
 
 ```sh
 ~/murakami $ node server.js
 ```
+
+## Quick Start
+
+### Database & ORM
+
+As mentioned, MySQL is used. The ORM used is `sequelize`. The following helper scripts are implemented in the `package.json`:
+
+* `npm run db-create` - Create a fresh database
+* `npm run db-destroy` - Destroy the existing database (fresh start?)
+* `npm run db-migrate` - Run existing migrations
+
+### Unit Testing
+
+[WIP]
+
+* `npm run tests`
