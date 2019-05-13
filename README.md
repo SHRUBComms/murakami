@@ -57,9 +57,16 @@ As mentioned, MySQL is used. The ORM used is `sequelize`. The following helper s
 * `npm run db-create` - Create a fresh database
 * `npm run db-destroy` - Destroy the existing database (fresh start?)
 * `npm run db-migrate` - Run existing migrations
+* `npm run db-downgrade` - Downgrade last migration
 
 ### Unit Testing
 
 [WIP]
 
 * `npm run tests`
+
+### Running
+
+The `server.js` file will run the server when called. There is a `package.json` script for this too:
+
+* `npm run start`
