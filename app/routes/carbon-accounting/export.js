@@ -75,7 +75,6 @@ router.get(
                       async.eachOf(
                         transaction.trans_object,
                         function(amount, itemId, callback) {
-                          console.log(itemId);
                           formattedData[itemId].raw += amount;
 
                           formattedData[itemId].saved +=
@@ -92,7 +91,6 @@ router.get(
                     }
                   },
                   function() {
-                    console.log(formattedData);
                     async.each(
                       formattedData,
                       function(carbon, callback) {

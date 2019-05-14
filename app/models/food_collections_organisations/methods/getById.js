@@ -6,7 +6,6 @@ module.exports = function(FoodCollectionsOrganisations, sequelize, DataTypes) {
     sequelize
       .query(query, { replacements: [organisation_id] })
       .nodeify(function(err, organisation) {
-        console.log(err);
         if (organisation[0][0]) {
           callback(err, organisation[0][0]);
         } else {

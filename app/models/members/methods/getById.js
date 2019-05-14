@@ -22,7 +22,6 @@ module.exports = function(Members, sequelize, DataType) {
             callback(err, null);
           }
         } catch (err) {
-          console.log(err);
           callback("Member not found", null);
         }
       });

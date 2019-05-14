@@ -7,7 +7,6 @@ var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(Users, sequelize, DataTypes) {
   return function(users, loggedInUserObj, callback) {
-    console.log("Users:", users);
     var usersObj = {};
     var sanitizedUsers = [];
 
