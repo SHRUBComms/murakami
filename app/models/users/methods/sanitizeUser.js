@@ -15,7 +15,6 @@ module.exports = function(Users, sequelize, DataTypes) {
       users,
       function(user, i, loopCallback) {
         if (user) {
-          console.log("user found");
           var sanitizedUser = {};
 
           var loggedInUser = lodash.clone(loggedInUserObj);
