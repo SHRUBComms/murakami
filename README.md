@@ -30,26 +30,32 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 
 ## Set Up
 
-- Clone the repo
+- Clone the repo and install dependencies:
 
 ```sh
 ~ $ git clone https://github.com/honeypieio/murakami
 ~ $ cd murakami
 ~/murakami $ npm install
-~/murakami $ nano .env
 ```
 
-- Create the databases from the `.sql` files in `./schemas`
-
 - Make a copy of .env.sample called .env, and fill out the details
+
+- Create an instance of the database:
+
+```sh
+npm run db-create
+npm run db-migrate
+```
 
 ## Running Locally
 
 ```sh
 ~/murakami $ node server.js
+### DEVELOPMENT ###
+Server started on local port 3000
+Running on public address localhost:3000
+Connected to database successfully!
 ```
-
-## Quick Start
 
 ### Database & ORM
 
