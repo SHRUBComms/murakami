@@ -32,9 +32,6 @@ var sequelize = new Sequelize(
 sequelize.authenticate().nodeify(function(err) {
   if (!err) {
     console.log("Connected to database successfully!");
-    sequelize.sync().nodeify(function() {
-      console.log("Synced tables.");
-    });
   } else {
     console.error("Unable to connect to the database:", err);
   }

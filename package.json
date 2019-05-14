@@ -11,7 +11,12 @@
     "Ross Hudson <hello@rosshudson.co.uk> (https://rosshudson.co.uk)"
   ],
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "db-create": "npx sequelize-cli db:create",
+    "db-destroy": "npx sequelize-cli db:drop",
+    "db-migrate": "npx sequelize-cli db:migrate",
+    "db-downgrade": "npx sequelize-cli db:migrate:undo",
+    "test": "echo \"Um... We don't test yet...\""
   },
   "license": "GPL-3.0",
   "dependencies": {
