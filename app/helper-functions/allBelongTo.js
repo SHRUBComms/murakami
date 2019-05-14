@@ -1,5 +1,5 @@
 module.exports = function(selectedOptions, validOptions) {
-  if (Array.isArray(selectedOptions)) {
+  if (Array.isArray(selectedOptions) && Array.isArray(validOptions)) {
     try {
       var valid = true;
       for (i = 0; i < selectedOptions.length; i++) {
@@ -11,11 +11,13 @@ module.exports = function(selectedOptions, validOptions) {
     } catch (err) {
       return false;
     }
-  } else {
+  } else if (!Array.isArray(selectedOptions) && Array.isArray(validOptions)) {
     if (validOptions[validOptions.indexOf(selectedOptions)]) {
       return true;
     } else {
       return false;
     }
+  } else {
+    return false;
   }
 };

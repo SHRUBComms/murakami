@@ -1,17 +1,31 @@
+var async = require("async");
+
 module.exports = function(carbon, carbonCategories, callback) {
   var totalCarbon = 0;
+  async.each(
+    carbon,
+    function(transaction, callback) {
+      transaction.trans_object = transaction.trans_object;
+      async.eachOf(
+        transaction.trans_object,
+        function(savedInCarbonCategory, carbon_id, callback) {
+          if (carbonCategories[carbon_id]) {
+            totalCarbon +=
+              savedInCarbonCategory *
+              carbonCategories[carbon_id].factors[transaction.method];
 
-  for (let i = 0; i < carbon.length; i++) {
-    carbon[i].trans_object = carbon[i].trans_object;
-
-    Object.keys(carbon[i].trans_object).forEach(function(key) {
-      if (carbonCategories[key]) {
-        totalCarbon +=
-          carbon[i].trans_object[key] *
-          carbonCategories[key].factors[carbon[i].method] *
-          1e-3;
-      }
-    });
-  }
-  callback(totalCarbon);
+            callback();
+          } else {
+            callback();
+          }
+        },
+        function() {
+          callback();
+        }
+      );
+    },
+    function() {
+      callback(totalCarbon);
+    }
+  );
 };

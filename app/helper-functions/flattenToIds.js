@@ -1,3 +1,5 @@
+var async = require("async");
+
 module.exports = function(array, id, callback) {
   var flatArray = [];
   async.each(
