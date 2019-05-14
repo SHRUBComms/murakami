@@ -1,7 +1,6 @@
 # Murakami
 
 A lightweight, open-source membership management system for [Shrub](https://shrubcoop.org)!
-If you are interested in using/adapting Murakami for your organisation or simply want to know more, feel free to [get in touch](mailto:hello@rosshudson.co.uk) :-)
 
 > Version 2.1
 
@@ -20,13 +19,13 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 - Manage and record outgoing weights which can be used to calculate carbon savings (also integrated with till).
 - Fully configurable user permissions.
 
+# Contributing
+
 ### Requirements
 
 - NodeJS
 - NPM
 - MySQL
-
-# Contributing
 
 ## Set Up
 
@@ -45,16 +44,6 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 ```sh
 npm run db-create
 npm run db-migrate
-```
-
-## Running Locally
-
-```sh
-~/murakami $ node server.js
-### DEVELOPMENT ###
-Server started on local port 3000
-Running on public address localhost:3000
-Connected to database successfully!
 ```
 
 ### Database & ORM
