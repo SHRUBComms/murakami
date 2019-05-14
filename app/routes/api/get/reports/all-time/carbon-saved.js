@@ -6,6 +6,7 @@ var rootDir = process.env.CWD;
 
 var Models = require(rootDir + "/app/models/sequelize");
 var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
 
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
@@ -19,7 +20,7 @@ router.get("/", function(req, res) {
         Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
           totalCarbon
         ) {
-          res.send(Math.abs(totalCarbon * 1e-3).toFixed(3));
+          res.send(Math.abs(totalCarbon * 1e-6).toFixed(3));
         });
       });
     }
