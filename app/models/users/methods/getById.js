@@ -16,7 +16,10 @@ module.exports = function(Users, sequelize, DataTypes) {
       .nodeify(function(err, user) {
         try {
           if (user[0][0]) {
-            Users.sanitizeUser(user[0], loggedInUser, function(sanitizedUser) {
+            console.log(user[0][0]);
+            Users.sanitizeUser([user[0][0]], loggedInUser, function(
+              sanitizedUser
+            ) {
               callback(err, sanitizedUser[0]);
             });
           } else {
