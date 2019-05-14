@@ -29,6 +29,7 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 # Contributing
 
 ## Set Up
+
 - Clone the repo
 
 ```sh
@@ -54,19 +55,23 @@ Murakami is straight-to-the-point. It allows an organisation to _easily_ manage 
 
 As mentioned, MySQL is used. The ORM used is `sequelize`. The following helper scripts are implemented in the `package.json`:
 
-* `npm run db-create` - Create a fresh database
-* `npm run db-destroy` - Destroy the existing database (fresh start?)
-* `npm run db-migrate` - Run existing migrations
-* `npm run db-downgrade` - Downgrade last migration
+- `npm run db-create` - Create a fresh database
+- `npm run db-destroy` - Destroy the existing database (fresh start?)
+- `npm run db-migrate` - Run existing migrations
+- `npm run db-downgrade` - Downgrade last migration
 
 ### Unit Testing
 
 [WIP]
 
-* `npm run tests`
+- `npm run tests`
+
+For more detailed debug info:
+
+- `npm run tests --verbose`
 
 ### Running
 
 The `server.js` file will run the server when called. There is a `package.json` script for this too:
 
-* `npm run start`
+- `npm run start`

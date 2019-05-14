@@ -16,8 +16,8 @@
     "db-destroy": "npx sequelize-cli db:drop",
     "db-migrate": "npx sequelize-cli db:migrate",
     "db-downgrade": "npx sequelize-cli db:migrate:undo",
-    "test": "mocha --recursive || true",
-    "test --verbose": "mocha --recursive"
+    "tests": "mocha --recursive || true",
+    "tests --verbose": "mocha --recursive"
   },
   "license": "GPL-3.0",
   "dependencies": {
