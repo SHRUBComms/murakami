@@ -60,7 +60,7 @@
 					</div>
 				</div>
 				{{#ifCond startDate '||' endDate}}
-					{{> till/transactions/recent pageSize=1000 startDate=startDate endDate=endDate}}
+					{{> till/get-recent-transactions pageSize=1000 startDate=startDate endDate=endDate}}
 				{{/ifCond}}
 			</div>
 		</div>
