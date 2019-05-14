@@ -11,7 +11,7 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
       volInfo,
       function(volunteer, index, callback) {
         try {
-          if (volunteer.roles.length >= 2) {
+          if (volunteer.roles.length >= 1) {
             volunteer.dateCreated =
               volunteer.dateCreated ||
               volunteer.firstVolunteered ||
