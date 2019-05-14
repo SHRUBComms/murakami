@@ -1,5 +1,5 @@
 module.exports = function(VolunteerRoles, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
   var GetId = function(callback) {
     var id = Helpers.generateBase64Id(10);
     VolunteerRoles.findAll({ where: { role_id: id } }).nodeify(function(

@@ -1,6 +1,6 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 var moment = require("moment");
 moment.locale("en-gb");

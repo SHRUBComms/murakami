@@ -1,5 +1,5 @@
 module.exports = function(StockCategories, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
   var GetId = function(callback) {
     var id = Helpers.generateBase64Id(10);
     StockCategories.findAll({ where: { item_id: id } }).nodeify(function(

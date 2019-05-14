@@ -1,5 +1,5 @@
 module.exports = function(WorkingGroups, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
   var GetId = function(parent, callback) {
     if (parent) {
       id = parent + "-" + Helpers.generateIntId(3);

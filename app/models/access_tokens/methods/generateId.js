@@ -1,5 +1,5 @@
 module.exports = function(AccessTokens, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
   var GetId = function(callback) {
     var id = Helpers.generateBase64Id(25);
     AccessTokens.findAll({ where: { token: id } }).nodeify(function(

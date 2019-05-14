@@ -16,7 +16,7 @@ var AccessTokens = Models.AccessTokens;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get(
   "/",

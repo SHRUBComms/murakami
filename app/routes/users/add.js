@@ -7,7 +7,7 @@ var rootDir = process.env.CWD;
 var Users = require(rootDir + "/app/models/users");
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
   req,

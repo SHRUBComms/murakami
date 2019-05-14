@@ -9,7 +9,7 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Carbon = Models.Carbon;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
   Carbon.getToday(function(err, carbon) {

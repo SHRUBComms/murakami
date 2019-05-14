@@ -1,7 +1,7 @@
 var async = require("async");
 var moment = require("moment");
 moment.locale("en-gb");
-var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(Volunteers, sequelize, DataTypes) {
   return function(group_id, user, callback) {

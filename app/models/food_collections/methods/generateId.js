@@ -1,5 +1,5 @@
 module.exports = function(FoodCollections, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
   var GetId = function(callback) {
     var id = Helpers.generateBase64Id(15);
     FoodCollections.findAll({

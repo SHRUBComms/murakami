@@ -1,5 +1,5 @@
 /* jshint indent: 2 */
-var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(sequelize, DataTypes) {
   var MailTemplates = sequelize.define(

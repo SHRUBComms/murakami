@@ -5,7 +5,7 @@ moment.locale("en-gb");
 var lodash = require("lodash");
 var async = require("async");
 
-var Helpers = require("./helpful_functions");
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 var register = function(Handlebars) {
   var helpers = {

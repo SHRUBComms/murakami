@@ -3,7 +3,7 @@ var lodash = require("lodash");
 var moment = require("moment");
 moment.locale("en-gb");
 
-var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(Users, sequelize, DataTypes) {
   return function(users, loggedInUserObj, callback) {

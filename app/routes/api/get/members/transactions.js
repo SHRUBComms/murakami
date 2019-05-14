@@ -16,7 +16,7 @@ var Members = Models.Members;
 var CarbonCategories = Models.CarbonCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get(
   "/:member_id",

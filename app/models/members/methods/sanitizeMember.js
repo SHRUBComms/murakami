@@ -1,5 +1,5 @@
 var async = require("async");
-var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(Members, sequelize, DataType) {
   return function(member, user, callback) {

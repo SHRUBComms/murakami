@@ -7,7 +7,7 @@ var rootDir = process.env.CWD;
 var Models = require(rootDir + "/app/models/sequelize");
 var Carbon = Models.Carbon;
 
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get("/", function(req, res) {
   Carbon.getAll(function(err, carbon) {

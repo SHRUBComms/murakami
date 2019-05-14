@@ -10,7 +10,7 @@ var WorkingGroups = Models.WorkingGroups;
 var VolunteerRoles = Models.VolunteerRoles;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get(
   "/:role_id",

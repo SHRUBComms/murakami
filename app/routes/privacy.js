@@ -8,7 +8,7 @@ var Models = require(rootDir + "/app/models/sequelize");
 
 var Settings = Models.Settings;
 
-var Helpers = require(rootDir + "/app/configs/helpful_functions");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get("/", function(req, res) {
   Settings.getStaticContent(function(err, staticContent) {

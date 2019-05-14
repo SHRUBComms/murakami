@@ -1,5 +1,5 @@
 module.exports = function(Members, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/configs/helpful_functions");
+  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
   var GetId = function(callback) {
     var id = Helpers.generateIntId(11);
     Members.findAll({ where: { member_id: id } }).nodeify(function(
