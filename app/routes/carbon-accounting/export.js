@@ -75,11 +75,11 @@ router.get(
                       async.eachOf(
                         transaction.trans_object,
                         function(amount, itemId, callback) {
-                          formattedData[itemId].raw += amount;
+                          formattedData[itemId].raw += +amount;
 
                           formattedData[itemId].saved +=
                             +transaction.trans_object[itemId] *
-                            carbonCategories[itemId].factors[method];
+                            +carbonCategories[itemId].factors[method];
                           callback();
                         },
                         function() {
