@@ -138,7 +138,7 @@ router.post(
                       message.status = "ok";
                       message.msg =
                         "Weight logged! " +
-                        Math.abs(totalCarbon).toFixed(2) +
+                        Math.abs(totalCarbon * 1e-3).toFixed(2) +
                         "kg of carbon saved";
                       res.send(message);
                     }

@@ -8,7 +8,7 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
         callback(null);
       } else {
         if (format == "tree") {
-          Helpers.treeify(categories, function(tree) {
+          StockCategories.treeify(categories, function(tree) {
             callback(err, tree);
           });
         } else if (format == "kv") {

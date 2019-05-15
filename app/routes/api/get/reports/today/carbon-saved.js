@@ -21,7 +21,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
         Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
           totalCarbon
         ) {
-          res.send(Math.abs(totalCarbon).toFixed(3));
+          res.send(Math.abs(totalCarbon * 1e-3).toFixed(3));
         });
       });
     }

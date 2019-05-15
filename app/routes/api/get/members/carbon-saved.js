@@ -28,6 +28,8 @@ router.get(
               Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
                 totalCarbon
               ) {
+                // Convert to grams to kilos
+                totalCarbon = totalCarbon * 1e-3;
                 res.send({ carbon: Math.abs(totalCarbon.toFixed(2)) || 0 });
               });
             });

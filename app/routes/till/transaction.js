@@ -365,7 +365,9 @@ router.post(
                                         function(carbonSaved) {
                                           response.msg +=
                                             " " +
-                                            Math.abs(carbonSaved.toFixed(2)) +
+                                            Math.abs(
+                                              (carbonSaved * 1e-3).toFixed(2)
+                                            ) +
                                             "kg of carbon saved.";
 
                                           Members.updateBalance(
@@ -500,7 +502,7 @@ router.post(
 
                                   response.msg +=
                                     " " +
-                                    Math.abs(carbonSaved.toFixed(2)) +
+                                    Math.abs((carbonSaved * 1e-3).toFixed(2)) +
                                     "kg of carbon saved.";
 
                                   if (membershipBought) {

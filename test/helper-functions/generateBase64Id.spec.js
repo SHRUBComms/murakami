@@ -12,8 +12,4 @@ describe("Helpers.generateBase64Id", function() {
     var id = generateBase64Id(10);
     assert.lengthOf(id, 10);
   });
-  it("should return a string of 25 chars long", function() {
-    var id = generateBase64Id(25);
-    assert.lengthOf(id, 25);
-  });
 });
