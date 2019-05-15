@@ -298,15 +298,15 @@ function addToTransaction(item){
 		}
 	}
 
-	if(item.condition == 1){
+	if(item.needsCondition == 1){
 		$('input[name="itemCondition"]:radio').prop('checked', false);
 		$("#addItemConditionToTrans").attr("onclick", "return false;");
 		$("#itemConditionName").text(sanitizedItem.name);
 		$('#itemConditionModal').modal('show');
 		itemToAdd = sanitizedItem;
 	} else {
-		if(item.condition != 1){
-			sanitizedItem.condition = item.condition;
+		if(item.needsCondition != 1){
+			sanitizedItem.needsCondition = item.needsCondition;
 		}
 
 		itemToAdd = {};
