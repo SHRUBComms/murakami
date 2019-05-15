@@ -259,23 +259,29 @@ $('#isMemberCheck').click(function () {
 
 
 $('input[name="itemCondition"]:radio').change(function(){
+
 	let condition = this.value;
-	let option = itemToAdd;
+
 
 	if(itemToAdd){
+		itemToAdd.condition = condition
 		document.getElementById("addItemConditionToTrans").onclick = function(){
-			addToTransaction(option)
+			addToTransaction(itemToAdd)
 		}
 	}
 });
 
 function addToTransaction(item){
 
+	console.log("Adding item:", item)
+
 	var sanitizedItem = {};
-	sanitizedItem.id = item.item_id;
+	sanitizedItem.id = item.item_id || item.id;
 	sanitizedItem.name = item.name;
-	sanitizedItem.absoluteName = item.absolute_name;
+	sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
 	sanitizedItem.weight = item.weight || 0;
+	sanitizedItem.needsCondition = item.needsCondition;
+	sanitizedItem.condition = item.condition;
 
 	sanitizedItem.allowTokens = item.allowTokens;
 	sanitizedItem.carbon_id = item.carbon_id;
@@ -298,16 +304,13 @@ function addToTransaction(item){
 		}
 	}
 
-	if(item.needsCondition == 1){
+	if(sanitizedItem.needsCondition == 1 && !sanitizedItem.condition){
 		$('input[name="itemCondition"]:radio').prop('checked', false);
 		$("#addItemConditionToTrans").attr("onclick", "return false;");
 		$("#itemConditionName").text(sanitizedItem.name);
 		$('#itemConditionModal').modal('show');
 		itemToAdd = sanitizedItem;
 	} else {
-		if(item.needsCondition != 1){
-			sanitizedItem.needsCondition = item.needsCondition;
-		}
 
 		itemToAdd = {};
 		transaction.push(sanitizedItem);
@@ -350,24 +353,37 @@ function updateTransactionList(){
 
 	for(let i=0;i<transaction.length;i++){
 		var value = 0;
-		var note = "";
+		var note = "(";
+
+		if (transaction[i].condition){
+			note += transaction[i].condition
+		}
+
 		if(member.name){
 			value = +transaction[i].value
 			tokens_total += +value;
 			if(transaction[i].member_discount > 0){
-				note = " (<span class='fail'>-" + transaction[i].member_discount + "%</span>)";
+				if(note.length > 0){
+					note += ", "
+				}
+				note += "<span class='fail'>-" + transaction[i].member_discount + "%</span>";
 			}
 		} else {
 			value = +transaction[i].value;
 			tokens_total += +transaction[i].value;
 		}
 
+
+		note += ")"
+
+
+
 		weight_total += +transaction[i].weight;
 
 		row = document.createElement("tr");
 
 		categoryColumn = document.createElement("td");
-		categoryColumn.innerHTML = transaction[i].name + note;
+		categoryColumn.innerHTML = transaction[i].name + " " + note;
 
 		valueColumn = document.createElement("td");
 		valueColumn.id = "value_" + i;
