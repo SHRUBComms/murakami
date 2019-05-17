@@ -6,7 +6,7 @@ module.exports = function(AccessTokens, sequelize, DataTypes) {
       AccessTokens.create({
         token: token,
         timestamp: new Date(),
-        details: JSON.stringify(details),
+        details: details,
         used: 0
       }).nodeify(function(err) {
         callback(err, token);

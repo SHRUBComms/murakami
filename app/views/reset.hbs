@@ -8,20 +8,59 @@
 					<div class="card-body">
 
             <center>
-            	<h2>Account Recovery</h2>
+              {{#if invite}}
+                <h3>Complete Registration</h3>
+              {{else}}
+            	  <h3>Account Recovery</h3>
+              {{/if}}
             </center>
 
             <hr />
 
-            <form action="{{public_address}}/recover/{{reset_code}}" method="post">
+
+              <div class="row mt-4">
+                <div class="col-md-12 mx-auto">
+                  <div class="alert alert-info mb-4 p-4 text-center" role="alert">
+                    {{#if invite}}
+                      <h4 class="mb-2">Hey {{viewedUser.first_name}}!</h4>
+                      <p>To complete your registration please set your password using the form below.</p>
+
+                      <hr />
+                    {{/if}}
+
+
+                    <div class="row mb-1">
+                      <p class="mb-0 ml-3">Your password should:</p>
+                    </div>
+
+                    <div class="row mb-2">
+                      <ul class="ml-5 text-left">
+
+                        <li>Be at least 8 characters long</li>
+                        <li>Include at least one digit</li>
+                        <li>Include at least one lower case</li>
+                        <li>Include at least one upper case</li>
+
+                      </ul>
+                    </div>
+
+
+                  </div>
+                </div>
+              </div>
+
+
+            <form action="{{#if invite}}{{public_address}}/users/invite/{{invite.token}}{{else}}{{public_address}}/recover/{{reset_code}}{{/if}}" method="post">
                 <div class="form-group">
                 	<input type="password" class="form-control" name="password" placeholder="New password">
               	</div>
               	<div class="form-group">
                 	<input type="password" class="form-control" name="passwordConfirm" placeholder="Confirm password">
               	</div>
+
+
               	<div class="form-group">
-              	   <button class="btn btn-block btn-primary" type="submit">Reset Password</button>
+              	   <button class="btn btn-block btn-primary" type="submit">{{#if invite}}Set Password{{else}}Reset Password{{/if}}</button>
             	   </div>
             </form>
           </div>

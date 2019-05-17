@@ -5,27 +5,34 @@
       <span>{{viewedUser.username}} | {{viewedUser.email}}</span>
       <p>Last login:
         {{#if viewedUser.last_login}}
-          {{viewedUser.last_login}}
+          {{niceTimestamp viewedUser.last_login}}
         {{else}}
           never
         {{/if}}
       </p>
+      {{#if viewedUser.deactivated}}
+        <p class=text-danger>Deactivated</p>
+      {{/if}}
     </div>
   </div>
 </div>
 
 
 
-  <div class="row m-2">
-      <div class="form-group form-inline mx-auto">
-        {{#if viewedUser.canDeactivate}}
+<div class="row m-2">
+    <div class="form-group form-inline mx-auto">
+      {{#if viewedUser.canDeactivate}}
+        {{#if viewedUser.deactivated}}
+          <a href="{{public_address}}/users/activate/{{viewedUser.id}}" class="btn btn-success">Send Activation Link</a>
+        {{else}}
           <a href="{{public_address}}/users/deactivate/{{viewedUser.id}}" class="btn btn-danger">Deactivate User</a>
         {{/if}}
-        {{#ifCond user_id '==' user.id}}
-          &emsp;<a href="{{public_address}}/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
-        {{/ifCond}}
-      </div>
-  </div>
+      {{/if}}
+      {{#ifCond user_id '==' user.id}}
+        &emsp;<a href="{{public_address}}/users/change-password" class="btn btn-primary" onclick="return confirm('To change your password, you will be logged out. Is that ok?');">Change Password</a>
+      {{/ifCond}}
+    </div>
+</div>
 
 {{#if viewedUser.canUpdate}}
 

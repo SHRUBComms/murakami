@@ -1,7 +1,9 @@
 /* jshint indent: 2 */
 
-var PasswordReset = function(sequelize, DataTypes) {
-  return sequelize.define(
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
+
+module.exports = function(sequelize, DataTypes) {
+  var PasswordReset = sequelize.define(
     "password_reset",
     {
       user_id: {
@@ -29,84 +31,17 @@ var PasswordReset = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "password_reset"
+      tableName: "password_reset",
+      timestamps: false
     }
   );
+
+  Helpers.includeAllModelMethods(
+    PasswordReset,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/password_reset/methods/"
+  );
+
+  return PasswordReset;
 };
-
-PasswordReset.addPasswordReset = function(user_id, ip_address, callback) {
-  var query =
-    "INSERT INTO password_reset (user_id, ip_address, reset_code, date_issued, used) VALUES (?,?,?,?,?)";
-  Helpers.uniqueBase64Id(25, "password_reset", "reset_code", function(id) {
-    PasswordReset.create({
-      user_id: user_id,
-      ip_address: ip_address,
-      reset_code: id,
-      date_issued: new Date(),
-      used: 0
-    })
-      .then(function() {
-        callback(null);
-      })
-      .catch(function(err) {
-        callback(err);
-      });
-  });
-};
-
-PasswordReset.getUnusedPasswordResetsByUserId = function(user_id, callback) {
-  PasswordReset.findAll({
-    where: {
-      user_id: user_id,
-      used: 0,
-      date_issued: {
-        [Op.gte]: moment()
-          .subtract(60, "minutes")
-          .toDate()
-      }
-    }
-  })
-    .then(function(resets) {
-      callback(null, resets);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
-
-PasswordReset.getUnusedPasswordResetsByResetCode = function(
-  reset_code,
-  callback
-) {
-  PasswordReset.findOne({
-    where: {
-      reset_code: reset_code,
-      used: 0,
-      date_issued: {
-        [Op.gte]: moment()
-          .subtract(60, "minutes")
-          .toDate()
-      }
-    }
-  })
-    .then(function(resets) {
-      callback(null, resets);
-    })
-    .catch(function(err) {
-      callback(err, null);
-    });
-};
-
-PasswordReset.setResetCodeAsUsed = function(reset_code, callback) {
-  var query = "UPDATE password_reset SET used = 1 WHERE reset_code = ?";
-
-  PasswordReset.update({ used: 1 }, { where: { reset_code: reset_code } })
-    .then(function() {
-      callback(null);
-    })
-    .catch(function(err) {
-      callback(err);
-    });
-};
-
-module.exports = PasswordReset;

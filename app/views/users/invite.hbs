@@ -1,0 +1,20 @@
+<form method="post" action="{{public_address}}/users/invite" class="form-group">
+  {{#unless callback}}
+    <div class="row mt-4">
+      <div class="col-md-6 mx-auto">
+        <div class="alert alert-info mb-4 p-4 text-center" role="alert">
+          <span class="badge badge-pill badge-info align-middle">Info</span><span class="px-3">Once you have filled out the user's details, they'll be sent an email with instructions on how to activate their account.</span>
+        </div>
+      </div>
+    </div>
+  {{/unless}}
+
+  {{>users/add addingUser='true'}}
+
+  <div class="row mt-4">
+    <div class="col-md-6 mx-auto">
+      <button type="submit" class="btn btn-success btn-block btn-lg form-control">Add User</button>
+    </div>
+  </div>
+
+</form>

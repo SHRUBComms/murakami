@@ -6,8 +6,9 @@ var lodash = require("lodash");
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
-var WorkingGroups = require(rootDir + "/app/models/working-groups");
+var Models = require(rootDir + "/app/models/sequelize");
+var Users = Models.Users;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
@@ -18,11 +19,7 @@ router.get(
   Auth.canAccessPage("users", "view"),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
-      if (err || !user[0].first_name || user[0].deactivated == 1) {
-        req.flash("error_msg", "User not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
-      } else {
-        user = user[0];
+      if (!err || user) {
         if (user.canUpdate) {
           res.render("users/update", {
             usersActive: true,
@@ -36,6 +33,9 @@ router.get(
           );
           res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
         }
+      } else {
+        req.flash("error_msg", "User not found!");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
       }
     });
   }
@@ -47,13 +47,7 @@ router.post(
   Auth.canAccessPage("users", "update"),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
-      if (err || !user[0] || user[0].deactivated || !user[0].first_name) {
-        req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id
-        );
-      } else {
-        user = user[0];
+      if (!err && user) {
         if (user.canUpdate) {
           var first_name = req.body.first_name.trim();
           var last_name = req.body.last_name.trim();
@@ -207,7 +201,10 @@ router.post(
             });
           }
 
+          console.log("validated");
+
           if (errors[0]) {
+            console.log("not valid");
             res.render("users/update", {
               usersActive: true,
               title: "Update User",
@@ -226,6 +223,7 @@ router.post(
               }
             });
           } else {
+            console.log("valid");
             var updatedUser = { user_id: req.params.user_id, class: userClass };
 
             if (req.user.permissions.users.name || isUser) {
@@ -246,16 +244,43 @@ router.post(
               updatedUser.notification_preferences = sanitized_notification_preferences;
             }
 
-            Users.update(updatedUser, function(err, user) {
-              req.flash("success_msg", "User updated!");
-              res.redirect(
-                process.env.PUBLIC_ADDRESS +
-                  "/users/update/" +
-                  req.params.user_id
-              );
+            console.log(updatedUser);
+
+            Users.updateUser(updatedUser, function(err, user) {
+              if (!err) {
+                req.flash("success_msg", "User updated!");
+                res.redirect(
+                  process.env.PUBLIC_ADDRESS +
+                    "/users/update/" +
+                    req.params.user_id
+                );
+              } else {
+                res.render("users/update", {
+                  usersActive: true,
+                  title: "Update User",
+                  errors: [{ msg: "Something went wrong - please try again!" }],
+                  viewedUser: {
+                    canUpdate: true,
+                    id: user.id,
+                    first_name: first_name,
+                    last_name: last_name,
+                    email: user.email,
+                    username: user.username,
+                    class: userClass,
+                    working_groups: working_groups,
+                    last_login: user.lastLogin,
+                    notification_preferences: notification_preferences
+                  }
+                });
+              }
             });
           }
         }
+      } else {
+        req.flash("error_msg", "Something went wrong, please try again!");
+        res.redirect(
+          process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id
+        );
       }
     });
   }

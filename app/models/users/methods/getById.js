@@ -12,16 +12,20 @@ module.exports = function(Users, sequelize, DataTypes) {
         type: DataTypes.QueryTypes.SELECT
       })
       .nodeify(function(err, user) {
-        try {
-          if (user[0]) {
-            Users.sanitizeUser(user, loggedInUser, function(sanitizedUser) {
-              callback(err, sanitizedUser[0]);
-            });
-          } else {
-            callback(err, null);
+        if (!err) {
+          try {
+            if (user[0]) {
+              Users.sanitizeUser(user, loggedInUser, function(sanitizedUser) {
+                callback(err, sanitizedUser[0]);
+              });
+            } else {
+              callback(err, null);
+            }
+          } catch (error) {
+            callback(error, null);
           }
-        } catch (err) {
-          callback("Error", null);
+        } else {
+          callback(err, null);
         }
       });
   };

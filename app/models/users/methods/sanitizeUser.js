@@ -1,7 +1,5 @@
 var async = require("async");
 var lodash = require("lodash");
-var moment = require("moment");
-moment.locale("en-gb");
 
 var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
@@ -41,10 +39,6 @@ module.exports = function(Users, sequelize, DataTypes) {
             user.notification_preferences = user.notification_preferences || {};
           } else {
             user.notification_preferences = {};
-          }
-
-          if (!user.lastLogin) {
-            user.lastLogin = "Never";
           }
 
           if (!isUser) {
@@ -116,10 +110,22 @@ module.exports = function(Users, sequelize, DataTypes) {
             }
           } catch (err) {}
 
+          try {
+            if (
+              loggedInUser.permissions.users.deactivate == true ||
+              (loggedInUser.permissions.users.deactivate ==
+                "commonWorkingGroup" &&
+                commonWorkingGroup) ||
+              isUser
+            ) {
+              sanitizedUser.canDeactivate = true;
+            }
+          } catch (err) {}
+
           if (Object.keys(sanitizedUser).length > 0) {
             sanitizedUser.notification_preferences =
               user.notification_preferences || {};
-            sanitizedUser.lastLogin = user.lastLogin || "Never";
+            sanitizedUser.lastLogin = user.lastLogin;
             sanitizedUser.password = user.password || null;
             sanitizedUser.id = user.id;
             sanitizedUser.class = user.class;

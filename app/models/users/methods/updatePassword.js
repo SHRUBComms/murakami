@@ -1,3 +1,5 @@
+var bcrypt = require("bcrypt-nodejs");
+
 module.exports = function(Users, sequelize, DataTypes) {
   return function(user_id, password, callback) {
     var query = "UPDATE login SET password = ? WHERE id = ?";

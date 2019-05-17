@@ -18,7 +18,7 @@ router.use("/api", require("./api/root"));
 router.use("/till", require("./till/root"));
 router.use("/settings", require("./settings/root"));
 router.use("/working-groups", require("./working-groups/root"));
-//router.use("/users", require("./users/root"));
+router.use("/users", require("./users/root"));
 router.use("/volunteers", require("./volunteers/root"));
 router.use("/carbon-accounting", require("./carbon-accounting/root"));
 router.use("/food-collections", require("./food-collections/root"));

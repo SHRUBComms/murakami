@@ -19,24 +19,11 @@
         {{#if addingUser}}
 
           <div class="row mb-3">
-            <div class="form-group col-md-8">
-              <input type="text" class="form-control" placeholder="Username" name="username"{{#if username}} value="{{username}}"{{/if}}>
-            </div>
-          </div>
-
-          <div class="row mb-3">
-            <div class="form-group col-md-10">
-              <input type="email" class="form-control" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
-            </div>
-          </div>
-
-
-          <div class="row mb-3">
             <div class="col-md-6">
-              <input type="password" class="form-control mr-sm-2 mr-md-2 mb-sm-1 mb-md-1" placeholder="Password" name="password"{{#if password}} value="{{password}}"{{/if}}>
+              <input type="text" class="form-control mr-sm-2 mr-md-2 mb-sm-1 mb-md-1" placeholder="Username" name="username"{{#if username}} value="{{username}}"{{/if}} required />
             </div>
             <div class="col-md-6">
-                <input type="password" class="form-control" placeholder="Confirm password" name="passwordConfirm"{{#if passwordConfirm}} value="{{passwordConfirm}}"{{/if}}>
+              <input type="text" class="form-control" placeholder="Email"name="email"{{#if email}} value="{{email}}"{{/if}} required />
             </div>
           </div>
 
@@ -46,11 +33,11 @@
           <div class="col-md-6">
 
             <select class="form-control" name="class">
-              <option value="till" {{#ifCond user.class '==' 'till'}}selected{{/ifCond}}>Till User</option>
-              <option value="volunteer" {{#ifCond user.class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
+              <option value="till" {{#ifCond viewedUser.class '==' 'till'}}selected{{/ifCond}}>Till User</option>
+              <option value="volunteer" {{#ifCond viewedUser.class '==' 'volunteer'}}selected{{/ifCond}}>Volunteer Co-ordinator</option>
               {{#ifCond user.class '==' 'admin'}}
-                <option value="staff" {{#ifCond user.class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
-                <option value="admin" {{#ifCond user.class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
+                <option value="staff" {{#ifCond viewedUser.class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
+                <option value="admin" {{#ifCond viewedUser.class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
               {{/ifCond}}
               {{#ifCond user.class '==' 'staff'}}
                 {{#ifCond user.id '==' user_id}}
