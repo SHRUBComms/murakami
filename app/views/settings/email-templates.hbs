@@ -173,7 +173,8 @@ function update_preview(){
                                 .replace(/\|membership_id\|/g, "64917625122")
                                 .replace(/\|balance\|/g, "11")
                                 .replace(/\|tokens\|/g, "4")
-                                .replace(/\|wg_summary\|/g, "{{{group.welcomeMessage}}}")
+                                .replace(/\|wg_summary\|/g, escape("{{{group.welcomeMessage}}}"))
+                                .replace(/\|contact_preferences_link\|/g, "{{public_address}}/contact-preferences/64917625122")
                                 .replace(/\|roles\|/g, "<ul><li><a href='#'>Shop Assistant</a></li></ul>");
     {{#ifCond template.mail_id '!=' 'footer'}}
       $("#subject-preview").html($("#subject").val());
