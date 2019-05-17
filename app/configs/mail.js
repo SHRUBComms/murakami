@@ -167,8 +167,6 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                     subject: mail.subject
                   };
 
-                  console.log(message.html);
-
                   var transporter = nodemailer.createTransport(
                     Mail.supportSmtpConfig
                   );
