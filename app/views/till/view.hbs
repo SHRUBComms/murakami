@@ -3,9 +3,9 @@
 		<div class="card-body">
 			<h3 class="mb-3">{{till.name}} <span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
 			{{#if status.opening}}
-		  	<a href="{{public_address}}/till/{{till.till_id}}" class="btn btn-block btn-primary">Go To Till</a>
+		  	<a href="{{public_address}}/till/transaction/{{till.till_id}}" class="btn btn-block btn-primary">Go To Till</a>
 			{{else}}
-				<a href="{{public_address}}/till/{{till.till_id}}" class="btn btn-block btn-primary">Open Till</a>
+				<a href="{{public_address}}/till/open/{{till.till_id}}" class="btn btn-block btn-primary">Open Till</a>
 			{{/if}}
 		</div>
 	</div>

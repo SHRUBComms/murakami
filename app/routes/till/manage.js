@@ -14,6 +14,39 @@ var StockCategories = Models.StockCategories;
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("tills", "viewTill"),
+  function(req, res) {
+    Tills.getAll(function(err, tills) {
+      var allowedTills = [];
+      async.each(
+        tills,
+        function(till, callback) {
+          if (
+            req.user.permissions.tills.viewTill == true ||
+            (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
+              req.user.working_groups.includes(till.group_id))
+          ) {
+            allowedTills.push(till);
+            callback();
+          } else {
+            callback();
+          }
+        },
+        function() {
+          res.render("till/manage", {
+            title: "Manage Tills",
+            tillsActive: true,
+            tills: allowedTills
+          });
+        }
+      );
+    });
+  }
+);
+
+router.get(
   "/:till_id",
   Auth.isLoggedIn,
   Auth.canAccessPage("tills", "viewTill"),

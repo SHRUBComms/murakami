@@ -1,48 +1,47 @@
+
+
 <form method="post" action="{{public_address}}/members/add{{#if till.till_id}}?till_id={{till.till_id}}{{/if}}" class="form-group" autocomplete="off">
-
-
 
   <div class="row mt-4 mb-4">
 
-
-
     <div class="col-lg-5 mx-auto">
 
-      <div id="transaction_info" class="row pl-3 mt-4 mb-4">
-      	{{#if murakamiMsg}}
-      		{{#ifCond smpStatus '==' 'failed'}}
-      			<div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-      				Transaction failed! (error status: {{smpMsg}})
-      				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-      			</div>
-      		{{else}}
-      			{{#ifCond murakamiStatus '==' 'ok'}}
-      				<div class="alert alert-success alert-dismissible fade show col-md-12 p-3 mx-auto">
-      					{{murakamiMsg}}
-      					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-      				</div>
-      			{{else}}
-      				<div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-      					{{murakamiMsg}}
-      					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-      				</div>
-      			{{/ifCond}}
-      		{{/ifCond}}
-        {{else}}
-          <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-            Please ensure that the member has paid for their membership!
-            <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+      {{#ifCond till '||' user.admin}}
+        {{#ifCond user.class '!=' 'admin'}}
+          <div id="transaction_info" class="row pl-3 mt-4 mb-4">
+
+              <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+                <span class="px-2">A payment will be required to finalize membership after this form has been submitted!</span>
+                <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+              </div>
+
           </div>
-      	{{/if}}
-      </div>
 
-      {{> members/add}}
+        {{/ifCond}}
 
+
+        {{> members/add}}
+
+        <div class="row">
+          <div class="col-md-12">
+            <input type="submit" class="btn btn-block btn-lg btn-success" value="Add Member">
+          </div>
+        </div>
+
+      {{else}}
       <div class="row">
-        <div class="col-md-12">
-          <input type="submit" class="btn btn-block btn-lg btn-success" value="Add Member">
+        <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+          <span class="px-2">Members can only be added from a till.</span>
+          <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
         </div>
       </div>
+
+      <div class="row">
+        <a href="{{public_address}}/till/select" class="btn btn-primary btn-block btn-lg">Select A Till</a>
+      </div>
+
+      {{/ifCond}}
+
     </div>
   </div>
 </form>

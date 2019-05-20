@@ -28,33 +28,32 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
     tillMode = true;
   }
 
-  Members.getSignUpInfo(function(
-    ourVision,
-    saferSpacesPolicy,
-    membershipBenefits,
-    privacyNotice
-  ) {
-    res.render("members/add", {
-      tillMode: res.locals.tillMode || tillMode,
-      title: "Add Member",
-      membersActive: true,
-      addMemberActive: true,
-      membership_length: req.query.membership_length,
+  Tills.getById(till_id, function(err, till) {
+    Members.getSignUpInfo(function(
+      ourVision,
+      saferSpacesPolicy,
+      membershipBenefits,
+      privacyNotice
+    ) {
+      res.render("members/add", {
+        tillMode: res.locals.tillMode || tillMode,
+        title: "Add Member",
+        membersActive: true,
+        addMemberActive: true,
+        membership_length: req.query.membership_length,
 
-      ourVision: ourVision,
-      saferSpacesPolicy: saferSpacesPolicy,
-      membershipBenefitsInfo: membershipBenefits,
-      privacyNotice: privacyNotice,
+        ourVision: ourVision,
+        saferSpacesPolicy: saferSpacesPolicy,
+        membershipBenefitsInfo: membershipBenefits,
+        privacyNotice: privacyNotice,
 
-      murakamiMsg: req.query.murakamiMsg || null,
-      murakamiStatus: req.query.murakamiStatus || null,
+        murakamiMsg: req.query.murakamiMsg || null,
+        murakamiStatus: req.query.murakamiStatus || null,
 
-      till_id: till_id,
-
-      till: {
         till_id: till_id,
-        group_id: req.user.working_groups[0]
-      }
+
+        till: till
+      });
     });
   });
 });

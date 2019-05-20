@@ -67,7 +67,7 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
   } else {
     res.redirect(
       process.env.PUBLIC_ADDRESS +
-        "/till/" +
+        "/till/transaction/" +
         req.query.till_id +
         "/?" +
         "murakamiStatus=" +

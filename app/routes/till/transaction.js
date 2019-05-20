@@ -14,9 +14,83 @@ var StockCategories = Models.StockCategories;
 var Members = Models.Members;
 var Carbon = Models.Carbon;
 var CarbonCategories = Models.CarbonCategories;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
+
+router.get(
+  "/:till_id",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("tills", "processTransaction"),
+  function(req, res) {
+    Tills.getById(req.params.till_id, function(err, till) {
+      if (till) {
+        if (
+          req.user.permissions.tills.processTransaction == true ||
+          (req.user.permissions.tills.processTransaction ==
+            "commonWorkingGroup" &&
+            req.user.working_groups.includes(till.group_id))
+        ) {
+          TillActivity.getByTillId(req.params.till_id, function(status) {
+            if (status.opening == "1") {
+              WorkingGroups.getAll(function(err, allWorkingGroups) {
+                var group = allWorkingGroups[till.group_id];
+                StockCategories.getCategoriesByTillId(
+                  req.params.till_id,
+                  "tree",
+                  function(err, categories) {
+                    var presetTransaction;
+                    if (req.query.transaction) {
+                      try {
+                        presetTransaction = JSON.parse(
+                          decodeURIComponent(req.query.transaction)
+                        );
+                      } catch (err) {
+                        presetTransaction = null;
+                      }
+                    }
+
+                    res.render("till/root", {
+                      tillMode: true,
+                      title: "Transaction",
+                      transactionsActive: true,
+                      till: till,
+                      allWorkingGroups: allWorkingGroups,
+                      working_group: group,
+                      categories: categories,
+                      diode_api_key: process.env.DIODE_API_KEY,
+                      sumup_affiliate_key: process.env.SUMUP_AFFILIATE_KEY,
+                      sumup_app_id: process.env.SUMUP_APP_ID,
+                      murakamiMsg: req.query.murakamiMsg || null,
+                      murakamiStatus: req.query.murakamiStatus || null,
+                      smpStatus: req.query["smp-status"] || null,
+                      smpMsg: req.query["smp-failure-cause"] || null,
+                      member_id: req.query.member_id || null,
+                      presetTransaction: presetTransaction
+                    });
+                  }
+                );
+              });
+            } else {
+              res.redirect(
+                process.env.PUBLIC_ADDRESS + "/till/open/" + req.params.till_id
+              );
+            }
+          });
+        } else {
+          req.flash(
+            "error",
+            "You don't have permission to process transactions on this till!"
+          );
+          res.redirect(process.env.PUBLIC_ADDRESS + "/till/select");
+        }
+      } else {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/till/select");
+      }
+    });
+  }
+);
 
 router.post(
   "/",
