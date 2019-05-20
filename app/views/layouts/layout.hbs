@@ -60,14 +60,14 @@
                                 {{#if till}}
                                   {{#ifCond user.permissions.tills.processTransaction '==' true}}
                                     <li {{#if transactionsActive}}class="active"{{/if}}>
-                                        <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                        <a href="{{public_address}}/till/transaction/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
                                     </li>
                                   {{/ifCond}}
 
                                   {{#ifCond user.permissions.tills.processTransaction '==' 'commonWorkingGroup'}}
                                     {{#if (lookupArray user.working_groups till.group_id)}}
                                       <li {{#if transactionsActive}}class="active"{{/if}}>
-                                          <a href="{{public_address}}/till/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                          <a href="{{public_address}}/till/transaction/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
                                       </li>
                                     {{/if}}
                                   {{/ifCond}}

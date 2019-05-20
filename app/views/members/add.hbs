@@ -6,41 +6,66 @@
 
     <div class="col-lg-5 mx-auto">
 
-      {{#ifCond till '||' user.admin}}
-        {{#ifCond user.class '!=' 'admin'}}
-          <div id="transaction_info" class="row pl-3 mt-4 mb-4">
+      {{#if till}}
 
-              <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-                <span class="px-2">A payment will be required to finalize membership after this form has been submitted!</span>
-                <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-              </div>
-
+      <div class="row mb-2">
+        <div class="col-md-12">
+          <div class="alert alert-danger alert-dismissible fade show p-3 mx-auto">
+              <span class="px-2">A payment will be required to finalize membership after this form has been submitted!</span>
+              <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+            </div>
           </div>
-
-        {{/ifCond}}
+        </div>
 
 
         {{> members/add}}
 
-        <div class="row">
+        <div class="row mb-2">
           <div class="col-md-12">
-            <input type="submit" class="btn btn-block btn-lg btn-success" value="Add Member">
+            <button type="submit" class="btn btn-block btn-lg btn-success">
+              Proceed To Payment
+            </button>
           </div>
         </div>
 
       {{else}}
-      <div class="row">
-        <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-          <span class="px-2">Members can only be added from a till.</span>
-          <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-        </div>
-      </div>
 
-      <div class="row">
-        <a href="{{public_address}}/till/select" class="btn btn-primary btn-block btn-lg">Select A Till</a>
-      </div>
+        {{#if user.admin}}
 
-      {{/ifCond}}
+          <div class="row mb-2">
+            <div class="col-md-12">
+              <div class="alert alert-danger alert-dismissible fade show p-3 mx-auto">
+                <span class="px-2">Please note that paid members can only be added from a till.</span>
+                <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+              </div>
+            </div>
+          </div>
+
+          {{> members/add}}
+
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-block btn-lg btn-success">
+                Add Member
+              </button>
+            </div>
+          </div>
+
+        {{else}}
+          <div class="row">
+            <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+              <span class="px-2">Paid members can only be added from a till.</span>
+              <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <a href="{{public_address}}/till/select" class="btn btn-primary btn-block btn-lg">Select A Till</a>
+          </div>
+        {{/if}}
+
+      {{/if}}
+
 
     </div>
   </div>

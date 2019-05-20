@@ -215,6 +215,11 @@ module.exports = function(Members, sequelize, DataType) {
             if (member.activeVolunteer) {
               sanitizedMember.activeVolunteer = true;
             }
+
+            if (member.membership_type) {
+              sanitizedMember.membership_type = member.membership_type;
+            }
+
             sanitizedMember.member_id = member.member_id;
             sanitizedMember.is_member = member.is_member;
             sanitizedMember.free = member.free;

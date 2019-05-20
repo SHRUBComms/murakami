@@ -53,15 +53,15 @@
     <h3 class="mb-2">Membership</h3>
 
     {{#unless addingVolunteer}}
+      {{#ifUserClass user.class '["admin"]'}}
+        <select class="form-control" name="membership_type">
+          <option selected disabled>Select membership type...</option>
+          <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
+          <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
+          <option value="lifetime" {{#ifCond membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
 
-        <select class="form-control" name="membership_length">
-          <option value="year" {{#ifCond membership_length '==' 'year'}}selected{{/ifCond}}>12 months</option>
-          <option value="half_year" {{#ifCond membership_length '==' 'half_year'}}selected{{/ifCond}}>6 months</option>
-          <option value="3_months" {{#ifCond membership_length '==' '3_months'}}selected{{/ifCond}}>3 months</option>
-          {{#ifUserClass user.class '["admin"]'}}
-            <option value="eternal" {{#ifCond membership_length '==' 'eternal'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
-          {{/ifUserClass}}
         </select>
+      {{/ifUserClass}}
 
     {{/unless}}
 

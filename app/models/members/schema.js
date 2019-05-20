@@ -58,6 +58,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.INTEGER(10),
         allowNull: false
       },
+      membership_type: {
+        type: DataTypes.STRING(15),
+        allowNull: true
+      },
       earliest_membership_date: {
         type: DataTypes.DATEONLY,
         allowNull: false
