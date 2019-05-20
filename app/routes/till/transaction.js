@@ -460,6 +460,34 @@ router.post(
                                               function() {}
                                             );
 
+                                            Transactions.addTransaction(
+                                              {
+                                                member_id: member_id,
+                                                till_id: till.till_id,
+                                                user_id: "automatic",
+                                                date: moment().add(
+                                                  1,
+                                                  "seconds"
+                                                ),
+                                                summary: {
+                                                  totals: {
+                                                    tokens: 5
+                                                  },
+                                                  bill: [
+                                                    {
+                                                      tokens: "5",
+                                                      item_id: "membership"
+                                                    }
+                                                  ],
+                                                  comment: "",
+                                                  paymentMethod: null
+                                                }
+                                              },
+                                              function(err) {
+                                                console.log(err);
+                                              }
+                                            );
+
                                             response.msg +=
                                               " 12 months of membership issued.";
                                           } else if (

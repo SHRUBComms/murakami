@@ -75,7 +75,7 @@ router.post(
           var email = req.body.email.trim();
           var phone_no = req.body.phone_no.trim();
           var address = req.body.address.trim();
-          var membership_type = req.body.membership_type || null;
+          var membership_type = req.body.membership_type || "unpaid";
 
           var shrubExplained = req.body.shrubExplained;
           var safeSpace = req.body.safeSpace;
@@ -167,41 +167,38 @@ router.post(
 
           var over16 = (today - dob) / (1000 * 3600 * 24 * 365) >= 16;
 
-          // Parse membership info
+          var earliest_membership_date = today;
+          var current_init_membership = today;
+          var current_exp_membership = today;
+
+          var errors = req.validationErrors();
 
           if (req.user.class == "admin") {
             if (["lifetime", "staff", "trustee"].includes(membership_type)) {
-              membership_type = "membership_type";
+              current_exp_membership = moment("9999-01-01").toDate();
             } else {
               if (!errors) {
-                var error = {
-                  param: "membership_type",
-                  msg: "Please select a valid membership type.",
-                  value: req.body.membership_type
-                };
                 errors = [];
-                errors.push(error);
               }
+              errors.push({
+                param: "membership_type",
+                msg: "Please select a valid membership type.",
+                value: req.body.membership_type
+              });
             }
           } else {
             membership_type = "unpaid";
           }
 
-          var earliest_membership_date = today;
-          var current_init_membership = today;
-          var current_exp_membership = today;
-
-          // Parse request's body
-          var errors = req.validationErrors();
-
           if (!errors && !over16) {
-            var error = {
+            if (!errors) {
+              errors = [];
+            }
+            errors.push({
               param: "dob",
               msg: "Must be over 16 to be a member",
               value: req.body.dob
-            };
-            errors = [];
-            errors.push(error);
+            });
           }
 
           if (errors[0]) {

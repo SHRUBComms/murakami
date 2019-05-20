@@ -19,7 +19,6 @@ router.get(
 router.use("/add", require("./add"));
 router.use("/manage", require("./manage"));
 router.use("/update", require("./update"));
-router.use("/update-basic", require("./update-basic"));
 router.use("/view", require("./view"));
 router.use("/make-volunteer", require("./make-volunteer"));
 

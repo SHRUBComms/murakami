@@ -442,6 +442,12 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                   } else {
                     sanitizedVolunteer.active = false;
                   }
+
+                  if (volunteer.membership_type) {
+                    sanitizedVolunteer.membership_type =
+                      volunteer.membership_type;
+                  }
+
                   sanitizedVolunteer.working_groups = volunteer.working_groups;
                   sanitizedVolunteer.member_id = volunteer.member_id;
                   sanitizedVolunteer.gdpr = volunteer.gdpr;

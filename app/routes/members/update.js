@@ -19,6 +19,7 @@ router.get(
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
+        console.log(err);
         req.flash("error_msg", "Member not found!");
         res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
@@ -41,7 +42,8 @@ router.get(
             phone_no: member.phone_no,
             address: member.address,
             free: member.free,
-            current_exp_membership: member.current_exp_membership
+            current_exp_membership: member.current_exp_membership,
+            membership_type: member.membership_type
           });
         } else {
           req.flash(
@@ -77,6 +79,7 @@ router.post(
         var address;
         var free;
         var current_exp_membership;
+        var membership_type;
 
         if (["staff", "admin"].includes(req.user.class)) {
           email = req.body.email.trim();
@@ -84,6 +87,11 @@ router.post(
           address = req.body.address.trim();
           free = req.body.free;
           current_exp_membership = req.body.current_exp_membership;
+          membership_type = req.body.membership_type;
+
+          if (membership_type == "none") {
+            membership_type = null;
+          }
 
           if (free == "free") {
             free = 1;
@@ -95,6 +103,8 @@ router.post(
           phone_no = member.phone_no;
           address = member.address;
           free = member.free;
+          current_exp_membership = member.current_exp_membership;
+          membership_type = member.membership_type;
         }
 
         // Validation
@@ -148,6 +158,15 @@ router.post(
               );
             }
           }
+
+          if (
+            [null, "staff", "lifetime", "trustee"].includes(membership_type)
+          ) {
+            Members.update(
+              { membership_type: membership_type },
+              { where: { member_id: member.member_id } }
+            ).nodeify(function() {});
+          }
         }
 
         var member = {
@@ -186,7 +205,6 @@ router.post(
                   req.params.member_id
               );
             } else {
-              
               res.render("members/update", {
                 errors: [{ msg: "Something went wrong! Try again" }],
                 title: "Update Member",

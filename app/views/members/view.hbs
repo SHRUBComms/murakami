@@ -19,7 +19,7 @@
 									{{~#ifCond member.membership_type '==' 'unpaid' ~}}
 										, <span class="text-danger font-weight-bold">unpaid</span>
 									{{~else ~}}
-										, {{~ member.membership_type ~}}
+										, {{member.membership_type}}
 									{{~/ifCond}}
 								{{~else}}
 									{{~#if member.free ~}}
@@ -75,7 +75,10 @@
 								<small>Current Membership Period</small>
 								<div class="mb-2">
 									<p>Began: <b>{{niceDate member.current_init_membership}}</b></p>
-									<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
+
+									{{#unless member.membership_type}}
+										<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
+									{{/if}}
 
 								</div>
 							{{/if}}

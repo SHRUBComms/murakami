@@ -38,11 +38,20 @@
           <div class="card-body">
             <h3 class="mb-2">Membership Info</h3>
 
-              <select class="form-control" name="free" onchange="membership_type_update()">
+              <select class="form-control" name="free">
                 <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
                 <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
               </select>
 
+              {{#ifUserClass user.class '["admin"]'}}
+                <select class="form-control mt-2" name="membership_type" required>
+                  <option value="none" {{#unless membership_type}}selected{{/unless}}>No special status</option>
+                  <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
+                  <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
+                  <option value="lifetime" {{#ifCond membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
+
+                </select>
+              {{/ifUserClass}}
 
 
               <div class="form-group row mt-3">

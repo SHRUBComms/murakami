@@ -54,7 +54,7 @@
 
     {{#unless addingVolunteer}}
       {{#ifUserClass user.class '["admin"]'}}
-        <select class="form-control" name="membership_type">
+        <select class="form-control" name="membership_type" required>
           <option selected disabled>Select membership type...</option>
           <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
           <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>

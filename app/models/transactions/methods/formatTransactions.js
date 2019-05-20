@@ -83,7 +83,7 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                   transaction.summary.bill[i].tokens;
               } else if (transaction.summary.bill[i].item_id == "membership") {
                 bill +=
-                  "Tokens added for becoming a member: " +
+                  "Tokens added for buying a 12 month membership: " +
                   transaction.summary.bill[i].tokens;
               } else if (
                 flatCategoriesAsObj[transaction.summary.bill[i].item_id]
