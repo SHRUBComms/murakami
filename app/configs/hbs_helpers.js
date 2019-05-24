@@ -178,7 +178,11 @@ var register = function(Handlebars) {
       return lodash.startCase(str);
     },
     escape: function(variable) {
-      return variable.replace(/(['"])/g, "\\$1");
+      try {
+        return variable.replace(/(['"])/g, "\\$1");
+      } catch (err) {
+        return "";
+      }
     }
   };
 

@@ -8,6 +8,7 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Tills = Models.Tills;
 var StockCategories = Models.StockCategories;
 var Carbon = Models.Carbon;
+var CarbonCategories = Models.CarbonCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
 

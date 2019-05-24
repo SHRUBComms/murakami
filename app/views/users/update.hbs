@@ -4,8 +4,8 @@
       <h2>{{viewedUser.first_name}} {{viewedUser.last_name}}</h2>
       <span>{{viewedUser.username}} | {{viewedUser.email}}</span>
       <p>Last login:
-        {{#if viewedUser.last_login}}
-          {{niceTimestamp viewedUser.last_login}}
+        {{#if viewedUser.lastLogin}}
+          {{niceTimestamp viewedUser.lastLogin}}
         {{else}}
           never
         {{/if}}

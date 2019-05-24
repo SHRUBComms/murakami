@@ -15,26 +15,22 @@
 </div>
 
 <div id="transaction_info" class="row pl-3 mt-4 mb-4">
-	{{#if murakamiMsg}}
-		{{#ifCond smpStatus '==' 'failed'}}
-			<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
-				Transaction failed! (error status: {{smpMsg}})
-				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-			</div>
-		{{else}}
-			{{#ifCond murakamiStatus '==' 'ok'}}
-				<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto">
-					{{murakamiMsg}}
-					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-				</div>
-			{{else}}
-				<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
-					{{murakamiMsg}}
-					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-				</div>
-			{{/ifCond}}
-		{{/ifCond}}
-	{{/if}}
+
+
+	<div id="transactionSuccess" class="alert alert-success alert-dismissible d-none col-md-6 p-3 mx-auto">
+		<h4 class="alert-heading">Transaction Successful!</h4>
+		<p id="transactionSuccessSummary"></p>
+		<hr />
+		<p id="transactionSuccessCarbon"></p>
+		<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+	</div>
+
+	<div id="transactionFail" class="alert alert-danger alert-dismissible d-none col-md-6 p-3 mx-auto">
+		<h4 class="alert-heading">Transaction Failed!</h4>
+		<p id="transactionFailSummary"></p>
+		<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+	</div>
+
 </div>
 
 <div class="row mt-4 mb-3">
@@ -830,10 +826,12 @@ function completeTransaction(type){
 	            transaction = [];
 	            updateTransactionList();
 	            payWithTokens = false;
-	            $("#transaction_info").removeClass("d-none");
-	            $("#transaction_info").css("display", "block")
-	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+
+							updateResponse("success", response.transactionSummary, response.carbonSummary, member)
+
+
 	            if(member.name){
+
 		            $("#memberToggle").prop("checked", true)
 							  toggleIsMember({checked: true})
 							  $("#memberInput").val(member.id)
@@ -841,19 +839,46 @@ function completeTransaction(type){
 							    selectMember(0)
 							  });
 		        	}
+
 							window.setTimeout(function(){
 								$("#transaction_history").bootstrapTable('refresh');
 							}, 750)
 
 					} else if(response.status == "redirect") {
 						window.location.href = response.url;
-	        } else if(response.status == "fail") {
-						console.log("fail")
-	        	$("#transaction_info").removeClass("d-none")
-	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+	        } else {
+						updateResponse("fail", response.msg)
 	        }
         }
     });
+}
+
+function updateResponse(outcome, transactionSummary, carbonSummary, member) {
+
+	if(outcome == "success"){
+		$("#transactionFail").addClass("d-none");
+		$("#transactionFail").css("display", "none")
+
+		$("#transactionSuccess").removeClass("d-none");
+		$("#transactionSuccess").css("display", "block")
+		$("#transactionSuccessSummary").html(transactionSummary)
+		$("#transactionSuccessCarbon").html(carbonSummary)
+		if(member.member_id) {
+			$.get("{{public_address}}/api/get/members/carbon-saved/" + member.member_id, function( response ) {
+				$("#transactionSuccessCarbon").html($("#transactionSuccessCarbon").html() + ", totalling " + response.carbon + "kg saved over entire membership!")
+			});
+		} else {
+			$("#transactionSuccessCarbon").html($("#transactionSuccessCarbon").html() + "!")
+		}
+	} else {
+
+		$("#transactionSuccess").addClass("d-none");
+		$("#transactionSuccess").css("display", "none")
+
+		$("#transactionFail").removeClass("d-none");
+		$("#transactionFail").css("display", "block")
+		$("#transactionFailSummary").html(transactionSummary)
+	}
 }
 
 function getSavedCarbon(){
@@ -942,4 +967,23 @@ $(document).ready(function(){
   {{/each}}
 
 {{/if}}
+
+{{#if sumupCallback}}
+	{{#ifCond smpStatus '==' 'failed'}}
+		updateResponse("fail", "Error code: {{smpMsg}}")
+	{{else}}
+		{{#ifCond murakamiStatus '==' 'ok'}}
+			{{#if transactionSummary}}
+				{{#if carbonSummary}}
+					updateResponse("success", "{{escape transactionSummary}}", "{{escape carbonSummary}}", { member_id: "{{member_id}}" })
+				{{/if}}
+			{{/if}}
+		{{else}}
+			{{#if transactionSummary}}
+				updateResponse("fail", "{{escape transactionSummary}}")
+			{{/if}}
+		{{/ifCond}}
+	{{/ifCond}}
+{{/if}}
+
 </script>

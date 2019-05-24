@@ -36,7 +36,8 @@ var automatedMails = new CronJob({
             } else {
               if (
                 moment(member.current_exp_membership).format("YYYY-MM-DD") ==
-                moment().format("YYYY-MM-DD")
+                  moment().format("YYYY-MM-DD") &&
+                member.current_exp_membership != member.current_init_membership
               ) {
                 try {
                   memberMails[member.member_id].push("goodbye");

@@ -63,10 +63,14 @@ router.get(
                       diode_api_key: process.env.DIODE_API_KEY,
                       sumup_affiliate_key: process.env.SUMUP_AFFILIATE_KEY,
                       sumup_app_id: process.env.SUMUP_APP_ID,
-                      murakamiMsg: req.query.murakamiMsg || null,
+
+                      sumupCallback: req.query.sumupCallback || false,
+                      transactionSummary: req.query.transactionSummary || null,
+                      carbonSummary: req.query.carbonSummary || null,
                       murakamiStatus: req.query.murakamiStatus || null,
                       smpStatus: req.query["smp-status"] || null,
                       smpMsg: req.query["smp-failure-cause"] || null,
+
                       member_id: req.query.member_id || null,
                       presetTransaction: presetTransaction
                     });
@@ -359,7 +363,11 @@ router.post(
                                 ) {
                                   validTransaction = false;
                                   whyTransactionFailed =
-                                    "A membership was bought, but no member was selected. To add a member, please go to the add member page.";
+                                    "A member must be selected to purchase a membership. To add a member, please go to the <a href='" +
+                                    process.env.PUBLIC_ADDRESS +
+                                    "/members/add?till_id=" +
+                                    till.till_id +
+                                    "'>add member page</a>.";
                                 }
 
                                 if (
@@ -383,7 +391,8 @@ router.post(
                                       } else {
                                         let response = {
                                           status: "ok",
-                                          msg: "Transaction complete!"
+                                          transactionSummary: "",
+                                          carbonSummary: ""
                                         };
 
                                         if (
@@ -391,7 +400,7 @@ router.post(
                                             .money > 0
                                         ) {
                                           formattedTransaction.summary.paymentMethod = paymentMethod;
-                                          response.msg +=
+                                          response.transactionSummary +=
                                             " £" +
                                             formattedTransaction.summary.totals
                                               .money;
@@ -399,7 +408,8 @@ router.post(
                                             formattedTransaction.summary.totals
                                               .tokens > 0
                                           ) {
-                                            response.msg += " and";
+                                            response.transactionSummary +=
+                                              " and";
                                           }
                                         }
 
@@ -407,7 +417,7 @@ router.post(
                                           formattedTransaction.summary.totals
                                             .tokens > 0
                                         ) {
-                                          response.msg +=
+                                          response.transactionSummary +=
                                             " " +
                                             formattedTransaction.summary.totals
                                               .tokens +
@@ -420,10 +430,11 @@ router.post(
                                           !formattedTransaction.summary.totals
                                             .money
                                         ) {
-                                          response.msg += " Nothing";
+                                          response.transactionSummary +=
+                                            " Nothing";
                                         }
 
-                                        response.msg += " paid.";
+                                        response.transactionSummary += " paid";
 
                                         if (foundMember) {
                                           if (
@@ -488,7 +499,7 @@ router.post(
                                               }
                                             );
 
-                                            response.msg +=
+                                            response.transactionSummary +=
                                               " 12 months of membership issued.";
                                           } else if (
                                             membershipBought == "MEM-HY"
@@ -499,7 +510,7 @@ router.post(
                                               function() {}
                                             );
 
-                                            response.msg +=
+                                            response.transactionSummary +=
                                               " 6 months of membership issued.";
                                           } else if (
                                             membershipBought == "MEM-QY"
@@ -510,7 +521,7 @@ router.post(
                                               function() {}
                                             );
 
-                                            response.msg +=
+                                            response.transactionSummary +=
                                               " 3 months of membership issued.";
                                           }
                                         }
@@ -540,14 +551,12 @@ router.post(
                                             [carbon],
                                             carbonCategories,
                                             function(carbonSaved) {
-                                              response.msg +=
-                                                " " +
+                                              response.carbonSummary =
                                                 Math.abs(
                                                   (carbonSaved * 1e-3).toFixed(
                                                     2
                                                   )
-                                                ) +
-                                                "kg of carbon saved.";
+                                                ) + "kg of carbon saved";
 
                                               if (paymentMethod == "card") {
                                                 var sumupSummon =
@@ -574,8 +583,10 @@ router.post(
                                                       "/api/get/tills/smp-callback" +
                                                       "/?murakamiStatus=" +
                                                       response.status +
-                                                      "&murakamiMsg=" +
-                                                      response.msg +
+                                                      "&transactionSummary=" +
+                                                      response.transactionSummary +
+                                                      "&carbonSummary=" +
+                                                      response.carbonSummary +
                                                       "&till_id=" +
                                                       till.till_id
                                                   );

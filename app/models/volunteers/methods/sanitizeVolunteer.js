@@ -451,6 +451,7 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                   sanitizedVolunteer.working_groups = volunteer.working_groups;
                   sanitizedVolunteer.member_id = volunteer.member_id;
                   sanitizedVolunteer.gdpr = volunteer.gdpr;
+                  sanitizedVolunteer.is_member = 1;
 
                   if (volunteer.assignedCoordinators.includes(user.id)) {
                     sanitizedVolunteer.isAssignedCoordinator = true;
