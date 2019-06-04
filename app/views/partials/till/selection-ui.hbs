@@ -21,6 +21,14 @@
           <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
 
             <input type="text" placeholder="Category Name" id="addCategoryName" class="form-control mb-3" />
+
+            <select name="group_id" id="addCategoryGroupId" class="form-control mb-3">
+              <option value="">No Working Group</option>
+              {{#each user.allWorkingGroupsObj}}
+                <option value="{{group_id}}">{{name}}</option>
+              {{/each}}
+            </select>
+
             <p><input type="checkbox" class="fixedPrice mb-3" id="addCategoryFixedPriceCheck" /> Fixed price</p>
 
             <div class="input-group valueInput d-none mb-3">
@@ -428,6 +436,7 @@ function updateOptions(path) {
 
     newCategory = {};
     newCategory.till_id = "{{{till.till_id}}}";
+    newCategory.group_id = $("#addCategoryGroupId").val() || null;
     newCategory.name = $("#addCategoryName").val();
     newCategory.carbon_id = $("#addCategoryCarbonId").val() || null;
     newCategory.value = $("#addCategoryValue").val() || null;

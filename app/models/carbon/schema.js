@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
       },
       member_id: {
         type: DataTypes.STRING(11),
-        allowNull: false
+        allowNull: true
       },
       trans_object: {
         type: DataTypes.JSON,
@@ -35,6 +35,10 @@ module.exports = function(sequelize, DataTypes) {
       trans_date: {
         type: DataTypes.DATE,
         allowNull: false
+      },
+      fx_transaction_id: {
+        type: DataTypes.STRING(30),
+        allowNull: true
       }
     },
     {

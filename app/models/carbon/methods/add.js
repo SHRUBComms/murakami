@@ -1,9 +1,10 @@
 module.exports = function(Carbon, sequelize, DataTypes) {
   return function(transaction, callback) {
-    if (transaction.amount > 0) {
+    if (Object.keys(transaction.trans_object).length > 0) {
       Carbon.generateId(function(id) {
         Carbon.create({
           transaction_id: id,
+          fx_transaction_id: transaction.fx_transaction_id,
           member_id: transaction.member_id,
           user_id: transaction.user_id,
           group_id: transaction.group_id,
@@ -15,7 +16,7 @@ module.exports = function(Carbon, sequelize, DataTypes) {
         });
       });
     } else {
-      callback("Error");
+      callback("Transaction object empty.");
     }
   };
 };

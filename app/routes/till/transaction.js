@@ -214,19 +214,40 @@ router.post(
                               }
 
                               if (
+                                categoriesAsObj[transaction[i].item_id]
+                                  .carbon_id
+                              ) {
+                                transaction.carbon_id =
+                                  categoriesAsObj[
+                                    transaction[i].item_id
+                                  ].carbon_id;
+                              }
+
+                              let group_id =
+                                categoriesAsObj[transaction[i].item_id]
+                                  .group_id || till.group_id;
+
+                              if (
                                 transaction[i].weight > 0 &&
                                 carbonCategories[transaction[i].carbon_id]
                               ) {
+                                if (!carbonTransaction[group_id]) {
+                                  carbonTransaction[group_id] = {};
+                                }
+
                                 if (
-                                  carbonTransaction[transaction[i].carbon_id]
+                                  carbonTransaction[group_id][
+                                    transaction[i].carbon_id
+                                  ]
                                 ) {
                                   carbonTransaction[transaction[i].carbon_id] =
                                     +carbonTransaction[
                                       transaction[i].carbon_id
                                     ] + +transaction[i].weight;
                                 } else {
-                                  carbonTransaction[transaction[i].carbon_id] =
-                                    transaction[i].weight;
+                                  carbonTransaction[group_id][
+                                    transaction[i].carbon_id
+                                  ] = transaction[i].weight;
                                 }
                                 weight_total =
                                   +weight_total + +transaction[i].weight;
@@ -375,7 +396,7 @@ router.post(
                                 ) {
                                   validTransaction = false;
                                   whyTransactionFailed =
-                                    "There must be at least one item in the transaction";
+                                    "There must be at least one item in the transaction.";
                                 }
 
                                 if (validTransaction) {
@@ -494,9 +515,7 @@ router.post(
                                                   paymentMethod: null
                                                 }
                                               },
-                                              function(err) {
-                                                console.log(err);
-                                              }
+                                              function(err) {}
                                             );
 
                                             response.transactionSummary +=
@@ -538,86 +557,106 @@ router.post(
                                           );
                                         }
 
-                                        var carbon = {
-                                          member_id: member_id,
-                                          user_id: req.user.id,
-                                          trans_object: carbonTransaction,
-                                          amount: weight_total,
-                                          group_id: till.group_id,
-                                          method: "reused"
-                                        };
-                                        Carbon.add(carbon, function(err) {
-                                          Helpers.calculateCarbon(
-                                            [carbon],
-                                            carbonCategories,
-                                            function(carbonSaved) {
-                                              response.carbonSummary =
-                                                Math.abs(
-                                                  (carbonSaved * 1e-3).toFixed(
-                                                    2
-                                                  )
-                                                ) + "kg of carbon saved";
+                                        var simpleCarbon = [];
 
-                                              if (paymentMethod == "card") {
-                                                var sumupSummon =
-                                                  "sumupmerchant://pay/1.0?affiliate-key=" +
-                                                  process.env
-                                                    .SUMUP_AFFILIATE_KEY +
-                                                  "&app-id=" +
-                                                  process.env.SUMUP_APP_ID +
-                                                  "&title=" +
-                                                  req.user.allWorkingGroupsObj[
-                                                    till.group_id
-                                                  ].name +
-                                                  " purchase" +
-                                                  "&total=" +
-                                                  totals.money +
-                                                  "&amount=" +
-                                                  totals.money +
-                                                  "&currency=GBP" +
-                                                  "&foreign-tx-id=" +
-                                                  transaction_id +
-                                                  "&callback=" +
-                                                  encodeURIComponent(
-                                                    process.env.PUBLIC_ADDRESS +
-                                                      "/api/get/tills/smp-callback" +
-                                                      "/?murakamiStatus=" +
-                                                      response.status +
-                                                      "&transactionSummary=" +
-                                                      response.transactionSummary +
-                                                      "&carbonSummary=" +
-                                                      response.carbonSummary +
-                                                      "&till_id=" +
-                                                      till.till_id
-                                                  );
+                                        async.eachOf(
+                                          carbonTransaction,
+                                          function(
+                                            trans_object,
+                                            group_id,
+                                            callback
+                                          ) {
+                                            let carbon = {
+                                              member_id: member_id || "anon",
+                                              user_id: req.user.id,
+                                              trans_object: trans_object,
+                                              fx_transaction_id: transaction_id,
+                                              group_id: group_id,
+                                              method: "reused"
+                                            };
+                                            Carbon.add(carbon, function(err) {
+                                              simpleCarbon.push({
+                                                trans_object: trans_object,
+                                                method: "reused"
+                                              });
+                                              callback();
+                                            });
+                                          },
+                                          function() {
+                                            Helpers.calculateCarbon(
+                                              simpleCarbon,
+                                              carbonCategories,
+                                              function(carbonSaved) {
+                                                response.carbonSummary =
+                                                  Math.abs(
+                                                    (
+                                                      carbonSaved * 1e-3
+                                                    ).toFixed(2)
+                                                  ) + "kg of carbon saved";
 
-                                                if (member) {
-                                                  if (member.email) {
-                                                    sumupSummon +=
-                                                      "&receipt-email=" +
-                                                      member.email;
+                                                if (paymentMethod == "card") {
+                                                  var sumupSummon =
+                                                    "sumupmerchant://pay/1.0?affiliate-key=" +
+                                                    process.env
+                                                      .SUMUP_AFFILIATE_KEY +
+                                                    "&app-id=" +
+                                                    process.env.SUMUP_APP_ID +
+                                                    "&title=" +
+                                                    req.user
+                                                      .allWorkingGroupsObj[
+                                                      till.group_id
+                                                    ].name +
+                                                    " purchase" +
+                                                    "&total=" +
+                                                    totals.money +
+                                                    "&amount=" +
+                                                    totals.money +
+                                                    "&currency=GBP" +
+                                                    "&foreign-tx-id=" +
+                                                    transaction_id +
+                                                    "&callback=" +
+                                                    encodeURIComponent(
+                                                      process.env
+                                                        .PUBLIC_ADDRESS +
+                                                        "/api/get/tills/smp-callback" +
+                                                        "/?murakamiStatus=" +
+                                                        response.status +
+                                                        "&transactionSummary=" +
+                                                        response.transactionSummary +
+                                                        "&carbonSummary=" +
+                                                        response.carbonSummary +
+                                                        "&till_id=" +
+                                                        till.till_id
+                                                    );
+
+                                                  if (member) {
+                                                    if (member.email) {
+                                                      sumupSummon +=
+                                                        "&receipt-email=" +
+                                                        member.email;
+                                                    }
+                                                    if (member.phone_no) {
+                                                      sumupSummon +=
+                                                        "&receipt-mobilephone=" +
+                                                        member.phone_no;
+                                                    }
                                                   }
-                                                  if (member.phone_no) {
-                                                    sumupSummon +=
-                                                      "&receipt-mobilephone=" +
-                                                      member.phone_no;
-                                                  }
-                                                }
 
-                                                if (response.status == "ok") {
-                                                  res.send({
-                                                    status: "redirect",
-                                                    url: sumupSummon
-                                                  });
+                                                  if (response.status == "ok") {
+                                                    res.send({
+                                                      status: "redirect",
+                                                      url: sumupSummon
+                                                    });
+                                                  } else {
+                                                    res.send(response);
+                                                  }
                                                 } else {
                                                   res.send(response);
                                                 }
-                                              } else {
-                                                res.send(response);
                                               }
-                                            }
-                                          );
-                                        });
+                                            );
+                                          }
+                                        );
                                       }
                                     }
                                   );

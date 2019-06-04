@@ -42,7 +42,7 @@
 
 			<div class="d-none" id="memberOptions">
 
-			  <input type="text" class="form-control mt-3" id="memberInput" oninput="searchMember()" value="" placeholder="Type member's name or scan barcode">
+			  <input type="text" class="form-control mt-3" id="memberInput" oninput="searchMember(function(){})" value="" placeholder="Type member's name or scan barcode">
 
 			</div>
 		</div>
@@ -458,12 +458,12 @@ function updateTransactionList(){
 		weightColumn.onblur = function(){
 			updateTransaction(i)
 		};
+
 		if(transaction[i].carbon_id != ""){
 			weightColumn.contentEditable = true;
 			weightColumn.textContent = transaction[i].weight;
 		} else {
 			weightColumn.textContent = "-";
-
 		}
 
 		removeColumn = document.createElement("td");
@@ -492,8 +492,6 @@ function updateTransactionList(){
 	}
 
 	updateButtons();
-
-
 
 }
 
@@ -525,10 +523,12 @@ function updateButtons(){
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0){
+		$("#tokens_total").text((+money_total + +tokens_total).toFixed(2));
 		$("#changeCalc").addClass("d-none");
 		if(money_total == 0 && tokens_total == 0){
 			$("#selectPaymentMethod").addClass("d-none");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
+
 		} else if(member.name && payWithTokens){
 			if(money_total == 0){
 				if(member.balance >= tokens_total){
@@ -538,7 +538,6 @@ function updateButtons(){
 					} else {
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " tokens</b>")
 					}
-
 
 				} else {
 
@@ -603,7 +602,7 @@ function updateTransaction(index){
 	if(isNumeric($("#weight_" + index).html())){
 		transaction[index].weight = $("#weight_" + index).html();
 	} else {
-		$("#weight_" + index).html("");
+		$("#weight_" + index).html("-");
 		transaction[index].weight = 0;
 	}
 
@@ -904,7 +903,7 @@ function getBalance(){
 function toggleIsMember(e) {
   if(e.checked) {
       $("#memberOptions").removeClass("d-none");
-      searchMember();
+      searchMember(function(){});
   } else {
     member = {};
     $("#searchResults").html("");

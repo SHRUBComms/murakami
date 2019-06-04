@@ -38,16 +38,18 @@ router.get(
               });
             } else {
               res.redirect(
-                process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id
+                process.env.PUBLIC_ADDRESS +
+                  "/till/transaction/" +
+                  req.params.till_id
               );
             }
           });
         } else {
           req.flash("error", "You don't have permission to open this till!");
-          res.redirect(process.env.PUBLIC_ADDRESS + "/till");
+          res.redirect(process.env.PUBLIC_ADDRESS + "/till/select");
         }
       } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/till");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/till/select");
       }
     });
   }
@@ -77,7 +79,9 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
                   );
                 } else {
                   res.redirect(
-                    process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id
+                    process.env.PUBLIC_ADDRESS +
+                      "/till/transaction/" +
+                      req.params.till_id
                   );
                 }
               }
@@ -85,12 +89,14 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
           } else {
             req.flash("error", "Till already open!");
             res.redirect(
-              process.env.PUBLIC_ADDRESS + "/till/" + req.params.till_id
+              process.env.PUBLIC_ADDRESS +
+                "/till/transaction/" +
+                req.params.till_id
             );
           }
         });
       } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/till");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/till/select");
       }
     });
   } else {
