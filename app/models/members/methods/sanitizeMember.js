@@ -111,8 +111,9 @@ module.exports = function(Members, sequelize, DataType) {
 
           try {
             if (
-              user.permissions.members.barcode == true ||
-              (user.permissions.members.barcode == "commonWorkingGroup" &&
+              user.permissions.members.manageMembershipCard == true ||
+              (user.permissions.members.manageMembershipCard ==
+                "commonWorkingGroup" &&
                 commonWorkingGroup)
             ) {
               sanitizedMember.barcode = member.barcode;
