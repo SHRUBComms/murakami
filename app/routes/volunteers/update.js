@@ -125,7 +125,6 @@ router.post(
 
                   var gdprConsent = req.body.gdprConsent;
 
-                  var fseNewsletterConsent = req.body.fseNewsletterConsent;
                   var generalNewsletterConsent =
                     req.body.generalNewsletterConsent;
 
@@ -502,20 +501,6 @@ router.post(
                                     "/lists/" +
                                       process.env
                                         .SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                                      "/members/" +
-                                      md5(email),
-                                    subscribeBody
-                                  );
-                                }
-
-                                if (fseNewsletterConsent == "on") {
-                                  var fseMailchimp = new Mailchimp(
-                                    process.env.FSE_MAILCHIMP_SECRET_API_KEY
-                                  );
-                                  fseMailchimp.put(
-                                    "/lists/" +
-                                      process.env
-                                        .FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
                                       "/members/" +
                                       md5(email),
                                     subscribeBody

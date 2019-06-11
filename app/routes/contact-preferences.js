@@ -18,24 +18,18 @@ router.get("/:member_id", function(req, res) {
       if (!err && member) {
         if (member.contactPreferences) {
           member.contactPreferences.newsletters = {
-            shrub: null,
-            fse: null
+            shrub: null
           };
         } else {
           member.contactPreferences = {
             newsletters: {
-              shrub: null,
-              fse: null
+              shrub: null
             }
           };
         }
 
         var shrubMailchimp = new Mailchimp(
           process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-        );
-
-        var fseMailchimp = new Mailchimp(
-          process.env.FSE_MAILCHIMP_SECRET_API_KEY
         );
 
         shrubMailchimp.get(
@@ -50,27 +44,10 @@ router.get("/:member_id", function(req, res) {
               }
             } catch (err) {}
 
-            fseMailchimp.get(
-              {
-                path:
-                  "/lists/" +
-                  process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
-                  "/members/" +
-                  md5(member.email)
-              },
-              function(err, response) {
-                try {
-                  if (response.status == "subscribed") {
-                    member.contactPreferences.newsletters.fse = true;
-                  }
-                } catch (err) {}
-
-                res.render("contact-preferences.hbs", {
-                  title: "Contact Preferences",
-                  member: member
-                });
-              }
-            );
+            res.render("contact-preferences.hbs", {
+              title: "Contact Preferences",
+              member: member
+            });
           }
         );
       } else {
@@ -126,22 +103,6 @@ router.post("/:member_id", function(req, res) {
           }
         } catch (err) {}
 
-        try {
-          if (req.body.newsletters.fse.subscribe) {
-            contactPreferences.newsletters.shrub = true;
-            var fseMailchimp = new Mailchimp(
-              process.env.FSE_MAILCHIMP_SECRET_API_KEY
-            );
-            fseMailchimp.put(
-              "/lists/" +
-                process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
-                "/members/" +
-                md5(member.email),
-              subscribeBody
-            );
-          }
-        } catch (err) {}
-
         // Unsubscribe from mailchimp
         try {
           if (req.body.newsletters.shrub.unsubscribe) {
@@ -152,22 +113,6 @@ router.post("/:member_id", function(req, res) {
             shrubMailchimp.delete(
               "/lists/" +
                 process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                "/members/" +
-                md5(member.email),
-              subscribeBody
-            );
-          }
-        } catch (err) {}
-
-        try {
-          if (req.body.newsletters.fse.unsubscribe) {
-            contactPreferences.newsletters.fse = null;
-            var fseMailchimp = new Mailchimp(
-              process.env.FSE_MAILCHIMP_SECRET_API_KEY
-            );
-            fseMailchimp.delete(
-              "/lists/" +
-                process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
                 "/members/" +
                 md5(member.email),
               subscribeBody
