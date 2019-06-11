@@ -3,6 +3,7 @@ var async = require("async");
 module.exports = function(StockCategories, sequelize, DataTypes) {
   return function(callback) {
     StockCategories.findAll({
+      raw: true,
       where: { action: { [DataTypes.Op.like]: "%MEM%" } }
     }).nodeify(function(err, membershipCategories) {
       var membershipCategoriesObj = {};

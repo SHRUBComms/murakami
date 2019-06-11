@@ -8,8 +8,9 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Carbon = Models.Carbon;
 
 var Helpers = require(rootDir + "/app/helper-functions/root");
+var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", function(req, res) {
+router.get("/", Auth.verifyByKey, function(req, res) {
   Carbon.getAll(function(err, carbon) {
     if (err || carbon.length == 0) {
       var totalCarbon = 0;
