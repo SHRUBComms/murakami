@@ -360,6 +360,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                   ) {
                     sanitizedVolunteer.working_groups =
                       volunteer.working_groups;
+
+                    sanitizedVolunteer.old_working_groups =
+                      volunteer.old_working_groups || [];
                   }
                 } catch (err) {}
 
