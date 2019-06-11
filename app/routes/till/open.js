@@ -18,7 +18,7 @@ router.get(
   function(req, res) {
     Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
-        if (till.disabled) {
+        if (till.disabled == 0) {
           if (
             req.user.permissions.tills.open == true ||
             (req.user.permissions.tills.open == "commonWorkingGroup" &&
