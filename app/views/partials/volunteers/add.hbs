@@ -5,16 +5,19 @@
 <div class="card">
   <div class="card-body">
 
-    <h4 class="mb-2">Emergency Contact <span class="text-danger">*</span></h4>
+    <h4 class="mb-2">Emergency Contact</h4>
 
-    <div class="form-group form-inline">
-      <input type="text" class="form-control mr-md-2 mr-lg-2 mr-xl-2" placeholder="Relation" name="volInfo[emergencyContactRelation]"{{#if volInfo.emergencyContactRelation}} value="{{volInfo.emergencyContactRelation}}"{{/if}} required />
-      <input type="text" class="form-control" placeholder="Name" name="volInfo[emergencyContactName]"{{#if volInfo.emergencyContactName}} value="{{volInfo.emergencyContactName}}"{{/if}} required />
+    <div class="d-flex mb-3">
+      <input type="text" class="form-control w-50" placeholder="Relation" name="volInfo[emergencyContactRelation]"{{#if volInfo.emergencyContactRelation}} value="{{volInfo.emergencyContactRelation}}"{{/if}} required />
+      <span class="flex-shrink-1 text-danger mx-2">*</span>
+      <input type="text" class="form-control w-50" placeholder="Name" name="volInfo[emergencyContactName]"{{#if volInfo.emergencyContactName}} value="{{volInfo.emergencyContactName}}"{{/if}} required />
+      <span class="flex-shrink-1 text-danger mx-2">*</span>
     </div>
 
 
-    <div class="form-group col-sm-8" style="padding: 0;">
-      <input type="text" class="form-control" placeholder="Phone Number" name="volInfo[emergencyContactPhoneNo]"{{#if volInfo.emergencyContactPhoneNo}} value="{{volInfo.emergencyContactPhoneNo}}"{{/if}} required />
+    <div class="d-flex mb-3">
+      <input type="text" class="form-control m-50" placeholder="Phone Number" name="volInfo[emergencyContactPhoneNo]"{{#if volInfo.emergencyContactPhoneNo}} value="{{volInfo.emergencyContactPhoneNo}}"{{/if}} required />
+      <span class="flex-shrink-1 text-danger mx-2">*</span>
     </div>
     {{#unless updatingVolunteer}}
       <p class="mt-3">We aim to make SHRUB as inclusive as possible. Do you have any disabilities, health needs or extra support needs that you would like us to be aware of?</p>
@@ -32,12 +35,12 @@
   <div class="card-body">
 
 
-    <h3 class="mb-2">Roles <span class="text-danger">*</span></h3>
+    <h3 class="mb-2">Roles</h3>
 
     {{#if user}}
 
-      <div class="row-fluid mb-1">
-        <select class="selectpicker volunteer-roles show-tick form-control" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
+      <div class="d-flex mb-1">
+        <select class="selectpicker volunteer-roles show-tick form-control w-100" name="volInfo[roles]" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
 
 
             {{#each user.allWorkingGroupsObj}}
@@ -62,18 +65,20 @@
 
 
         </select>
+        <span class="flex-shrink-1 text-danger mx-2">*</span>
       </div>
       {{#if user.permissions.volunteerRoles.quickAdd}}
         <a class="btn btn-primary mb-3" data-toggle="modal" data-target="#quickAddRoleDialog">Quick Add Role</a>
       {{/if}}
-      <div class="row-fluid">
-        <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
+      <div class="d-flex mb-1">
+        <select class="selectpicker show-tick form-control w-100" title="Assign one or more staff co-ordinators" name="volInfo[assignedCoordinators]" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
 
           {{#each coordinators}}
               <option value="{{id}}" {{#if (lookupArray ../volInfo.assignedCoordinators id)}}selected{{/if}}>{{first_name}} {{last_name}}</option>
           {{/each}}
 
         </select>
+        <span class="flex-shrink-1 text-danger mx-2">*</span>
       </div>
     {{else}}
       <p>You will be assigned the following role(s):</p>
@@ -116,7 +121,7 @@
 
 <div class="card mt-4">
   <div class="card-body">
-    <h3 class="mb-2">Availability <span class="text-danger">*</span></h3>
+    <h3 class="mb-2">Availability</h3>
     <div class="row">
       {{>volunteers/availability formPrefix="volInfo[availability]" availability=volInfo.availability}}
     </div>
@@ -130,8 +135,8 @@
 
       <li>
 
-        <p class="mb-2">What would you like to achieve through your voluntary work at SHRUB? Are there any skills you want to develop? <span class="text-danger">*</span></p>
-        <textarea class="form-control" name="volInfo[survey][goals]" required>{{#if volInfo.survey.goals}}{{volInfo.survey.goals}}{{/if}}</textarea>
+        <p class="mb-2">What would you like to achieve through your voluntary work at SHRUB? Are there any skills you want to develop?</p>
+        <textarea class="form-control" name="volInfo[survey][goals]">{{#if volInfo.survey.goals}}{{volInfo.survey.goals}}{{/if}}</textarea>
 
       </li>
 
@@ -174,9 +179,9 @@
       <br />
 
       <li>
-        <p class="mb-2">What are your preferred communication methods? <span class="text-danger">*</span></p>
+        <p class="mb-2">What are your preferred communication methods?</p>
 
-        <select class="selectpicker show-tick form-control" title="Select one or more communication methods" name="volInfo[survey][preferredCommMethods]" data-style="btn-info" data-size="auto" multiple required>
+        <select class="selectpicker show-tick form-control" title="Select one or more communication methods" name="volInfo[survey][preferredCommMethods]" data-style="btn-info" data-size="auto" multiple>
 
             {{#each contactMethods}}
 

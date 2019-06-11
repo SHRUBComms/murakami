@@ -20,7 +20,7 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false
       },
       emergencyContactPhoneNo: {
-        type: DataTypes.STRING(15),
+        type: DataTypes.STRING(25),
         allowNull: false
       },
       roles: {

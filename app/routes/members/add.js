@@ -89,9 +89,7 @@ router.post(
           var till_id = req.query.till_id;
 
           // Validation
-          req
-            .checkBody("first_name", "Please enter a date of birth")
-            .notEmpty();
+          req.checkBody("dob", "Please enter a date of birth").notEmpty();
 
           req.checkBody("first_name", "Please enter a first name").notEmpty();
           req
@@ -119,6 +117,8 @@ router.post(
           req
             .checkBody("email", "Please enter a valid email address")
             .isEmail();
+
+          req.checkBody("address", "Please enter an address").notEmpty();
 
           req
             .checkBody(
