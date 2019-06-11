@@ -24,50 +24,57 @@ router.post(
     if (till_id) {
       Tills.getById(till_id, function(err, till) {
         if (till) {
-          if (
-            req.user.permissions.tills.updateCategories == true ||
-            (req.user.permissions.tills.updateCategories ==
-              "commonWorkingGroup" &&
-              req.user.working_groups.includes(till.group_id))
-          ) {
-            if (item_id) {
-              StockCategories.getCategoriesByTillId(till_id, "kv", function(
-                err,
-                categories
-              ) {
-                if (categories[item_id]) {
-                  if (categories[newParent]) {
-                    if (newParent != item_id) {
-                      StockCategories.moveCategory(item_id, newParent, function(
-                        err
-                      ) {
-                        if (err) {
-                          res.send(response);
-                        } else {
-                          response.status = "ok";
-                          response.msg = "Category moved!";
-                          res.send(response);
-                        }
-                      });
+          if ((till.disabled = 0)) {
+            if (
+              req.user.permissions.tills.updateCategories == true ||
+              (req.user.permissions.tills.updateCategories ==
+                "commonWorkingGroup" &&
+                req.user.working_groups.includes(till.group_id))
+            ) {
+              if (item_id) {
+                StockCategories.getCategoriesByTillId(till_id, "kv", function(
+                  err,
+                  categories
+                ) {
+                  if (categories[item_id]) {
+                    if (categories[newParent]) {
+                      if (newParent != item_id) {
+                        StockCategories.moveCategory(
+                          item_id,
+                          newParent,
+                          function(err) {
+                            if (err) {
+                              res.send(response);
+                            } else {
+                              response.status = "ok";
+                              response.msg = "Category moved!";
+                              res.send(response);
+                            }
+                          }
+                        );
+                      } else {
+                        response.msg = "Category cannot be it's own parent.";
+                        res.send(response);
+                      }
                     } else {
-                      response.msg = "Category cannot be it's own parent.";
+                      response.msg = "Select a valid parent.";
                       res.send(response);
                     }
                   } else {
-                    response.msg = "Select a valid parent.";
+                    response.msg = "Select a valid category";
                     res.send(response);
                   }
-                } else {
-                  response.msg = "Select a valid category";
-                  res.send(response);
-                }
-              });
+                });
+              } else {
+                response.msg = "Please select a category!";
+                res.send(response);
+              }
             } else {
-              response.msg = "Please select a category!";
+              response.msg = "You don't have permission to do that!";
               res.send(response);
             }
           } else {
-            response.msg = "You don't have permission to do that!";
+            response.msg = "Till is disabled!";
             res.send(response);
           }
         } else {

@@ -29,6 +29,9 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
   }
 
   Tills.getById(till_id, function(err, till) {
+    if (till.disabled == 1) {
+      till = null;
+    }
     Members.getSignUpInfo(function(
       ourVision,
       saferSpacesPolicy,
@@ -63,6 +66,9 @@ router.post(
   Auth.canAccessPage("members", "add"),
   function(req, res) {
     Tills.getById(req.query.till_id, function(err, till) {
+      if (till.disabled == 1) {
+        till = null;
+      }
       if (req.user.permissions.members.addSpecialMembers == true || till) {
         Members.getSignUpInfo(function(
           ourVision,

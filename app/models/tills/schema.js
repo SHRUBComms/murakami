@@ -19,9 +19,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING(50),
         allowNull: false
       },
-      stockControl: {
+      disabled: {
         type: DataTypes.INTEGER(4),
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
       }
     },
     {

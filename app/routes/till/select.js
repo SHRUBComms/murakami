@@ -20,17 +20,51 @@ router.get(
   Auth.canAccessPage("tills", "processTransaction"),
   function(req, res) {
     Tills.getAll(function(err, tills) {
-      if (tills.length > 1) {
-        res.render("till/root", {
-          tillMode: true,
-          title: "Select A Till",
-          tills: tills
-        });
-      } else {
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/till/transactions/" + tills[0].till_id
-        );
-      }
+      var allowedTills = [];
+      async.each(
+        tills,
+        function(till, callback) {
+          if (
+            (req.user.permissions.tills.viewTill == true &&
+              till.disabled == 0) ||
+            (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
+              req.user.working_groups.includes(till.group_id) &&
+              till.disabled == 0)
+          ) {
+            allowedTills.push(till);
+            callback();
+          } else {
+            callback();
+          }
+        },
+        function() {
+          if (allowedTills.length > 1) {
+            res.render("till/root", {
+              tillMode: true,
+              title: "Select A Till",
+              tills: allowedTills
+            });
+          } else if (allowedTills.length == 1) {
+            res.redirect(
+              process.env.PUBLIC_ADDRESS +
+                "/till/transaction/" +
+                allowedTills[0].till_id
+            );
+          } else {
+            res.render("till/root", {
+              tillMode: true,
+              errors: [
+                {
+                  msg:
+                    "No tills are available. Please contact an administrator."
+                }
+              ],
+              title: "Select A Till",
+              tills: allowedTills
+            });
+          }
+        }
+      );
     });
   }
 );
