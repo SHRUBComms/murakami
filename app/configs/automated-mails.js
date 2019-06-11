@@ -115,8 +115,8 @@ var automatedMails = new CronJob({
       );
     });
 
-    // Redact personal info of 2+ year old members
-    Members.getExpiredTwoYearsAgo(function(err, members) {
+    // Redact personal info of 5.5 year old members
+    Members.getExpired5Years6MonthsAgo(function(err, members) {
       async.each(
         members,
         function(member, callback) {
