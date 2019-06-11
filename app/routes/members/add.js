@@ -63,7 +63,7 @@ router.post(
   Auth.canAccessPage("members", "add"),
   function(req, res) {
     Tills.getById(req.query.till_id, function(err, till) {
-      if ((req.user.class != "admin" && till) || req.user.class == "admin") {
+      if (req.user.permissions.members.addSpecialMembers == true || till) {
         Members.getSignUpInfo(function(
           ourVision,
           saferSpacesPolicy,
@@ -172,7 +172,7 @@ router.post(
 
           var errors = req.validationErrors();
 
-          if (req.user.class == "admin") {
+          if (req.user.permissions.members.addSpecialMembers) {
             if (["lifetime", "staff", "trustee"].includes(membership_type)) {
               current_exp_membership = moment("9999-01-01").toDate();
             } else {
@@ -310,6 +310,8 @@ router.post(
             });
           }
         });
+      } else {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/");
       }
     });
   }

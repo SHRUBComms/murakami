@@ -30,7 +30,7 @@
 
       {{else}}
 
-        {{#if user.admin}}
+        {{#ifCond user.permissions.members.addSpecialMembers '==' true}}
 
           <div class="row mb-2">
             <div class="col-md-12">
@@ -62,7 +62,7 @@
           <div class="row">
             <a href="{{public_address}}/till/select" class="btn btn-primary btn-block btn-lg">Select A Till</a>
           </div>
-        {{/if}}
+        {{/ifCond}}
 
       {{/if}}
 

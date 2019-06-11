@@ -60,7 +60,7 @@
     <h3 class="mb-2">Membership</h3>
 
     {{#unless addingVolunteer}}
-      {{#ifUserClass user.class '["admin"]'}}
+      {{#ifCond user.permissions.members.addSpecialMembers '==' true}}
         <div class="d-flex mb-2">
           <select class="form-control w-100" name="membership_type" required>
             <option selected disabled>Select membership type...</option>
@@ -70,8 +70,7 @@
           </select>
           <span class="text-danger flex-shrink-1 ml-2">*</span>
         </div>
-      {{/ifUserClass}}
-
+      {{/ifCond}}
     {{/unless}}
 
     <div class="row mt-3 no-gutters">
