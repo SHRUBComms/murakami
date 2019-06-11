@@ -53,42 +53,37 @@ router.get(
   function(req, res) {
     Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
-        if (till.disabled == 0) {
-          if (
-            req.user.permissions.tills.viewTill == true ||
-            (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
-              req.user.working_groups.includes(till.group_id))
-          ) {
-            TillActivity.getByTillId(till.till_id, function(status) {
-              StockCategories.getCategoriesByTillId(
-                req.params.till_id,
-                "tree",
-                function(err, categories) {
-                  var till_id = req.query.till_id || null;
-                  var tillMode = false;
-                  if (till_id) {
-                    tillMode = true;
-                  }
-                  CarbonCategories.getAll(function(err, carbonCategories) {
-                    res.render("till/view", {
-                      tillMode: true,
-                      title: "View Till",
-                      tillsActive: true,
-                      till: till,
-                      categories: categories,
-                      carbonCategories: carbonCategories,
-                      status: status,
-                      endDate: req.query.endDate || null,
-                      startDate: req.query.startDate || null
-                    });
-                  });
+        if (
+          req.user.permissions.tills.viewTill == true ||
+          (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
+            req.user.working_groups.includes(till.group_id))
+        ) {
+          TillActivity.getByTillId(till.till_id, function(status) {
+            StockCategories.getCategoriesByTillId(
+              req.params.till_id,
+              "tree",
+              function(err, categories) {
+                var till_id = req.query.till_id || null;
+                var tillMode = false;
+                if (till_id) {
+                  tillMode = true;
                 }
-              );
-            });
-          }
-        } else {
-          req.flash("error", "Till is disabled.");
-          res.redirect(process.env.PUBLIC_ADDRESS + "/till/manage");
+                CarbonCategories.getAll(function(err, carbonCategories) {
+                  res.render("till/view", {
+                    tillMode: true,
+                    title: "View Till",
+                    tillsActive: true,
+                    till: till,
+                    categories: categories,
+                    carbonCategories: carbonCategories,
+                    status: status,
+                    endDate: req.query.endDate || null,
+                    startDate: req.query.startDate || null
+                  });
+                });
+              }
+            );
+          });
         }
       } else {
         req.flash("error", "Till not found.");

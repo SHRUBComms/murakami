@@ -1,46 +1,52 @@
 <div class="row mt-5 ml-1">
 	<div class="card">
 		<div class="card-body">
-			<h3 class="mb-3">{{till.name}} <span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
-			{{#if status.opening}}
-		  	<a href="{{public_address}}/till/transaction/{{till.till_id}}" class="btn btn-block btn-primary">Go To Till</a>
+			<h3>{{till.name}} <span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
+			{{#if till.disabled}}
+				<p class="text-danger font-weight-bold mt-1">Disabled</p>
 			{{else}}
-				<a href="{{public_address}}/till/open/{{till.till_id}}" class="btn btn-block btn-primary">Open Till</a>
+				{{#if status.opening}}
+			  	<a href="{{public_address}}/till/transaction/{{till.till_id}}" class="btn btn-block btn-primary mt-3">Go To Till</a>
+				{{else}}
+					<a href="{{public_address}}/till/open/{{till.till_id}}" class="btn btn-block btn-primary mt-3">Open Till</a>
+				{{/if}}
 			{{/if}}
 		</div>
 	</div>
 </div>
 
 
-<div class="row mt-4">
-	{{#if user.permissions.tills.updateCategories}}
-		<div class="col-lg-6 mx-auto">
-			<div class="row">
+{{#unless till.disabled}}
 
-		     {{>till/selection-ui}}
+	<div class="row mt-4">
+		{{#if user.permissions.tills.updateCategories}}
+			<div class="col-lg-6 mx-auto">
+				<div class="row">
 
+			     {{>till/selection-ui}}
+
+				</div>
 			</div>
+		{{/if}}
+
+		{{#if user.permissions.tills.updateSettings}}
+			<div class="col-lg-3 mx-auto">
+
+				<div class="card">
+					<div class="card-body">
+
+			    <h3 class="mb-3">Settings</h3>
+
+			    <input type="text" class="form-control mb-4" placeholder="Till Name" id="till_name" value="{{till.name}}">
+
+			    <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
+				</div>
+		  </div>
+		{{/if}}
+
 		</div>
-	{{/if}}
-
-	{{#if user.permissions.tills.updateSettings}}
-		<div class="col-lg-3 mx-auto">
-
-			<div class="card">
-				<div class="card-body">
-
-		    <h3 class="mb-3">Settings</h3>
-
-		    <input type="text" class="form-control mb-4" placeholder="Till Name" id="till_name" value="{{till.name}}">
-
-		    <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
-			</div>
-	  </div>
-	{{/if}}
-
 	</div>
-</div>
-
+{{/unless}}
 
 	{{#if user.permissions.tills.exportTransactions}}
 		<div class="row mt-4">

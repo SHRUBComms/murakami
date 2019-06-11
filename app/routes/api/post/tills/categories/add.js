@@ -25,7 +25,7 @@ router.post(
     if (category) {
       Tills.getById(category.till_id, function(err, till) {
         if (till) {
-          if ((till.disabled = 0)) {
+          if (till.disabled == 0) {
             sanitizedCategory.till_id = category.till_id;
             if (
               req.user.permissions.tills.updateCategories == true ||
