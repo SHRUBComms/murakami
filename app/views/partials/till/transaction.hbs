@@ -51,7 +51,7 @@
 
 <div class="row mt-3" id="searchResults"></div>
 
-<div class="row mt-4 no-gutters">
+<div class="row mt-4 h-100">
 	<div class="col-lg-6 mx-auto">
 
 				{{>till/selection-ui mode="transaction"}}
@@ -433,7 +433,7 @@ function updateTransactionList(){
 		row = document.createElement("tr");
 
 		categoryColumn = document.createElement("td");
-		categoryColumn.innerHTML = transaction[i].name + " " + note;
+		categoryColumn.innerHTML = transaction[i].absoluteName + " " + note;
 
 		valueColumn = document.createElement("td");
 		valueColumn.id = "value_" + i;
