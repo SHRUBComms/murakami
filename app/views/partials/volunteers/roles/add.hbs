@@ -86,7 +86,29 @@
 
 <div class="card mt-4">
   <div class="card-body">
-      <h3 class="mb-3">Availability</h3>
+      <h3 class="mb-2">Availability</h3>
+      <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="toggleAllTimeSlots">
+        <label class="form-check-label" id="toggleAllTimeSlotsLabel" for="toggleAllTimeSlots">Select all time slots</label>
+      </div>
       {{>volunteers/availability formPrefix='availability'}}
   </div>
 </div>
+
+<script>
+
+$("#toggleAllTimeSlots").change(function(){
+  if(this.checked){
+    $("#toggleAllTimeSlotsLabel").text("Deselect all time slots")
+    $("#availabilityTable").find('input[type=checkbox]').each(function () {
+      this.checked = true;
+    });
+  } else {
+    $("#toggleAllTimeSlotsLabel").text("Select all time slots")
+    $("#availabilityTable").find('input[type=checkbox]').each(function () {
+      this.checked = false;
+    });
+  }
+})
+
+</script>
