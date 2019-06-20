@@ -2,32 +2,38 @@
 
 
 <div class="row mb-2">
-	<div class="col-md-6 offset-md-1">
-		<div class="form-inline">
+  <div class="col-md-6 offset-md-1">
+    <div class="row">
+  		<div class="col-md-5 form-group">
+  			{{#ifCond user.permissions.carbonAccounting.log '==' true}}
+          {{>working-groups/select selectedGroup=group_id id="working_group" user=user}}
+        {{else}}
+          {{>working-groups/select selectedGroup=group_id allGroups=false id="working_group" user=user}}
+        {{/ifCond}}
+  		</div>
 
-		    <div class="form-group">
+  		<div class="col-md-6 form-group">
+        <select class="form-control d-block mb-1" id="method">
+  				<option value="" selected disabled>Select a disposal method...</option>
+          <option value="recycled">Recycled</option>
+          <option value="landfilled">Landfilled</option>
+          <option value="generated">Generated</option>
+          <option value="incinerated">Incinerated</option>
+          <option value="composted">Composted</option>
+          <option value="reused">Reused</option>
+          <option value="stored">Stored</option>
+          <option value="other">Other</option>
+        </select>
 
-					{{#ifCond user.permissions.carbonAccounting.log '==' true}}
-	          {{>working-groups/select selectedGroup=group_id id="working_group" user=user}}
-	        {{else}}
-	          {{>working-groups/select selectedGroup=group_id allGroups=false id="working_group" user=user}}
-	        {{/ifCond}}
+  			<label>
+          <a class="form-text" href="javascript:void(0);" data-toggle="modal" data-target="#disposalMethodsExplained">
+  			      Disposal Methods Explained
+  			  </a>
+        </label>
 
-		    </div>
-		    <div class="form-group">
-		      <select class="form-control" id="method">
-		        <option value="recycled" selected>Recycled</option>
-		        <option value="landfilled">Landfilled</option>
-		        <option value="generated">Generated</option>
-		        <option value="incinerated">Incinerated</option>
-		        <option value="composted">Composted</option>
-		        <option value="reused">Reused</option>
-		        <option value="stored">Stored</option>
-		        <option value="other">Other</option>
-		      </select>
-		    </div>
-		</div>
-	</div>
+  		</div>
+    </div>
+  </div>
 </div>
 
 <div class="row">
@@ -64,6 +70,59 @@
 		</div>
 	</div>
 
+</div>
+
+
+
+<div class="modal fade" id="disposalMethodsExplained" tabindex="-1" role="dialog" aria-labelledby="disposalMethodsExplainedLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="disposalMethodsExplainedLabel">Disposal Methods Explained</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<div class="row">
+			  	<div class="col-md-12 mx-auto">
+			  			<div class="card">
+			  					<div class="card-body">
+			              <div class="row mt-2 mb-1">
+			                <div class="col-md-10 offset-md-1">
+			                  <ul>
+			                    <li>
+			                      <p><b>Landfilled</b>: Waste is disposed of by burial. The item is taken out of use so it requires regeneration.</p>
+			                    </li>
+			                    <li>
+			                      <p><b>Incinerated</b>: Waste is disposed of by high temperature combustion. Some of this will be incineration with energy recovery.</p>
+			                    </li>
+			                    <li>
+			                      <p><b>Composted</b>: Organic waste is into soil conditioner using the process of decomposition.</p>
+			                    </li>
+			                    <li>
+			                      <p><b>Recycled</b>: Waste is converted into reusable new materials that displace primary materials.</p>
+			                    </li>
+													<li>
+			                      <p><b>Reused</b>: Reuse means the products or components are used again for the same purpose for which they were conceived.</p>
+			                    </li>
+													<li>
+			                      <p><b>Stored</b>: This category represent the state whereby items are kept in storage but are not used. This action takes items out of circulation and therefore it is considered to require regeneration.</p>
+			                    </li>
+			                  </ul>
+			                </div>
+			              </div>
+
+			            </div>
+			          </div>
+			        </div>
+			    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>

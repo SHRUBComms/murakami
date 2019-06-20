@@ -76,7 +76,6 @@ router.post(
                               } else {
                                 res.send(response);
                               }
-                              console.log(response);
                             }
                           );
                         }
