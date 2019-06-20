@@ -26,5 +26,6 @@ router.use("/close", require("./close"));
 router.use("/add", require("./add"));
 router.use("/view", require("./view"));
 router.use("/select", require("./select"));
+router.use("/reports", require("./reports"));
 
 module.exports = router;

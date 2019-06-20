@@ -1,7 +1,11 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+
 <div class="row mt-5 ml-1">
 	<div class="card">
 		<div class="card-body">
-			<h3>{{till.name}} <span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
+			<h3>
+				<span id="tillName" {{#if user.permissions.tills.updateSettings}}contenteditable="true"{{/if}}>{{till.name}}</span>
+				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
 			{{#if till.disabled}}
 				<p class="text-danger font-weight-bold mt-1">Disabled</p>
 			{{else}}
@@ -16,68 +20,179 @@
 </div>
 
 
-{{#unless till.disabled}}
 
-	<div class="row mt-4">
+
+	<div class="row mt-4 ml-1">
 		{{#if user.permissions.tills.updateCategories}}
-			<div class="col-lg-6 mx-auto">
+			<div class="col-md-6">
+
+				<div class="row mb-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="mb-2">Manage Categories</h5>
+							<p>Add, update, move and remove categories that appear in the till!</p>
+							<p class="text-muted">Tip: left-click (or hold down on mobile) an item to open its menu</p>
+						</div>
+					</div>
+				</div>
+
+
 				<div class="row">
 
-			     {{>till/selection-ui}}
+					 {{>till/selection-ui}}
 
 				</div>
+
 			</div>
 		{{/if}}
 
-		{{#if user.permissions.tills.updateSettings}}
-			<div class="col-lg-3 mx-auto">
-
+		{{#if user.permissions.tills.exportTransactions}}
+			<div class="col-md-4">
 				<div class="card">
 					<div class="card-body">
 
-			    <h3 class="mb-3">Settings</h3>
+						<h5 class="mb-2">Quick Summary</h5>
+						<select id="datePeriod" class="form-control mb-1">
+							<option value="today" selected>Today</option>
+							<option value="week">This Week</option>
+							<option value="month">This Month</option>
+							<option value="year">This Year</option>
+							<option value="all-time">All-time</option>
+						</select>
 
-			    <input type="text" class="form-control mb-4" placeholder="Till Name" id="till_name" value="{{till.name}}">
+						<div id="revenueChartContainer" class="container p-3">
+							<canvas id="revenueChart" class="d-none" height=100 width=100></canvas>
+						</div>
 
-			    <a class="btn btn-primary btn-block" onclick="updateSettings()">Update</a>
-				</div>
-		  </div>
-		{{/if}}
+						<div id="quickSummaryCard">
+							<p>Total Revenue: <b><span id="totalRevenue"></span></b></p>
+							<p>Tokens Spent: <b><span id="tokensSpent"></span></b></p>
+							<p>Tokens Issued: <b><span id="tokensIssued"></span></b></p>
+							<p>No. Transactions: <b><span id="numberOfTransactions"></span></b></p>
+						</div>
 
-		</div>
-	</div>
-{{/unless}}
+						<a class="btn btn-primary btn-block mt-3" href="{{public_address}}/till/reports/{{till.till_id}}">More Reports</a>
 
-	{{#if user.permissions.tills.exportTransactions}}
-		<div class="row mt-4">
-			<div class="col-md-12">
-				<div class="row">
-					<div class="col-12 col-lg-10 col-xl-9 mx-auto">
-						<form class="form-inline" action="{{public_address}}/till/manage/{{till.till_id}}" method="GET">
-							<label class="sr-only" for="startDate">Start Date</label>
-						  <input type="date" class="form-control mb-2 mr-sm-2" id="startDate" name="startDate" placeholder="Start Date" value="{{startDate}}">
-
-							<label class="sr-only" for="endDate">End Date</label>
-						  <input type="date" class="form-control mb-2 mr-sm-2" id="endDate" name="endDate" placeholder="End Date" value="{{endDate}}">
-
-
-						  <button type="submit" class="btn btn-primary mb-2">Get Transactions</button>
-						</form>
 					</div>
 				</div>
-				{{#ifCond startDate '||' endDate}}
-					{{> till/get-recent-transactions pageSize=1000 startDate=startDate endDate=endDate}}
-				{{/ifCond}}
 			</div>
-		</div>
 		{{/if}}
+
+	</div>
+
 
 
 <script>
+
+var ctx = document.getElementById('revenueChart');
+var revenueChart = new Chart(ctx, {
+	type: 'doughnut',
+	data: {
+		datasets: [{
+			data: [],
+			backgroundColor: [
+				"rgb(54, 162, 235)",
+				"rgb(75, 192, 192)",
+				"#EFEFEF"
+			],
+			label: ''
+		}],
+		labels: [
+			'Cash',
+			'Card',
+			'Unknown'
+		]
+	},
+	options: {
+		maintainAspectRatio: true,
+		responsive: true,
+		animation: {
+			animateScale: true,
+			animateRotate: true
+		}
+	}
+});
+
+
+
+$("document").ready(function(){
+	getQuickSummary();
+})
+
+$("#datePeriod").on("change", function(){
+	getQuickSummary();
+})
+
+function getQuickSummary(){
+		$("#quickSummaryCard").css("opacity", 0)
+	$.ajax(
+		{
+			type:"POST",
+			url:"{{public_address}}/api/post/tills/reports/quick-summary",
+			data: {
+				till_id: "{{till.till_id}}",
+				datePeriod: $("#datePeriod").val() || "today"
+			},
+
+		success: function(response){
+
+			$("#quickSummaryCard").animate({opacity:1});
+
+			if(response.status == "ok" && response.summary){
+
+				if(response.summary.revenue.breakdown.cash > 0 || response.summary.revenue.breakdown.card > 0 || response.summary.revenue.breakdown.unknown > 0){
+					$("#revenueChart").removeClass("d-none")
+					$("#revenueChartContainer").addClass("p-3")
+					$("#revenueChartContainer").removeClass("mb-2")
+
+					revenueChart.data.datasets[0].data = [response.summary.revenue.breakdown.cash.toFixed(2), response.summary.revenue.breakdown.card.toFixed(2)]
+					revenueChart.data.labels = ["Cash", "Card"]
+
+					if(response.summary.revenue.breakdown.unknown > 0) {
+						revenueChart.data.datasets[0].data.push(response.summary.revenue.breakdown.unknown.toFixed(2))
+						revenueChart.data.labels.push("Other")
+					}
+					revenueChart.update();
+				} else {
+					$("#revenueChartContainer").removeClass("p-3")
+					$("#revenueChartContainer").addClass("mb-2")
+					$("#revenueChart").addClass("d-none")
+				}
+
+
+
+				$("#totalRevenue").text("£" + response.summary.revenue.total.toFixed(2))
+				$("#tokensSpent").text(Math.ceil(response.summary.tokens.spent) + " tokens")
+				$("#tokensIssued").text(Math.ceil(response.summary.tokens.issued) + " tokens")
+				$("#numberOfTransactions").text(response.summary.numberOfTransactions + " transactions")
+			} else {
+				$("#totalRevenue").text("£0.00")
+				$("#tokensSpent").text("0 tokens")
+				$("#tokensIssued").text("0 tokens")
+				$("#numberOfTransactions").text("0 transactions")
+			}
+		}
+	})
+}
+
+
+
 {{#if user.permissions.tills.updateSettings}}
+
+	var typingTimer;
+	var doneTypingInterval = 500;
+	var nameInput = document.getElementById("tillName");
+
+	nameInput.addEventListener("keyup", function(){
+		clearTimeout(typingTimer)
+		if(nameInput.innerText){
+			typingTimer = setTimeout(updateSettings, doneTypingInterval)
+		}
+	})
+
 	function updateSettings() {
 	  var till = {}
-	  till.name = $("#till_name").val();
+	  till.name = $("#tillName").text();
 	  till.till_id = "{{{till.till_id}}}"
 	  $.ajax({
 	    type: "POST",
@@ -85,16 +200,16 @@
 	    data: {
 	      "till": till
 	    },
-	      success: function(response){
-	        if(response.status == "ok"){
-	          alert(response.msg);
-	        } else {
-	          alert(response.msg);
-	        }
-	      }
+      success: function(response){
+        if(response.status == "ok"){
+          alert(response.msg);
+        } else {
+          alert(response.msg);
+        }
+      }
 	  })
 	}
-{{/if}}
 
+{{/if}}
 
 </script>

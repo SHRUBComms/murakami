@@ -375,7 +375,7 @@ router.post(
                                       totals.money == 0 &&
                                       totals.tokens == 0
                                     ) {
-                                      transaction.summary.paymentMethod = null;
+                                      paymentMethod = null;
                                     }
                                   } else {
                                     totals.money = (
@@ -389,6 +389,7 @@ router.post(
                                   }
 
                                   formattedTransaction.summary.totals = totals;
+                                  formattedTransaction.summary.paymentMethod = paymentMethod;
 
                                   if (
                                     formattedTransaction.summary.totals.money <=
@@ -420,6 +421,14 @@ router.post(
                                     validTransaction = false;
                                     whyTransactionFailed =
                                       "There must be at least one item in the transaction.";
+                                  }
+
+                                  if (
+                                    !formattedTransaction.summary.paymentMethod
+                                  ) {
+                                    validTransaction = false;
+                                    whyTransactionFailed =
+                                      "Please specify a payment method.";
                                   }
 
                                   if (validTransaction) {

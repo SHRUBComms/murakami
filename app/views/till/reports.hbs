@@ -1,0 +1,225 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+
+<div class="row mt-5 ml-1">
+	<div class="card">
+		<div class="card-body">
+			<h3>
+				<span id="tillName">{{till.name}}</span>
+				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
+  			{{#if till.disabled}}
+  				<p class="text-danger font-weight-bold mt-1">Disabled</p>
+        {{/if}}
+  			<a href="{{public_address}}/till/manage/{{till.till_id}}" class="btn btn-block btn-primary mt-3">Manage Till</a>
+		</div>
+	</div>
+</div>
+
+<div class="row mt-4">
+
+  <div class="form-group col-md-3">
+    <select id="reportType" class="form-control">
+      <option selected disabled>Select report...</option>
+      <option value="transactions">Transactions</option>
+      <option value="floats">Till Reconciliation (Opening/Closing Floats)</option>
+      <!--<option value="unit-sales">Unit Sales</option>
+      <option value="full-summary">Sales Summary</option>-->
+    </select>
+  </div>
+
+  <div class="form-group col-md-4">
+    <select id="datePeriod" class="form-control">
+      <option selected disabled>Select time period...</option>
+      <option value="today">Today</option>
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+      <option value="year">This Year</option>
+      <option value="all-time">All-time</option>
+      <option value="custom">Custom Time Period</option>
+    </select>
+
+    <div class="row d-none mt-2" id="customDateRange">
+      <div class="col-md-6">
+        <p>Start Date</p>
+        <input type="date" id="startDate" class="form-control" />
+      </div>
+      <div class="col-md-6">
+        <p>End Date</p>
+        <input type="date" id="endDate" class="form-control" />
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="row mt-5" id="placeholderText">
+	<div class="mx-auto">
+		<h4 class="text-align-center text-muted">Select a report and a timeframe to begin</h4>
+	</div>
+</div>
+
+
+<!-- Latest compiled and minified CSS -->
+<link href="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.js"></script>
+
+<!-- Export plugin -->
+<script src="https://unpkg.com/tableexport.jquery.plugin@1.10.1/tableExport.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/extensions/export/bootstrap-table-export.min.js"></script>
+
+<div class="row mt-4">
+	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
+		<table id="transactionsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
+         "fileName": "{{till.name}} Transactions"
+       }'>
+		    <thead>
+		        <tr>
+		        	<th></th>
+		        	<th></th>
+		        	<th></th>
+		        	<th colspan="2">Totals</th>
+		        </tr>
+		        <tr>
+		        	<th data-field="date">Timestamp</th>
+		        	<th data-field="customer.name">Customer</th>
+		            <th data-field="bill">Summary</th>
+		        	<th scope="col" data-field="totals.tokens">Tokens</th>
+		        	<th scope="col" data-field="totals.money">Money</th>
+		        </tr>
+		    </thead>
+
+			<tbody>
+			</tbody>
+		</table>
+
+		<table id="floatsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
+         "fileName": "{{till.name}} Floats"
+       }'>
+		    <thead>
+		        <tr>
+		        	<th data-field="timestamp">Timestamp</th>
+		        	<th data-field="user">User</th>
+		          <th data-field="action">Action</th>
+		        	<th data-field="summary">Summary</th>
+		        	<th data-field="discrepancy">Discrepancy</th>
+		        </tr>
+		    </thead>
+
+			<tbody>
+			</tbody>
+		</table>
+
+	</div>
+
+</div>
+
+<script>
+
+var transacationsTable = $("#transactionsTable");
+var floatsTable = $("#floatsTable");
+
+$("#reportType").on("change", function(){
+	getReport()
+});
+
+$("#datePeriod").on("change", function(){
+  if(this.value == "custom") {
+    $("#customDateRange").removeClass("d-none")
+  } else {
+    $("#customDateRange").addClass("d-none")
+		$("#startDate").val("")
+		$("#endDate").val("")
+		getReport()
+  }
+})
+
+$("#startDate").on("change", function(){
+	getReport()
+});
+$("#endDate").on("change", function(){
+	getReport()
+});
+
+function getReport(){
+
+	resetAllReports();
+
+	if(
+		($("#datePeriod").val() == "custom" && $("#startDate").val() && $("#endDate").val() && $("#reportType").val())
+		|| ($("#datePeriod").val() && $("#reportType").val())
+	){
+
+		$("#placeholderText").addClass("d-none")
+
+		var reportType = $("#reportType").val();
+
+		var datePeriod = $("#datePeriod").val();
+		var startDate = $("#startDate").val() || null;
+		var endDate = $("#endDate").val() || null;
+
+		if(reportType == "transactions"){
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/transactions",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(transactions){
+						$("#transactionsTable").removeClass("d-none")
+						$("#transactionsToolbar").removeClass("d-none");
+						transacationsTable.bootstrapTable('load', transactions)
+					}
+				})
+		} else if(reportType == "floats"){
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/floats",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(activity){
+						$("#floatsTable").removeClass("d-none")
+						$("#floatsToolbar").removeClass("d-none");
+						floatsTable.bootstrapTable('load', activity)
+					}
+				})
+		}
+
+	}
+}
+
+function resetAllReports() {
+	$("#placeholderText").removeClass("d-none")
+
+	$("#transactionsTable").addClass("d-none")
+	$("#transactionsToolbar").addClass("d-none");
+
+	$("#floatsTable").addClass("d-none")
+	$("#floatsToolbar").addClass("d-none");
+
+
+}
+
+$("document").ready(function(){
+	tableIds = ["transactions", "floats"]
+
+	$(".bootstrap-table > div.fixed-table-toolbar").each(function(i){
+		$(this).attr("id", tableIds[i] + "Toolbar");
+		$(this).addClass("d-none")
+	})
+
+	$(".bootstrap-table > div.fixed-table-toolbar > div > div > button > i").addClass("fa-download");
+	$("div.bootstrap-table > div.fixed-table-toolbar > div > div > ul").css("padding-left", "10px");
+})
+
+</script>

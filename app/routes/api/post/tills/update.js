@@ -15,8 +15,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
   if (till.name) {
     Tills.getById(till.till_id, function(err, tillExists) {
-      if (till) {
-        if (till.disabled == 0) {
+      if (tillExists) {
+        if (tillExists.disabled == 0) {
           Tills.updateTill(till, function(err) {
             if (err) {
               res.send(response);
