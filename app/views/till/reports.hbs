@@ -29,10 +29,12 @@
   <div class="form-group col-md-4">
     <select id="datePeriod" class="form-control">
       <option selected disabled>Select time period...</option>
-      <option value="today">Today</option>
-      <option value="week">This Week</option>
-      <option value="month">This Month</option>
-      <option value="year">This Year</option>
+			{{#unless till.disabled}}
+	      <option value="today">Today</option>
+	      <option value="week">This Week</option>
+	      <option value="month">This Month</option>
+	      <option value="year">This Year</option>
+			{{/unless}}
       <option value="all-time">All-time</option>
       <option value="custom">Custom Time Period</option>
     </select>

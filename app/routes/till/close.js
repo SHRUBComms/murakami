@@ -41,8 +41,11 @@ router.get(
                         closeTillActive: true,
                         title: "Close Till",
                         till: till,
+                        status: status,
                         allWorkingGroups: allWorkingGroups,
                         working_group: group,
+                        total_sales: total_sales.toFixed(2),
+                        opening_float: status.counted_float.toFixed(2),
                         expected_float: (
                           +status.counted_float + +total_sales
                         ).toFixed(2)
@@ -114,7 +117,9 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
                       } else {
                         req.flash("success_msg", "Till closed.");
                         res.redirect(
-                          process.env.PUBLIC_ADDRESS + "/till/select"
+                          process.env.PUBLIC_ADDRESS +
+                            "/till/open/" +
+                            req.params.till_id
                         );
                       }
                     }

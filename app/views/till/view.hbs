@@ -22,56 +22,62 @@
 
 
 
-	<div class="row mt-4 ml-1">
-		{{#if user.permissions.tills.updateCategories}}
-			<div class="col-md-6">
+	<div class="row mt-4">
+		{{#unless till.disabled}}
+			{{#if user.permissions.tills.updateCategories}}
+				<div class="col-md-6">
 
-				<div class="row mb-3">
-					<div class="card">
-						<div class="card-body">
-							<h5 class="mb-2">Manage Categories</h5>
-							<p>Add, update, move and remove categories that appear in the till!</p>
-							<p class="text-muted">Tip: left-click (or hold down on mobile) an item to open its menu</p>
+					<div class="row mb-3">
+						<div class="card">
+							<div class="card-body">
+								<h5 class="mb-2">Manage Categories</h5>
+								<p>Add, update, move and remove categories that appear in the till!</p>
+								<p class="text-muted">Tip: left-click (or hold down on mobile) an item to open its menu</p>
+							</div>
 						</div>
 					</div>
+
+
+					<div class="row">
+
+						 {{>till/selection-ui}}
+
+					</div>
+
 				</div>
-
-
-				<div class="row">
-
-					 {{>till/selection-ui}}
-
-				</div>
-
-			</div>
-		{{/if}}
+			{{/if}}
+		{{/unless}}
 
 		{{#if user.permissions.tills.exportTransactions}}
 			<div class="col-md-4">
 				<div class="card">
 					<div class="card-body">
+						{{#unless till.disabled}}
+							<h5 class="mb-2">Quick Summary</h5>
+							<select id="datePeriod" class="form-control mb-1">
+								<option value="today" selected>Today</option>
+								<option value="week">This Week</option>
+								<option value="month">This Month</option>
+								<option value="year">This Year</option>
+								<option value="all-time">All-time</option>
+							</select>
 
-						<h5 class="mb-2">Quick Summary</h5>
-						<select id="datePeriod" class="form-control mb-1">
-							<option value="today" selected>Today</option>
-							<option value="week">This Week</option>
-							<option value="month">This Month</option>
-							<option value="year">This Year</option>
-							<option value="all-time">All-time</option>
-						</select>
+							<div id="revenueChartContainer" class="container p-3">
+								<canvas id="revenueChart" class="d-none" height=100 width=100></canvas>
+							</div>
 
-						<div id="revenueChartContainer" class="container p-3">
-							<canvas id="revenueChart" class="d-none" height=100 width=100></canvas>
-						</div>
+							<div id="quickSummaryCard">
+								<p>Total Revenue: <b><span id="totalRevenue"></span></b></p>
+								<p>Tokens Spent: <b><span id="tokensSpent"></span></b></p>
+								<p>Tokens Issued: <b><span id="tokensIssued"></span></b></p>
+								<p>No. Transactions: <b><span id="numberOfTransactions"></span></b></p>
+							</div>
 
-						<div id="quickSummaryCard">
-							<p>Total Revenue: <b><span id="totalRevenue"></span></b></p>
-							<p>Tokens Spent: <b><span id="tokensSpent"></span></b></p>
-							<p>Tokens Issued: <b><span id="tokensIssued"></span></b></p>
-							<p>No. Transactions: <b><span id="numberOfTransactions"></span></b></p>
-						</div>
-
-						<a class="btn btn-primary btn-block mt-3" href="{{public_address}}/till/reports/{{till.till_id}}">More Reports</a>
+							<a class="btn btn-primary btn-block mt-3" href="{{public_address}}/till/reports/{{till.till_id}}">More Reports</a>
+						{{else}}
+							<p class="text-muted">This till is <span class="font-weight-bold">disabled</span>.</p>
+							<a class="btn btn-primary btn-block mt-3" href="{{public_address}}/till/reports/{{till.till_id}}">View Historic Reports</a>
+						{{/unless}}
 
 					</div>
 				</div>
