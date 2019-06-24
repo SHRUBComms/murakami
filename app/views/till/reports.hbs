@@ -21,8 +21,8 @@
       <option selected disabled>Select report...</option>
       <option value="transactions">Transactions</option>
       <option value="floats">Till Reconciliation (Opening/Closing Floats)</option>
-      <!--<option value="unit-sales">Unit Sales</option>
-      <option value="full-summary">Sales Summary</option>-->
+      <option value="unit-sales">Unit Sales</option>
+      <!--<option value="full-summary">Sales Summary</option>-->
     </select>
   </div>
 
@@ -114,6 +114,34 @@
 			</tbody>
 		</table>
 
+		<table id="unitSalesTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
+         "fileName": "{{till.name}} Unit Sales"
+       }'   data-sort-name="salesInfo.totalSales" data-sort-order="desc">
+		    <thead>
+
+						<tr>
+		        	<th colspan="2">Category</th>
+		        	<th></th>
+		        	<th></th>
+							<th></th>
+		        </tr>
+		        <tr>
+
+							<th scope="col" data-field="categoryInfo.groupName" data-sortable="true">Working Group</th>
+		        	<th scope="col" data-field="categoryInfo.absolute_name" data-sortable="true">Name</th>
+
+							<th data-field="salesInfo.totalSales" data-sortable="true">Units Sold</th>
+		          <th data-field="salesInfo.totalRevenue" data-sortable="true">Total Revenue (£, estimated)</th>
+							<th data-field="salesInfo.memberRatio" data-sortable="true">Bought By Members (%)</th>
+
+		        </tr>
+
+		    </thead>
+
+			<tbody>
+			</tbody>
+		</table>
+
 	</div>
 
 </div>
@@ -122,6 +150,7 @@
 
 var transacationsTable = $("#transactionsTable");
 var floatsTable = $("#floatsTable");
+var unitSalesTable = $("#unitSalesTable");
 
 $("#reportType").on("change", function(){
 	getReport()
@@ -196,6 +225,23 @@ function getReport(){
 						floatsTable.bootstrapTable('load', activity)
 					}
 				})
+		} else if (reportType == "unit-sales"){
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/unit-sales",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(response){
+						$("#unitSalesTable").removeClass("d-none")
+						$("#unitSalesToolbar").removeClass("d-none");
+						unitSalesTable.bootstrapTable('load', response.unitSales)
+					}
+				})
 		}
 
 	}
@@ -214,7 +260,7 @@ function resetAllReports() {
 }
 
 $("document").ready(function(){
-	tableIds = ["transactions", "floats"]
+	tableIds = ["transactions", "floats", "unitSales"]
 
 	$(".bootstrap-table > div.fixed-table-toolbar").each(function(i){
 		$(this).attr("id", tableIds[i] + "Toolbar");

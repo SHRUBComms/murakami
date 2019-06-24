@@ -70,7 +70,14 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
         {
           allVolunteerRoles: allRoles,
           class: "admin",
-          permissions: { members: { contactDetails: true, name: true } }
+          permissions: {
+            members: {
+              contactDetails: true,
+              name: true,
+              membershipDates: true,
+              balance: true
+            }
+          }
         },
         function(err, member) {
           MailTemplates.getById(mail_id, function(err, mail) {
@@ -145,7 +152,10 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                       member.first_name + " " + member.last_name
                     )
                     .replace(/\|tokens\|/g, member.balance)
-                    .replace(/\|exp_date\|/g, member.current_exp_membership)
+                    .replace(
+                      /\|exp_date\|/g,
+                      moment(member.current_exp_membership).format("LL")
+                    )
                     .replace(/\|membership_id\|/g, member.member_id)
                     .replace(
                       /\|contact_preferences_link\|/g,

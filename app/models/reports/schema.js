@@ -1,9 +1,16 @@
 /* jshint indent: 2 */
 
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
+
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define(
+  var Reports = sequelize.define(
     "reports",
     {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+      },
       subject: {
         type: DataTypes.STRING(20),
         allowNull: false
@@ -18,7 +25,16 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     {
-      tableName: "reports"
+      tableName: "reports",
+      timestamps: false
     }
   );
+  Helpers.includeAllModelMethods(
+    Reports,
+    sequelize,
+    DataTypes,
+    process.env.CWD + "/app/models/reports/methods/"
+  );
+
+  return Reports;
 };
