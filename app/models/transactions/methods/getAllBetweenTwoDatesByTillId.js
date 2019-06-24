@@ -6,6 +6,9 @@ module.exports = function(Transactions, sequelize, DataTypes) {
         date: { [DataTypes.Op.between]: [startDate, endDate] }
       },
       order: [["date", "DESC"]]
-    }).nodeify(callback);
+    }).nodeify(function(err, transactions) {
+      console.log(err, transactions);
+      callback(err, transactions);
+    });
   };
 };

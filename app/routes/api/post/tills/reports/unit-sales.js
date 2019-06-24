@@ -22,7 +22,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
   var till_id = req.body.till_id;
   var datePeriod = req.body.datePeriod || "today";
-  var startDate, endDate;
+  var startDate = req.body.startDate || null;
+  var endDate = req.body.endDate || null;
 
   var unitSales = {};
 
@@ -34,6 +35,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
           startDate,
           endDate,
           function(startDate, endDate) {
+            console.log(startDate, endDate);
             Transactions.getAllBetweenTwoDatesByTillId(
               till_id,
               startDate,

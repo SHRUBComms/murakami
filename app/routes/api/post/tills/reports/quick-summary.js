@@ -21,7 +21,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
   var till_id = req.body.till_id;
   var datePeriod = req.body.datePeriod || "today";
 
-  var startDate, endDate;
+  var startDate = req.body.startDate || null;
+  var endDate = req.body.endDate || null;
 
   if (till_id) {
     Tills.getById(till_id, function(err, till) {

@@ -2,50 +2,54 @@ var moment = require("moment");
 moment.locale("en-gb");
 
 module.exports = function(period, startDate, endDate, callback) {
+  var formattedStartDate, formattedEndDate;
+
   try {
     if (period == "custom") {
       if (startDate && endDate) {
-        startDate = moment(startDate)
+        formattedStartDate = moment(startDate)
           .startOf("day")
           .toDate();
-        endDate = moment(endDate)
+        formattedEndDate = moment(endDate)
           .endOf("day")
           .toDate();
+      } else {
+        throw Error;
       }
     } else {
-      endDate = moment()
+      formattedEndDate = moment()
         .endOf("day")
         .toDate();
 
       if (period == "all-time") {
-        startDate = moment("1970-01-01").toDate();
+        formattedStartDate = moment("1970-01-01").toDate();
       } else if (period == "year") {
-        startDate = moment()
+        formattedStartDate = moment()
           .startOf("year")
           .toDate();
       } else if (period == "month") {
-        startDate = moment()
+        formattedStartDate = moment()
           .startOf("month")
           .toDate();
       } else if (period == "week") {
-        startDate = moment()
+        formattedStartDate = moment()
           .startOf("week")
           .toDate();
       } else {
-        startDate = moment()
+        formattedStartDate = moment()
           .startOf("day")
           .toDate();
       }
     }
   } catch (err) {
-    startDate = moment()
+    formattedStartDate = moment()
       .startOf("day")
       .toDate();
 
-    endDate = moment()
+    formattedEndDate = moment()
       .endOf("day")
       .toDate();
   }
-
-  callback(startDate, endDate);
+  console.log(formattedStartDate, formattedEndDate);
+  callback(formattedStartDate, formattedEndDate);
 };

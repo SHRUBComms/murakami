@@ -159,6 +159,17 @@ var transacationsTable = $("#transactionsTable");
 var floatsTable = $("#floatsTable");
 var unitSalesTable = $("#unitSalesTable");
 
+let searchParams = new URLSearchParams(window.location.search)
+
+if(searchParams.has("reportType") && searchParams.has("startDate") && searchParams.has("endDate")){
+	$("#reportType").val(searchParams.get("reportType"));
+	$("#datePeriod").val("custom");
+	$("#customDateRange").removeClass("d-none");
+	$("#startDate").val(searchParams.get("startDate"));
+	$("#endDate").val(searchParams.get("endDate"));
+	getReport();
+}
+
 $("#reportType").on("change", function(){
 	getReport()
 });
