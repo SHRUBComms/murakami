@@ -110,12 +110,6 @@ router.post(
     failureFlash: true
   }),
   function(req, res) {
-    if (req.user) {
-      console.log(
-        new Date(),
-        "Passport callback: user authenticated, redirecting"
-      );
-    }
     res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 );

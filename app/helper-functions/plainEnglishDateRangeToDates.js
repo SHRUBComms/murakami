@@ -50,6 +50,6 @@ module.exports = function(period, startDate, endDate, callback) {
       .endOf("day")
       .toDate();
   }
-  console.log(formattedStartDate, formattedEndDate);
+
   callback(formattedStartDate, formattedEndDate);
 };

@@ -7,7 +7,6 @@ module.exports = function(Transactions, sequelize, DataTypes) {
       },
       order: [["date", "DESC"]]
     }).nodeify(function(err, transactions) {
-      console.log(err, transactions);
       callback(err, transactions);
     });
   };

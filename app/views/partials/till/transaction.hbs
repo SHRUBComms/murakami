@@ -314,8 +314,6 @@ $('input[name="itemCondition"]:radio').change(function(){
 
 function addToTransaction(item){
 
-	console.log("Adding item:", item)
-
 	var sanitizedItem = {};
 	sanitizedItem.id = item.item_id || item.id;
 	sanitizedItem.name = item.name;

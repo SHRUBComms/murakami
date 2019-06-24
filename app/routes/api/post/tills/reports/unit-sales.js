@@ -35,7 +35,6 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
           startDate,
           endDate,
           function(startDate, endDate) {
-            console.log(startDate, endDate);
             Transactions.getAllBetweenTwoDatesByTillId(
               till_id,
               startDate,
