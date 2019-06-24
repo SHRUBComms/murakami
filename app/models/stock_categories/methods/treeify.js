@@ -13,6 +13,14 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
       if (node.parent !== null) {
         node.absolute_name =
           list[map[node.parent]].name + " > " + node.absolute_name;
+
+        if (list[map[node.parent]].parent) {
+          node.absolute_name =
+            list[map[list[map[node.parent]].parent]].name +
+            " > " +
+            node.absolute_name;
+        }
+
         list[map[node.parent]].children.push(node);
       } else {
         roots.push(node);

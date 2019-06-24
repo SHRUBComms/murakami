@@ -201,10 +201,10 @@ router.post(
             });
           }
 
-          console.log("validated");
+          
 
           if (errors[0]) {
-            console.log("not valid");
+            
             res.render("users/update", {
               usersActive: true,
               title: "Update User",
@@ -223,7 +223,7 @@ router.post(
               }
             });
           } else {
-            console.log("valid");
+            
             var updatedUser = { user_id: req.params.user_id, class: userClass };
 
             if (req.user.permissions.users.name || isUser) {
@@ -244,7 +244,7 @@ router.post(
               updatedUser.notification_preferences = sanitized_notification_preferences;
             }
 
-            console.log(updatedUser);
+            
 
             Users.updateUser(updatedUser, function(err, user) {
               if (!err) {

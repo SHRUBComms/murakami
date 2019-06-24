@@ -47,7 +47,6 @@ router.post(
                       category.till_id,
                       "kv",
                       function(err, categories) {
-                        console.log(category);
                         if (categories[category.parent] || !category.parent) {
                           sanitizedCategory.parent = category.parent;
 

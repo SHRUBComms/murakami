@@ -35,7 +35,7 @@ router.get(
                     till.till_id,
                     status.timestamp,
                     function(total_sales) {
-                      total_sales = total_sales || 0;
+                      total_sales = parseFloat(total_sales) || 0;
                       res.render("till/close", {
                         tillMode: true,
                         closeTillActive: true,

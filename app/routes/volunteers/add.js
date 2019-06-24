@@ -439,10 +439,10 @@ router.post(
           volInfo.survey = volInfo.survey || {};
 
           Members.add(newMember, function(err, member_id) {
-            console.log(err);
+            
             Volunteers.addExistingMember(member_id, volInfo, function(err) {
               if (err) {
-                console.log(err);
+                
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
                   title: "Add Volunteer",

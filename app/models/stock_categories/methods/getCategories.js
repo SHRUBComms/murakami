@@ -3,7 +3,7 @@ var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(StockCategories, sequelize, DataTypes) {
   return function(format, callback) {
-    StockCategories.findAll({}).nodeify(function(err, categories) {
+    StockCategories.findAll({ raw: true }).nodeify(function(err, categories) {
       if (err) {
         callback(null);
       } else {

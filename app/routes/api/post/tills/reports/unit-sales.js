@@ -39,7 +39,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               startDate,
               endDate,
               function(err, transactions) {
-                StockCategories.getCategoriesByTillId(till_id, "tree", function(
+                StockCategories.getCategories("tree", function(
                   err,
                   categories
                 ) {
@@ -49,29 +49,22 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                     flatCategories,
                     function(category, callback) {
                       flatCategoriesAsObj[category.item_id] = category;
-                      unitSales[category.item_id] = {
-                        salesInfo: {
-                          totalSales: 0,
-                          totalRevenue: 0,
-                          boughtByMember: 0,
-                          boughtByNonMember: 0,
-                          memberRatio: 0
-                        },
-                        categoryInfo: category
-                      };
 
                       try {
-                        if (category.group_id) {
-                          if (req.user.allWorkingGroupsObj[category.group_id]) {
-                            unitSales[category.item_id].categoryInfo.groupName =
-                              req.user.allWorkingGroupsObj[category.group_id]
-                                .name || "-";
+                        if (flatCategoriesAsObj[category.item_id].group_id) {
+                          if (
+                            req.user.allWorkingGroupsObj[
+                              flatCategoriesAsObj[category.item_id].group_id
+                            ]
+                          ) {
+                            flatCategoriesAsObj[category.item_id].groupName =
+                              req.user.allWorkingGroupsObj[
+                                flatCategoriesAsObj[category.item_id].group_id
+                              ].name || "-";
                           }
                         }
                       } catch (err) {
-                        console.log(err);
-                        unitSales[category.item_id].categoryInfo.groupName =
-                          "-";
+                        categoryInfo.groupName = "-";
                       }
 
                       callback();
@@ -80,52 +73,98 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                       async.each(
                         transactions,
                         function(transaction, callback) {
-                          if (
-                            ![
-                              "membership",
-                              "donation",
-                              "volunteering"
-                            ].includes(transaction.summary.bill[0].item_id)
-                          ) {
-                            async.each(
-                              transaction.summary.bill,
-                              function(item, callback) {
-                                if (flatCategoriesAsObj[item.item_id]) {
-                                  unitSales[
-                                    item.item_id
-                                  ].salesInfo.totalSales += 1;
-                                  unitSales[
-                                    item.item_id
-                                  ].salesInfo.totalRevenue +=
-                                    item.value || item.tokens || 0;
+                          if (transaction.summary.bill) {
+                            if (transaction.summary.bill.length > 0) {
+                              if (
+                                ![
+                                  "membership",
+                                  "donation",
+                                  "volunteering"
+                                ].includes(transaction.summary.bill[0].item_id)
+                              ) {
+                                async.each(
+                                  transaction.summary.bill,
+                                  function(item, callback) {
+                                    if (flatCategoriesAsObj[item.item_id]) {
+                                      if (!unitSales[item.item_id]) {
+                                        if (
+                                          flatCategoriesAsObj[item.item_id]
+                                            .group_id
+                                        ) {
+                                          flatCategoriesAsObj[
+                                            item.item_id
+                                          ].groupName =
+                                            req.user.allWorkingGroupsObj[
+                                              flatCategoriesAsObj[item.item_id]
+                                                .group_id
+                                            ].name || "-";
+                                        }
 
-                                  unitSales[
-                                    item.item_id
-                                  ].salesInfo.totalRevenue = unitSales[
-                                    item.item_id
-                                  ].salesInfo.totalRevenue.toFixed(2);
+                                        unitSales[item.item_id] = {
+                                          salesInfo: {
+                                            totalSales: 0,
+                                            totalRevenue: 0,
+                                            boughtByMember: 0,
+                                            boughtByNonMember: 0,
+                                            memberRatio: 0
+                                          },
+                                          categoryInfo:
+                                            flatCategoriesAsObj[item.item_id]
+                                        };
 
-                                  if (transaction.member != "anon") {
-                                    unitSales[
-                                      item.item_id
-                                    ].salesInfo.boughtByMember += 1;
+                                        unitSales[
+                                          item.item_id
+                                        ].categoryInfo.name =
+                                          flatCategoriesAsObj[item.item_id]
+                                            .absolute_name ||
+                                          flatCategoriesAsObj[item.item_id]
+                                            .name;
+                                      }
+
+                                      unitSales[
+                                        item.item_id
+                                      ].salesInfo.totalSales += +1;
+
+                                      unitSales[
+                                        item.item_id
+                                      ].salesInfo.totalRevenue = parseFloat(
+                                        parseFloat(
+                                          unitSales[item.item_id].salesInfo
+                                            .totalRevenue
+                                        ) +
+                                          (parseFloat(item.value) ||
+                                            parseFloat(item.tokens) ||
+                                            0)
+                                      ).toFixed(2);
+
+                                      if (transaction.member_id != "anon") {
+                                        unitSales[
+                                          item.item_id
+                                        ].salesInfo.boughtByMember += +1;
+                                      }
+
+                                      unitSales[
+                                        item.item_id
+                                      ].salesInfo.memberRatio = (
+                                        (unitSales[item.item_id].salesInfo
+                                          .boughtByMember /
+                                          unitSales[item.item_id].salesInfo
+                                            .totalSales) *
+                                          100 || 0
+                                      ).toFixed(2);
+                                    }
+                                    callback();
+                                  },
+                                  function() {
+                                    callback();
                                   }
-
-                                  unitSales[
-                                    item.item_id
-                                  ].salesInfo.memberRatio =
-                                    (unitSales[item.item_id].salesInfo
-                                      .boughtByMember /
-                                      unitSales[item.item_id].salesInfo
-                                        .totalSales) *
-                                      100 || 0;
-                                }
-                                callback();
-                              },
-                              function() {
+                                );
+                              } else {
                                 callback();
                               }
-                            );
+                            } else {
+                              callback();
+                            }
                           } else {
                             callback();
                           }

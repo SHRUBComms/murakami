@@ -27,7 +27,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
   if (till_id) {
     Tills.getById(till_id, function(err, till) {
-      console.log(err, till);
+      
       if (till) {
         Helpers.plainEnglishDateRangeToDates(
           datePeriod,
