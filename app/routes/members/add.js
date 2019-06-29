@@ -29,13 +29,15 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
   }
 
   Tills.getById(till_id, function(err, till) {
-    if (till.disabled == 1) {
-      till = null;
+    if (till) {
+      if (till.disabled == 1) {
+        till = null;
+      }
     }
     Members.getSignUpInfo(function(
       ourVision,
       saferSpacesPolicy,
-      membershipBenefits,
+      membershipBenefitsInfo,
       privacyNotice
     ) {
       res.render("members/add", {
@@ -46,7 +48,7 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
 
         ourVision: ourVision,
         saferSpacesPolicy: saferSpacesPolicy,
-        membershipBenefitsInfo: membershipBenefits,
+        membershipBenefitsInfo: membershipBenefitsInfo,
         privacyNotice: privacyNotice,
 
         murakamiMsg: req.query.murakamiMsg || null,
@@ -66,14 +68,16 @@ router.post(
   Auth.canAccessPage("members", "add"),
   function(req, res) {
     Tills.getById(req.query.till_id, function(err, till) {
-      if (till.disabled == 1) {
-        till = null;
+      if (till) {
+        if (till.disabled == 1) {
+          till = null;
+        }
       }
       if (req.user.permissions.members.addSpecialMembers == true || till) {
         Members.getSignUpInfo(function(
           ourVision,
           saferSpacesPolicy,
-          membershipBenefits,
+          membershipBenefitsInfo,
           privacyNotice
         ) {
           var first_name = req.body.first_name.trim();
@@ -81,7 +85,11 @@ router.post(
           var email = req.body.email.trim();
           var phone_no = req.body.phone_no.trim();
           var address = req.body.address.trim();
-          var membership_type = req.body.membership_type || "unpaid";
+          var membership_type = req.body.membership_type;
+
+          if (!membership_type && till) {
+            membership_type = "unpaid";
+          }
 
           var shrubExplained = req.body.shrubExplained;
           var safeSpace = req.body.safeSpace;
@@ -178,21 +186,27 @@ router.post(
 
           var errors = req.validationErrors();
 
-          if (req.user.permissions.members.addSpecialMembers) {
-            if (["lifetime", "staff", "trustee"].includes(membership_type)) {
-              current_exp_membership = moment("9999-01-01").toDate();
-            } else {
-              if (!errors) {
-                errors = [];
+          if (membership_type != "unpaid") {
+            if (!till) {
+              if (req.user.permissions.members.addSpecialMembers) {
+                if (
+                  ["lifetime", "staff", "trustee"].includes(membership_type)
+                ) {
+                  current_exp_membership = moment("9999-01-01").toDate();
+                } else {
+                  if (!errors) {
+                    errors = [];
+                  }
+                  errors.push({
+                    param: "membership_type",
+                    msg: "Please select a valid membership type.",
+                    value: req.body.membership_type
+                  });
+                }
+              } else {
+                membership_type = "unpaid";
               }
-              errors.push({
-                param: "membership_type",
-                msg: "Please select a valid membership type.",
-                value: req.body.membership_type
-              });
             }
-          } else {
-            membership_type = "unpaid";
           }
 
           if (!errors && !over16) {
@@ -218,7 +232,7 @@ router.post(
               address: address,
               shrubExplained: shrubExplained,
               safeSpace: safeSpace,
-              membershipBenefits: membershipBenefits,
+              membershipBenefits: membershipBenefitsInfo,
               contactConsent: contactConsent,
               privacyNotice: privacyNotice,
               gdprConsent: gdprConsent,
@@ -259,7 +273,7 @@ router.post(
                   address: address,
                   shrubExplained: shrubExplained,
                   safeSpace: safeSpace,
-                  membershipBenefits: membershipBenefits,
+                  membershipBenefits: membershipBenefitsInfo,
                   contactConsent: contactConsent,
                   privacyNotice: privacyNotice,
                   gdprConsent: gdprConsent,

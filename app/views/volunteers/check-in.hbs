@@ -35,8 +35,23 @@
 							<div class="card">
 								<div class="card-body">
 		              <li class="mb-2"><p>{{question}}</p></li>
+									{{#ifCond type '==' 'plaintext'}}
 
-		              <textarea name="questionnaire[{{question_id}}]" class="form-control mb-4" placeholder="{{#if help}}{{help}}{{else}}Volunteer's response...{{/if}}" required></textarea>
+										<textarea name="questionnaire[{{question_id}}]" class="form-control mb-4" placeholder="{{#if help}}{{help}}{{else}}Volunteer's response...{{/if}}" required></textarea>
+
+									{{/ifCond}}
+
+									{{#ifCond type '==' 'multi-select'}}
+
+										<select class="selectpicker show-tick form-control" name="questionnaire[{{question_id}}]" title="Select none or more options..." data-style="btn-info" data-size="auto" data-header="Select none or more options..." data-live-search="true" multiple required>
+
+								      {{#each options}}
+								          <option value="{{@key}}">{{@key}}</option>
+								      {{/each}}
+
+								    </select>
+
+									{{/ifCond}}
 								</div>
 							</div>
 						</div>

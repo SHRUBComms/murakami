@@ -549,7 +549,13 @@ router.post(
                                                     paymentMethod: null
                                                   }
                                                 },
-                                                function(err) {}
+                                                function(err) {
+                                                  Members.updateBalance(
+                                                    member_id,
+                                                    5,
+                                                    function(err) {}
+                                                  );
+                                                }
                                               );
 
                                               response.transactionSummary +=

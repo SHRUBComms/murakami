@@ -60,17 +60,19 @@
     <h3 class="mb-2">Membership</h3>
 
     {{#unless addingVolunteer}}
-      {{#ifCond user.permissions.members.addSpecialMembers '==' true}}
-        <div class="d-flex mb-2">
-          <select class="form-control w-100" name="membership_type" required>
-            <option selected disabled>Select membership type...</option>
-            <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
-            <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
-            <option value="lifetime" {{#ifCond membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
-          </select>
-          <span class="text-danger flex-shrink-1 ml-2">*</span>
-        </div>
-      {{/ifCond}}
+      {{#unless till}}
+        {{#ifCond user.permissions.members.addSpecialMembers '==' true}}
+          <div class="d-flex mb-2">
+            <select class="form-control w-100" name="membership_type" required>
+              <option selected disabled>Select membership type...</option>
+              <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
+              <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
+              <option value="lifetime" {{#ifCond membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
+            </select>
+            <span class="text-danger flex-shrink-1 ml-2">*</span>
+          </div>
+        {{/ifCond}}
+      {{/unless}}
     {{/unless}}
 
     <div class="row mt-3 no-gutters">

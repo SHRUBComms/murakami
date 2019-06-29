@@ -16,7 +16,7 @@ var automatedReports = new CronJob({
   // 9am, first of the month.
   cronTime: "0 0 9 1 * *",
   onTick: function() {
-    var startDate = moment()
+    var startOfMonth = moment()
       .subtract(1, "days")
       .startOf("month");
 
@@ -52,13 +52,13 @@ var automatedReports = new CronJob({
                   member.current_init_membership &&
                 moment(member.current_init_membership)
                   .startOf("month")
-                  .isSame(month)
+                  .isSame(startOfMonth)
               ) {
                 report.members.new += 1;
               } else if (
                 moment(member.current_exp_membership)
                   .startOf("month")
-                  .isSame(month)
+                  .isSame(startOfMonth)
               ) {
                 report.members.expired += 1;
               } else if (
@@ -67,7 +67,7 @@ var automatedReports = new CronJob({
                 ) &&
                 moment(member.current_init_membership)
                   .startOf("month")
-                  .isSame(month)
+                  .isSame(startOfMonth)
               ) {
                 report.members.renewed += 1;
               }
@@ -75,8 +75,8 @@ var automatedReports = new CronJob({
             },
             function() {
               VolunteerHours.getAllApprovedBetweenTwoDates(
-                month.toDate(),
-                month.endOf("month").toDate(),
+                startOfMonth.toDate(),
+                startOfMonth.endOf("month").toDate(),
                 function(err, shifts) {
                   var volunteered = {};
                   async.each(

@@ -12,35 +12,53 @@ var Members = Models.Members;
 var Volunteers = Models.Volunteers;
 var VolunteerCheckIns = Models.VolunteerCheckIns;
 var VolunteerRoles = Models.VolunteerRoles;
+var Settings = Models.Settings;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
-var expectedQuestionnaire = {
-  W7cnfJVW: {
-    question_id: "W7cnfJVW",
-    question: "What’s going well and what’s not going well?"
-  },
-  DuRN9396: {
-    question_id: "DuRN9396",
-    question:
-      "Are you getting what you want from this role? Are you developing the skills you’d like to?",
-    fromInitialSurvey: "goals"
-  },
-  tfM2S2R4: {
-    question_id: "tfM2S2R4",
-    question: "Do you need any additional support?"
-  },
-  ykCcA43Z: {
-    question_id: "ykCcA43Z",
-    question: "Would you like any additional training?",
-    fromInitialSurvey: "interests"
-  },
-  Zmumsq7X: {
-    question_id: "Zmumsq7X",
-    question: "Any additional notes/remarks?"
-  }
-};
+var expectedQuestionnaire;
+
+Settings.getById("activities", function(err, skills) {
+  expectedQuestionnaire = {
+    W7cnfJVW: {
+      question_id: "W7cnfJVW",
+      type: "plaintext",
+      question: "What’s going well and what’s not going well?"
+    },
+    DuRN9396: {
+      question_id: "DuRN9396",
+      type: "plaintext",
+      question:
+        "Are you getting what you want from this role? Are you developing the skills you’d like to?",
+      fromInitialSurvey: "goals"
+    },
+    V6Q3f9BR: {
+      question_id: "V6Q3f9BR",
+      type: "multi-select",
+      options: skills.data,
+      question:
+        "Please select any skills you feel that you've gained or developed during your time volunteering with us.",
+      fromInitialSurvey: "goals"
+    },
+    tfM2S2R4: {
+      question_id: "tfM2S2R4",
+      type: "plaintext",
+      question: "Do you need any additional support?"
+    },
+    ykCcA43Z: {
+      question_id: "ykCcA43Z",
+      type: "plaintext",
+      question: "Would you like any additional training?",
+      fromInitialSurvey: "interests"
+    },
+    Zmumsq7X: {
+      question_id: "Zmumsq7X",
+      type: "plaintext",
+      question: "Any additional notes/remarks?"
+    }
+  };
+});
 
 router.get("/", function(req, res) {
   res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
@@ -121,7 +139,30 @@ router.post(
                 expectedQuestionnaire,
                 function(question, question_id, callback) {
                   if (!questionnaire[question_id]) {
+                    console.log(question_id + ": undefined");
                     questionnaireValid = false;
+                  } else {
+                    if (question.type == "multi-select") {
+                      if (!Array.isArray(questionnaire[question_id])) {
+                        try {
+                          questionnaire[question_id] = [
+                            questionnaire[question_id]
+                          ];
+                        } catch (err) {
+                          console.log(question_id + ": not array");
+                          questionnaireValid = false;
+                        }
+                      }
+                    } else if (question.type == "plaintext") {
+                      try {
+                        questionnaire[question_id] = String(
+                          questionnaire[question_id]
+                        );
+                      } catch (err) {
+                        console.log(question_id + ": not text.");
+                        questionnaireValid = false;
+                      }
+                    }
                   }
                   callback();
                 },
@@ -143,7 +184,6 @@ router.post(
                               req.params.member_id
                           );
                         } else {
-                          
                           req.flash(
                             "error_msg",
                             "Something went wrong! Try again"
