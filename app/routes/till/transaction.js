@@ -424,7 +424,7 @@ router.post(
                                   }
 
                                   if (
-                                    !formattedTransaction.summary.paymentMethod
+                                    !formattedTransaction.summary.paymentMethod && formattedTransaction.summary.totals.money > 0
                                   ) {
                                     validTransaction = false;
                                     whyTransactionFailed =
