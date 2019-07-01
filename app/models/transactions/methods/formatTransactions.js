@@ -126,6 +126,11 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                     ).toFixed(2) +
                     ")</span>";
                 }
+
+                if (transaction.summary.bill[i].quantity > 1) {
+                  bill +=
+                    " <b>x" + transaction.summary.bill[i].quantity + "</b>";
+                }
               } else {
                 let value =
                   transaction.summary.bill[i].tokens ||

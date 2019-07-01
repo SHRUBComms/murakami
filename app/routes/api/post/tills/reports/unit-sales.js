@@ -122,9 +122,17 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                             .name;
                                       }
 
-                                      unitSales[
-                                        item.item_id
-                                      ].salesInfo.totalSales += +1;
+                                      try {
+                                        unitSales[
+                                          item.item_id
+                                        ].salesInfo.totalSales += +(
+                                          parseInt(item.quantity) || 1
+                                        );
+                                      } catch (err) {
+                                        unitSales[
+                                          item.item_id
+                                        ].salesInfo.totalSales += +1;
+                                      }
 
                                       unitSales[
                                         item.item_id

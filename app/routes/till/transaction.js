@@ -163,6 +163,7 @@ router.post(
                               if (categoriesAsObj[id].active == 1) {
                                 let weight = transaction[i].weight;
                                 let value = 0;
+                                let quantity = 1;
                                 let condition = transaction[i].condition;
                                 if (categoriesAsObj[id].value) {
                                   value = categoriesAsObj[id].value;
@@ -170,9 +171,25 @@ router.post(
                                   value = transaction[i].value;
                                 }
 
+                                if (
+                                  transaction[i].quantity >= 1 &&
+                                  transaction[i].quantity
+                                ) {
+                                  try {
+                                    quantity = parseInt(
+                                      transaction[i].quantity
+                                    );
+                                  } catch (err) {
+                                    quantity = 1;
+                                  }
+                                } else {
+                                  quantity = 1;
+                                }
+
                                 transaction[i] = categoriesAsObj[id];
                                 transaction[i].weight = weight;
                                 transaction[i].value = value;
+                                transaction[i].quantity = quantity;
                                 transaction[i].condition = condition;
 
                                 if (categoriesAsObj[id].action) {
@@ -194,21 +211,31 @@ router.post(
 
                                 if (transaction[i].allowTokens == 1) {
                                   tokens_total =
-                                    +tokens_total + +transaction[i].value;
+                                    +tokens_total +
+                                    +(
+                                      transaction[i].value *
+                                      transaction[i].quantity
+                                    );
                                   if (categoriesAsObj[id].member_discount) {
                                     member_discount_tokens +=
                                       (categoriesAsObj[id].member_discount /
                                         100) *
-                                      transaction[i].value;
+                                      (transaction[i].value *
+                                        transaction[i].quantity);
                                   }
                                 } else {
                                   money_total =
-                                    +money_total + +transaction[i].value;
+                                    +money_total +
+                                    +(
+                                      transaction[i].value *
+                                      transaction[i].quantity
+                                    );
                                   if (categoriesAsObj[id].member_discount) {
                                     member_discount_money +=
                                       (categoriesAsObj[id].member_discount /
                                         100) *
-                                      transaction[i].value;
+                                      (transaction[i].value *
+                                        transaction[i].quantity);
                                   }
                                 }
 
@@ -257,20 +284,31 @@ router.post(
                                     ] =
                                       +carbonTransaction[
                                         transaction[i].carbon_id
-                                      ] + +transaction[i].weight;
+                                      ] +
+                                      +(
+                                        transaction[i].weight *
+                                        transaction[i].quantity
+                                      );
                                   } else {
                                     carbonTransaction[group_id][
                                       transaction[i].carbon_id
-                                    ] = transaction[i].weight;
+                                    ] =
+                                      transaction[i].weight *
+                                      transaction[i].quantity;
                                   }
                                   weight_total =
-                                    +weight_total + +transaction[i].weight;
+                                    +weight_total +
+                                    +(
+                                      transaction[i].weight *
+                                      transaction[i].quantity
+                                    );
                                 }
 
                                 transaction[i] = {};
                                 transaction[i].value = value;
                                 transaction[i].item_id = id;
                                 transaction[i].condition = condition;
+                                transaction[i].quantity = quantity;
                                 transactionSanitized.push(transaction[i]);
                               }
                               callback();
@@ -424,7 +462,10 @@ router.post(
                                   }
 
                                   if (
-                                    !formattedTransaction.summary.paymentMethod && formattedTransaction.summary.totals.money > 0
+                                    !formattedTransaction.summary
+                                      .paymentMethod &&
+                                    formattedTransaction.summary.totals.money >
+                                      0
                                   ) {
                                     validTransaction = false;
                                     whyTransactionFailed =
@@ -552,7 +593,7 @@ router.post(
                                                 function(err) {
                                                   Members.updateBalance(
                                                     member_id,
-                                                    5,
+                                                    (member.balance || 0) + 5,
                                                     function(err) {}
                                                   );
                                                 }

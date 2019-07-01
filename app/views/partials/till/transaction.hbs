@@ -16,7 +16,6 @@
 
 <div id="transaction_info" class="row pl-3 mt-4 mb-4">
 
-
 	<div id="transactionSuccess" class="alert alert-success alert-dismissible d-none col-md-6 p-3 mx-auto">
 		<h4 class="alert-heading">Transaction Successful!</h4>
 		<p id="transactionSuccessSummary"></p>
@@ -64,9 +63,10 @@
 				<table class="table table-light table-striped">
 				  <thead>
 				    <tr>
-				      <th scope="col">Category</th>
+				      <th scope="col" width="30%">Category</th>
 				      <th scope="col">Value</th>
 				      <th scope="col">Weight (g)</th>
+							<th scope="col">Qty.</th>
 				      <th scope="col"></th>
 				    </tr>
 				  </thead>
@@ -322,6 +322,7 @@ function addToTransaction(item){
 	sanitizedItem.needsCondition = item.needsCondition;
 	sanitizedItem.condition = item.condition;
 	sanitizedItem.action = item.action;
+	sanitizedItem.quantity = item.quantity || 1;
 
 	sanitizedItem.allowTokens = item.allowTokens;
 	sanitizedItem.carbon_id = item.carbon_id;
@@ -395,7 +396,7 @@ function updateTransactionList(){
 	$("#transaction-info").html("");
 	var tokens_total = 0;
 	var weight_total = 0;
-	var row, categoryColumn, valueColumn, weightColumn, deleteColumn;
+	var row, categoryColumn, quantityColumn, valueColumn, weightColumn, deleteColumn;
 
 	for(let i=0;i<transaction.length;i++){
 		var value = 0;
@@ -431,9 +432,36 @@ function updateTransactionList(){
 		row = document.createElement("tr");
 
 		categoryColumn = document.createElement("td");
+		categoryColumn.className = "align-middle"
 		categoryColumn.innerHTML = transaction[i].absoluteName + " " + note;
 
+		quantityColumn = document.createElement("td");
+		quantityColumn.className = "align-middle"
+		if(transaction[i].action == null){
+				var quantityColumnInput = document.createElement("input");
+				quantityColumnInput.id = "quantity_" + i;
+				quantityColumnInput.type = "number";
+				quantityColumnInput.value = transaction[i].quantity;
+				quantityColumnInput.className = "form-control align-middle"
+				quantityColumnInput.setAttribute("step", 1)
+				quantityColumnInput.setAttribute("max", 99)
+				quantityColumnInput.setAttribute("min", 1)
+
+				quantityColumnInput.oninput = function(){
+					updateTransaction(i)
+				};
+
+				quantityColumnInput.onblur = function(){
+					updateTransaction(i)
+				};
+
+				quantityColumn.append(quantityColumnInput)
+		} else {
+				quantityColumn.innerText = 1;
+		}
+
 		valueColumn = document.createElement("td");
+		valueColumn.className = "align-middle"
 		valueColumn.id = "value_" + i;
 		valueColumn.oninput = function(){
 			updateTransaction(i)
@@ -449,6 +477,7 @@ function updateTransactionList(){
 		}
 
 		weightColumn = document.createElement("td");
+		weightColumn.className = "align-middle"
 		weightColumn.id = "weight_" + i;
 		weightColumn.oninput = function(){
 			updateTransaction(i)
@@ -465,7 +494,7 @@ function updateTransactionList(){
 		}
 
 		removeColumn = document.createElement("td");
-		removeColumn.className = "remove-item clickable"
+		removeColumn.className = "remove-item clickable align-middle"
 		removeColumn.textContent = "x"
 		removeColumn.onclick = function(){
 			removeFromTransaction(i)
@@ -474,6 +503,7 @@ function updateTransactionList(){
 		row.appendChild(categoryColumn)
 		row.appendChild(valueColumn)
 		row.appendChild(weightColumn)
+		row.appendChild(quantityColumn)
 		row.appendChild(removeColumn)
 
 		document.getElementById("transaction-info").appendChild(row);
@@ -485,7 +515,8 @@ function updateTransactionList(){
 		    html:"<td><b>TOTAL:</b></td>" +
 		    "<td id='tokens_total'>" + tokens_total + "</td>" +
 		    "<td id='weight_total'>" + weight_total + "</td>" +
-		    "<td></td>"
+		    "<td></td>" +
+				"<td></td>"
 		}).appendTo('#transaction-info');
 	}
 
@@ -502,19 +533,19 @@ function updateButtons(){
 	for(let i=0;i<transaction.length;i++){
 		if(transaction[i].allowTokens == 1){
 			if(member.name){
-				tokens_total += +(transaction[i].value - (transaction[i].value * (transaction[i].member_discount/100)));
+				tokens_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
 			} else {
-				tokens_total += +transaction[i].value;
+				tokens_total += +(transaction[i].value * transaction[i].quantity);
 			}
 
 		} else {
 			if(member.name){
-				money_total += +(transaction[i].value - (transaction[i].value * (transaction[i].member_discount/100)));
+				money_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
 			} else {
-				money_total += +transaction[i].value;
+				money_total += +(transaction[i].value * transaction[i].quantity);
 			}
 		}
-		weight_total += +transaction[i].weight;
+		weight_total += +(transaction[i].weight * transaction[i].quantity);
 	}
 
 	$("#value_total").html((tokens_total + money_total).toFixed(2));
@@ -609,6 +640,13 @@ function updateTransaction(index){
 	} else {
 		$("#value_" + index).html("");
 		transaction[index].value = 0;
+	}
+
+	if(isNumericAndWhole($("#quantity_" + index).val())){
+		transaction[index].quantity = $("#quantity_" + index).val();
+	} else {
+		$("#quantity_" + index).val(1);
+		transaction[index].quantity = 1;
 	}
 
 	if(transaction.length > 0){
