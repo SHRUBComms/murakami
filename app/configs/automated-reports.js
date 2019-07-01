@@ -14,7 +14,7 @@ var Reports = Models.Reports;
 
 var automatedReports = new CronJob({
   // 9am, first of the month.
-  cronTime: "0 0 9 1 * *",
+  cronTime: "0 0 10 1 * *",
   onTick: function() {
     var startOfMonth = moment()
       .subtract(1, "days")
@@ -75,8 +75,10 @@ var automatedReports = new CronJob({
             },
             function() {
               VolunteerHours.getAllApprovedBetweenTwoDates(
-                startOfMonth.toDate(),
-                startOfMonth.endOf("month").toDate(),
+                moment(startOfMonth).toDate(),
+                moment(startOfMonth)
+                  .endOf("month")
+                  .toDate(),
                 function(err, shifts) {
                   var volunteered = {};
                   async.each(
