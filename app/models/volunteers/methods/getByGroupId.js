@@ -26,6 +26,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                 if (!volunteer.active) {
                   volunteers.push(volunteer);
                 }
+              } else if (group_id == "my-volunteers") {
+                if (volunteer.assignedCoordinators.includes(user.id)) {
+                  volunteers.push(volunteer);
+                }
               } else if (group_id !== null) {
                 if (volunteer.working_groups.includes(group_id) == true) {
                   volunteers.push(volunteer);

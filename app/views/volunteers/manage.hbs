@@ -8,9 +8,9 @@
   <div class="col-md-12">
     <div class="row">
       {{#ifCond user.permissions.volunteers.view '==' true}}
-        {{>working-groups/select selectedGroup=group.group_id id="working_groups" user=user path="/volunteers/manage/?group_id="}}
+        {{>working-groups/select myVolunteers=true selectedGroup=group.group_id id="working_groups" user=user path="/volunteers/manage/?group_id="}}
       {{else}}
-        {{>working-groups/select selectedGroup=group.group_id allGroups=false id="working_groups" user=user path="/volunteers/manage/?group_id="}}
+        {{>working-groups/select myVolunteers=true selectedGroup=group.group_id allGroups=false id="working_groups" user=user path="/volunteers/manage/?group_id="}}
       {{/ifCond}}
     </div>
   </div>

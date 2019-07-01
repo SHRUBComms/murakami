@@ -10,6 +10,10 @@
 
             <option disabled selected>Select a working group...</option>
 
+            {{#if myVolunteers}}
+              <option value="my-volunteers"{{#ifCond selectedGroup '==' 'my-volunteers'}} selected{{/ifCond}}>My Volunteers</option>
+            {{/if}}
+
             {{#ifCond allGroups '==' false}}
 
               {{#each user.working_groups}}

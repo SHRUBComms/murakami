@@ -24,20 +24,19 @@ router.get(
     if (!req.query.group_id) {
       res.redirect(
         process.env.PUBLIC_ADDRESS +
-          "/volunteers/manage/?group_id=" +
-          req.user.working_groups[0]
+          "/volunteers/manage/?group_id=my-volunteers"
       );
     } else {
       if (
         req.user.permissions.volunteers.view == true ||
         (req.user.permissions.volunteers.view == "commonWorkingGroup" &&
-          req.user.working_groups.includes(req.query.group_id))
+          req.user.working_groups.includes(req.query.group_id)) ||
+        req.query.group_id == "my-volunteers"
       ) {
         Volunteers.getByGroupId(req.query.group_id, req.user, function(
           err,
           volunteers
         ) {
-          
           VolunteerRoles.getAll(function(
             err,
             roles,
