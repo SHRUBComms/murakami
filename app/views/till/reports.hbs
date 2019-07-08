@@ -21,7 +21,7 @@
       <option selected disabled>Select report...</option>
       <option value="transactions">Transactions</option>
       <option value="floats">Till Reconciliation (Opening/Closing Floats)</option>
-      <option value="unit-sales">Unit Sales</option>
+      <option value="unit-sales">Sales</option>
       <!--<option value="full-summary">Sales Summary</option>-->
     </select>
   </div>
@@ -117,7 +117,7 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div id="unitSalesNote" class="alert alert-info d-none p-4" role="alert">
-				  <span class="badge badge-pill badge-info mr-2">Info</span><b>Please note that "Total Revenue" includes tokens.</b> Tokens are automatically split over an entire transaction so can't be attributed to a single item.
+				  <span class="badge badge-pill badge-info mr-2">Info</span><b>Please note that "Estimated Revenue" includes tokens.</b> Tokens are automatically split over an entire transaction so can't be attributed to a single item.
 				</div>
 			</div>
 		</div>
@@ -136,9 +136,8 @@
 
 							<th scope="col" data-field="categoryInfo.groupName" data-sortable="true">Working Group</th>
 		        	<th scope="col" data-field="categoryInfo.name" data-sortable="true">Name</th>
-
 							<th data-field="salesInfo.totalSales" data-sortable="true">Units Sold</th>
-		          <th data-field="salesInfo.totalRevenue" data-sortable="true">Total Revenue (£)</th>
+		          <th data-field="salesInfo.totalRevenue" data-sortable="true">Estimated Revenue (£)</th>
 							<th data-field="salesInfo.memberRatio" data-sortable="true">Bought By Members (%)</th>
 
 		        </tr>
