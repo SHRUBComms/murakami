@@ -1,7 +1,14 @@
 var async = require("async");
 
 module.exports = function(FoodCollections, sequelize, DataTypes) {
-  return function(organisation_id, membersObj, startDate, endDate, callback) {
+  return function(
+    organisation_id,
+    organisations,
+    membersObj,
+    startDate,
+    endDate,
+    callback
+  ) {
     var query = {
       where: {
         approved: 1,
@@ -20,12 +27,15 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
         async.each(
           collections,
           function(collection, callback) {
-            FoodCollections.sanitizeCollection(collection, membersObj, function(
-              sanitizedCollection
-            ) {
-              sanitizedCollections.push(sanitizedCollection);
-              callback();
-            });
+            FoodCollections.sanitizeCollection(
+              collection,
+              organisations,
+              membersObj,
+              function(sanitizedCollection) {
+                sanitizedCollections.push(sanitizedCollection);
+                callback();
+              }
+            );
           },
           function() {
             callback(err, sanitizedCollections);

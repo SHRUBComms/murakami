@@ -1,12 +1,28 @@
 var async = require("async");
 
 module.exports = function(FoodCollections, sequelize, DataTypes) {
-  return function(organisation_id, organisations, membersObj, callback) {
-    FoodCollections.findAll({
-      where: { organisation_id: organisation_id, approved: 1 },
+  return function(
+    organisation_id,
+    organisations,
+    membersObj,
+    startDate,
+    endDate,
+    callback
+  ) {
+    var query = {
+      where: {
+        approved: 1,
+        timestamp: { [DataTypes.Op.between]: [startDate, endDate] }
+      },
       order: [["timestamp", "DESC"]]
-    }).nodeify(function(err, collections) {
-      if (collections) {
+    };
+
+    if (organisation_id) {
+      query.where.destination_organisation_id = organisation_id;
+    }
+
+    FoodCollections.findAll(query).nodeify(function(err, collections) {
+      if (collections || !err) {
         var sanitizedCollections = [];
         async.each(
           collections,
@@ -26,7 +42,7 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
           }
         );
       } else {
-        callback(err, null);
+        callback(err, []);
       }
     });
   };

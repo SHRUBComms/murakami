@@ -4,6 +4,7 @@ module.exports = function(FoodCollectionsOrganisations, sequelize, DataTypes) {
       FoodCollectionsOrganisations.create({
         organisation_id: organisation_id,
         name: organisation.name,
+        type: organisation.type,
         dateCreated: new Date()
       }).nodeify(function(err) {
         callback(err, organisation_id);

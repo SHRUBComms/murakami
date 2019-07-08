@@ -1,1 +1,10 @@
+<script src="{{public_address}}/assets/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" href="{{public_address}}/assets/css/bootstrap-select.min.css" />
+
+
 <input type="text" name="organisation[name]" class="form-control" placeholder="Organisation Name"{{#if organisation.name}} value="{{organisation.name}}"{{/if}} required />
+
+<select class="selectpicker show-tick form-control mt-2" name="organisation[type]" title="Select organisation type..." data-style="btn-info" data-size="auto" data-header="Select organisation type..." data-live-search="true" multiple required>
+  <option value="collections" {{#if (lookupArray organisation.type "collections")}}selected{{/if}}>Collections</option>
+  <option value="drop-offs" {{#if (lookupArray organisation.type "drop-offs")}}selected{{/if}}>Drop-offs</option>
+</select>

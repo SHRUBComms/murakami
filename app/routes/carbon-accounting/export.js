@@ -19,16 +19,25 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("carbonAccounting", "export"),
   function(req, res) {
+    var startDate, endDate;
     try {
-      var startDate = new Date(req.query.startDate) || new Date();
+      startDate = moment(req.query.startDate)
+        .startOf("day")
+        .toDate();
     } catch (err) {
-      var startDate = new Date();
+      startDate = moment()
+        .startOf("day")
+        .toDate();
     }
 
     try {
-      var endDate = new Date(req.query.endDate) || new Date();
+      endDate = moment(req.query.endDate)
+        .endOf("day")
+        .toDate();
     } catch (err) {
-      var endDate = new Date();
+      endDate = moment()
+        .endOf("day")
+        .toDate();
     }
 
     var unit = req.query.unit;
@@ -72,6 +81,14 @@ router.get(
                   rawCarbon,
                   function(transaction, callback) {
                     if (transaction.method == method) {
+                      if (
+                        typeof transaction.trans_object === "string" ||
+                        transaction.trans_object instanceof String
+                      ) {
+                        transaction.trans_object = JSON.parse(
+                          transaction.trans_object
+                        );
+                      }
                       async.eachOf(
                         transaction.trans_object,
                         function(amount, itemId, callback) {
@@ -101,21 +118,12 @@ router.get(
                         callback();
                       },
                       function() {
-                        var dates = { start: null, end: null };
+                        var dates = {};
 
-                        dates.start = moment(startDate).format("DD/MM/YY");
-                        dates.end = moment(endDate).format("DD/MM/YY");
-
-                        try {
-                          startDate = startDate.toISOString().split("T")[0];
-                        } catch (err) {
-                          startDate = null;
-                        }
-                        try {
-                          endDate = endDate.toISOString().split("T")[0] || null;
-                        } catch (err) {
-                          endDate = null;
-                        }
+                        dates.start =
+                          moment(startDate).format("YYYY-MM-DD") || null;
+                        dates.end =
+                          moment(endDate).format("YYYY-MM-DD") || null;
 
                         res.render("carbon-accounting/export", {
                           carbonActive: true,

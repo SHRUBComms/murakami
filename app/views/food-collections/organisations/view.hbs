@@ -33,6 +33,17 @@
 
           <tr class="p-2">
             <td class="p-3">
+              <p><b>Type</b></p>
+            </td>
+            <td class="p-3">
+              {{#each organisation.type}}
+                <p>{{formToPlain this}}</p>
+              {{/each}}
+            </td>
+          </tr>
+
+          <tr class="p-2">
+            <td class="p-3">
               <p><b>Status</b></p>
             </td>
             <td class="p-3">
@@ -86,31 +97,63 @@
 <div class="row mt-2">
   <div class="col-md-8 mx-auto">
 
-
-    <div class="row mt-4">
-      <div class="col-md-12">
-        <h4 class="mb-3">Collection History</h4>
-        <table id="collections" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true">
-         <thead>
-           <th>Date</th>
-           <th>Amount (kilos)</th>
-           <th>Collected By</th>
-           <th>Note</th>
-         </thead>
-         <tbody>
-           {{#each collections}}
-             <tr>
+    {{#ifCond collections.length '>' 0}}
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h4 class="mb-3">Collection History</h4>
+          <table id="collections" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true">
+           <thead>
+             <th>Date</th>
+             <th>Amount (kilos)</th>
+             <th>Collected By</th>
+             <th>Dropped Off To</th>
+             <th>Note</th>
+           </thead>
+           <tbody>
+             {{#each collections}}
                <tr>
-                 <td>{{niceTimestamp timestamp}}</td>
-                 <td>{{amount}}</td>
-                 <td>{{collectedBy}}</td>
-                 <td>{{note}}</td>
+                 <tr>
+                   <td>{{niceTimestamp timestamp}}</td>
+                   <td>{{amount}}</td>
+                   <td>{{collectedBy}}</td>
+                   <td>{{droppedOffTo}}</td>
+                   <td>{{note}}</td>
+                 </tr>
                </tr>
-             </tr>
-           {{/each}}
-         </tbody>
-        </table>
+             {{/each}}
+           </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    {{/ifCond}}
+    {{#ifCond dropoffs.length '>' 0}}
+      <div class="row mt-4">
+        <div class="col-md-12">
+          <h4 class="mb-3">Drop-off History</h4>
+          <table id="collections" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true">
+           <thead>
+             <th>Date</th>
+             <th>Amount (kilos)</th>
+             <th>Collected By</th>
+             <th>Collected From</th>
+             <th>Note</th>
+           </thead>
+           <tbody>
+             {{#each dropoffs}}
+               <tr>
+                 <tr>
+                   <td>{{niceTimestamp timestamp}}</td>
+                   <td>{{amount}}</td>
+                   <td>{{collectedBy}}</td>
+                   <td>{{collectedFrom}}</td>
+                   <td>{{note}}</td>
+                 </tr>
+               </tr>
+             {{/each}}
+           </tbody>
+          </table>
+        </div>
+      </div>
+    {{/ifCond}}
   </div>
 </div>
