@@ -1,6 +1,6 @@
 module.exports = function(VolunteerRoles, sequelize, DataTypes) {
   return function(working_group, title, callback) {
-    VolunteerRoles.generateid(function(role_id) {
+    VolunteerRoles.generateId(function(role_id) {
       VolunteerRoles.create({
         role_id: role_id,
         group_id: working_group,

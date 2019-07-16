@@ -2,45 +2,6 @@
 
 {{#if user}}
 
-  <div class="page-help d-none">
-    <div class="row mt-5 mb-5">
-    	<div class="col-md-5 mx-auto">
-    			<div class="card hints-and-tips">
-    					<div class="card-body">
-                <div class="row mb-2">
-                  <div class="col-md-12 text-center">
-                    <h3>How To Log Hours</h3>
-                  </div>
-                </div>
-                <div class="row mt-2 mb-1">
-                  <div class="col-md-10 offset-md-1">
-                    <ol>
-                      <li>
-                        <p>Search for the member using the text box below</p>
-                      </li>
-                      <li>
-                        <p>Select the relevant working group</p>
-                      </li>
-                      <li>
-                        <p>Select how many hours they have volunteered</p>
-                      </li>
-                      <li>
-                        <p>Click the "Log Hours" button</p>
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-10 offset-md-1">
-                    <small>Note: if you are logged in as a till user, your hours will be approved by an admin at a later date.</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-      </div>
-
-  </div>
 
   <div class="row mt-5">
   	<div class="col-md-6 offset-md-3">
@@ -126,7 +87,7 @@
 
 
       	workingGroupSelectMarkup += '</select>';
-        
+
         var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].member_id +  ")'>Log Hours</a>"
       	if(working_groups.length > 0){
   	      	var shiftLogger =   '<div class="row">' +

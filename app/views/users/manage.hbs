@@ -4,24 +4,23 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
-<div class="row">
+<div class="row mt-4">
 	<div class="mx-auto">
 		<table class="fadeIn table-light" data-pagination="true" data-search="true" data-toggle="table" data-striped="true" data-formatNoMatches="No users found!">
 		<thead>
 			<th data-sortable="true">Name</th>
-			<th data-sortable="true">Email</th>
-			<th data-sortable="true" class="hidden-xs hidden-sm">Username</th>
-			<th data-sortable="true" class="hidden-xs hidden-sm">Class</th>
+			<th data-sortable="true" class="hidden-xs hidden-sm">Email</th>
+			<th data-sortable="true">Class</th>
 			<th data-sortable="true" class="hidden-xs hidden-sm">Last Login</th>
+			<th>Status</th>
 			<th></th>
 		</thead>
 		<tbody>
-		{{#each users}}
-			{{#ifCond deactivated '==' 0}}
+			{{#each users}}
+
 				<tr>
 					<td>{{name}}</td>
 					<td>{{email}}</td>
-					<td>{{username}}</td>
 					<td>
 						{{#ifCond class '==' 'admin'}}
 							Administrator
@@ -38,18 +37,28 @@
 					</td>
 					<td>
 						{{#if lastLogin}}
-							{{lastLogin}}
+							{{niceTimestamp lastLogin}}
 						{{else}}
-							Never logged in
+							Never
 						{{/if}}
 					</td>
 					<td>
-						<a href="{{public_address}}/users/update/{{id}}" class="btn btn-primary">View/Update</a>
+						{{#if deactivated}}
+							<span class="text-danger">Deactivated</span>
+						{{else}}
+							<span class="text-success">Activated</span>
+						{{/if}}
+					</td>
+					<td>
+						{{#if canUpdate}}
+							<a href="{{public_address}}/users/update/{{id}}" class="btn btn-primary">View/Update</a>
+						{{else}}
+							<a href="#" class="btn btn-primary" disabled>View/Update</a>
+						{{/if}}
 					</td>
 				</tr>
-			{{/ifCond}}
-		{{/each}}
-		</tbody>
-	</table>
-		</div>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
 </div>

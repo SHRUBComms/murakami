@@ -46,7 +46,9 @@ if (process.env.NODE_ENV == "production") {
 Mail.supportSmtpConfig = Mail.memberSmtpConfig;
 
 Mail.sendSupport = function(from_name, from_address, subject, html, callback) {
-  html = sanitizeHtml(html);
+  html = sanitizeHtml(html, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"])
+  });
 
   var message = {
     html: html,
@@ -68,7 +70,14 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
         {
           allVolunteerRoles: allRoles,
           class: "admin",
-          permissions: { members: { contactDetails: true, name: true } }
+          permissions: {
+            members: {
+              contactDetails: true,
+              name: true,
+              membershipDates: true,
+              balance: true
+            }
+          }
         },
         function(err, member) {
           MailTemplates.getById(mail_id, function(err, mail) {
@@ -142,14 +151,18 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
                       /\|fullname\|/g,
                       member.first_name + " " + member.last_name
                     )
-                    .replace(/\|exp_date\|/g, member.current_exp_membership)
-                    .replace(/\|membership_id\|/g, member.member_id);
-
-                  mail.markup = sanitizeHtml(mail.markup);
-
-                  cleaner.clean(mail.markup, {}, function(cleanMarkup) {
-                    mail.markup = cleanMarkup;
-                  });
+                    .replace(/\|tokens\|/g, member.balance)
+                    .replace(
+                      /\|exp_date\|/g,
+                      moment(member.current_exp_membership).format("LL")
+                    )
+                    .replace(/\|membership_id\|/g, member.member_id)
+                    .replace(
+                      /\|contact_preferences_link\|/g,
+                      process.env.PUBLIC_ADDRESS +
+                        "/contact-preferences/" +
+                        member.member_id
+                    );
 
                   var message = {
                     html: mail.markup,
@@ -200,7 +213,9 @@ Mail.sendDonation = function(member, callback) {
           .replace(/\|exp_date\|/g, member.current_exp_membership)
           .replace(/\|membership_id\|/g, member.member_id);
 
-        mail.markup = sanitizeHtml(mail.markup);
+        mail.markup = sanitizeHtml(mail.markup, {
+          allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"])
+        });
 
         var message = {
           html: mail.markup,
@@ -226,7 +241,9 @@ Mail.sendDonation = function(member, callback) {
 };
 
 Mail.sendUsers = function(to_name, to_address, subject, html, callback) {
-  html = sanitizeHtml(html);
+  html = sanitizeHtml(html, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"])
+  });
 
   var message = {
     html: html,
@@ -241,7 +258,9 @@ Mail.sendUsers = function(to_name, to_address, subject, html, callback) {
 };
 
 Mail.sendGeneral = function(to, subject, html, callback) {
-  html = sanitizeHtml(html);
+  html = sanitizeHtml(html, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"])
+  });
 
   var message = {
     html: html,

@@ -19,20 +19,26 @@ router.get(
   Auth.canAccessPage("members", "carbonSaved"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (member.canViewSavedCarbon) {
-        Carbon.getByMemberId(req.params.member_id, function(err, carbon) {
-          if (err || carbon.length == 0) {
-            res.send({ carbon: 0 });
-          } else {
-            CarbonCategories.getAll(function(err, carbonCategoriesRaw) {
-              Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
-                totalCarbon
-              ) {
-                res.send({ carbon: Math.abs(totalCarbon.toFixed(2)) || 0 });
+      if (!err && member) {
+        if (member.canViewSavedCarbon) {
+          Carbon.getByMemberId(req.params.member_id, function(err, carbon) {
+            if (!err && carbon.length > 0) {
+              CarbonCategories.getAll(function(err, carbonCategoriesRaw) {
+                Helpers.calculateCarbon(carbon, carbonCategoriesRaw, function(
+                  totalCarbon
+                ) {
+                  // Convert to grams to kilos
+                  totalCarbon = totalCarbon * 1e-3;
+                  res.send({ carbon: Math.abs(totalCarbon.toFixed(2)) || 0 });
+                });
               });
-            });
-          }
-        });
+            } else {
+              res.send({ carbon: 0 });
+            }
+          });
+        } else {
+          res.send({ carbon: 0 });
+        }
       } else {
         res.send({ carbon: 0 });
       }

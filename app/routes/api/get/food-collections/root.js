@@ -56,6 +56,10 @@ router.get(
                       organisations[collection.organisation_id].name ||
                       "Unknown";
 
+                    formattedCollection.destination_organisation =
+                      organisations[collection.destination_organisation_id]
+                        .name || "Unknown";
+
                     formattedCollection.date = moment(
                       collection.timestamp
                     ).format("l");

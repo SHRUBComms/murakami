@@ -105,7 +105,10 @@ router.post(
             }
           }
           if (h2p(req.body.welcomeMessage)) {
-            group.welcomeMessage = req.body.welcomeMessage;
+            group.welcomeMessage = req.body.welcomeMessage.replace(
+              /\r?\n|\r/g,
+              ""
+            );
           } else {
             group.welcomeMessage = null;
           }

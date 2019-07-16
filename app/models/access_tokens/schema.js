@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
         defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
       },
       details: {
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
         allowNull: false
       },
       used: {

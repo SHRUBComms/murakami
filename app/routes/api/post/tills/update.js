@@ -15,16 +15,21 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
 
   if (till.name) {
     Tills.getById(till.till_id, function(err, tillExists) {
-      if (till) {
-        Tills.updateTill(till, function(err) {
-          if (err) {
-            res.send(response);
-          } else {
-            response.status = "ok";
-            response.msg = "Till updated!";
-            res.send(response);
-          }
-        });
+      if (tillExists) {
+        if (tillExists.disabled == 0) {
+          Tills.updateTill(till, function(err) {
+            if (err) {
+              res.send(response);
+            } else {
+              response.status = "ok";
+              response.msg = "Till updated!";
+              res.send(response);
+            }
+          });
+        } else {
+          response.msg = "Till is disabled.";
+          res.send(response);
+        }
       } else {
         response.msg = "Select a valid till.";
         res.send(response);

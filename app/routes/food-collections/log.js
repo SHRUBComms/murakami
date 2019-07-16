@@ -22,10 +22,7 @@ router.get("/", function(req, res) {
     organisations = [];
   }
 
-  FoodCollectionsOrganisations.getAll(function(
-    err,
-    allOrganisations
-  ) {
+  FoodCollectionsOrganisations.getAll(function(err, allOrganisations) {
     Members.getAll(function(err, members) {
       var noOrganisationSelect;
       if (!req.user) {
@@ -76,6 +73,7 @@ router.post("/", function(req, res) {
 
   var member_id = req.body.member_id;
   var organisation_id = req.body.organisation_id;
+  var destination_organisation_id = req.body.destination_organisation_id;
   var amount = req.body.amount;
   var note = req.body.note;
 
@@ -95,66 +93,129 @@ router.post("/", function(req, res) {
         function(err, member) {
           if (member) {
             if (organisation_id) {
-              FoodCollectionsOrganisations.getAll(function(
-                err,
-                allOrganisations
-              ) {
-                if (allOrganisations[organisation_id]) {
-                  if (allOrganisations[organisation_id].active == 1) {
-                    if (!isNaN(amount) && amount > 0) {
-                      if (req.user) {
-                        FoodCollections.add(
-                          member_id,
-                          organisation_id,
-                          amount,
-                          note,
-                          1,
-                          function(err) {
-                            if (!err) {
-                              Settings.getAll(function(err, settings) {
-                                var shift = {
-                                  member_id: member_id,
-                                  duration: 1,
-                                  working_group:
-                                    settings.foodCollectionsGroup.group_id,
-                                  note: "For food collection (automated)",
-                                  approved: 1
-                                };
+              if (destination_organisation_id) {
+                FoodCollectionsOrganisations.getAll(function(
+                  err,
+                  allOrganisations
+                ) {
+                  if (allOrganisations[organisation_id]) {
+                    if (allOrganisations[organisation_id].active == 1) {
+                      if (allOrganisations[destination_organisation_id]) {
+                        if (
+                          allOrganisations[destination_organisation_id]
+                            .active == 1
+                        ) {
+                          if (organisation_id != destination_organisation_id) {
+                            if (!isNaN(amount) && amount > 0) {
+                              if (req.user) {
+                                FoodCollections.add(
+                                  member_id,
+                                  organisation_id,
+                                  destination_organisation_id,
+                                  amount,
+                                  note,
+                                  1,
+                                  function(err) {
+                                    if (!err) {
+                                      Settings.getAll(function(err, settings) {
+                                        var shift = {
+                                          member_id: member_id,
+                                          duration: 1,
+                                          working_group:
+                                            settings.foodCollectionsGroup
+                                              .group_id,
+                                          note:
+                                            "For food collection (automated)",
+                                          approved: 1
+                                        };
 
-                                VolunteerHours.createShift(shift, function(
-                                  err
-                                ) {
-                                  if (!err) {
-                                    req.flash(
-                                      "success_msg",
-                                      "Collection & shift successfully logged!"
-                                    );
-                                    res.redirect(
-                                      process.env.PUBLIC_ADDRESS +
-                                        "/food-collections/log?member_id=" +
-                                        member_id +
-                                        "&organisations=" +
-                                        req.query.organisations
-                                    );
-                                  } else {
-                                    req.flash(
-                                      "error_msg",
-                                      "Collection approved, but something went wrong logging the shift!"
-                                    );
-                                    res.redirect(
-                                      process.env.PUBLIC_ADDRESS +
-                                        "/food-collections/log?member_id=" +
-                                        member_id +
-                                        "&organisations=" +
-                                        req.query.organisations
-                                    );
+                                        VolunteerHours.createShift(
+                                          shift,
+                                          function(err) {
+                                            if (!err) {
+                                              req.flash(
+                                                "success_msg",
+                                                "Collection & shift successfully logged!"
+                                              );
+                                              res.redirect(
+                                                process.env.PUBLIC_ADDRESS +
+                                                  "/food-collections/log?member_id=" +
+                                                  member_id +
+                                                  "&organisations=" +
+                                                  req.query.organisations
+                                              );
+                                            } else {
+                                              req.flash(
+                                                "error_msg",
+                                                "Collection approved, but something went wrong logging the shift!"
+                                              );
+                                              res.redirect(
+                                                process.env.PUBLIC_ADDRESS +
+                                                  "/food-collections/log?member_id=" +
+                                                  member_id +
+                                                  "&organisations=" +
+                                                  req.query.organisations
+                                              );
+                                            }
+                                          }
+                                        );
+                                      });
+                                    } else {
+                                      req.flash(
+                                        "error_msg",
+                                        "Something went wrong - please try again!"
+                                      );
+                                      res.redirect(
+                                        process.env.PUBLIC_ADDRESS +
+                                          "/food-collections/log?member_id=" +
+                                          member_id +
+                                          "&organisations=" +
+                                          req.query.organisations
+                                      );
+                                    }
                                   }
-                                });
-                              });
+                                );
+                              } else {
+                                FoodCollections.add(
+                                  member_id,
+                                  organisation_id,
+                                  destination_organisation_id,
+                                  amount,
+                                  note,
+                                  null,
+                                  function(err) {
+                                    if (!err) {
+                                      req.flash(
+                                        "success_msg",
+                                        "Collection logged - awaiting review by an admin!"
+                                      );
+                                      res.redirect(
+                                        process.env.PUBLIC_ADDRESS +
+                                          "/food-collections/log?member_id=" +
+                                          member_id +
+                                          "&organisations=" +
+                                          req.query.organisations
+                                      );
+                                    } else {
+                                      req.flash(
+                                        "error_msg",
+                                        "Something went wrong - please try again!"
+                                      );
+                                      res.redirect(
+                                        process.env.PUBLIC_ADDRESS +
+                                          "/food-collections/log?member_id=" +
+                                          member_id +
+                                          "&organisations=" +
+                                          req.query.organisations
+                                      );
+                                    }
+                                  }
+                                );
+                              }
                             } else {
                               req.flash(
                                 "error_msg",
-                                "Something went wrong - please try again!"
+                                "Please enter a valid amount!"
                               );
                               res.redirect(
                                 process.env.PUBLIC_ADDRESS +
@@ -164,46 +225,50 @@ router.post("/", function(req, res) {
                                   req.query.organisations
                               );
                             }
+                          } else {
+                            req.flash(
+                              "error_msg",
+                              "Pick-up and drop-off organisations must be different!"
+                            );
+                            res.redirect(
+                              process.env.PUBLIC_ADDRESS +
+                                "/food-collections/log?member_id=" +
+                                member_id +
+                                "&organisations=" +
+                                req.query.organisations
+                            );
                           }
-                        );
+                        } else {
+                          req.flash(
+                            "error_msg",
+                            "The selected drop-off organisation is no longer active!"
+                          );
+                          res.redirect(
+                            process.env.PUBLIC_ADDRESS +
+                              "/food-collections/log?member_id=" +
+                              member_id +
+                              "&organisations=" +
+                              req.query.organisations
+                          );
+                        }
                       } else {
-                        FoodCollections.add(
-                          member_id,
-                          organisation_id,
-                          amount,
-                          note,
-                          null,
-                          function(err) {
-                            if (!err) {
-                              req.flash(
-                                "success_msg",
-                                "Collection logged - awaiting review by an admin!"
-                              );
-                              res.redirect(
-                                process.env.PUBLIC_ADDRESS +
-                                  "/food-collections/log?member_id=" +
-                                  member_id +
-                                  "&organisations=" +
-                                  req.query.organisations
-                              );
-                            } else {
-                              req.flash(
-                                "error_msg",
-                                "Something went wrong - please try again!"
-                              );
-                              res.redirect(
-                                process.env.PUBLIC_ADDRESS +
-                                  "/food-collections/log?member_id=" +
-                                  member_id +
-                                  "&organisations=" +
-                                  req.query.organisations
-                              );
-                            }
-                          }
+                        req.flash(
+                          "error_msg",
+                          "Please select a valid drop-off organisation!"
+                        );
+                        res.redirect(
+                          process.env.PUBLIC_ADDRESS +
+                            "/food-collections/log?member_id=" +
+                            member_id +
+                            "&organisations=" +
+                            req.query.organisations
                         );
                       }
                     } else {
-                      req.flash("error_msg", "Please enter a valid amount!");
+                      req.flash(
+                        "error_msg",
+                        "The selected pick-up organisation is no longer active!"
+                      );
                       res.redirect(
                         process.env.PUBLIC_ADDRESS +
                           "/food-collections/log?member_id=" +
@@ -215,7 +280,7 @@ router.post("/", function(req, res) {
                   } else {
                     req.flash(
                       "error_msg",
-                      "This organisation is no longer active!"
+                      "Please select a valid drop-off organisation!"
                     );
                     res.redirect(
                       process.env.PUBLIC_ADDRESS +
@@ -225,19 +290,22 @@ router.post("/", function(req, res) {
                         req.query.organisations
                     );
                   }
-                } else {
-                  req.flash("error_msg", "Please select a valid organisation!");
-                  res.redirect(
-                    process.env.PUBLIC_ADDRESS +
-                      "/food-collections/log?member_id=" +
-                      member_id +
-                      "&organisations=" +
-                      req.query.organisations
-                  );
-                }
-              });
+                });
+              } else {
+                req.flash(
+                  "error_msg",
+                  "Please select a drop-off organisation!"
+                );
+                res.redirect(
+                  process.env.PUBLIC_ADDRESS +
+                    "/food-collections/log?member_id=" +
+                    member_id +
+                    "&organisations=" +
+                    req.query.organisations
+                );
+              }
             } else {
-              req.flash("error_msg", "Please select an organisation!");
+              req.flash("error_msg", "Please select a pick-up organisation!");
               res.redirect(
                 process.env.PUBLIC_ADDRESS +
                   "/food-collections/log?member_id=" +

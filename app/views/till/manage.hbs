@@ -17,10 +17,14 @@
 				<tr>
 					<td>{{name}}</td>
 					<td>
-						{{#if status.opening}}
-							Open
+						{{#if disabled}}
+						  <span class="text-danger font-weight-bold">Disabled</span>
 						{{else}}
-							Closed
+							{{#if opening}}
+								<span class="text-success">Open</span>
+							{{else}}
+								<span class="text-danger">Closed</span>
+							{{/if}}
 						{{/if}}
 					</td>
 					<td><a href="{{public_address}}/till/manage/{{till_id}}" class="btn btn-primary">View/Update</a></td>

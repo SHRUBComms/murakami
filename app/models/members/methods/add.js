@@ -13,6 +13,7 @@ module.exports = function(Members, sequelize, DataTypes) {
         is_member: 1,
         free: member.free,
         balance: 0,
+        membership_type: member.membership_type,
         earliest_membership_date: member.earliest_membership_date,
         current_init_membership: member.current_init_membership,
         current_exp_membership: member.current_exp_membership

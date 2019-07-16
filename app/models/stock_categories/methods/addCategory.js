@@ -5,6 +5,7 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
         item_id: category.id || id,
         till_id: category.till_id,
         carbon_id: category.carbon_id,
+        group_id: category.group_id,
         name: category.name,
         value: category.value,
         needsCondition: category.needsCondition,

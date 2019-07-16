@@ -1,48 +1,72 @@
+
+
 <form method="post" action="{{public_address}}/members/add{{#if till.till_id}}?till_id={{till.till_id}}{{/if}}" class="form-group" autocomplete="off">
-
-
 
   <div class="row mt-4 mb-4">
 
-
-
     <div class="col-lg-5 mx-auto">
 
-      <div id="transaction_info" class="row pl-3 mt-4 mb-4">
-      	{{#if murakamiMsg}}
-      		{{#ifCond smpStatus '==' 'failed'}}
-      			<div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-      				Transaction failed! (error status: {{smpMsg}})
-      				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-      			</div>
-      		{{else}}
-      			{{#ifCond murakamiStatus '==' 'ok'}}
-      				<div class="alert alert-success alert-dismissible fade show col-md-12 p-3 mx-auto">
-      					{{murakamiMsg}}
-      					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-      				</div>
-      			{{else}}
-      				<div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-      					{{murakamiMsg}}
-      					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-      				</div>
-      			{{/ifCond}}
-      		{{/ifCond}}
-        {{else}}
-          <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
-            Once this form is submitted, a payment is required to finalise membership.
-            <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-          </div>
-      	{{/if}}
-      </div>
+      {{#if till}}
 
-      {{> members/add}}
-
-      <div class="row">
+      <div class="row mb-2">
         <div class="col-md-12">
-          <input type="submit" class="btn btn-block btn-lg btn-success" value="Add Member">
+          <div class="alert alert-danger alert-dismissible fade show p-3 mx-auto">
+              <span class="px-2">A payment is required to finalize membership after this form has been submitted!</span>
+              <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+            </div>
+          </div>
         </div>
-      </div>
+
+
+        {{> members/add}}
+
+        <div class="row mb-2">
+          <div class="col-md-12">
+            <button type="submit" class="btn btn-block btn-lg btn-success">
+              Proceed To Payment
+            </button>
+          </div>
+        </div>
+
+      {{else}}
+
+        {{#ifCond user.permissions.members.addSpecialMembers '==' true}}
+
+          <div class="row mb-2">
+            <div class="col-md-12">
+              <div class="alert alert-danger alert-dismissible fade show p-3 mx-auto">
+                <span class="px-2">Please note that paid members can only be added from a till.</span>
+                <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+              </div>
+            </div>
+          </div>
+
+          {{> members/add}}
+
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-block btn-lg btn-success">
+                Add Member
+              </button>
+            </div>
+          </div>
+
+        {{else}}
+          <div class="row">
+            <div class="alert alert-danger alert-dismissible fade show col-md-12 p-3 mx-auto">
+              <span class="px-2">Paid members can only be added from a till.</span>
+              <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+            </div>
+          </div>
+
+          <div class="row">
+            <a href="{{public_address}}/till/select" class="btn btn-primary btn-block btn-lg">Select A Till</a>
+          </div>
+        {{/ifCond}}
+
+      {{/if}}
+
+
     </div>
   </div>
 </form>

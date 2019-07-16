@@ -4,7 +4,8 @@ var router = require("express").Router();
 
 var rootDir = process.env.CWD;
 
-var Users = require(rootDir + "/app/models/users");
+var Models = require(rootDir + "/app/models/sequelize");
+var Users = Models.Users;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
@@ -15,9 +16,7 @@ router.get(
   Auth.canAccessPage("users", "deactivate"),
   function(req, res) {
     Users.getById(req.params.user_id, req.user, function(err, user) {
-      if (user[0] && !err && !user[0].deactivated) {
-        var user = user[0];
-
+      if (user && !err && user.deactivated == 0) {
         var validClasses = [];
         if (req.user.class == "admin") {
           validClasses = ["admin", "staff", "volunteer", "till"];

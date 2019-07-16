@@ -42,7 +42,7 @@ router.get("/", Auth.verifyByKey, function(req, res) {
     }
   };
 
-  Transactions.getAllBetweenDates(startDate, endDate, function(
+  Transactions.getAllTransactionsBetweenDates(startDate, endDate, function(
     err,
     transactions
   ) {

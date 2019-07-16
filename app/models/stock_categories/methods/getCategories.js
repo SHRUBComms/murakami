@@ -3,12 +3,12 @@ var Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 module.exports = function(StockCategories, sequelize, DataTypes) {
   return function(format, callback) {
-    StockCategories.findAll({}).nodeify(function(err, categories) {
+    StockCategories.findAll({ raw: true }).nodeify(function(err, categories) {
       if (err) {
         callback(null);
       } else {
         if (format == "tree") {
-          Helpers.treeify(categories, function(tree) {
+          StockCategories.treeify(categories, function(tree) {
             callback(err, tree);
           });
         } else if (format == "kv") {

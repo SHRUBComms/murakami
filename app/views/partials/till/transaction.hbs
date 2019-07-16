@@ -15,26 +15,21 @@
 </div>
 
 <div id="transaction_info" class="row pl-3 mt-4 mb-4">
-	{{#if murakamiMsg}}
-		{{#ifCond smpStatus '==' 'failed'}}
-			<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
-				Transaction failed! (error status: {{smpMsg}})
-				<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-			</div>
-		{{else}}
-			{{#ifCond murakamiStatus '==' 'ok'}}
-				<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto">
-					{{murakamiMsg}}
-					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-				</div>
-			{{else}}
-				<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto">
-					{{murakamiMsg}}
-					<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-				</div>
-			{{/ifCond}}
-		{{/ifCond}}
-	{{/if}}
+
+	<div id="transactionSuccess" class="alert alert-success alert-dismissible d-none col-md-6 p-3 mx-auto">
+		<h4 class="alert-heading">Transaction Successful!</h4>
+		<p id="transactionSuccessSummary"></p>
+		<hr />
+		<p id="transactionSuccessCarbon"></p>
+		<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+	</div>
+
+	<div id="transactionFail" class="alert alert-danger alert-dismissible d-none col-md-6 p-3 mx-auto">
+		<h4 class="alert-heading">Transaction Failed!</h4>
+		<p id="transactionFailSummary"></p>
+		<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+	</div>
+
 </div>
 
 <div class="row mt-4 mb-3">
@@ -46,7 +41,7 @@
 
 			<div class="d-none" id="memberOptions">
 
-			  <input type="text" class="form-control mt-3" id="memberInput" oninput="searchMember()" value="" placeholder="Type member's name or scan barcode">
+			  <input type="text" class="form-control mt-3" id="memberInput" oninput="searchMember(function(){})" value="" placeholder="Type member's name or scan barcode">
 
 			</div>
 		</div>
@@ -55,7 +50,7 @@
 
 <div class="row mt-3" id="searchResults"></div>
 
-<div class="row mt-4 no-gutters">
+<div class="row mt-4 h-100">
 	<div class="col-lg-6 mx-auto">
 
 				{{>till/selection-ui mode="transaction"}}
@@ -68,9 +63,10 @@
 				<table class="table table-light table-striped">
 				  <thead>
 				    <tr>
-				      <th scope="col">Category</th>
+				      <th scope="col" width="30%">Category</th>
 				      <th scope="col">Value</th>
 				      <th scope="col">Weight (g)</th>
+							<th scope="col">Qty.</th>
 				      <th scope="col"></th>
 				    </tr>
 				  </thead>
@@ -217,6 +213,51 @@
   </div>
 </div>
 
+
+
+
+
+<div id="membershipWarning" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+			<div class="modal-header">
+        <h5 class="modal-title">Membership Warning</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<div class="row">
+
+					<div class="col-md-12">
+
+						<div class="p-4">
+
+							<p class="mb-2">If you're trying to add a member <b>please go to the add member page</b>!</p>
+
+							<p>Once you have processed the new member's information, you'll be brought back to this page where they'll be prompted to pay for their membership.</p>
+
+
+						</div>
+					</div>
+				</div>
+
+      </div>
+      <div class="modal-footer">
+				<button type="button" class="btn btn-success" onclick="location.href='{{public_address}}/members/add?till_id={{till.till_id}}'">Goto Add Member Page</button>
+				<button type="button" id="addItemConditionToTrans" class="btn btn-primary" data-dismiss="modal">Add To Transaction</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+
 {{#if diode_api_key}}
 	{{>till/electrical-safety}}
 {{/if}}
@@ -259,12 +300,14 @@ $('#isMemberCheck').click(function () {
 
 
 $('input[name="itemCondition"]:radio').change(function(){
+
 	let condition = this.value;
-	let option = itemToAdd;
+
 
 	if(itemToAdd){
+		itemToAdd.condition = condition
 		document.getElementById("addItemConditionToTrans").onclick = function(){
-			addToTransaction(option)
+			addToTransaction(itemToAdd)
 		}
 	}
 });
@@ -272,10 +315,14 @@ $('input[name="itemCondition"]:radio').change(function(){
 function addToTransaction(item){
 
 	var sanitizedItem = {};
-	sanitizedItem.id = item.item_id;
+	sanitizedItem.id = item.item_id || item.id;
 	sanitizedItem.name = item.name;
-	sanitizedItem.absoluteName = item.absolute_name;
+	sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
 	sanitizedItem.weight = item.weight || 0;
+	sanitizedItem.needsCondition = item.needsCondition;
+	sanitizedItem.condition = item.condition;
+	sanitizedItem.action = item.action;
+	sanitizedItem.quantity = item.quantity || 1;
 
 	sanitizedItem.allowTokens = item.allowTokens;
 	sanitizedItem.carbon_id = item.carbon_id;
@@ -298,16 +345,19 @@ function addToTransaction(item){
 		}
 	}
 
-	if(item.condition == 1){
+	try {
+		if(sanitizedItem.action.substring(0,3) == "MEM" && !member.name){
+			$("#membershipWarning").modal("show");
+		}
+	} catch(err){}
+
+	if(sanitizedItem.needsCondition == 1 && !sanitizedItem.condition){
 		$('input[name="itemCondition"]:radio').prop('checked', false);
 		$("#addItemConditionToTrans").attr("onclick", "return false;");
 		$("#itemConditionName").text(sanitizedItem.name);
 		$('#itemConditionModal').modal('show');
 		itemToAdd = sanitizedItem;
 	} else {
-		if(item.condition != 1){
-			sanitizedItem.condition = item.condition;
-		}
 
 		itemToAdd = {};
 		transaction.push(sanitizedItem);
@@ -346,20 +396,35 @@ function updateTransactionList(){
 	$("#transaction-info").html("");
 	var tokens_total = 0;
 	var weight_total = 0;
-	var row, categoryColumn, valueColumn, weightColumn, deleteColumn;
+	var row, categoryColumn, quantityColumn, valueColumn, weightColumn, deleteColumn;
 
 	for(let i=0;i<transaction.length;i++){
 		var value = 0;
-		var note = "";
+		var note = "(";
+
+		if (transaction[i].condition){
+			note += transaction[i].condition
+		}
+
 		if(member.name){
 			value = +transaction[i].value
 			tokens_total += +value;
 			if(transaction[i].member_discount > 0){
-				note = " (<span class='fail'>-" + transaction[i].member_discount + "%</span>)";
+				if(note.length > 0){
+					note += ", "
+				}
+				note += "<span class='fail'>-" + transaction[i].member_discount + "%</span>";
 			}
 		} else {
 			value = +transaction[i].value;
 			tokens_total += +transaction[i].value;
+		}
+
+
+		note += ")"
+
+		if(note == "()"){
+			note = "";
 		}
 
 		weight_total += +transaction[i].weight;
@@ -367,9 +432,36 @@ function updateTransactionList(){
 		row = document.createElement("tr");
 
 		categoryColumn = document.createElement("td");
-		categoryColumn.innerHTML = transaction[i].name + note;
+		categoryColumn.className = "align-middle"
+		categoryColumn.innerHTML = transaction[i].absoluteName + " " + note;
+
+		quantityColumn = document.createElement("td");
+		quantityColumn.className = "align-middle"
+		if(transaction[i].action == null){
+				var quantityColumnInput = document.createElement("input");
+				quantityColumnInput.id = "quantity_" + i;
+				quantityColumnInput.type = "number";
+				quantityColumnInput.value = transaction[i].quantity;
+				quantityColumnInput.className = "form-control align-middle"
+				quantityColumnInput.setAttribute("step", 1)
+				quantityColumnInput.setAttribute("max", 99)
+				quantityColumnInput.setAttribute("min", 1)
+
+				quantityColumnInput.oninput = function(){
+					updateTransaction(i)
+				};
+
+				quantityColumnInput.onblur = function(){
+					updateTransaction(i)
+				};
+
+				quantityColumn.append(quantityColumnInput)
+		} else {
+				quantityColumn.innerText = 1;
+		}
 
 		valueColumn = document.createElement("td");
+		valueColumn.className = "align-middle"
 		valueColumn.id = "value_" + i;
 		valueColumn.oninput = function(){
 			updateTransaction(i)
@@ -385,6 +477,7 @@ function updateTransactionList(){
 		}
 
 		weightColumn = document.createElement("td");
+		weightColumn.className = "align-middle"
 		weightColumn.id = "weight_" + i;
 		weightColumn.oninput = function(){
 			updateTransaction(i)
@@ -392,16 +485,16 @@ function updateTransactionList(){
 		weightColumn.onblur = function(){
 			updateTransaction(i)
 		};
+
 		if(transaction[i].carbon_id != ""){
 			weightColumn.contentEditable = true;
 			weightColumn.textContent = transaction[i].weight;
 		} else {
 			weightColumn.textContent = "-";
-
 		}
 
 		removeColumn = document.createElement("td");
-		removeColumn.className = "remove-item clickable"
+		removeColumn.className = "remove-item clickable align-middle"
 		removeColumn.textContent = "x"
 		removeColumn.onclick = function(){
 			removeFromTransaction(i)
@@ -410,6 +503,7 @@ function updateTransactionList(){
 		row.appendChild(categoryColumn)
 		row.appendChild(valueColumn)
 		row.appendChild(weightColumn)
+		row.appendChild(quantityColumn)
 		row.appendChild(removeColumn)
 
 		document.getElementById("transaction-info").appendChild(row);
@@ -421,13 +515,12 @@ function updateTransactionList(){
 		    html:"<td><b>TOTAL:</b></td>" +
 		    "<td id='tokens_total'>" + tokens_total + "</td>" +
 		    "<td id='weight_total'>" + weight_total + "</td>" +
-		    "<td></td>"
+		    "<td></td>" +
+				"<td></td>"
 		}).appendTo('#transaction-info');
 	}
 
 	updateButtons();
-
-
 
 }
 
@@ -440,29 +533,31 @@ function updateButtons(){
 	for(let i=0;i<transaction.length;i++){
 		if(transaction[i].allowTokens == 1){
 			if(member.name){
-				tokens_total += +(transaction[i].value - (transaction[i].value * (transaction[i].member_discount/100)));
+				tokens_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
 			} else {
-				tokens_total += +transaction[i].value;
+				tokens_total += +(transaction[i].value * transaction[i].quantity);
 			}
 
 		} else {
 			if(member.name){
-				money_total += +(transaction[i].value - (transaction[i].value * (transaction[i].member_discount/100)));
+				money_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
 			} else {
-				money_total += +transaction[i].value;
+				money_total += +(transaction[i].value * transaction[i].quantity);
 			}
 		}
-		weight_total += +transaction[i].weight;
+		weight_total += +(transaction[i].weight * transaction[i].quantity);
 	}
 
 	$("#value_total").html((tokens_total + money_total).toFixed(2));
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0){
+		$("#tokens_total").text((+money_total + +tokens_total).toFixed(2));
 		$("#changeCalc").addClass("d-none");
 		if(money_total == 0 && tokens_total == 0){
 			$("#selectPaymentMethod").addClass("d-none");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
+
 		} else if(member.name && payWithTokens){
 			if(money_total == 0){
 				if(member.balance >= tokens_total){
@@ -472,7 +567,6 @@ function updateButtons(){
 					} else {
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " tokens</b>")
 					}
-
 
 				} else {
 
@@ -537,7 +631,7 @@ function updateTransaction(index){
 	if(isNumeric($("#weight_" + index).html())){
 		transaction[index].weight = $("#weight_" + index).html();
 	} else {
-		$("#weight_" + index).html("");
+		$("#weight_" + index).html("-");
 		transaction[index].weight = 0;
 	}
 
@@ -546,6 +640,13 @@ function updateTransaction(index){
 	} else {
 		$("#value_" + index).html("");
 		transaction[index].value = 0;
+	}
+
+	if(isNumericAndWhole($("#quantity_" + index).val())){
+		transaction[index].quantity = $("#quantity_" + index).val();
+	} else {
+		$("#quantity_" + index).val(1);
+		transaction[index].quantity = 1;
 	}
 
 	if(transaction.length > 0){
@@ -570,20 +671,16 @@ function searchMember(callback){
 
         if(response.status == "ok"){
         	results = response.results;
-          updateSearchResults();
+          updateSearchResults(callback);
         }
-        try{
-          callback();
-        } catch(err){
 
-        }
 
 
       }
   });
 }
 
-function updateSearchResults(){
+function updateSearchResults(callback){
 	member = {};
 	$("#searchResults").html("");
 	for(let i=0;i<results.length;i++){
@@ -608,8 +705,15 @@ function updateSearchResults(){
 		memberMarkup.balance.textContent = results[i].balance + " tokens";
 
 		memberMarkup.membershipDates = document.createElement("p")
-		memberMarkup.membershipDates.className = "mb-2";
-		memberMarkup.membershipDates.textContent = "Membership expires: " + results[i].membership_expires;
+		memberMarkup.membershipDates.className = "mb-3";
+		if(results[i].membership_type == "unpaid") {
+			memberMarkup.membershipDates.className += " text-danger font-weight-bold";
+			memberMarkup.membershipDates.textContent = "Unpaid!";
+		} else {
+
+			memberMarkup.membershipDates.textContent = "Membership expires: " + results[i].membership_expires;
+		}
+
 
 		memberMarkup.selectMember = document.createElement("a")
 		memberMarkup.selectMember.className = "btn btn-primary";
@@ -638,6 +742,7 @@ function updateSearchResults(){
 
 		document.getElementById("searchResults").appendChild(memberMarkup.column)
 
+		callback();
 
 	}
 }
@@ -669,7 +774,14 @@ function selectMember(index){
 
 	selectedMemberMarkup.membershipDates = document.createElement("p")
 	selectedMemberMarkup.membershipDates.className = "mb-2";
-	selectedMemberMarkup.membershipDates.textContent = "Membership expires: " + member.membership_expires;
+
+
+	if(member.membership_type == "unpaid") {
+		selectedMemberMarkup.membershipDates.className += " text-danger font-weight-bold";
+		selectedMemberMarkup.membershipDates.textContent = "Unpaid!";
+	} else {
+		selectedMemberMarkup.membershipDates.textContent = "Membership expires: " + member.membership_expires;
+	}
 
 
 	selectedMemberMarkup.payWithTokens = document.createElement("p")
@@ -749,25 +861,59 @@ function completeTransaction(type){
 	            transaction = [];
 	            updateTransactionList();
 	            payWithTokens = false;
-	            $("#transaction_info").removeClass("d-none");
-	            $("#transaction_info").css("display", "block")
-	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
-	            if(member.name){
-		            results[0] = response.member;
 
+							updateResponse("success", response.transactionSummary, response.carbonSummary, member)
+
+
+	            if(member.name){
+
+		            $("#memberToggle").prop("checked", true)
+							  toggleIsMember({checked: true})
+							  $("#memberInput").val(member.id)
+							  searchMember(function(){
+							    selectMember(0)
+							  });
 		        	}
+
 							window.setTimeout(function(){
 								$("#transaction_history").bootstrapTable('refresh');
 							}, 750)
 
-					} else if(response.status = "redirect") {
+					} else if(response.status == "redirect") {
 						window.location.href = response.url;
 	        } else {
-	        	$("#transaction_info").removeClass("d-none")
-	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-6 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+						updateResponse("fail", response.msg)
 	        }
         }
     });
+}
+
+function updateResponse(outcome, transactionSummary, carbonSummary, member) {
+
+	if(outcome == "success"){
+		$("#transactionFail").addClass("d-none");
+		$("#transactionFail").css("display", "none")
+
+		$("#transactionSuccess").removeClass("d-none");
+		$("#transactionSuccess").css("display", "block")
+		$("#transactionSuccessSummary").html(transactionSummary)
+		$("#transactionSuccessCarbon").html(carbonSummary)
+		if(member.member_id) {
+			$.get("{{public_address}}/api/get/members/carbon-saved/" + member.member_id, function( response ) {
+				$("#transactionSuccessCarbon").html($("#transactionSuccessCarbon").html() + ", totalling " + response.carbon + "kg saved over entire membership!")
+			});
+		} else {
+			$("#transactionSuccessCarbon").html($("#transactionSuccessCarbon").html() + "!")
+		}
+	} else {
+
+		$("#transactionSuccess").addClass("d-none");
+		$("#transactionSuccess").css("display", "none")
+
+		$("#transactionFail").removeClass("d-none");
+		$("#transactionFail").css("display", "block")
+		$("#transactionFailSummary").html(transactionSummary)
+	}
 }
 
 function getSavedCarbon(){
@@ -793,7 +939,7 @@ function getBalance(){
 function toggleIsMember(e) {
   if(e.checked) {
       $("#memberOptions").removeClass("d-none");
-      searchMember();
+      searchMember(function(){});
   } else {
     member = {};
     $("#searchResults").html("");
@@ -836,12 +982,15 @@ function selectPaymentMethod(method){
 }
 
 {{#if member_id}}
-  $("#memberToggle").prop("checked", true)
+$(document).ready(function(){
+	$("#memberToggle").prop("checked", true)
   toggleIsMember({checked: true})
   $("#memberInput").val("{{member_id}}")
   searchMember(function(){
     selectMember(0)
   });
+})
+
 
 {{/if}}
 
@@ -853,4 +1002,23 @@ function selectPaymentMethod(method){
   {{/each}}
 
 {{/if}}
+
+{{#if sumupCallback}}
+	{{#ifCond smpStatus '==' 'failed'}}
+		updateResponse("fail", "Error code: {{smpMsg}}")
+	{{else}}
+		{{#ifCond murakamiStatus '==' 'ok'}}
+			{{#if transactionSummary}}
+				{{#if carbonSummary}}
+					updateResponse("success", "{{escape transactionSummary}}", "{{escape carbonSummary}}", { member_id: "{{member_id}}" })
+				{{/if}}
+			{{/if}}
+		{{else}}
+			{{#if transactionSummary}}
+				updateResponse("fail", "{{escape transactionSummary}}")
+			{{/if}}
+		{{/ifCond}}
+	{{/ifCond}}
+{{/if}}
+
 </script>

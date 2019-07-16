@@ -1,13 +1,10 @@
+
+
 <div class="col-md-12 mx-auto" id="options"></div>
 
 {{#ifCond mode '!=' 'transaction'}}
 
-<ul class='custom-menu'>
-  <li data-action="add">Add Child</li>
-  <li data-action="edit">Edit</li>
-  <li data-action="move">Move</li>
-  <li data-action="remove" class="fail">Remove</li>
-</ul>
+
 
 <div class="modal" id="addChild" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-dialog-centered" role="document">
@@ -24,6 +21,14 @@
           <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
 
             <input type="text" placeholder="Category Name" id="addCategoryName" class="form-control mb-3" />
+
+            <select name="group_id" id="addCategoryGroupId" class="form-control mb-3">
+              <option value="">No Working Group</option>
+              {{#each user.allWorkingGroupsObj}}
+                <option value="{{group_id}}">{{name}}</option>
+              {{/each}}
+            </select>
+
             <p><input type="checkbox" class="fixedPrice mb-3" id="addCategoryFixedPriceCheck" /> Fixed price</p>
 
             <div class="input-group valueInput d-none mb-3">
@@ -197,6 +202,7 @@
 }
 
 .custom-menu li {
+    margin-left: 0;
     padding: 8px 12px;
     cursor: pointer;
 }
@@ -205,6 +211,8 @@
     background-color: #DEF;
 }
 </style>
+
+
 
 {{/ifCond}}
 
@@ -253,8 +261,8 @@ function updateOptions(path) {
         text: document.createElement("p")
       };
 
-      optionDOMObject.parent.id = i;
-      optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options";
+      optionDOMObject.parent.id = path + "[" + i + "]";
+      optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options itemBtn";
 
       if (option.children && option.children.length > 0) {
         optionDOMObject.parent.onclick = function() {
@@ -318,7 +326,7 @@ function updateOptions(path) {
   {{/ifCond}}
 
   if (parentReal) {
-    
+
     row = document.createElement("div");
     row.className = "row";
 
@@ -344,30 +352,35 @@ function updateOptions(path) {
 
 {{#ifCond mode '!=' 'transaction'}}
 
+  var contextMenuDOM = "<ul class='custom-menu'>" +
+                          "<li data-action='add'>Add Child</li>" +
+                          "<li data-action='edit'>Edit</li>" +
+                          "<li data-action='move'>Move</li>" +
+                          "<li data-action='remove' class='text-danger'>Remove</li>" +
+                      "</ul>"
+
+  $('body').append(contextMenuDOM)
+
   $(document).bind("contextmenu", function(event) {
+
     if ($(".itemBtn:hover").length != 0) {
+
       globalCategory = $(".itemBtn:hover").attr("id");
       event.preventDefault();
 
-      openMenu();
-    }
+      $(".custom-menu")
+        .finish()
+        .toggle(100)
+        .css({
+          top: event.pageY + "px",
+          left: event.pageX + "px"
+        });
+      }
   });
-
-  function openMenu() {
-    $(".custom-menu")
-      .finish()
-      .toggle(100)
-      .css({
-        top: event.pageY + "px",
-        left: event.pageX + "px"
-      });
-  }
 
   // If the document is clicked somewhere
   $(document).bind("mousedown", function(e) {
-    // If the clicked element is not the menu
-    if (!$(e.target).parents(".custom-menu").length > 0) {
-      // Hide it
+    if ($(e.target).closest('.custom-menu').length === 0) {
       $(".custom-menu").hide(100);
     }
   });
@@ -423,6 +436,7 @@ function updateOptions(path) {
 
     newCategory = {};
     newCategory.till_id = "{{{till.till_id}}}";
+    newCategory.group_id = $("#addCategoryGroupId").val() || null;
     newCategory.name = $("#addCategoryName").val();
     newCategory.carbon_id = $("#addCategoryCarbonId").val() || null;
     newCategory.value = $("#addCategoryValue").val() || null;

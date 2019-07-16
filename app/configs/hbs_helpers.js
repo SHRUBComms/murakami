@@ -176,6 +176,13 @@ var register = function(Handlebars) {
     },
     camelCaseToPlain: function(str) {
       return lodash.startCase(str);
+    },
+    escape: function(variable) {
+      try {
+        return variable.replace(/(['"])/g, "\\$1");
+      } catch (err) {
+        return "";
+      }
     }
   };
 

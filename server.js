@@ -77,34 +77,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 // Express Validator
-app.use(
-  validator({
-    customValidators: {
-      isEmailAvailable: function(email) {
-        return new Promise(function(resolve, reject) {
-          Users.getByEmail(email, function(err, results) {
-            if (results.length == 0) {
-              return resolve();
-            } else {
-              return reject();
-            }
-          });
-        });
-      },
-      isUsernameAvailable: function(username) {
-        return new Promise(function(resolve, reject) {
-          Users.getByUsername(username, function(err, results) {
-            if (results.length == 0) {
-              return resolve();
-            } else {
-              return reject();
-            }
-          });
-        });
-      }
-    }
-  })
-);
+app.use(validator(require("./app/configs/express-validators")));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -175,8 +148,10 @@ app.use(function(req, res, next) {
 
 var automatedMails = require("./app/configs/automated-mails");
 var automatedReports = require("./app/configs/automated-reports");
-//automatedMails.start();
-//automatedReports.start();
+if (process.env.NODE_ENV == "production") {
+  automatedMails.start();
+  automatedReports.start();
+}
 
 // Define routers
 app.use(path, require("./app/routes/root"));

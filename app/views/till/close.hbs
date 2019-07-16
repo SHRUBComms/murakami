@@ -6,6 +6,7 @@
 						<h2>Close Till</h2>
 						<hr />
 						<h3>{{till.name}}</h3>
+						<p class="small ">Opened: {{niceTimestamp status.timestamp}}</p>
 					</center>
 
 					<br />
@@ -13,18 +14,31 @@
 					<form action="{{public_address}}/till/close/{{till.till_id}}" method="post">
 						<div class="row">
 							<div class="col-md-10 mx-auto">
-								<p>Expected Float: £{{expected_float}}</p>
-								<p><b>Counted Float</b></p>
+
+
+
+								<span class="text-muted small mb-0 d-block">= Opening Float + Total Cash Takings</span>
+								<span class="text-muted small mb-0 d-block">= £{{opening_float}} + £{{total_sales}} </span>
+								<p class="p mb-0 d-block">Expected Float = <b>£{{expected_float}}</b></p>
+
+								<hr />
+
 								<div class="input-group">
 									<span class="input-group-prepend">
-										<span class="input-group-text">£</span>
+										<span class="input-group-text">Counted Float: £</span>
 									</span>
-									<input class="form-inline form-control" type="text" placeholder="0.00" name="counted_float" />
+									<input class="form-inline form-control" type="text" placeholder="0.00" id="counted_float" name="counted_float" />
 								</div>
+
+
 
 							</div>
 						</div>
-
+						<div class="row">
+							<div class="col-md-10 mx-auto">
+								<p class="text-danger mt-2" id="floatDiscrepancy"></p>
+							</div>
+						</div>
 						<br />
 						<div class="row">
 							<div class="col-md-10 mx-auto">
@@ -42,3 +56,31 @@
 			</div>
 		</div>
  </div>
+
+<script>
+	$("#counted_float").on("input", function(){
+		var expected_float = {{expected_float}};
+		var counted_float = this.value;
+		if(!isNaN(expected_float) && !isNaN(counted_float)){
+			var floatDiscrepancy = counted_float - expected_float
+
+			if(floatDiscrepancy > 0){
+				$("#floatDiscrepancy").text("Discrepancy: £+" + floatDiscrepancy.toFixed(2))
+			} else {
+				$("#floatDiscrepancy").text("Discrepancy: £" + floatDiscrepancy.toFixed(2))
+			}
+
+			if(floatDiscrepancy == 0){
+				$("#floatDiscrepancy").addClass("text-success")
+				$("#floatDiscrepancy").removeClass("text-danger")
+			} else {
+
+				$("#floatDiscrepancy").addClass("text-danger")
+				$("#floatDiscrepancy").removeClass("text-success")
+			}
+		} else {
+			$("#floatDiscrepancy").text("")
+		}
+
+	})
+</script>

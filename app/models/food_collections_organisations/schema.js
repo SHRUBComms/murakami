@@ -15,6 +15,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING(50),
         allowNull: false
       },
+      type: {
+        type: DataTypes.JSON,
+        allowNull: false
+      },
       dateCreated: {
         type: DataTypes.DATE,
         allowNull: false,

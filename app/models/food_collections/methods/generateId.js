@@ -5,7 +5,6 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
     FoodCollections.findAll({
       where: { organisation_id: id }
     }).nodeify(function(err, result) {
-      console.log(err);
       if (result.length > 0) {
         GetId(callback);
       } else if (result.length == 0) {

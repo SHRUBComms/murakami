@@ -17,7 +17,11 @@ module.exports = function(selectedOptions, validOptions) {
     } else {
       return false;
     }
-  } else {
-    return false;
+  } else if (!Array.isArray(selectedOptions) && !Array.isArray(validOptions)) {
+    if (selectedOptions == validOptions) {
+      return true;
+    } else {
+      return false;
+    }
   }
 };

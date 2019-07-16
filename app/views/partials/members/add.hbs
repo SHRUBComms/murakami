@@ -4,19 +4,18 @@
     <h3 class="mb-2">Personal Details</h3>
 
 
-    <div class="row mb-3">
-      <div class="col-md-6">
-        <input type="text" class="form-control mr-sm-2 mr-md-2 mb-sm-1 mb-md-1" placeholder="First Name" oninput="checkExistence()" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
-      </div>
-      <div class="col-md-6">
-        <input type="text" class="form-control" placeholder="Last Name" oninput="checkExistence()" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
-      </div>
+    <div class="d-flex mb-3">
+      <input type="text" class="form-control w-50" placeholder="First Name" oninput="checkExistence()" name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+      <span class="flex-shrink-1 text-danger mx-2">*</span>
+      <input type="text" class="form-control w-50" placeholder="Last Name" oninput="checkExistence()" name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+      <span class="flex-shrink-1 text-danger mx-2">*</span>
     </div>
 
     {{#unless updatingVolunteer}}
-      <p class="mb-1"><b>Date of Birth</b> (must be 16 or over) <span class="text-danger">*</span></p>
-      <div class="form-group col-md-5" style="padding: 0;">
-        <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
+      <p class="mb-1"><b>Date of Birth</b> (must be 16 or over)</p>
+      <div class="d-flex" style="padding: 0;">
+        <input type="date" class="form-control w-50" placeholder="Date of Birth" name="dob" id="dob"{{#if dob}} value="{{dob}}"{{/if}} required />
+        <span class="flex-shrink-1 text-danger mx-2">*</span>
       </div>
     {{/unless}}
  </div>
@@ -24,11 +23,19 @@
 <div class="card mb-4">
  <div class="card-body">
     <h3 class="mb-2">Contact Details</h3>
-    <input type="email" class="form-control mb-2" placeholder="Email" oninput="checkExistence()" name="email"{{#if email}} value="{{email}}"{{/if}} required />
+    <div class="d-flex mb-2">
+      <input type="email" class="form-control w-100" placeholder="Email" oninput="checkExistence()" name="email"{{#if email}} value="{{email}}"{{/if}} required />
+      <span class="flex-shrink-1 ml-2 text-danger">*</span>
+    </div>
+    <div class="d-flex mb-2">
+        <textarea type="text" class="form-control w-100" placeholder="Address" name="address"{{#if address}} value="{{address}}"{{/if}} required></textarea>
+        <span class="flex-shrink-1 ml-2 text-danger">*</span>
+    </div>
+    <div class="d-flex mb-2">
+      <input type="text" class="form-control mb-2 w-100" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+      <span class="flex-shrink-1 ml-2">&nbsp;</span>
+    </div>
 
-    <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
-
-    <textarea type="text" class="form-control" placeholder="Address (optional)" name="address"{{#if address}} value="{{address}}"{{/if}}></textarea>
 
     {{#unless updatingVolunteer}}
       <p class="pt-3">Shrub may need to contact me by email about my membership and important news about the organisation such as notifying me about the Annual General Meeting. This does not sign you up to the bi-weekly newsletter</p>
@@ -53,16 +60,19 @@
     <h3 class="mb-2">Membership</h3>
 
     {{#unless addingVolunteer}}
-
-        <select class="form-control" name="membership_length">
-          <option value="year" {{#ifCond membership_length '==' 'year'}}selected{{/ifCond}}>12 months</option>
-          <option value="half_year" {{#ifCond membership_length '==' 'half_year'}}selected{{/ifCond}}>6 months</option>
-          <option value="3_months" {{#ifCond membership_length '==' '3_months'}}selected{{/ifCond}}>3 months</option>
-          {{#ifUserClass user.class '["admin"]'}}
-            <option value="eternal" {{#ifCond membership_length '==' 'eternal'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
-          {{/ifUserClass}}
-        </select>
-
+      {{#unless till}}
+        {{#ifCond user.permissions.members.addSpecialMembers '==' true}}
+          <div class="d-flex mb-2">
+            <select class="form-control w-100" name="membership_type" required>
+              <option selected disabled>Select membership type...</option>
+              <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
+              <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
+              <option value="lifetime" {{#ifCond membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
+            </select>
+            <span class="text-danger flex-shrink-1 ml-2">*</span>
+          </div>
+        {{/ifCond}}
+      {{/unless}}
     {{/unless}}
 
     <div class="row mt-3 no-gutters">
@@ -129,9 +139,9 @@
 <div class="card mb-4">
   <div class="card-body">
 
-    <h4>Newsletters</h4>
+    <h4>Newsletter</h4>
 
-    <small>Optionally subscribe to our newsletters (via Mailchimp). You can unsubscribe at any time.</small>
+    <small>Optionally subscribe to our newsletter (via Mailchimp). You can unsubscribe at any time.</small>
 
     <p class="pt-3 font-weight-bold">SHRUB Co-op newsletter - every 2 weeks</p>
     <p class="mt-1">To keep you up to date with decisions made at our open meetings, volunteer and training opportunities, events and SHRUB parties!</p>
@@ -146,19 +156,6 @@
       </label>
     </div>
 
-    <p class="pt-3 font-weight-bold">Food Sharing Edinburgh newsletter - every 2 weeks</p>
-    <div class="form-check form-check-inline mt-2">
-      <input class="form-check-input" type="checkbox" name="fseNewsletterConsent" {{#if fseNewsLetterConsent}}checked{{/if}}>
-      <label class="form-check-label">
-
-        {{#if user}}
-          Consent given to subscribe to FSE's newletter
-        {{else}}
-          I agree to subscribe to the FSE's newsletter
-        {{/if}}
-
-      </label>
-    </div>
   </div>
 </div>
 

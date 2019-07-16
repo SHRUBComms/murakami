@@ -92,7 +92,6 @@ router.post(
         var contactConsent = req.body.contactConsent;
         var gdprConsent = req.body.gdprConsent;
 
-        var fseNewsletterConsent = req.body.fseNewsletterConsent;
         var generalNewsletterConsent = req.body.generalNewsletterConsent;
 
         var till_id = req.query.till_id;
@@ -124,6 +123,8 @@ router.post(
           )
           .isLength({ max: 89 });
         req.checkBody("email", "Please enter a valid email address").isEmail();
+
+        req.checkBody("address", "Please enter an address").notEmpty();
 
         req
           .checkBody(
@@ -222,9 +223,9 @@ router.post(
         req
           .checkBody(
             "volInfo.emergencyContactPhoneNo",
-            "Please enter a shorter phone number (<= 15)"
+            "Please enter a shorter phone number (<= 25)"
           )
-          .isLength({ max: 15 });
+          .isLength({ max: 25 });
 
         req
           .checkBody(
@@ -241,20 +242,6 @@ router.post(
 
         req
           .checkBody("volInfo.roles", "Please select at least one role")
-          .notEmpty();
-
-        req
-          .checkBody(
-            "volInfo.survey.goals",
-            "Please enter what the volunteer wants to achieve through their work with Shrub"
-          )
-          .notEmpty();
-
-        req
-          .checkBody(
-            "volInfo.survey.preferredCommMethods",
-            "Please select at least one preferred contact method"
-          )
           .notEmpty();
 
         var errors = req.validationErrors() || [];
@@ -293,10 +280,11 @@ router.post(
           });
         }
 
-        if (validTimes == 0) {
+        if (volInfo.availability && validTimes == 0) {
           let error = {
             param: "volInfo.availability",
-            msg: "Please tick at least one box in the availability matrix",
+            msg:
+              "Please tick at least one valid time slot in the availability matrix",
             value: req.body.volInfo.availability
           };
           errors.push(error);
@@ -344,25 +332,27 @@ router.post(
           }
         }
 
-        if (!Array.isArray(volInfo.survey.preferredCommMethods)) {
-          volInfo.survey.preferredCommMethods = [
-            volInfo.survey.preferredCommMethods
-          ];
-        }
+        if (volInfo.survey.preferredCommMethods) {
+          if (!Array.isArray(volInfo.survey.preferredCommMethods)) {
+            volInfo.survey.preferredCommMethods = [
+              volInfo.survey.preferredCommMethods
+            ];
+          }
 
-        if (
-          !Helpers.allBelongTo(
-            volInfo.survey.preferredCommMethods,
-            Object.keys(contactMethods)
-          )
-        ) {
-          let error = {
-            param: "volInfo.survey.preferredCommMethods",
-            msg: "Please select valid contact methods",
-            value: req.body.volInfo.survey.preferredCommMethods
-          };
+          if (
+            !Helpers.allBelongTo(
+              volInfo.survey.preferredCommMethods,
+              Object.keys(contactMethods)
+            )
+          ) {
+            let error = {
+              param: "volInfo.survey.preferredCommMethods",
+              msg: "Please select valid contact methods",
+              value: req.body.volInfo.survey.preferredCommMethods
+            };
 
-          errors.push(error);
+            errors.push(error);
+          }
         }
 
         var validWorkingGroups;
@@ -409,7 +399,7 @@ router.post(
         );
 
         if (errors[0]) {
-          res.render("members/make-volunteer", {
+          res.render("volunteers/add", {
             errors: errors,
             title: "Add Volunteer",
             volunteerActive: true,
@@ -445,9 +435,14 @@ router.post(
             current_exp_membership: current_exp_membership
           };
 
+          volInfo.availability = volInfo.availability || {};
+          volInfo.survey = volInfo.survey || {};
+
           Members.add(newMember, function(err, member_id) {
+            
             Volunteers.addExistingMember(member_id, volInfo, function(err) {
               if (err) {
+                
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
                   title: "Add Volunteer",
@@ -486,19 +481,6 @@ router.post(
                   shrubMailchimp.put(
                     "/lists/" +
                       process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                      "/members/" +
-                      md5(email),
-                    subscribeBody
-                  );
-                }
-
-                if (fseNewsletterConsent == "on") {
-                  var fseMailchimp = new Mailchimp(
-                    process.env.FSE_MAILCHIMP_SECRET_API_KEY
-                  );
-                  fseMailchimp.put(
-                    "/lists/" +
-                      process.env.FSE_MAILCHIMP_NEWSLETTER_LIST_ID +
                       "/members/" +
                       md5(email),
                     subscribeBody

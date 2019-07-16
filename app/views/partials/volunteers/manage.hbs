@@ -1,6 +1,6 @@
 
 
-  <tr>
+  <tr id="row_{{member_id}}">
     <td>
       {{first_name}} {{last_name}}
 
@@ -144,7 +144,7 @@
 
 
 
-      <a class="btn btn-danger mb-2 btn-block" onclick='removeVolunteer("{{member_id}}", "{{name}}", {{{json roles}}}, {{{json old_working_groups}}})'>Remove</a>
+      <a class="btn btn-danger mb-2 btn-block" onclick='openRemoveVolunteerDialog("{{member_id}}", "{{first_name}}", {{{json roles}}}, {{{json old_working_groups}}})'>Remove</a>
 
     </td>
   </tr>

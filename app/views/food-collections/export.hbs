@@ -21,7 +21,7 @@
 
 	    <div class="form-group">
 
-					<select name="organisation_id" class="form-control">
+					<select name="organisation_id" id="organisationSelect" class="form-control">
 						<option value="">All Organisations</option>
             {{#each organisations}}
               <option value="{{organisation_id}}"{{#ifCond ../organisation_id '==' organisation_id}}selected{{/ifCond}}>{{name}}</option>
@@ -30,13 +30,40 @@
 
 	    </div>
 
-	    <button type="submit" class="btn btn-primary btn-block">Get Collections</button>
+			<div id="typeSelectContainer" class="form-group d-none">
+
+					<select name="type" class="form-control">
+            <option value="collections"
+						{{#unless showDropoffs}}
+							{{#if showCollections}}
+								selected
+							{{/if}}
+						{{/unless}}>Collections</option>
+						<option value="drop-offs"
+						{{#unless showCollections}}
+							{{#if showDropoffs}}
+								selected
+							{{/if}}
+						{{/unless}}
+						>Drop-offs</option>
+						<option value="both"
+						{{#if showDropoffs}}
+							{{#if showCollections}}
+								selected
+							{{/if}}
+						{{/if}}
+						>Collections & Drop-offs</option>
+          </select>
+
+	    </div>
+
+	    <button type="submit" class="btn btn-primary btn-block">Get Data</button>
 	  </form>
 	</div>
 </div>
 
-
-<div class="row mt-4">
+{{#if showCollections}}
+	<div class="row mt-4">
 	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
 		<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true"  data-show-export="true"
       {{#if organisation_id}}
@@ -52,7 +79,8 @@
 		    <thead>
 		        <tr>
 		        	<th>Date</th>
-							<th>Organisation</th>
+							<th>Collected From</th>
+							<th>Dropped Off To</th>
               <th>Amount (kilos)</th>
 							<th>Collected By</th>
 		          <th>Note</th>
@@ -63,7 +91,8 @@
         {{#each collections}}
           <tr>
             <td>{{niceTimestamp timestamp}}</td>
-						<td>{{lookup (lookup ../organisations organisation_id) 'name'}}</td>
+						<td>{{collectedFrom}}</td>
+						<td>{{droppedOffTo}}</td>
 						<td>
 
 								{{amount}}
@@ -84,10 +113,73 @@
 	</div>
 
 </div>
+{{/if}}
+{{#if showDropoffs}}
+	<div class="row mt-4">
+		<div class="col-12 col-lg-10 col-xl-9 mx-auto">
+			<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true"  data-show-export="true"
+	      {{#if organisation_id}}
+	        data-export-options='{
+	           "fileName": "Food Dropped Off To {{lookup (lookup organisations organisation_id) 'name'}} - {{startDate}} to {{endDate}}"
+	         }'
+	      {{else}}
+	        data-export-options='{
+	           "fileName": "Food Drop-offs - {{startDate}} to {{endDate}}"
+	         }'
+	      {{/if}}
+	         >
+			    <thead>
+			        <tr>
+			        	<th>Date</th>
+								<th>Collected From</th>
+								<th>Dropped Off To</th>
+	              <th>Amount (kilos)</th>
+								<th>Collected By</th>
+			          <th>Note</th>
+			        </tr>
+			    </thead>
+
+				<tbody>
+	        {{#each dropoffs}}
+	          <tr>
+	            <td>{{niceTimestamp timestamp}}</td>
+							<td>{{collectedFrom}}</td>
+							<td>{{droppedOffTo}}</td>
+							<td>
+									{{amount}}
+							</td>
+	            <td>{{collectedBy}}</td>
+	            <td>
+	              {{#if note}}
+	                {{note}}
+	              {{else}}
+	                -
+	              {{/if}}
+	            </td>
+	          </tr>
+	        {{/each}}
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+{{/if}}
 
 <script>
 $(document).ready(function(){
 	$(".bootstrap-table > div.fixed-table-toolbar > div > div > button > i").addClass("fa-download");
 	$("div.bootstrap-table > div.fixed-table-toolbar > div > div > ul").css("padding-left", "10px");
+	if("{{{organisation_id}}}"){
+		$("#typeSelectContainer").removeClass("d-none")
+	}
 })
+
+$("#organisationSelect").on('change', function(){
+	if(this.value){
+		$("#typeSelectContainer").removeClass("d-none")
+	} else {
+		$("#typeSelectContainer").addClass("d-none")
+	}
+})
+
 </script>

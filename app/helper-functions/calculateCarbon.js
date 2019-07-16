@@ -10,9 +10,10 @@ module.exports = function(carbon, carbonCategories, callback) {
         transaction.trans_object,
         function(savedInCarbonCategory, carbon_id, callback) {
           if (carbonCategories[carbon_id]) {
-            totalCarbon +=
+            totalCarbon += Math.abs(
               savedInCarbonCategory *
-              carbonCategories[carbon_id].factors[transaction.method];
+                carbonCategories[carbon_id].factors[transaction.method]
+            );
 
             callback();
           } else {

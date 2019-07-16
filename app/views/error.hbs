@@ -3,14 +3,19 @@
       <div class="card">
           <div class="card-body">
 						<h1>Uh-oh!</h1>
+            {{#if specificError}}
+              <h5 class="mt-2">{{specificError.title}}</h3>
+              <p>{{{specificError.message}}}</p>
+            {{else}}
+              {{#if notFound}}
+                <h5 class="mt-2">The page you were looking for doesn't exist :'(</h3>
+                <p><a onclick="window.history.back()" href="#">Go back</a></p>
+              {{else}}
+                <h5 class="mt-2">Something went wrong while processing your request.</h5>
+                <p>Please try again</p>
+              {{/if}}
+            {{/if}}
 
-						{{#if notFound}}
-							<h5 class="mt-2">The page you were looking for doesn't exist :'(</h3>
-							<p><a onclick="window.history.back()" href="#">Go back</a></p>
-						{{else}}
-							<h5 class="mt-2">Something went wrong while processing your request.</h5>
-							<p>Please try again</p>
-						{{/if}}
 					</div>
 			</div>
 	</div>

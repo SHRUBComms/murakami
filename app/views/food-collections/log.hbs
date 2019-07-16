@@ -16,13 +16,15 @@
         <input type="text" name="member_id" class="form-control mb-2" placeholder="Member ID" value="{{member_id}}" />
       {{/if}}
 
-        {{#unless noOrganisationSelect}}
+      {{#unless noOrganisationSelect}}
           <select name="organisation_id" class="form-control mb-2">
-
+            <option selected disabled>Select pick-up organisation</option>
           {{#if user}}
             {{#each allOrganisations}}
 
+              {{#if (lookupArray type 'collections')}}
                 <option value="{{organisation_id}}"{{#ifCond active '==' '0'}} disabled{{/ifCond}}>{{name}}</option>
+              {{/if}}
 
             {{/each}}
           {{else}}
@@ -30,18 +32,46 @@
             {{#each organisations}}
 
                 {{#if (lookup ../allOrganisations this)}}
-
-                  <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}"{{#ifCond (lookup (lookup ../allOrganisations this) 'active') '==' '0'}} disabled{{/ifCond}}>{{lookup (lookup ../allOrganisations this) 'name'}}</option>
-
+                  {{#if (lookupArray (lookup (lookup ../allOrganisations this) 'type') 'collections')}}
+                    <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}"{{#ifCond (lookup (lookup ../allOrganisations this) 'active') '==' '0'}} disabled{{/ifCond}}>{{lookup (lookup ../allOrganisations this) 'name'}}</option>
+                  {{/if}}
                 {{/if}}
             {{else}}
               <option disabled selected>No organisations - please contact a staff member</option>
             {{/each}}
           {{/if}}
         </select>
+
+        <select name="destination_organisation_id" class="form-control mb-2">
+          <option selected disabled>Select drop-off organisation</option>
+        {{#if user}}
+          {{#each allOrganisations}}
+
+          {{#if (lookupArray type 'drop-offs')}}
+            <option value="{{organisation_id}}"{{#ifCond active '==' '0'}} disabled{{/ifCond}}>{{name}}</option>
+          {{/if}}
+
+          {{/each}}
+        {{else}}
+
+          {{#each organisations}}
+
+              {{#if (lookup ../allOrganisations this)}}
+                {{#if (lookupArray (lookup (lookup ../allOrganisations this) 'type') 'drop-offs')}}
+                  <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}"{{#ifCond (lookup (lookup ../allOrganisations this) 'active') '==' '0'}} disabled{{/ifCond}}>{{lookup (lookup ../allOrganisations this) 'name'}}</option>
+                {{/if}}
+              {{/if}}
+          {{else}}
+            <option disabled selected>No organisations - please contact a staff member</option>
+          {{/each}}
+        {{/if}}
+      </select>
+
       {{else}}
-        <input type="text" name="organisation_id" class="form-control mb-2" placeholder="Organisation ID" value="{{organisation_id}}" />
+        <input type="text" name="organisation_id" class="form-control mb-2" placeholder="Pick-up Organisation ID" value="{{organisation_id}}" />
+        <input type="text" name="destination_organisation_id" class="form-control mb-2" placeholder="Destination Organisation ID" value="{{organisation_id}}" />
       {{/unless}}
+
       <div class="form-inline mb-4">
         <div class="mx-auto">
           <span class="text-muted mr-0 mr-xs-0 mr-sm-0 mr-md-2 mr-lg-2 mr-xl-2">Weight (kilos)</span>

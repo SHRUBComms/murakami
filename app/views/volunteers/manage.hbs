@@ -8,9 +8,9 @@
   <div class="col-md-12">
     <div class="row">
       {{#ifCond user.permissions.volunteers.view '==' true}}
-        {{>working-groups/select selectedGroup=group.group_id id="working_groups" user=user path="/volunteers/manage/?group_id="}}
+        {{>working-groups/select myVolunteers=true selectedGroup=group.group_id id="working_groups" user=user path="/volunteers/manage/?group_id="}}
       {{else}}
-        {{>working-groups/select selectedGroup=group.group_id allGroups=false id="working_groups" user=user path="/volunteers/manage/?group_id="}}
+        {{>working-groups/select myVolunteers=true selectedGroup=group.group_id allGroups=false id="working_groups" user=user path="/volunteers/manage/?group_id="}}
       {{/ifCond}}
     </div>
   </div>
@@ -63,11 +63,27 @@
         </button>
       </div>
       <div class="modal-body">
-        <p id="removeVolunteerRoles"></p>
-        <p id="removeVolunteerOldWorkingGroups"></p>
+
+        <div id="removeDialogErrorBox" class="alert alert-danger alert-dismissible d-none fade show" role="alert">
+          <span id="removeDialogErrorMessage"></span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div id="removeDialogSuccessBox" class="alert alert-success alert-dismissible d-none fade show" role="alert">
+          <span id="removeDialogSuccessMessage"></span>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div id="removeVolunteerSummary" class="p-3"></div>
+
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="location.reload();">Close</button>
+        <button type="button" class="btn btn-danger" id="removeVolunteerBtn">Remove Volunteer</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -78,91 +94,76 @@
 
 var allWorkingGroups = {{{json user.allWorkingGroupsObj}}}
 var allRoles = {{{json roles}}}
+var currentGroup = "{{group.group_id}}"
 
 $('#working_groups').on('change', function () {
   var url = "{{public_address}}/volunteers/manage?group_id=" + $("#working_groups").val();
   window.location = url;
 });
 
-function removeVolunteer(member_id, name, roles, old_working_groups) {
+function openRemoveVolunteerDialog(member_id, name, roles, old_working_groups) {
 
+  var parentDiv = document.getElementById("removeVolunteerSummary");
+  parentDiv.innerHTML = "";
 
+  var rolesToRemoveCaption = document.createElement("p");
+  rolesToRemoveCaption.innerText = name + " will be removed from the following role(s):"
+  var rolesToRemoveList = document.createElement("ul");
 
-  $("#removeVolunteerRoles").html("");
-  $("#removeVolunteerOldWorkingGroups").html("");
+  var rolesFound = [];
 
-  $("removeVolunteerName").html(name);
-
-  var removeRolesMarkup = "<h4 class='mb-3'>Roles</h4>";
-  var removeVolunteerOldWorkingGroupsMarkup = "<h4 class='mb-3'>Working Groups</h4>";
-  var onclick = "";
-
-  if(roles.length > 0){
-
-    removeRolesMarkup += "<table class='table'>"
-
-    for(i=0;i<roles.length;i++){
-      removeRolesMarkup += "<tr>"
-      onclick = "removeRole(\"" + member_id + "\", \"" + roles[i] + "\", this)"
-      removeRolesMarkup += "<td>" + allRoles[roles[i]].details.title + "</td>"
-      removeRolesMarkup += "<td><a class='btn btn-sm btn-danger' onclick='" + onclick + "'>Remove</a></td>"
-      removeRolesMarkup += "</tr>"
+  for(i=0;i<roles.length;i++){
+    if(allRoles[roles[i]].group_id == currentGroup){
+      rolesFound.push(allRoles[roles[i]]);
+      var roleToRemove = document.createElement("li");
+      roleToRemove.innerText = allRoles[roles[i]].details.title;
+      rolesToRemoveList.appendChild(roleToRemove);
     }
-
-    removeRolesMarkup += "</table>"
-    $("#removeVolunteerRoles").html(removeRolesMarkup);
   }
 
-  if(old_working_groups.length > 0){
-
-    removeVolunteerOldWorkingGroupsMarkup += "<table class='table'>"
-
-    for(i=0;i<old_working_groups.length;i++){
-      removeVolunteerOldWorkingGroupsMarkup += "<tr class='p-2'>"
-      onclick = "removeWorkingGroup(\"" + member_id + "\", \"" + old_working_groups[i] + "\", this)"
-      removeVolunteerOldWorkingGroupsMarkup += "<td>" + allWorkingGroups[old_working_groups[i]].name + "</td>"
-      removeVolunteerOldWorkingGroupsMarkup += "<td><a class='btn btn-sm btn-danger' onclick='" + onclick + "'>Remove</a></td>"
-      removeVolunteerOldWorkingGroupsMarkup += "</tr>"
-    }
-
-    removeVolunteerOldWorkingGroupsMarkup += "</table>"
-    $("#removeVolunteerOldWorkingGroups").html(removeVolunteerOldWorkingGroupsMarkup);
+  if(rolesFound.length > 0){
+    parentDiv.appendChild(rolesToRemoveCaption);
+    parentDiv.appendChild(rolesToRemoveList);
+  } else {
+    rolesToRemoveCaption.className = "text-muted font-italic"
+    rolesToRemoveCaption.innerText = "No roles to remove."
+    parentDiv.appendChild(rolesToRemoveCaption);
   }
 
+  if(old_working_groups.includes(currentGroup)){
+    var workingGroupsToRemoveCaption = document.createElement("p");
+    if(rolesFound.length > 0){
+      workingGroupsToRemoveCaption.className = "mt-2"
+      workingGroupsToRemoveCaption.innerHTML = "and will be removed from the <b>" + allWorkingGroups[currentGroup].name + "</b> working group."
+    } else {
+      workingGroupsToRemoveCaption.innerHTML = name + " will be removed from the <b>" + allWorkingGroups[currentGroup].name + "</b> working group."
+    }
+    parentDiv.appendChild(workingGroupsToRemoveCaption);
+  }
+
+  var removeVolunteerBtn = document.getElementById("removeVolunteerBtn")
+  removeVolunteerBtn.onclick = function(){
+
+    $.post("{{public_address}}/api/post/volunteers/remove-from-working-group", {
+      member_id: member_id,
+      group_id: currentGroup
+    }, function(response){
+
+      if(response.status == "ok") {
+        $("#removeDialogSuccessBox").removeClass("d-none");
+        $("#removeDialogErrorBox").addClass("d-none");
+        $("#removeDialogSuccessMessage").text(response.msg);
+        $("#row_" + member_id).remove();
+      } else {
+        $("#removeDialogErrorBox").removeClass("d-none");
+        $("#removeDialogSuccessBox").addClass("d-none");
+        $("#removeDialogErrorMessage").text(response.msg);
+      }
+    })
+  }
 
   $("#removeVolunteerModal").modal("show");
 }
 
-function removeWorkingGroup(member_id, group_id, row) {
-  $.post("{{public_address}}/api/post/volunteers/remove-working-group",
-    {
-      member_id: member_id,
-      group_id: group_id
-    },
-    function(data) {
-      if(data.status == "ok"){
-        $(row).parents("tr").remove();
-      }
-      alert(data.msg);
-
-    }
-  )
-}
-
-function removeRole(member_id, role_id, row) {
-  $.post("{{public_address}}/api/post/volunteers/remove-role",
-    {
-      member_id: member_id,
-      role_id: role_id
-    },
-    function(data) {
-      if(data.status == "ok"){
-        $(row).parents("tr").remove();
-      }
-      alert(data.msg);
-
-    }
-  )
-}
 
 </script>

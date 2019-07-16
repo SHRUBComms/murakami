@@ -13,13 +13,14 @@
 	<div class="col-md-6 mx-auto">
 	  <form action="{{public_address}}/carbon-accounting/export" method="get">
 	    <div class="form-group">
-	      <input type="date" name="startDate" class="form-control" value="{{startDate}}">
+	      <input type="date" name="startDate" class="form-control" value="{{dates.start}}">
 	    </div>
 	    <div class="form-group">
-	      <input type="date" name="endDate" class="form-control" value="{{endDate}}">
+	      <input type="date" name="endDate" class="form-control" value="{{dates.end}}">
 	    </div>
 	    <div class="form-group">
 	      <select class="form-control" name="unit">
+					<option disabled>Select unit...</option>
 	        <option value="grams" {{#ifCond unit.name '==' "grams"}}selected{{/ifCond}}>Grams</option>
 	        <option value="kilos" {{#ifCond unit.name '==' "kilos"}}selected{{/ifCond}}>Kilograms</option>
 	        <option value="tonnes" {{#ifCond unit.name '==' "tonnes"}}selected{{/ifCond}}>Tonnes</option>
@@ -28,7 +29,7 @@
 	    <div class="form-group">
 
 					{{#ifCond user.permissions.carbonAccounting.export '==' true}}
-	          {{>working-groups/select selectedGroup=group_id id="group_id" user=user}}
+	          {{>working-groups/select selectedGroup=group_id id="group_id" user=user allWorkingGroups=true}}
 	        {{else}}
 	          {{>working-groups/select selectedGroup=group_id allGroups=false id="group_id" user=user}}
 	        {{/ifCond}}
@@ -36,6 +37,8 @@
 	    </div>
 	    <div class="form-group">
 	      <select class="form-control" name="method">
+					<option selected disabled>Select a disposal route...</option>
+					<option value="grand-totals" {{#ifCond method '==' "grand-totals"}}selected{{/ifCond}}>Grand Totals</option>
 	        <option value="recycled" {{#ifCond method '==' "recycled"}}selected{{/ifCond}}>Recycled</option>
 	        <option value="generated" {{#ifCond method '==' "generated"}}selected{{/ifCond}}>Generated</option>
 	        <option value="incinerated" {{#ifCond method '==' "incinerated"}}selected{{/ifCond}}>Incinerated</option>
@@ -51,45 +54,125 @@
 	</div>
 </div>
 
+{{#unless invalidRequest}}
+	{{#ifCond method '==' 'grand-totals'}}
+		<div class="row">
+			<div class="col-md-6 mx-auto">
+				<table class="table-light mt-4" style="width: 100%; border-collapse: collapse;">
+					<tr class="p-2" style="border-bottom:2px solid grey;">
+						<td class="p-3">
+							<p>Disposal Route</p>
+						</td>
+						<td class="p-3">
+							<p>Total Raw Weight ({{unit.name}})</p>
+						</td>
+						<td class="p-3">
+							<p>Total Carbon Saved ({{unit.name}})</p>
+						</td>
+					</tr>
+					{{#each carbon}}
+						{{#ifCond @key "==" "totals"}}
+							<tr class="p-2" style="background-color: #EFEFEF;">
+						{{else}}
+							<tr class="p-2">
+						{{/ifCond}}
 
-<div class="row">
-	<div class="col-md-6 mx-auto">
-		<table class="table-light mt-4" style="width: 100%; border-collapse: collapse;">
-			<tr class="p-2" style="border-bottom:2px solid black;">
-				<td class="p-3">
-					Category
-				</td>
-				<td class="p-3">
-					Raw Weight ({{unit.name}})
-				</td>
-				<td class="p-3">
-					Carbon Saved ({{unit.name}})
-				</td>
-			</tr>
-			{{#each carbonCategories}}
-				<tr class="p-2">
-					<td class="p-3">
-						<p>
-							<b>
-								{{name}}
-							</b>
-						</p>
-					</td>
-					<td class="p-3">
-						<p>{{lookup (lookup ../carbon @key) 'raw'}} {{../unit.name}}</p>
-					</td>
-					<td class="p-3">
-						<p>{{lookup (lookup ../carbon @key) 'saved'}} {{../unit.name}}</p>
-						<p>
-							<small>
-								<i>Raw weight x <b>{{lookup factors ../method}}</b></i>
-							</small>
-						</p>
-					</td>
-				</tr>
-			{{/each}}
-		</table>
+								<td class="p-3">
+									<p>
+										{{#ifCond @key "==" "totals"}}
+											<b>{{formToPlain @key}}</b>
+										{{else}}
+											{{formToPlain @key}}
+										{{/ifCond}}
 
-	</div>
+									</p>
+								</td>
+								<td class="p-3">
+									{{#ifCond @key "==" "totals"}}
+										<p>{{lookup this 'raw'}} {{../unit.name}}</p>
+									{{else}}
+										<p>{{lookup (lookup this 'totals') 'raw'}} {{../unit.name}}</p>
+									{{/ifCond}}
+								</td>
+								<td class="p-3">
+									{{#ifCond @key "==" "totals"}}
+										<p>{{lookup this 'saved'}} {{../unit.name}}</p>
+									{{else}}
+										<p>{{lookup (lookup this 'totals') 'saved'}} {{../unit.name}}</p>
+									{{/ifCond}}
+								</td>
+							</tr>
 
-</div>
+					{{/each}}
+				</table>
+
+			</div>
+
+		</div>
+	{{else}}
+		<div class="row">
+			<div class="col-md-6 mx-auto">
+				<table class="table-light mt-4" style="width: 100%; border-collapse: collapse;">
+					<tr class="p-2" style="border-bottom:2px solid grey;">
+						<td class="p-3">
+							<p>Category</p>
+						</td>
+						<td class="p-3">
+							<p>Raw Weight ({{unit.name}})</p>
+						</td>
+						<td class="p-3">
+							<p>Carbon Saved ({{unit.name}})</p>
+						</td>
+					</tr>
+
+					{{#each (lookup carbon method)}}
+						{{#if (lookup ../carbonCategories @key)}}
+							<tr class="p-2">
+								<td class="p-3">
+									<p>
+											{{lookup (lookup ../carbonCategories @key) 'name'}}
+									</p>
+								</td>
+								<td class="p-3">
+									<p>{{raw}} {{../unit.name}}</p>
+								</td>
+								<td class="p-3">
+									<p>{{saved}} {{../unit.name}}</p>
+									{{#ifCond @key "!=" "totals"}}
+										<p>
+											<small>
+												<i>Raw weight x <b>{{lookup (lookup (lookup ../carbonCategories @key) 'factors') ../method}}</b></i>
+											</small>
+										</p>
+									{{/ifCond}}
+								</td>
+							</tr>
+						{{/if}}
+					{{/each}}
+
+					<tr class="p-2" style="background-color:#EFEFEF;">
+						<td class="p-3">
+							<p>
+								<b>Total</b>
+							</p>
+						</td>
+						<td class="p-3">
+							<p>
+								<b>{{lookup (lookup (lookup carbon method) 'totals') 'raw'}} {{unit.name}}
+								</b>
+							</p>
+						</td>
+						<td class="p-3">
+							<p>
+								<b>{{lookup (lookup (lookup carbon method) 'totals') 'saved'}} {{unit.name}}</b>
+							</p>
+						</td>
+					</tr>
+
+				</table>
+
+			</div>
+
+		</div>
+	{{/ifCond}}
+{{/unless}}

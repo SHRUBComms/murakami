@@ -17,22 +17,29 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("foodCollections", "viewOrganisations"),
   function(req, res) {
-    FoodCollectionsOrganisations.getById(req.params.organisation_id, function(
-      err,
-      organisation
-    ) {
-      if (organisation) {
+    FoodCollectionsOrganisations.getAll(function(err, organisations) {
+      if (organisations[req.params.organisation_id]) {
+        var organisation = organisations[req.params.organisation_id];
         Members.getAll(function(err, membersArray, membersObj) {
           FoodCollections.getCollectionsByOrganisationId(
             req.params.organisation_id,
+            organisations,
             membersObj,
             function(err, collections) {
-              res.render("food-collections/organisations/view", {
-                title: "View Food Collection Organisation",
-                foodCollectionsActive: true,
-                organisation: organisation,
-                collections: collections
-              });
+              FoodCollections.getDropOffsByOrganisationId(
+                req.params.organisation_id,
+                organisations,
+                membersObj,
+                function(err, dropoffs) {
+                  res.render("food-collections/organisations/view", {
+                    title: "View Food Collection Organisation",
+                    foodCollectionsActive: true,
+                    organisation: organisation,
+                    collections: collections,
+                    dropoffs: dropoffs
+                  });
+                }
+              );
             }
           );
         });

@@ -19,6 +19,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING(15),
         allowNull: false
       },
+      destination_organisation_id: {
+        type: DataTypes.STRING(15),
+        allowNull: false
+      },
       timestamp: {
         type: DataTypes.DATE,
         allowNull: false,

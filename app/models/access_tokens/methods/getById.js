@@ -13,12 +13,6 @@ module.exports = function(AccessTokens, sequelize, DataTypes) {
         }
       }
     }).nodeify(function(err, invite) {
-      try {
-        invite.details = JSON.parse(invite.details);
-      } catch (err) {
-        invite = {};
-      }
-      
       callback(err, invite);
     });
   };

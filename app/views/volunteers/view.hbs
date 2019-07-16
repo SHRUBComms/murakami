@@ -219,7 +219,9 @@
     						<small>Current Membership Period</small>
     						<div class="mb-3">
     							<p>Began: <b>{{niceDate member.current_init_membership}}</b></p>
-    							<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
+                  {{#unless volunteer.membership_type}}
+    							  <p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
+                  {{/unless}}
     						</div>
               {{/if}}
               <a href="{{public_address}}/members/view/{{member.member_id}}" class="btn btn-block btn-success mt-2">View Membership Profile</a>

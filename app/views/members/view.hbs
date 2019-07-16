@@ -11,18 +11,28 @@
 			<div class="card">
 				<div class="card-body">
 						<h1>{{member.first_name}} {{member.last_name}}</h1>
-						<p class="{{#if member.is_member}}text-success{{else}}text-danger{{/if}}">
-							{{#if member.is_member}}
-								Current member,
-								{{#ifCond member.free '==' 1}}
-									free
-								{{else}}
-									paid
-								{{/ifCond}}
-							{{else}}
-								No longer a member.
-							{{/if}}
-						</p>
+
+						{{~#if member.is_member ~}}
+							<p class="text-success">
+								Current member
+								{{~#if member.membership_type ~}}
+									{{~#ifCond member.membership_type '==' 'unpaid' ~}}
+										, <span class="text-danger font-weight-bold">unpaid</span>
+									{{~else ~}}
+										, {{member.membership_type}}
+									{{~/ifCond}}
+								{{~else}}
+									{{~#if member.free ~}}
+										, free
+									{{~else ~}}
+										, paid
+									{{~/if ~}}
+								{{~/if ~}}
+							</p>
+						{{~else}}
+							<p class="text-danger">No longer a member</p>
+						{{~/if}}
+
 				</div>
 			</div>
 		</div>
@@ -65,7 +75,10 @@
 								<small>Current Membership Period</small>
 								<div class="mb-2">
 									<p>Began: <b>{{niceDate member.current_init_membership}}</b></p>
-									<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
+
+									{{#unless member.membership_type}}
+										<p>Expires: <b>{{niceDate member.current_exp_membership}}</b></p>
+									{{/unless}}
 
 								</div>
 							{{/if}}

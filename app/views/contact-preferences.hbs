@@ -13,8 +13,8 @@
 
       <div class="card mt-4">
         <div class="card-body">
-          <h3>Newsletters</h3>
-          <p>Optionally subscribe to our newsletters (via Mailchimp). You can unsubscribe at any time.</p>
+          <h3>Newsletter</h3>
+          <p>Optionally subscribe to our newsletter (via Mailchimp). You can unsubscribe at any time.</p>
 
           <p class="mt-2 font-weight-bold">SHRUB Co-op newsletter</p>
           <p class="font-italic mb-2">To keep you up to date with decisions made at our open meetings, events and Shrub parties!</p>
@@ -28,24 +28,6 @@
             <div class="btn-group-toggle" data-toggle="buttons">
               <label class="btn btn-success btn-block">
                 <input type="checkbox" name="newsletters[shrub][subscribe]" autocomplete="off"> Subscribe To Shrub's Newsletter
-              </label>
-            </div>
-          {{/if}}
-
-
-          <p class="mt-3 font-weight-bold">Food Sharing Edinburgh newsletter</p>
-          <p class="font-italic mb-2">Sent every 2 weeks</p>
-
-          {{#if member.contactPreferences.newsletters.fse}}
-            <div class="btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-danger btn-block">
-                <input type="checkbox" name="newsletters[fse][unsubscribe]" autocomplete="off"> Unsubscribe From FSE's Newsletter
-              </label>
-            </div>
-          {{else}}
-            <div class="btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-success btn-block">
-                <input type="checkbox" name="newsletters[fse][subscribe]" autocomplete="off"> Subscribe To FSE's Newsletter
               </label>
             </div>
           {{/if}}

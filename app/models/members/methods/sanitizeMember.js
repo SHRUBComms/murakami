@@ -111,8 +111,9 @@ module.exports = function(Members, sequelize, DataType) {
 
           try {
             if (
-              user.permissions.members.barcode == true ||
-              (user.permissions.members.barcode == "commonWorkingGroup" &&
+              user.permissions.members.manageMembershipCard == true ||
+              (user.permissions.members.manageMembershipCard ==
+                "commonWorkingGroup" &&
                 commonWorkingGroup)
             ) {
               sanitizedMember.barcode = member.barcode;
@@ -215,6 +216,11 @@ module.exports = function(Members, sequelize, DataType) {
             if (member.activeVolunteer) {
               sanitizedMember.activeVolunteer = true;
             }
+
+            if (member.membership_type) {
+              sanitizedMember.membership_type = member.membership_type;
+            }
+
             sanitizedMember.member_id = member.member_id;
             sanitizedMember.is_member = member.is_member;
             sanitizedMember.free = member.free;

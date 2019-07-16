@@ -13,6 +13,7 @@
   data-sort-order="desc">
        	<thead>
        		<th>Name</th>
+          <th>Type</th>
           <th>Date Created</th>
           <th>Last Collection</th>
           <th data-field="status">Status</th>
@@ -23,6 +24,11 @@
             <tr>
               <tr>
                 <td>{{name}}</td>
+                <td>
+                  {{#each type}}
+                    <p>{{formToPlain this}}</p>
+                  {{/each}}
+                </td>
                 <td>{{niceDate dateCreated}}</td>
                 <td>{{niceTimestamp lastCollection}}</td>
                 <td>
