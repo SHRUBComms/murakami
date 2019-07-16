@@ -13,6 +13,22 @@ var Transactions = Models.Transactions;
 var Auth = require(rootDir + "/app/configs/auth");
 
 router.get("/", Auth.isLoggedIn, function(req, res) {
+  var redirectUri =
+    process.env.PUBLIC_ADDRESS +
+    "/till/transaction/" +
+    req.query.till_id +
+    "/?" +
+    "sumupCallback=true" +
+    "&murakamiStatus=" +
+    req.query.murakamiStatus +
+    "&transactionSummary=" +
+    req.query.transactionSummary +
+    "&carbonSummary=" +
+    req.query.carbonSummary +
+    "&smp-status=" +
+    req.query["smp-status"] +
+    "&smp-failure-cause=" +
+    req.query["smp-failure-cause"];
   request.post(
     "https://api.sumup.com/token",
     {
@@ -26,7 +42,21 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
     },
     (error, response, body) => {
       if (error || response.statusCode != 200) {
-        return;
+        res.redirect(
+          process.env.PUBLIC_ADDRESS +
+            "/till/transaction/" +
+            req.query.till_id +
+            "/?" +
+            "sumupCallback=true" +
+            "&murakamiStatus=" +
+            req.query.murakamiStatus +
+            "&transactionSummary=" +
+            req.query.transactionSummary +
+            "&carbonSummary=" +
+            req.query.carbonSummary +
+            "&smp-status=failed" +
+            "&smp-failure-cause=Could not verify card payment."
+        );
       } else {
         request.get(
           "https://api.sumup.com/v0.1/me/transactions?transaction_code=" +
@@ -43,43 +73,19 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
                 Transactions.removeTransaction(
                   req.query["foreign-tx-id"],
                   till.group_id,
-                  function(err) {}
+                  function(err) {
+                    res.redirect(redirectUri);
+                  }
                 );
               });
+            } else {
+              res.redirect(redirectUri);
             }
           }
         );
       }
     }
   );
-
-  if (req.query.membershipBought && req.query["smp-status"] == "success") {
-    res.redirect(
-      process.env.PUBLIC_ADDRESS +
-        "/members/add?till_id=" +
-        req.query.till_id +
-        "&murakamiStatus=ok" +
-        "&murakamiMsg=" +
-        req.query["murakamiMsg"] +
-        "&membership_length=" +
-        req.query.membershipBought
-    );
-  } else {
-    res.redirect(
-      process.env.PUBLIC_ADDRESS +
-        "/till/" +
-        req.query.till_id +
-        "/?" +
-        "murakamiStatus=" +
-        req.query["murakamiStatus"] +
-        "&murakamiMsg=" +
-        req.query["murakamiMsg"] +
-        "&smp-status=" +
-        req.query["smp-status"] +
-        "&smp-failure-cause=" +
-        req.query["smp-failure-cause"]
-    );
-  }
 });
 
 module.exports = router;
