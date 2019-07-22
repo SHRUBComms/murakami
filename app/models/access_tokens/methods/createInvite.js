@@ -1,11 +1,9 @@
 module.exports = function(AccessTokens, sequelize, DataTypes) {
-  return function(details, callback) {
-    var query =
-      "INSERT INTO access_tokens (token, action, user_id, timestamp, used) VALUES (?,?,?,?,?)";
+  return function(expirationTimestamp, details, callback) {
     AccessTokens.generateId(function(token) {
       AccessTokens.create({
         token: token,
-        timestamp: new Date(),
+        expirationTimestamp: expirationTimestamp,
         details: details,
         used: 0
       }).nodeify(function(err) {

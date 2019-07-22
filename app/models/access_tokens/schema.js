@@ -11,10 +11,9 @@ module.exports = function(sequelize, DataTypes) {
         allowNull: false,
         primaryKey: true
       },
-      timestamp: {
+      expirationTimestamp: {
         type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+        allowNull: false
       },
       details: {
         type: DataTypes.JSON,

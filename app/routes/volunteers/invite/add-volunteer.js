@@ -52,7 +52,7 @@ router.post(
         volunteerAgreement,
         ourVision,
         saferSpacesPolicy,
-        membershipBenefits,
+        membershipBenefitsInfo,
         privacyNotice
       ) {
         // Membership validation
@@ -99,6 +99,8 @@ router.post(
           )
           .isLength({ max: 89 });
         req.checkBody("email", "Please enter a valid email address").isEmail();
+
+        req.checkBody("address", "Please enter an address").notEmpty();
 
         req
           .checkBody(
@@ -214,20 +216,6 @@ router.post(
           )
           .notEmpty();
 
-        req
-          .checkBody(
-            "volInfo.survey.goals",
-            "Please enter what the volunteer wants to achieve through their work with Shrub"
-          )
-          .notEmpty();
-
-        req
-          .checkBody(
-            "volInfo.survey.preferredCommMethods",
-            "Please select at least one preferred contact method"
-          )
-          .notEmpty();
-
         var errors = req.validationErrors() || [];
 
         var days = {
@@ -264,10 +252,11 @@ router.post(
           });
         }
 
-        if (validTimes == 0) {
+        if (volInfo.availability && validTimes == 0) {
           let error = {
             param: "volInfo.availability",
-            msg: "Please tick at least one box in the availability matrix",
+            msg:
+              "Please tick at least one valid time slot in the availability matrix",
             value: req.body.volInfo.availability
           };
           errors.push(error);
@@ -318,25 +307,27 @@ router.post(
           }
         }
 
-        if (!Array.isArray(volInfo.survey.preferredCommMethods)) {
-          volInfo.survey.preferredCommMethods = [
-            volInfo.survey.preferredCommMethods
-          ];
-        }
+        if (volInfo.survey.preferredCommMethods) {
+          if (!Array.isArray(volInfo.survey.preferredCommMethods)) {
+            volInfo.survey.preferredCommMethods = [
+              volInfo.survey.preferredCommMethods
+            ];
+          }
 
-        if (
-          !Helpers.allBelongTo(
-            volInfo.survey.preferredCommMethods,
-            Object.keys(contactMethods)
-          )
-        ) {
-          let error = {
-            param: "volInfo.survey.preferredCommMethods",
-            msg: "Please select valid contact methods",
-            value: req.body.volInfo.survey.preferredCommMethods
-          };
+          if (
+            !Helpers.allBelongTo(
+              volInfo.survey.preferredCommMethods,
+              Object.keys(contactMethods)
+            )
+          ) {
+            let error = {
+              param: "volInfo.survey.preferredCommMethods",
+              msg: "Please select valid contact methods",
+              value: req.body.volInfo.survey.preferredCommMethods
+            };
 
-          errors.push(error);
+            errors.push(error);
+          }
         }
 
         if (!Array.isArray(volInfo.roles)) {
@@ -368,7 +359,7 @@ router.post(
             volunteerAgreement: volunteerAgreement,
             ourVision: ourVision,
             saferSpacesPolicy: saferSpacesPolicy,
-            membershipBenefitsInfo: membershipBenefits,
+            membershipBenefitsInfo: membershipBenefitsInfo,
             privacyNotice: privacyNotice
           });
         } else {
@@ -412,7 +403,7 @@ router.post(
                   volunteerAgreement: volunteerAgreement,
                   ourVision: ourVision,
                   saferSpacesPolicy: saferSpacesPolicy,
-                  membershipBenefitsInfo: membershipBenefits,
+                  membershipBenefitsInfo: membershipBenefitsInfo,
                   privacyNotice: privacyNotice
                 });
               } else {

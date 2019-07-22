@@ -3,6 +3,7 @@
 var router = require("express").Router();
 
 var async = require("async");
+var lodash = require("lodash");
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -12,215 +13,160 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Tills = Models.Tills;
 var Transactions = Models.Transactions;
 var StockCategories = Models.StockCategories;
+var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post("/", Auth.verifyByKey, function(req, res) {
-  var response = { status: "fail", msg: "Something went wrong!", summary: {} };
+router.get("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
+  WorkingGroups.getAll(function(
+    err,
+    allWorkingGroupsRaw,
+    allWorkingGroupsObj,
+    allWorkingGroupsArray
+  ) {
+    var response = {
+      status: "fail",
+      msg: "Something went wrong!",
+      summary: {},
+      workingGroups: allWorkingGroupsObj
+    };
 
-  var startDate, endDate;
-  try {
-    startDate = moment(req.body.startDate)
-      .startOf("day")
-      .toDate();
-  } catch (err) {
-    startDate = moment()
-      .startOf("day")
-      .toDate();
-  }
+    var blankSummary = {
+      total: 0,
+      breakdown: {
+        card: 0,
+        cash: 0
+      }
+    };
 
-  try {
-    endDate = moment(req.body.endDate)
-      .endOf("day")
-      .toDate();
-  } catch (err) {
-    endDate = moment()
-      .endOf("day")
-      .toDate();
-  }
+    Tills.getAll(function(err, tillsArray, allTillsObj) {
+      StockCategories.getAllCategories(function(err, allCategoriesObj) {
+        Transactions.getAll(function(err, transactions) {
+          async.each(
+            transactions,
+            function(transaction, callback) {
+              if (transaction.till_id) {
+                if (allTillsObj[transaction.till_id]) {
+                  if (transaction.summary) {
+                    if (transaction.summary.paymentMethod) {
+                      if (transaction.summary.bill) {
+                        if (transaction.summary.totals.money > 0) {
+                          if (transaction.summary.bill[0]) {
+                            if (transaction.summary.bill[0].item_id) {
+                              if (
+                                ![
+                                  "membership",
+                                  "donation",
+                                  "volunteering"
+                                ].includes(transaction.summary.bill[0].item_id)
+                              ) {
+                                let monthKey = moment(transaction.date)
+                                  .startOf("month")
+                                  .format("YYYY-MM-DD");
 
-  var tills = req.body.tills;
-  var workingGroups = req.body.workingGroups;
-
-  if (workingGroups) {
-    if (!Array.isArray(workingGroups)) {
-      workingGroups = [workingGroups];
-    }
-  } else if (tills) {
-    if (!Array.isArray(tills)) {
-      tills = [tills];
-    }
-  } else {
-    workingGroups = [];
-    tills = [];
-  }
-
-  console.log("Start Date:", startDate);
-  console.log("End Date:", endDate);
-  console.log("Working Groups:", workingGroups);
-  console.log("Tills", tills);
-
-  Tills.getAll(function(err, tillsArray, allTillsObj) {
-    StockCategories.getAllCategories(function(err, allCategoriesObj) {
-      Transactions.getAllBetweenTwoDates(startDate, endDate, function(
-        err,
-        transactions
-      ) {
-        response.summary.revenue = {
-          total: 0,
-          breakdown: {
-            card: 0,
-            cash: 0
-          }
-        };
-
-        response.summary.byGroup = {};
-        response.summary.byTill = {};
-
-        console.log("No. transactions:", transactions.length);
-        async.each(
-          transactions,
-          function(transaction, callback) {
-            if (transaction.till_id) {
-              if (allTillsObj[transaction.till_id]) {
-                if (transaction.summary) {
-                  if (transaction.summary.paymentMethod) {
-                    if (transaction.summary.bill) {
-                      if (transaction.summary.totals.money > 0) {
-                        if (transaction.summary.bill[0]) {
-                          if (transaction.summary.bill[0].item_id) {
-                            if (
-                              ![
-                                "membership",
-                                "donation",
-                                "volunteering"
-                              ].includes(transaction.summary.bill[0].item_id)
-                            ) {
-                              transaction.addedToTotal = false;
-                              if (tills.includes(transaction.till_id)) {
-                                let transactionValue =
-                                  transaction.summary.totals.money;
-
-                                if (
-                                  response.summary.byTill[
-                                    transaction.till_id
-                                  ] === undefined
-                                ) {
-                                  response.summary.byTill[
-                                    transaction.till_id
-                                  ] = {
-                                    total: 0,
-                                    breakdown: {
-                                      card: 0,
-                                      cash: 0
-                                    }
-                                  };
+                                if (response.summary[monthKey] === undefined) {
+                                  response.summary[monthKey] = {};
+                                  response.summary[
+                                    monthKey
+                                  ].revenue = lodash.cloneDeep(blankSummary);
+                                  response.summary[monthKey].byGroup = {};
                                 }
 
-                                response.summary.revenue.total += +transactionValue;
-                                addedToTotal = true;
-
-                                response.summary.byTill[
-                                  transaction.till_id
-                                ].total += +transactionValue;
-
-                                if (
-                                  response.summary.revenue.breakdown[
-                                    transaction.summary.paymentMethod
-                                  ] !== undefined
-                                ) {
-                                  response.summary.revenue.breakdown[
-                                    transaction.summary.paymentMethod
-                                  ] += +transactionValue;
-                                }
-
-                                if (
-                                  response.summary.byTill[transaction.till_id]
-                                    .breakdown[
-                                    transaction.summary.paymentMethod
-                                  ] !== undefined
-                                ) {
-                                  response.summary.byTill[
-                                    transaction.till_id
-                                  ].breakdown[
-                                    transaction.summary.paymentMethod
-                                  ] += +transactionValue;
-                                }
-                              }
-
-                              async.each(
-                                transaction.summary.bill,
-                                function(item, callback) {
-                                  if (allCategoriesObj[item.item_id]) {
-                                    if (
-                                      workingGroups.includes(
-                                        allCategoriesObj[item.item_id].group_id
-                                      ) ||
-                                      workingGroups.includes(
-                                        allTillsObj[transaction.till_id]
-                                          .group_id
-                                      )
-                                    ) {
-                                      let group_id =
-                                        allCategoriesObj[item.item_id]
-                                          .group_id ||
-                                        allTillsObj[transaction.till_id]
-                                          .group_id;
-
-                                      if (!response.summary.byGroup[group_id]) {
-                                        response.summary.byGroup[group_id] = {
-                                          total: 0,
-                                          breakdown: {
-                                            card: 0,
-                                            cash: 0
-                                          }
-                                        };
-                                      }
-
-                                      let itemValue =
-                                        (+item.value || +item.tokens) *
-                                        (item.quantity || 1);
-
-                                      if (transaction.addedToTotal == false) {
-                                        response.summary.revenue.total += +itemValue;
-                                        transaction.addedToTotal = true;
-                                      }
-
-                                      response.summary.byGroup[
-                                        group_id
-                                      ].total += +itemValue;
+                                async.each(
+                                  transaction.summary.bill,
+                                  function(item, callback) {
+                                    if (allCategoriesObj[item.item_id]) {
+                                      var group_id;
 
                                       if (
-                                        response.summary.revenue.breakdown[
-                                          transaction.summary.paymentMethod
-                                        ] !== undefined
+                                        allWorkingGroupsArray.includes(
+                                          allCategoriesObj[item.item_id]
+                                            .group_id
+                                        )
                                       ) {
-                                        response.summary.revenue.breakdown[
-                                          transaction.summary.paymentMethod
-                                        ] += itemValue;
+                                        group_id =
+                                          allCategoriesObj[item.item_id]
+                                            .group_id;
+                                      } else if (
+                                        allWorkingGroupsArray.includes(
+                                          allTillsObj[transaction.till_id]
+                                            .group_id
+                                        )
+                                      ) {
+                                        group_id =
+                                          allTillsObj[transaction.till_id]
+                                            .group_id;
+                                      } else {
+                                        group_id = null;
                                       }
 
-                                      if (
-                                        response.summary.byGroup[group_id]
-                                          .breakdown[
-                                          transaction.summary.paymentMethod
-                                        ] !== undefined
-                                      ) {
-                                        response.summary.byGroup[
+                                      if (group_id !== null) {
+                                        if (
+                                          !response.summary[monthKey].byGroup[
+                                            group_id
+                                          ]
+                                        ) {
+                                          response.summary[monthKey].byGroup[
+                                            group_id
+                                          ] = lodash.cloneDeep(blankSummary);
+                                        }
+
+                                        let itemValue =
+                                          parseFloat(
+                                            (parseFloat(item.value) ||
+                                              parseFloat(item.tokens)) *
+                                              (parseInt(item.quantity) || 1)
+                                          ) || 0;
+
+                                        response.summary[
+                                          monthKey
+                                        ].revenue.total += +itemValue;
+                                        if (
+                                          response.summary[monthKey].revenue
+                                            .breakdown[
+                                            transaction.summary.paymentMethod
+                                          ] !== undefined
+                                        ) {
+                                          response.summary[
+                                            monthKey
+                                          ].revenue.breakdown[
+                                            transaction.summary.paymentMethod
+                                          ] += +itemValue;
+                                        }
+
+                                        response.summary[monthKey].byGroup[
                                           group_id
-                                        ].breakdown[
-                                          transaction.summary.paymentMethod
-                                        ] += +itemValue;
+                                        ].total += +itemValue;
+
+                                        if (
+                                          response.summary[monthKey].byGroup[
+                                            group_id
+                                          ].breakdown[
+                                            transaction.summary.paymentMethod
+                                          ] !== undefined
+                                        ) {
+                                          response.summary[monthKey].byGroup[
+                                            group_id
+                                          ].breakdown[
+                                            transaction.summary.paymentMethod
+                                          ] += +itemValue;
+                                        }
+                                        callback();
+                                      } else {
+                                        callback();
                                       }
+                                    } else {
+                                      callback();
                                     }
+                                  },
+                                  function() {
+                                    callback();
                                   }
-                                  callback();
-                                },
-                                function() {
-                                  callback();
-                                }
-                              );
+                                );
+                              } else {
+                                callback();
+                              }
                             } else {
                               callback();
                             }
@@ -245,16 +191,14 @@ router.post("/", Auth.verifyByKey, function(req, res) {
               } else {
                 callback();
               }
-            } else {
-              callback();
+            },
+            function() {
+              response.status = "ok";
+              delete response.msg;
+              res.send(response);
             }
-          },
-          function() {
-            response.status = "ok";
-            delete response.msg;
-            res.send(response);
-          }
-        );
+          );
+        });
       });
     });
   });

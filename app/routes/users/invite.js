@@ -152,7 +152,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
 
       Users.add(newUser, function(err, userId) {
         if (!err && userId) {
+          var expirationTimestamp = moment()
+            .add(7, "days")
+            .toDate();
           AccessTokens.createInvite(
+            expirationTimestamp,
             {
               action: "add-user",
               invitedBy: req.user.id,
@@ -178,7 +182,9 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
                     " " +
                     req.user.last_name +
                     "!</p>" +
-                    "<p>Please follow the link below to complete your registration. It will expire in 24 hours.</p>" +
+                    "<p>Please follow the link below to complete your registration. It will expire at <b>" +
+                    moment(expirationTimestamp).format("L hh:mm A") +
+                    "</b>.</p>" +
                     "<p><a href='" +
                     inviteLink +
                     "'>" +
@@ -264,9 +270,7 @@ router.get("/:token", Auth.isNotLoggedIn, function(req, res) {
             invite.details.action == "add-user"
           ) {
             if (invite.used == 0) {
-              if (
-                moment().isBefore(moment(invite.timestamp).add(24, "hours"))
-              ) {
+              if (moment(invite.expirationTimestamp).isAfter(moment())) {
                 res.render("reset", {
                   title: "Complete Registration",
                   invite: invite,
@@ -322,9 +326,7 @@ router.post("/:token", Auth.isNotLoggedIn, function(req, res) {
         function(err, user) {
           if (!err && user && invite.details.action == "add-user") {
             if (invite.used == 0) {
-              if (
-                moment().isBefore(moment(invite.timestamp).add(24, "hours"))
-              ) {
+              if (moment(invite.expirationTimestamp).isAfter(moment())) {
                 if (password) {
                   if (
                     password.match(

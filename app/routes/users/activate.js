@@ -42,7 +42,11 @@ router.get(
                 }
               }).nodeify(function(err, results) {
                 if (!err && !results) {
+                  var expirationTimestamp = moment()
+                    .add(7, "days")
+                    .toDate();
                   AccessTokens.createInvite(
+                    expirationTimestamp,
                     {
                       action: "add-user",
                       invitedBy: req.user.id,
@@ -68,7 +72,9 @@ router.get(
                             " " +
                             req.user.last_name +
                             "!</p>" +
-                            "<p>Please follow the link below to complete your registration. It will expire in 24 hours.</p>" +
+                            "<p>Please follow the link below to complete your registration. It will expire at <b>" +
+                            moment(expirationTimestamp).format("L hh:mm A") +
+                            "</b>.</p>" +
                             "<p><a href='" +
                             inviteLink +
                             "'>" +

@@ -1,5 +1,8 @@
 var rootDir = process.env.CWD;
 
+var moment = require("moment");
+moment.locale("en-gb");
+
 var Models = require(rootDir + "/app/models/sequelize");
 
 var AccessTokens = Models.AccessTokens;
@@ -10,7 +13,7 @@ Auth.isLoggedIn = function(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   } else {
-    res.redirect("/login");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/login");
   }
 };
 
@@ -46,17 +49,54 @@ Auth.isOfClass = function(allowedClasses) {
   };
 };
 
-// TEMPORARY
-Auth.verifyByKey = function(req, res, next) {
-  if (req.query.key) {
-    if (req.query.key === process.env.TEMPORARY_API_KEY) {
-      return next();
+Auth.verifyByKey = function(resource) {
+  return function(req, res, next) {
+    var failResponse = { status: "fail", msg: "Permission denied." };
+
+    var validResources = [
+      "carbonSavings",
+      "publicVolunteerRoles",
+      "tillRevenue"
+    ];
+
+    if (validResources.includes(resource)) {
+      if (req.query.key || req.query.token) {
+        var key = req.query.key || req.query.token;
+        AccessTokens.getById(key, function(err, token) {
+          if (!err && token) {
+            if (token.used == 0) {
+              if (moment(token.expirationTimestamp).isAfter(moment())) {
+                try {
+                  if (token.details.resource == resource) {
+                    return next();
+                  } else {
+                    res.send(failResponse);
+                  }
+                } catch (err) {
+                  res.send(failResponse);
+                }
+              } else {
+                failResponse.msg =
+                  "Key has expired. Contact administrator to reissue.";
+                res.send(failResponse);
+              }
+            } else {
+              failResponse.msg =
+                "Key is no longer valid. Contact administrator to reissue.";
+              res.send(failResponse);
+            }
+          } else {
+            res.send(failResponse);
+          }
+        });
+      } else {
+        failResponse.msg = "Key has expired.";
+        res.send(failResponse);
+      }
     } else {
-      res.send({ message: "Permission denied" });
+      res.send(failResponse);
     }
-  } else {
-    res.send({ message: "Permission denied" });
-  }
+  };
 };
 
 Auth.hasValidToken = function(action) {

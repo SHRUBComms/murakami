@@ -3,6 +3,8 @@
 var router = require("express").Router();
 var async = require("async");
 var validator = require("email-validator");
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -120,69 +122,82 @@ router.post(
                           details.first_name = first_name;
                           details.last_name = last_name;
 
-                          AccessTokens.createInvite(details, function(
-                            err,
-                            token
-                          ) {
-                            if (err || !token) {
-                              req.flash("error_msg", "Something went wrong!");
-                              res.redirect(
-                                process.env.PUBLIC_ADDRESS +
-                                  "/volunteers/invite?callback=true"
-                              );
-                            } else {
-                              var inviteLink =
-                                process.env.PUBLIC_ADDRESS +
-                                "/volunteers/invite/" +
-                                token;
-                              Mail.sendGeneral(
-                                first_name +
-                                  " " +
-                                  last_name +
-                                  " <" +
-                                  email +
-                                  ">",
-                                "Volunteer Registration",
-                                "<p>Hey " +
+                          var expirationTimestamp = moment()
+                            .add(7, "days")
+                            .toDate();
+
+                          AccessTokens.createInvite(
+                            expirationTimestamp,
+                            details,
+                            function(err, token) {
+                              if (err || !token) {
+                                req.flash("error_msg", "Something went wrong!");
+                                res.redirect(
+                                  process.env.PUBLIC_ADDRESS +
+                                    "/volunteers/invite?callback=true"
+                                );
+                              } else {
+                                var inviteLink =
+                                  process.env.PUBLIC_ADDRESS +
+                                  "/volunteers/invite/" +
+                                  token;
+                                Mail.sendGeneral(
                                   first_name +
-                                  ",</p>" +
-                                  "<p>You've been invited to register as a volunteer with SHRUB by " +
-                                  req.user.first_name +
-                                  " " +
-                                  req.user.last_name +
-                                  "!</p>" +
-                                  "<p>Please follow the link below to register. It will expire in 24 hours.</p>" +
-                                  "<p><a href='" +
-                                  inviteLink +
-                                  "'>" +
-                                  inviteLink +
-                                  "</a>" +
-                                  "</p>",
-                                function(err) {
-                                  if (err) {
-                                    req.flash(
-                                      "error_msg",
-                                      "Something went wrong sending the email! Manually send the link " +
-                                        inviteLink
-                                    );
-                                    res.redirect(
-                                      process.env.PUBLIC_ADDRESS +
-                                        "/volunteers/invite?callback=true"
-                                    );
-                                  } else {
-                                    req.flash(
-                                      "success_msg",
-                                      "Invite sent successfully!"
-                                    );
-                                    res.redirect(
-                                      process.env.PUBLIC_ADDRESS +
-                                        "/volunteers/invite?callback=true"
-                                    );
+                                    " " +
+                                    last_name +
+                                    " <" +
+                                    email +
+                                    ">",
+                                  "Volunteer Registration",
+                                  "<p>Hey " +
+                                    first_name +
+                                    ",</p>" +
+                                    "<p>You've been invited to register as a volunteer with SHRUB by " +
+                                    req.user.first_name +
+                                    " " +
+                                    req.user.last_name +
+                                    "!</p>" +
+                                    "<p>Please follow the link below to register. It will expire at <b>" +
+                                    moment(expirationTimestamp).format(
+                                      "L hh:mm A"
+                                    ) +
+                                    "</b>.</p>" +
+                                    "<p><a href='" +
+                                    inviteLink +
+                                    "'>" +
+                                    inviteLink +
+                                    "</a>" +
+                                    "</p>",
+                                  function(err) {
+                                    if (err) {
+                                      req.flash(
+                                        "error_msg",
+                                        "Something went wrong sending the email! Manually send the link " +
+                                          inviteLink
+                                      );
+                                      res.redirect(
+                                        process.env.PUBLIC_ADDRESS +
+                                          "/volunteers/invite?callback=true"
+                                      );
+                                    } else {
+                                      req.flash(
+                                        "success_msg",
+                                        "Invite sent successfully! Expires at <b>" +
+                                          moment(expirationTimestamp).format(
+                                            "L hh:mm A"
+                                          ) +
+                                          "</b>."
+                                      );
+                                      res.redirect(
+                                        process.env.PUBLIC_ADDRESS +
+                                          "/volunteers/invite?callback=true"
+                                      );
+                                    }
                                   }
-                                }
-                              );
+                                );
+                              }
                             }
-                          });
+                          );
                         } else {
                           req.flash("error_msg", "Volunteer already exists!");
                           res.redirect(
