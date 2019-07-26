@@ -21,8 +21,8 @@ var Helpers = require(rootDir + "/app/helper-functions/root");
 router.get("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
   WorkingGroups.getAll(function(
     err,
-    allWorkingGroupsRaw,
     allWorkingGroupsObj,
+    allWorkingGroupsRaw,
     allWorkingGroupsArray
   ) {
     var response = {
