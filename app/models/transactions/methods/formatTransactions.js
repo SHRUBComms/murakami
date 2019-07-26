@@ -49,7 +49,7 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                   "Member (<a href='/members/view/" +
                   formattedTransaction.customer.id +
                   "?till_id=" +
-                  req.params.till_id +
+                  till_id +
                   "' target='_blank'>view profile</a>)";
               }
             } else {
@@ -57,6 +57,7 @@ module.exports = function(Transactions, sequelize, DataTypes) {
             }
 
             formattedTransaction.totals = {};
+
             formattedTransaction.totals.tokens =
               transaction.summary.totals.tokens || "0";
             formattedTransaction.totals.money =
