@@ -41,24 +41,23 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               function(err, transactions) {
                 if (transactions.length > 0) {
                   Members.getAll(function(err, members, membersObj) {
-                    StockCategories.getCategoriesByTillId(
-                      till_id,
-                      "tree",
-                      function(err, categories) {
-                        var flatCategories = Helpers.flatten(categories);
+                    StockCategories.getCategories("tree", function(
+                      err,
+                      categories
+                    ) {
+                      var flatCategories = Helpers.flatten(categories);
 
-                        var flatCategoriesAsObj = {};
-                        Transactions.formatTransactions(
-                          transactions,
-                          membersObj,
-                          flatCategories,
-                          till_id,
-                          function(formattedTransactions) {
-                            res.send(formattedTransactions);
-                          }
-                        );
-                      }
-                    );
+                      var flatCategoriesAsObj = {};
+                      Transactions.formatTransactions(
+                        transactions,
+                        membersObj,
+                        flatCategories,
+                        till_id,
+                        function(formattedTransactions) {
+                          res.send(formattedTransactions);
+                        }
+                      );
+                    });
                   });
                 } else {
                   res.send([]);
