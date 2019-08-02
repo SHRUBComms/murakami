@@ -18,7 +18,7 @@ var WorkingGroups = Models.WorkingGroups;
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
+router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
   WorkingGroups.getAll(function(
     err,
     allWorkingGroupsObj,
@@ -73,6 +73,9 @@ router.get("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                                   response.summary[monthKey].byGroup = {};
                                 }
 
+                                var moneyBudget =
+                                  transaction.summary.totals.money;
+
                                 async.each(
                                   transaction.summary.bill,
                                   function(item, callback) {
@@ -118,6 +121,23 @@ router.get("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                                               parseFloat(item.tokens)) *
                                               (parseInt(item.quantity) || 1)
                                           ) || 0;
+
+                                        // Budget
+                                        if (
+                                          transaction.summary.totals.money >
+                                            0 &&
+                                          transaction.summary.totals.tokens > 0
+                                        ) {
+                                          if (itemValue > moneyBudget) {
+                                            itemValue =
+                                              itemValue -
+                                              Math.abs(moneyBudget - itemValue);
+                                            moneyBudget = 0;
+                                          } else {
+                                            moneyBudget =
+                                              moneyBudget - itemValue;
+                                          }
+                                        }
 
                                         response.summary[
                                           monthKey
