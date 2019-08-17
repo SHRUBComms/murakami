@@ -21,4 +21,18 @@ router.get("/", Auth.verifyByKey("publicVolunteerRoles"), function(req, res) {
   });
 });
 
+router.get("/:role_id", Auth.verifyByKey("publicVolunteerRoles"), function(req, res) {
+  VolunteerRoles.findAll({ where: { public: 1, removed: 0, role_id: req.params.role_id } }).nodeify(function(
+    err,
+    role
+  ) {
+    if (!err && role) {
+      res.send({ status: "ok", role: role });
+    } else {
+      res.send({ status: "fail", role: {} });
+    }
+  });
+});
+
+
 module.exports = router;
