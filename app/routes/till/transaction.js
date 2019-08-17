@@ -323,7 +323,7 @@ router.post(
                               till_id: till_id,
                               user_id: req.user.id,
                               member_id: member_id || "anon",
-                              date: new Date(),
+                              date: moment().toDate(),
                               summary: {
                                 totals: {},
                                 bill: transaction,

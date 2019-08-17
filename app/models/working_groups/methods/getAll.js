@@ -2,7 +2,10 @@ var async = require("async");
 
 module.exports = function(WorkingGroups, sequelize, DataTypes) {
   return function(callback) {
-    WorkingGroups.findAll({}).nodeify(function(err, working_groups_raw) {
+    WorkingGroups.findAll({ raw: true }).nodeify(function(
+      err,
+      working_groups_raw
+    ) {
       var working_groups = {};
       var working_groups_arr = [];
 

@@ -11,7 +11,7 @@ var CarbonCategories = Models.CarbonCategories;
 var Helpers = require(rootDir + "/app/helper-functions/root");
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.verifyByKey, function(req, res) {
+router.get("/", Auth.verifyByKey("carbonSavings"), function(req, res) {
   Carbon.getAll(function(err, carbon) {
     if (err || carbon.length == 0) {
       var totalCarbon = 0;
