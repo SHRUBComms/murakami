@@ -56,7 +56,8 @@ Auth.verifyByKey = function(resource) {
     var validResources = [
       "carbonSavings",
       "publicVolunteerRoles",
-      "tillRevenue"
+      "tillRevenue",
+      "membershipSignUp"
     ];
 
     if (validResources.includes(resource)) {

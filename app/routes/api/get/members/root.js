@@ -9,5 +9,6 @@ router.use("/remove", require("./remove"));
 router.use("/restore", require("./restore"));
 router.use("/destroy", require("./destroy"));
 router.use("/id-remind", require("./id-remind"));
+router.use("/sign-up-info", require("./sign-up-info"));
 
 module.exports = router;
