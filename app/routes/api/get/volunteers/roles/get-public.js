@@ -10,13 +10,17 @@ var VolunteerRoles = Models.VolunteerRoles;
 var WorkingGroups = Models.WorkingGroups;
 
 router.get("/", Auth.verifyByKey("publicVolunteerRoles"), function(req, res) {
-  VolunteerRoles.findAll({ where: { public: 1, removed: 0 } }).nodeify(function(
-    err,
-    roles
-  ) {
+  VolunteerRoles.findAll({
+    where: { public: 1, removed: 0 },
+    order: [["dateCreated", "ASC"]]
+  }).nodeify(function(err, roles) {
     if (!err) {
       WorkingGroups.getAll(function(eer, allWorkingGroupsObj) {
-        res.send({ status: "ok", roles: roles, workingGroups: allWorkingGroupsObj });
+        res.send({
+          status: "ok",
+          roles: roles,
+          workingGroups: allWorkingGroupsObj
+        });
       });
     } else {
       res.send({ status: "fail", roles: [] });
@@ -44,7 +48,7 @@ router.get("/:role_id", Auth.verifyByKey("publicVolunteerRoles"), function(
         res.send({ status: "fail", role: {} });
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.send({ status: "fail", role: {} });
     }
   });
