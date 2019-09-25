@@ -12,80 +12,109 @@ var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
-  var redirectUri =
-    process.env.PUBLIC_ADDRESS +
-    "/till/transaction/" +
-    req.query.till_id +
-    "/?" +
-    "sumupCallback=true" +
-    "&murakamiStatus=" +
-    req.query.murakamiStatus +
-    "&transactionSummary=" +
-    req.query.transactionSummary +
-    "&carbonSummary=" +
-    req.query.carbonSummary +
-    "&smp-status=" +
-    req.query["smp-status"] +
-    "&smp-failure-cause=" +
-    req.query["smp-failure-cause"];
-  request.post(
-    "https://api.sumup.com/token",
-    {
-      json: {
-        grant_type: "password",
-        client_id: process.env.SUMUP_CLIENT_ID,
-        client_secret: process.env.SUMUP_CLIENT_SECRET,
-        username: process.env.SUMUP_USERNAME,
-        password: process.env.SUMUP_PASSWORD
-      }
-    },
-    (error, response, body) => {
-      if (error || response.statusCode != 200) {
-        res.redirect(
-          process.env.PUBLIC_ADDRESS +
-            "/till/transaction/" +
-            req.query.till_id +
-            "/?" +
-            "sumupCallback=true" +
-            "&murakamiStatus=" +
-            req.query.murakamiStatus +
-            "&transactionSummary=" +
-            req.query.transactionSummary +
-            "&carbonSummary=" +
-            req.query.carbonSummary +
-            "&smp-status=failed" +
-            "&smp-failure-cause=Could not verify card payment."
-        );
-      } else {
-        request.get(
-          "https://api.sumup.com/v0.1/me/transactions?transaction_code=" +
-            req.query["smp-tx-code"],
-          {
-            headers: {
-              authorization: "Bearer " + body.access_token
-            }
-          },
-          (error, response, body) => {
-            body = JSON.parse(body);
-            if (body.status == "FAILED") {
-              Tills.getById(req.query.till_id, function(err, till) {
-                Transactions.removeTransaction(
-                  req.query["foreign-tx-id"],
-                  till.group_id,
-                  function(err) {
-                    res.redirect(redirectUri);
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("tills", "processTransaction"),
+  function(req, res) {
+    var redirectUri =
+      process.env.PUBLIC_ADDRESS +
+      "/till/transaction/" +
+      req.query.till_id +
+      "/?" +
+      "sumupCallback=true" +
+      "&murakamiStatus=" +
+      req.query.murakamiStatus +
+      "&transactionSummary=" +
+      req.query.transactionSummary +
+      "&carbonSummary=" +
+      req.query.carbonSummary +
+      "&smp-status=" +
+      req.query["smp-status"] +
+      "&smp-failure-cause=" +
+      req.query["smp-failure-cause"];
+
+    var verificationErrorUri =
+      process.env.PUBLIC_ADDRESS +
+      "/till/transaction/" +
+      req.query.till_id +
+      "/?" +
+      "sumupCallback=true" +
+      "&murakamiStatus=" +
+      req.query.murakamiStatus +
+      "&transactionSummary=" +
+      req.query.transactionSummary +
+      "&carbonSummary=" +
+      req.query.carbonSummary +
+      "&smp-status=failed" +
+      "&smp-failure-cause=Could not verify card payment.";
+
+    request.post(
+      "https://api.sumup.com/token",
+      {
+        json: {
+          grant_type: "password",
+          client_id: process.env.SUMUP_CLIENT_ID,
+          client_secret: process.env.SUMUP_CLIENT_SECRET,
+          username: process.env.SUMUP_USERNAME,
+          password: process.env.SUMUP_PASSWORD
+        }
+      },
+      (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          request.get(
+            "https://api.sumup.com/v0.1/me/transactions?transaction_code=" +
+              req.query["smp-tx-code"],
+            {
+              headers: {
+                authorization: "Bearer " + body.access_token
+              }
+            },
+            (error, response, body) => {
+              if (!body.error_code) {
+                body = JSON.parse(body);
+
+                Transactions.getById(req.query["foreign-tx-id"], function(
+                  err,
+                  murakamiTransaction
+                ) {
+                  if (!err && murakamiTransaction) {
+                    if (body.status == "SUCCESSFUL") {
+                      var updatedSummary = murakamiTransaction.summary;
+                      updatedSummary.sumupId = body.transaction_code;
+                      Transactions.update(
+                        { summary: updatedSummary },
+                        {
+                          where: {
+                            transaction_id: murakamiTransaction.transaction_id
+                          }
+                        }
+                      ).nodeify(function(err) {
+                        res.redirect(redirectUri);
+                      });
+                    } else {
+                      Transactions.removeTransaction(
+                        murakamiTransaction.transaction_id,
+                        function(err) {
+                          res.redirect(redirectUri);
+                        }
+                      );
+                    }
+                  } else {
+                    res.redirect(verificationErrorUri);
                   }
-                );
-              });
-            } else {
-              res.redirect(redirectUri);
+                });
+              } else {
+                res.redirect(verificationErrorUri);
+              }
             }
-          }
-        );
+          );
+        } else {
+          res.redirect(verificationErrorUri);
+        }
       }
-    }
-  );
-});
+    );
+  }
+);
 
 module.exports = router;
