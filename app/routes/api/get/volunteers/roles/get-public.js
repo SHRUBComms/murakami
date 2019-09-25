@@ -12,7 +12,7 @@ var WorkingGroups = Models.WorkingGroups;
 router.get("/", Auth.verifyByKey("publicVolunteerRoles"), function(req, res) {
   VolunteerRoles.findAll({
     where: { public: 1, removed: 0 },
-    order: [["dateCreated", "ASC"]]
+    order: [["dateCreated", "DESC"]]
   }).nodeify(function(err, roles) {
     if (!err) {
       WorkingGroups.getAll(function(eer, allWorkingGroupsObj) {
