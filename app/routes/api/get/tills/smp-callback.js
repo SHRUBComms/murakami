@@ -8,6 +8,7 @@ var rootDir = process.env.CWD;
 
 var Models = require(rootDir + "/app/models/sequelize");
 var Tills = Models.Tills;
+var Carbon = Models.Carbon;
 var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
@@ -79,26 +80,42 @@ router.get(
                   murakamiTransaction
                 ) {
                   if (!err && murakamiTransaction) {
-                    if (body.status == "SUCCESSFUL") {
-                      var updatedSummary = murakamiTransaction.summary;
-                      updatedSummary.sumupId = body.transaction_code;
-                      Transactions.update(
-                        { summary: updatedSummary },
-                        {
-                          where: {
-                            transaction_id: murakamiTransaction.transaction_id
-                          }
+                    if (murakamiTransaction.summary.paymentMethod == "card") {
+                      if (
+                        body.amount == murakamiTransaction.summary.totals.money
+                      ) {
+                        if (body.status == "SUCCESSFUL") {
+                          var updatedSummary = murakamiTransaction.summary;
+                          updatedSummary.sumupId = body.transaction_code;
+                          Transactions.update(
+                            { summary: updatedSummary },
+                            {
+                              where: {
+                                transaction_id:
+                                  murakamiTransaction.transaction_id
+                              }
+                            }
+                          ).nodeify(function(err) {
+                            res.redirect(redirectUri);
+                          });
+                        } else {
+                          Transactions.removeTransaction(
+                            murakamiTransaction.transaction_id,
+                            function(err) {
+                              Carbon.removeTransaction(
+                                murakamiTransaction.transaction_id,
+                                function(err) {
+                                  res.redirect(redirectUri);
+                                }
+                              );
+                            }
+                          );
                         }
-                      ).nodeify(function(err) {
-                        res.redirect(redirectUri);
-                      });
+                      } else {
+                        res.redirect(verificationErrorUri);
+                      }
                     } else {
-                      Transactions.removeTransaction(
-                        murakamiTransaction.transaction_id,
-                        function(err) {
-                          res.redirect(redirectUri);
-                        }
-                      );
+                      res.redirect(verificationErrorUri);
                     }
                   } else {
                     res.redirect(verificationErrorUri);
