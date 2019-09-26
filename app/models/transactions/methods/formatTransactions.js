@@ -71,6 +71,15 @@ module.exports = function(Transactions, sequelize, DataTypes) {
 
             formattedTransaction.bill = [];
             let bill = "";
+
+            if (
+              transaction.summary.paymentMethod == "card" &&
+              !transaction.summary.sumupId
+            ) {
+              bill =
+                "<p class='text-danger font-weight-bold'>Payment failed!</p>";
+            }
+
             for (let i = 0; i < transaction.summary.bill.length; i++) {
               if (transaction.summary.bill[i].item_id == "donation") {
                 bill +=

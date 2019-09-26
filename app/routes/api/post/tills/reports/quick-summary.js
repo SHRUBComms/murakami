@@ -71,12 +71,10 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                           response.summary.revenue.breakdown.cash += +transaction
                             .summary.totals.money;
                         } else if (
-                          transaction.summary.paymentMethod == "card"
+                          transaction.summary.paymentMethod == "card" &&
+                          transaction.summary.sumupId
                         ) {
                           response.summary.revenue.breakdown.card += +transaction
-                            .summary.totals.money;
-                        } else {
-                          response.summary.revenue.breakdown.unknown += +transaction
                             .summary.totals.money;
                         }
                       }

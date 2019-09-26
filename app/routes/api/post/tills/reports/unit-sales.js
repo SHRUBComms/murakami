@@ -83,91 +83,99 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                   "volunteering"
                                 ].includes(transaction.summary.bill[0].item_id)
                               ) {
-                                async.each(
-                                  transaction.summary.bill,
-                                  function(item, callback) {
-                                    if (flatCategoriesAsObj[item.item_id]) {
-                                      if (!unitSales[item.item_id]) {
-                                        if (
-                                          flatCategoriesAsObj[item.item_id]
-                                            .group_id
-                                        ) {
-                                          flatCategoriesAsObj[
-                                            item.item_id
-                                          ].groupName =
-                                            req.user.allWorkingGroupsObj[
+                                if (
+                                  transaction.summary.paymentMethod == "card" &&
+                                  transaction.summary.sumupId
+                                ) {
+                                  async.each(
+                                    transaction.summary.bill,
+                                    function(item, callback) {
+                                      if (flatCategoriesAsObj[item.item_id]) {
+                                        if (!unitSales[item.item_id]) {
+                                          if (
+                                            flatCategoriesAsObj[item.item_id]
+                                              .group_id
+                                          ) {
+                                            flatCategoriesAsObj[
+                                              item.item_id
+                                            ].groupName =
+                                              req.user.allWorkingGroupsObj[
+                                                flatCategoriesAsObj[
+                                                  item.item_id
+                                                ].group_id
+                                              ].name || "-";
+                                          }
+
+                                          unitSales[item.item_id] = {
+                                            salesInfo: {
+                                              totalSales: 0,
+                                              totalRevenue: 0,
+                                              boughtByMember: 0,
+                                              boughtByNonMember: 0,
+                                              memberRatio: 0
+                                            },
+                                            categoryInfo:
                                               flatCategoriesAsObj[item.item_id]
-                                                .group_id
-                                            ].name || "-";
+                                          };
+
+                                          unitSales[
+                                            item.item_id
+                                          ].categoryInfo.name =
+                                            flatCategoriesAsObj[item.item_id]
+                                              .absolute_name ||
+                                            flatCategoriesAsObj[item.item_id]
+                                              .name;
                                         }
 
-                                        unitSales[item.item_id] = {
-                                          salesInfo: {
-                                            totalSales: 0,
-                                            totalRevenue: 0,
-                                            boughtByMember: 0,
-                                            boughtByNonMember: 0,
-                                            memberRatio: 0
-                                          },
-                                          categoryInfo:
-                                            flatCategoriesAsObj[item.item_id]
-                                        };
+                                        try {
+                                          unitSales[
+                                            item.item_id
+                                          ].salesInfo.totalSales += +(
+                                            parseInt(item.quantity) || 1
+                                          );
+                                        } catch (err) {
+                                          unitSales[
+                                            item.item_id
+                                          ].salesInfo.totalSales += +1;
+                                        }
 
                                         unitSales[
                                           item.item_id
-                                        ].categoryInfo.name =
-                                          flatCategoriesAsObj[item.item_id]
-                                            .absolute_name ||
-                                          flatCategoriesAsObj[item.item_id]
-                                            .name;
+                                        ].salesInfo.totalRevenue = parseFloat(
+                                          parseFloat(
+                                            unitSales[item.item_id].salesInfo
+                                              .totalRevenue
+                                          ) +
+                                            (parseFloat(item.value) ||
+                                              parseFloat(item.tokens) ||
+                                              0)
+                                        ).toFixed(2);
+
+                                        if (transaction.member_id != "anon") {
+                                          unitSales[
+                                            item.item_id
+                                          ].salesInfo.boughtByMember += +1;
+                                        }
+
+                                        unitSales[
+                                          item.item_id
+                                        ].salesInfo.memberRatio = (
+                                          (unitSales[item.item_id].salesInfo
+                                            .boughtByMember /
+                                            unitSales[item.item_id].salesInfo
+                                              .totalSales) *
+                                            100 || 0
+                                        ).toFixed(2);
                                       }
-
-                                      try {
-                                        unitSales[
-                                          item.item_id
-                                        ].salesInfo.totalSales += +(
-                                          parseInt(item.quantity) || 1
-                                        );
-                                      } catch (err) {
-                                        unitSales[
-                                          item.item_id
-                                        ].salesInfo.totalSales += +1;
-                                      }
-
-                                      unitSales[
-                                        item.item_id
-                                      ].salesInfo.totalRevenue = parseFloat(
-                                        parseFloat(
-                                          unitSales[item.item_id].salesInfo
-                                            .totalRevenue
-                                        ) +
-                                          (parseFloat(item.value) ||
-                                            parseFloat(item.tokens) ||
-                                            0)
-                                      ).toFixed(2);
-
-                                      if (transaction.member_id != "anon") {
-                                        unitSales[
-                                          item.item_id
-                                        ].salesInfo.boughtByMember += +1;
-                                      }
-
-                                      unitSales[
-                                        item.item_id
-                                      ].salesInfo.memberRatio = (
-                                        (unitSales[item.item_id].salesInfo
-                                          .boughtByMember /
-                                          unitSales[item.item_id].salesInfo
-                                            .totalSales) *
-                                          100 || 0
-                                      ).toFixed(2);
+                                      callback();
+                                    },
+                                    function() {
+                                      callback();
                                     }
-                                    callback();
-                                  },
-                                  function() {
-                                    callback();
-                                  }
-                                );
+                                  );
+                                } else {
+                                  callback();
+                                }
                               } else {
                                 callback();
                               }

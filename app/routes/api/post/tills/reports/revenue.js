@@ -49,7 +49,11 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
               if (transaction.till_id) {
                 if (allTillsObj[transaction.till_id]) {
                   if (transaction.summary) {
-                    if (transaction.summary.paymentMethod) {
+                    if (
+                      (transaction.summary.paymentMethod == "card" &&
+                        transaction.summary.sumupId) ||
+                      transaction.summary.paymentMethod == "cash"
+                    ) {
                       if (transaction.summary.bill) {
                         if (transaction.summary.totals.money > 0) {
                           if (transaction.summary.bill[0]) {
