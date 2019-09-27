@@ -146,11 +146,13 @@ app.use(function(req, res, next) {
   }
 });
 
-var automatedMails = require("./app/configs/automated-mails");
-var automatedReports = require("./app/configs/automated-reports");
+var automatedMails = require("./app/automated-scripts/emails");
+var automatedReports = require("./app/automated-scripts/reports");
+var cleanFailedTransactions = require("./app/automated-scripts/clean-failed-transactions");
 if (process.env.NODE_ENV == "production") {
   automatedMails.start();
   automatedReports.start();
+  cleanFailedTransactions.start();
 }
 
 // Define routers
