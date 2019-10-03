@@ -19,7 +19,6 @@ router.get(
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
       if (err || !member) {
-        
         req.flash("error_msg", "Member not found!");
         res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
       } else {
@@ -136,6 +135,8 @@ router.post(
             .checkBody("email", "Please enter a valid email address")
             .isEmail();
 
+          req.checkBody("address", "Please enter an address").notEmpty();
+
           if (phone_no) {
             req
               .checkBody(
@@ -197,6 +198,7 @@ router.post(
           });
         } else {
           Members.updateBasic(member, function(err) {
+            console.log(err)
             if (!err) {
               req.flash("success_msg", first_name + " updated!");
               res.redirect(
