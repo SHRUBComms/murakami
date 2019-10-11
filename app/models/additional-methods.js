@@ -44,5 +44,29 @@ module.exports = function(Models) {
     });
   };
 
+  Models.Members.redact = function(member_id, callback) {
+    Models.Members.update(
+      {
+        first_name: "[redacted]",
+        last_name: "[redacted]",
+        email: "[redacted]",
+        phone_no: "[redacted]",
+        address: "[redacted]",
+        working_groups: [],
+        is_member: 0
+      },
+      { where: { member_id: member_id } }
+    ).nodeify(function(err) {
+      if (!err) {
+        Models.Volunteers.update(
+          { roles: [] },
+          { where: { member_id: member_id } }
+        ).nodeify(callback);
+      } else {
+        callback(err);
+      }
+    });
+  };
+
   return Models;
 };
