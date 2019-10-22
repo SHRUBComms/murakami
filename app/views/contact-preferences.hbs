@@ -36,29 +36,6 @@
         </div>
       </div>
 
-      <div class="card mt-4">
-        <div class="card-body">
-          <h3>Donation Notifications</h3>
-
-          <p class="mb-3">Optionally receive an email once your Swap Shop donation has been processed by our volunteers letting you know how many tokens were added to your account along with your new balance.</p>
-
-          {{#if member.contactPreferences.donations}}
-            <div class="btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-danger btn-block">
-                <input type="checkbox" name="donations[unsubscribe]" autocomplete="off"> Unsubscribe From Donation Notifications
-              </label>
-            </div>
-          {{else}}
-            <div class="btn-group-toggle" data-toggle="buttons">
-              <label class="btn btn-success btn-block">
-                <input type="checkbox" name="donations[subscribe]" autocomplete="off"> Subscribe To Donation Notifications
-              </label>
-            </div>
-          {{/if}}
-
-        </div>
-      </div>
-
       {{#if member.volunteer_id}}
         <div class="card mt-4">
           <div class="card-body">

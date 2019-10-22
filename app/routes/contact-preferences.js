@@ -73,7 +73,6 @@ router.post("/:member_id", function(req, res) {
         var contactPreferences = {
           volunteeringOpportunities:
             member.contactPreferences.volunteeringOpportunities,
-          donations: member.contactPreferences.donations,
           newsletters: {}
         };
 
@@ -129,18 +128,6 @@ router.post("/:member_id", function(req, res) {
         try {
           if (req.body.volunteeringOpportunities.unsubscribe) {
             contactPreferences.volunteeringOpportunities = null;
-          }
-        } catch (err) {}
-
-        try {
-          if (req.body.donations.subscribe) {
-            contactPreferences.donations = true;
-          }
-        } catch (err) {}
-
-        try {
-          if (req.body.donations.unsubscribe) {
-            contactPreferences.donations = null;
           }
         } catch (err) {}
 
