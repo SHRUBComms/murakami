@@ -40,6 +40,7 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
               startDate,
               endDate,
               function(err, transactions) {
+                console.log(transactions.length);
                 StockCategories.getCategories("tree", function(
                   err,
                   categories
@@ -84,8 +85,9 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 ].includes(transaction.summary.bill[0].item_id)
                               ) {
                                 if (
-                                  transaction.summary.paymentMethod == "card" &&
-                                  transaction.summary.sumupId
+                                  (transaction.summary.paymentMethod == "card";
+ &&
+                                  transaction.summary.sumupId) || transaction.summary.paymentMethod == "cash"
                                 ) {
                                   async.each(
                                     transaction.summary.bill,
