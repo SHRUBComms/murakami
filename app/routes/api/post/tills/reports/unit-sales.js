@@ -85,10 +85,16 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 ].includes(transaction.summary.bill[0].item_id)
                               ) {
                                 if (
+<<<<<<< HEAD
                                   (transaction.summary.paymentMethod ==
                                     "card" &&
                                     transaction.summary.sumupId) ||
                                   transaction.summary.paymentMethod == "cash"
+=======
+                                  (transaction.summary.paymentMethod == "card";
+ &&
+                                  transaction.summary.sumupId) || transaction.summary.paymentMethod == "cash"
+>>>>>>> 65a5c06f2b53c7e5ddf55552abd1759b09a17e14
                                 ) {
                                   async.each(
                                     transaction.summary.bill,
