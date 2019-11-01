@@ -53,7 +53,7 @@
     "path": "*",
     "request": "^2.88.0",
     "sanitize-html": "^1.20.0",
-    "sequelize": "^5.8.2"
+    "sequelize": "^5.15.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
