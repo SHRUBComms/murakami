@@ -112,14 +112,14 @@ function openRemoveVolunteerDialog(member_id, name, roles, old_working_groups) {
 
   var rolesFound = [];
 
-  for(i=0;i<roles.length;i++){
-    if(allRoles[roles[i]].group_id == currentGroup){
-      rolesFound.push(allRoles[roles[i]]);
+  roles.forEach(function(role, roleIndex){
+    if(allRoles[role].group_id == currentGroup){
+      rolesFound.push(allRoles[role]);
       var roleToRemove = document.createElement("li");
-      roleToRemove.innerText = allRoles[roles[i]].details.title;
+      roleToRemove.innerText = allRoles[role].details.title;
       rolesToRemoveList.appendChild(roleToRemove);
     }
-  }
+  })
 
   if(rolesFound.length > 0){
     parentDiv.appendChild(rolesToRemoveCaption);

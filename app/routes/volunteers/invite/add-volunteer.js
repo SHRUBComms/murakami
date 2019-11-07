@@ -252,14 +252,8 @@ router.post(
           });
         }
 
-        if (volInfo.availability && validTimes == 0) {
-          let error = {
-            param: "volInfo.availability",
-            msg:
-              "Please tick at least one valid time slot in the availability matrix",
-            value: req.body.volInfo.availability
-          };
-          errors.push(error);
+        if (validTimes == 0) {
+          volInfo.availability = {};
         }
 
         if (!over16) {
@@ -379,6 +373,7 @@ router.post(
           Members.add(newMember, function(err, member_id) {
             Volunteers.addExistingMember(member_id, volInfo, function(err) {
               if (err) {
+                console.log(err);
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
                   title: "Add Volunteer",
