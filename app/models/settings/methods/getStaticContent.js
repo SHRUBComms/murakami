@@ -3,6 +3,7 @@ var async = require("async");
 module.exports = function(Settings, sequelize, DataTypes) {
   return function(callback) {
     Settings.findAll({
+      raw: true,
       where: {
         id: {
           [DataTypes.Op.or]: [
@@ -10,19 +11,44 @@ module.exports = function(Settings, sequelize, DataTypes) {
             "saferSpacesPolicy",
             "volunteerAgreement",
             "ourVision",
-            "privacyNotice"
+            "privacyNotice",
+            "activities",
+            "commitmentLengths",
+            "contactMethods",
+            "locations"
           ]
         }
       }
     }).nodeify(function(err, settings) {
+      var staticContent = { lists: {}, texts: {} };
+
+      var validTexts = [
+        "membershipBenefits",
+        "saferSpacesPolicy",
+        "volunteerAgreement",
+        "ourVision",
+        "privacyNotice"
+      ];
+
+      var validLists = [
+        "activities",
+        "commitmentLengths",
+        "contactMethods",
+        "locations"
+      ];
+
       async.each(
         settings,
         function(setting, callback) {
-          setting.data = setting.data;
+          if (validTexts.includes(setting.id)) {
+            staticContent.texts[setting.id] = setting;
+          } else if (validLists.includes(setting.id)) {
+            staticContent.lists[setting.id] = setting;
+          }
           callback();
         },
         function() {
-          callback(err, settings);
+          callback(err, staticContent);
         }
       );
     });

@@ -1,6 +1,7 @@
 // /working-groups
 
 var router = require("express").Router();
+var async = require("async");
 
 var rootDir = process.env.CWD;
 
@@ -19,7 +20,7 @@ router.get(
       res.redirect(
         process.env.PUBLIC_ADDRESS +
           "/settings/static-content/" +
-          staticContent[0].id
+          Object.keys(staticContent.texts)[0]
       );
     });
   }
@@ -31,20 +32,24 @@ router.get(
   Auth.canAccessPage("settings", "staticContent"),
   function(req, res) {
     Settings.getStaticContent(function(err, staticContent) {
-      Helpers.flattenToIds(staticContent, "id", function(flatStaticContent) {
-        var index = flatStaticContent.indexOf(req.params.content_id);
+      var content;
 
-        if (index >= 0) {
-          res.render("settings/static-content", {
-            title: "Static Content",
-            settingsActive: true,
-            content: staticContent[index],
-            staticContent: staticContent
-          });
-        } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/error");
-        }
-      });
+      if (staticContent.texts[req.params.content_id]) {
+        content = staticContent.texts[req.params.content_id];
+      } else if (staticContent.lists[req.params.content_id]) {
+        content = staticContent.lists[req.params.content_id];
+      }
+
+      if (content) {
+        res.render("settings/static-content", {
+          title: "Static Content",
+          settingsActive: true,
+          content: content,
+          staticContent: staticContent
+        });
+      } else {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/settings/static-content");
+      }
     });
   }
 );
@@ -55,51 +60,95 @@ router.post(
   Auth.canAccessPage("settings", "staticContent"),
   function(req, res) {
     Settings.getStaticContent(function(err, staticContent) {
-      Helpers.flattenToIds(staticContent, "id", function(flatStaticContent) {
-        var index = flatStaticContent.indexOf(req.params.content_id);
+      var content;
 
-        if (index >= 0) {
-          var content = staticContent[index];
-          content.data.markup = req.body.markup;
+      if (staticContent.texts[req.params.content_id]) {
+        content = staticContent.texts[req.params.content_id];
+        content.data.markup = req.body.markup;
 
-          if (content.data.markup) {
-            Settings.updateSetting(content.id, content.data, function(err) {
-              if (err) {
-                req.flash("error", "Something went wrong!");
-                res.redirect(
-                  process.env.PUBLIC_ADDRESS +
-                    "/settings/static-content/" +
-                    req.params.content_id
-                );
-              } else {
-                req.flash(
-                  "success_msg",
-                  "Static content successfully updated!"
-                );
-                res.redirect(
-                  process.env.PUBLIC_ADDRESS +
-                    "/settings/static-content/" +
-                    req.params.content_id
-                );
-              }
-            });
-          } else {
-            req.flash("error", "Please enter something!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/settings/static-content/" +
-                req.params.content_id
-            );
-          }
+        if (content.data.markup) {
+          Settings.updateSetting(content.id, content.data, function(err) {
+            if (err) {
+              req.flash("error", "Something went wrong!");
+              res.redirect(
+                process.env.PUBLIC_ADDRESS +
+                  "/settings/static-content/" +
+                  req.params.content_id
+              );
+            } else {
+              req.flash("success_msg", "Static content successfully updated!");
+              res.redirect(
+                process.env.PUBLIC_ADDRESS +
+                  "/settings/static-content/" +
+                  req.params.content_id
+              );
+            }
+          });
         } else {
-          req.flash("error", "Something went wrong!");
+          req.flash("error", "Please enter something!");
           res.redirect(
             process.env.PUBLIC_ADDRESS +
               "/settings/static-content/" +
               req.params.content_id
           );
         }
-      });
+      } else if (staticContent.lists[req.params.content_id]) {
+        content = staticContent.lists[req.params.content_id];
+        var validEntries = {};
+        async.eachOf(
+          content.data,
+          function(entry, key, callback) {
+            if (req.body.content[key] == "on") {
+              validEntries[key] = true;
+            } else {
+              validEntries[key] = false;
+            }
+            callback();
+          },
+          function() {
+            async.eachOf(
+              req.body.content,
+              function(entry, key, callback) {
+                if (entry == "on") {
+                  validEntries[key] = true;
+                } else {
+                  validEntries[key] = false;
+                }
+                callback();
+              },
+              function() {
+                Settings.updateSetting(content.id, validEntries, function(err) {
+                  if (err) {
+                    req.flash("error", "Something went wrong!");
+                    res.redirect(
+                      process.env.PUBLIC_ADDRESS +
+                        "/settings/static-content/" +
+                        req.params.content_id
+                    );
+                  } else {
+                    req.flash(
+                      "success_msg",
+                      "Static content successfully updated!"
+                    );
+                    res.redirect(
+                      process.env.PUBLIC_ADDRESS +
+                        "/settings/static-content/" +
+                        req.params.content_id
+                    );
+                  }
+                });
+              }
+            );
+          }
+        );
+      } else {
+        req.flash("error", "Something went wrong!");
+        res.redirect(
+          process.env.PUBLIC_ADDRESS +
+            "/settings/static-content/" +
+            req.params.content_id
+        );
+      }
     });
   }
 );

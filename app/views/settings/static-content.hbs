@@ -6,6 +6,11 @@
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
 <form action="{{public_address}}/settings/static-content/{{content.id}}" method="POST">
 
@@ -16,9 +21,26 @@
             <select class="form-control" id="content">
               <option selected disabled>Select static content to update...</option>
               {{#each staticContent}}
-                  <option value="{{id}}" {{#ifCond id '==' ../content.id}}selected{{/ifCond}}>
-                    {{data.title}}
-                  </option>
+                {{#ifCond @key '==' 'texts'}}
+                  <optgroup label="Texts">
+                    {{#each this}}
+                      <option value="{{id}}" {{#ifCond id '==' ../../content.id}}selected{{/ifCond}}>
+                        {{data.title}}
+                      </option>
+                    {{/each}}
+                  </optgroup>
+                {{/ifCond}}
+
+                {{#ifCond @key '==' 'lists'}}
+                  <optgroup label="Lists">
+                    {{#each this}}
+                      <option value="{{id}}" {{#ifCond id '==' ../../content.id}}selected{{/ifCond}}>
+                        {{camelCaseToPlain id}}
+                      </option>
+                    {{/each}}
+                  </optgroup>
+                {{/ifCond}}
+
               {{/each}}
             </select>
           </div>
@@ -30,15 +52,35 @@
       <div class="row mt-4">
         <div class="col-md-8 mx-auto">
 
-
+          {{#if content.data.markup}}
             <div class="row mb-4 no-gutters">
               <div id="editor">
                   {{{content.data.markup}}}
               </div>
             </div>
             <input type="hidden" name="markup" />
+          {{else}}
+            <table id="entries" class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+              <thead>
+                <th data-field="title">Title</th>
+                <th data-field="value">Value</th>
+              </thead>
+              <tbody>
+                {{#each content.data}}
+                  <tr>
+                    <td>
+                      {{@key}}
+                    </td>
+                    <td>
+                      <input name="content[{{@key}}]" type="checkbox" value="on" data-toggle="toggle" data-on="Enabled" data-off="Disabled" {{#if this}}checked{{/if}} />
+                    </td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
 
-
+            <a class="btn btn-success mt-2" id="addEntry" onclick='$("#addEntryModal").modal("show");'>Add Entry</a>
+          {{/if}}
         </div>
       </div>
 
@@ -53,6 +95,28 @@
 
 </form>
 
+
+<div class="modal fade" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEntryModalLabel">Add Entry</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="entryTitle" class="form-control" placeholder="Entry Title" required />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="addEntrySubmit">Add Entry</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script>
 
 $('#content').on('change', function () {
@@ -64,9 +128,32 @@ function update_preview(){
     $("input[name=markup]").val($("#editor").summernote('code'));
 }
 
+
 $("document").ready(function(){
+  {{#if content.data.markup}}
     $('#editor').summernote();
     update_preview();
+  {{else}}
+  {{/if}}
+});
+
+var rowIndex = "{{lengthOf content.data}}";
+
+$("#addEntrySubmit").click(function(){
+  var entryTitle = $("#entryTitle").val();
+  if(entryTitle){
+    $('#entries').bootstrapTable('insertRow',{
+      index: rowIndex,
+      row: {
+        title: entryTitle,
+        value: '<input name="content[' + entryTitle + ']" class="bootstraptoggle" type="checkbox" value="on" data-toggle="toggle" data-on="Enabled" data-off="Disabled" checked />'
+      }
+    });
+    rowIndex += 1;
+    $("#entryTitle").val("")
+    $("#addEntryModal").modal("hide");
+    $(".boostraptoggle").bootstrapToggle({});
+  }
 });
 
 $('#editor').on('summernote.change', function(we, contents, $editable) {

@@ -168,6 +168,15 @@ var register = function(Handlebars) {
         return "Never";
       }
     },
+    lengthOf: function(data) {
+      if (Array.isArray(data)) {
+        return data.length;
+      } else if (typeof data === "object" && data !== null) {
+        return Object.keys(data).length;
+      } else {
+        return 0;
+      }
+    },
     concat: function(str1, str2) {
       return str1 + str2;
     },
