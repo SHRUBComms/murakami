@@ -166,7 +166,7 @@ Mail.sendAutomated = function(mail_id, member_id, callback) {
 
                   var message = {
                     html: mail.markup,
-                    from: "SHRUB Co-op <membership@shrubcoop.org>",
+                    from: "SHRUB Coop <membership@shrubcoop.org>",
                     to:
                       member.first_name +
                       " " +
@@ -219,7 +219,7 @@ Mail.sendDonation = function(member, callback) {
 
         var message = {
           html: mail.markup,
-          from: "SHRUB Co-op <membership@shrubcoop.org>",
+          from: "SHRUB Coop <membership@shrubcoop.org>",
           to:
             member.first_name +
             " " +
@@ -264,7 +264,7 @@ Mail.sendGeneral = function(to, subject, html, callback) {
 
   var message = {
     html: html,
-    from: "SHRUB Co-op <membership@shrubcoop.org>",
+    from: "SHRUB Coop <membership@shrubcoop.org>",
     to: to,
     subject: subject
   };

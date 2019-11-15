@@ -1,7 +1,7 @@
 {
   "name": "murakami",
   "version": "2.0.0",
-  "description": "SHRUB Co-op's membership system",
+  "description": "SHRUB Coop's membership system",
   "main": "server.js",
   "repository": {
     "type": "git",

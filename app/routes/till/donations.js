@@ -132,8 +132,8 @@ router.post(
                                       membership_expires:
                                         member.membership_expires
                                     };
-                                    res.send(response);
                                   }
+                                  res.send(response);
                                 }
                               );
                             }
