@@ -439,10 +439,8 @@ router.post(
           volInfo.survey = volInfo.survey || {};
 
           Members.add(newMember, function(err, member_id) {
-            
             Volunteers.addExistingMember(member_id, volInfo, function(err) {
               if (err) {
-                
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
                   title: "Add Volunteer",
@@ -483,7 +481,27 @@ router.post(
                       process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
                       "/members/" +
                       md5(email),
-                    subscribeBody
+                    subscribeBody,
+                    function() {
+                      subscribeBody.marketing_permissions = [
+                        {
+                          marketing_permission_id:
+                            response.marketing_permissions[0]
+                              .marketing_permission_id,
+                          text: response.marketing_permissions[0].text,
+                          enabled: true
+                        }
+                      ];
+
+                      shrubMailchimp.put(
+                        "/lists/" +
+                          process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+                          "/members/" +
+                          md5(email),
+                        subscribeBody,
+                        function(err, response) {}
+                      );
+                    }
                   );
                 }
 

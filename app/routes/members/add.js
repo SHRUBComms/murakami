@@ -286,6 +286,7 @@ router.post(
                 var subscribeBody = {
                   email_address: email,
                   status: "subscribed",
+
                   merge_fields: {
                     FNAME: first_name,
                     LNAME: last_name
@@ -300,7 +301,27 @@ router.post(
                       process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
                       "/members/" +
                       md5(email),
-                    subscribeBody
+                    subscribeBody,
+                    function(err, response) {
+                      subscribeBody.marketing_permissions = [
+                        {
+                          marketing_permission_id:
+                            response.marketing_permissions[0]
+                              .marketing_permission_id,
+                          text: response.marketing_permissions[0].text,
+                          enabled: true
+                        }
+                      ];
+
+                      shrubMailchimp.put(
+                        "/lists/" +
+                          process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+                          "/members/" +
+                          md5(email),
+                        subscribeBody,
+                        function(err, response) {}
+                      );
+                    }
                   );
                 }
 
