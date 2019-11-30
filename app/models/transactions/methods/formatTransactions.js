@@ -58,16 +58,36 @@ module.exports = function(Transactions, sequelize, DataTypes) {
 
             formattedTransaction.totals = {};
 
+            // Plain text totals.
+            if (transaction.summary.paymentMethod == "cash") {
+              formattedTransaction.totals.cash = Number(
+                transaction.summary.totals.money
+              ).toFixed(2);
+              formattedTransaction.totals.card = "0.00";
+            }
+
+            if (transaction.summary.paymentMethod == "card") {
+              formattedTransaction.totals.card = Number(
+                transaction.summary.totals.money
+              ).toFixed(2);
+              formattedTransaction.totals.cash = "0.00";
+            }
+
             formattedTransaction.totals.tokens =
               transaction.summary.totals.tokens || "0";
             formattedTransaction.totals.money =
-              "£" + (transaction.summary.totals.money || "0.00");
+              "£" +
+              (Number(transaction.summary.totals.money).toFixed(2) || "0.00");
             formattedTransaction.paymentMethod =
               transaction.summary.paymentMethod || "";
+
             if (formattedTransaction.paymentMethod) {
               formattedTransaction.totals.money +=
                 " (" + formattedTransaction.paymentMethod.toProperCase() + ")";
             }
+
+            formattedTransaction.totals.moneyPlain =
+              transaction.summary.totals.money;
 
             formattedTransaction.bill = [];
             let bill = "";
@@ -95,6 +115,10 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                 bill +=
                   "Tokens added for buying a 12 month membership: " +
                   transaction.summary.bill[i].tokens;
+              } else if (transaction.summary.bill[i].item_id == "refund") {
+                bill +=
+                  "Refund: " +
+                  Number(transaction.summary.bill[i].value).toFixed(2);
               } else if (
                 flatCategoriesAsObj[transaction.summary.bill[i].item_id]
               ) {
@@ -166,13 +190,13 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                   bill += " (" + transaction.summary.bill[i].condition + ")";
                 }
 
-                bill += ": " + parseFloat(value).toFixed(2);
+                bill += ": " + Number(value).toFixed(2);
                 if (discount) {
                   bill +=
                     " <span class='small'>(" +
                     discount +
                     "% off from " +
-                    parseFloat(
+                    Number(
                       transaction.summary.bill[i].tokens ||
                         transaction.summary.bill[i].value
                     ).toFixed(2) +
@@ -191,6 +215,19 @@ module.exports = function(Transactions, sequelize, DataTypes) {
 
             formattedTransaction.bill = bill;
 
+            formattedTransaction.transaction_id = transaction.transaction_id;
+            formattedTransaction.sumup_id = transaction.summary.sumupId || null;
+            formattedTransaction.paymentMethod =
+              transaction.summary.paymentMethod;
+            if (
+              transaction.summary.paymentMethod == "card" &&
+              !transaction.summary.sumupId
+            ) {
+              formattedTransaction.paymentFailed = true;
+            }
+            if (transaction.summary.bill[0].item_id == "refund") {
+              formattedTransaction.isRefund = true;
+            }
             formattedTransactions.push(formattedTransaction);
 
             callback();

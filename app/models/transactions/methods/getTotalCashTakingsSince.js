@@ -9,7 +9,8 @@ module.exports = function(Transactions, sequelize, DataTypes) {
       }
     }).nodeify(function(err, transactions) {
       if (transactions.length > 0) {
-        var money_total = 0;
+        var revenue_total = 0;
+        var refund_total = 0;
         async.each(
           transactions,
           function(transaction, callback) {
@@ -17,13 +18,24 @@ module.exports = function(Transactions, sequelize, DataTypes) {
               transaction.summary.paymentMethod == "cash" &&
               !isNaN(transaction.summary.totals.money)
             ) {
-              money_total = +money_total + +transaction.summary.totals.money;
+              if (transaction.summary.bill[0].item_id != "refund") {
+                revenue_total =
+                  Number(revenue_total) +
+                  Number(transaction.summary.totals.money);
+              } else {
+                revenue_total =
+                  Number(revenue_total) +
+                  Number(transaction.summary.totals.money);
+                refund_total =
+                  Number(refund_total) +
+                  Number(transaction.summary.totals.money);
+              }
             }
 
             callback();
           },
           function() {
-            callback(money_total);
+            callback(revenue_total, refund_total);
           }
         );
       } else {

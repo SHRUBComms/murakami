@@ -62,7 +62,8 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                                 ![
                                   "membership",
                                   "donation",
-                                  "volunteering"
+                                  "volunteering",
+                                  "refund"
                                 ].includes(transaction.summary.bill[0].item_id)
                               ) {
                                 let monthKey = moment(transaction.date)

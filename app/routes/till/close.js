@@ -34,8 +34,9 @@ router.get(
                   Transactions.getTotalCashTakingsSince(
                     till.till_id,
                     status.timestamp,
-                    function(total_sales) {
-                      total_sales = parseFloat(total_sales) || 0;
+                    function(revenue_total, total_refunds) {
+                      total_sales = Number(revenue_total) || 0;
+                      total_refunds = Number(total_refunds) || 0;
                       res.render("till/close", {
                         tillMode: true,
                         closeTillActive: true,
@@ -44,10 +45,12 @@ router.get(
                         status: status,
                         allWorkingGroups: allWorkingGroups,
                         working_group: group,
-                        total_sales: total_sales.toFixed(2),
-                        opening_float: status.counted_float.toFixed(2),
+                        refunds_total: Number(total_refunds).toFixed(2),
+                        revenue_total: Number(revenue_total).toFixed(2),
+                        opening_float: Number(status.counted_float).toFixed(2),
                         expected_float: (
-                          +status.counted_float + +total_sales
+                          Number(status.counted_float) +
+                          (Number(total_sales) - Number(total_refunds))
                         ).toFixed(2)
                       });
                     }
@@ -88,26 +91,32 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
               Transactions.getTotalCashTakingsSince(
                 till.till_id,
                 status.timestamp,
-                function(total_sales) {
-                  try {
-                    total_sales = parseFloat(total_sales);
-                  } catch (err) {
-                    total_sales = 0.0;
-                  }
+                function(revenue_total, total_refunds) {
+                  total_sales = Number(revenue_total) || 0;
+                  total_refunds = Number(total_refunds) || 0;
+                  status.counted_float = Number(status.counted_float) || 0;
 
-                  try {
-                    status.counted_float = parseFloat(status.counted_float);
-                  } catch (err) {
-                    counted_float = 0.0;
-                  }
+                  console.log(
+                    Number(status.counted_float),
+                    Number(total_sales.toFixed),
+                    Number(total_refunds)
+                  );
+
+                  var expected_float = Number(
+                    Number(status.counted_float) +
+                      Number(total_sales) -
+                      Number(total_refunds)
+                  );
+
                   TillActivity.close(
                     req.params.till_id,
-                    +status.counted_float.toFixed(2) + +total_sales.toFixed(2),
+                    expected_float,
                     counted_float,
                     req.user.id,
                     note,
                     function(err) {
                       if (err) {
+                        //console.log(err);
                         req.flash("error", "Something went wrong!");
                         res.redirect(
                           process.env.PUBLIC_ADDRESS +

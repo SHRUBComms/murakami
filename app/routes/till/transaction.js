@@ -2,6 +2,7 @@
 
 var router = require("express").Router();
 var async = require("async");
+var lodash = require("lodash");
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -152,6 +153,7 @@ router.post(
                       categories,
                       function(category, callback) {
                         categoriesAsObj[category.item_id] = category;
+
                         callback();
                       },
                       function() {
@@ -161,14 +163,12 @@ router.post(
                             if (categoriesAsObj[transaction[i].id]) {
                               let id = transaction[i].id;
                               if (categoriesAsObj[id].active == 1) {
-                                let weight = transaction[i].weight;
-                                let value = 0;
-                                let quantity = 1;
-                                let condition = transaction[i].condition;
+                                var weight = Number(transaction[i].weight);
+                                var value = Number(transaction[i].value);
+                                var quantity = 1;
+                                var condition = transaction[i].condition;
                                 if (categoriesAsObj[id].value) {
-                                  value = categoriesAsObj[id].value;
-                                } else {
-                                  value = transaction[i].value;
+                                  value = Number(categoriesAsObj[id].value);
                                 }
 
                                 if (
@@ -186,7 +186,9 @@ router.post(
                                   quantity = 1;
                                 }
 
-                                transaction[i] = categoriesAsObj[id];
+                                transaction[i] = lodash.clone(
+                                  categoriesAsObj[id]
+                                );
                                 transaction[i].weight = weight;
                                 transaction[i].value = value;
                                 transaction[i].quantity = quantity;

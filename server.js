@@ -1,6 +1,8 @@
 // Load environment variables
 require("dotenv").config();
 
+var Helpers = require(process.env.CWD + "/app/helper-functions/root");
+
 // Import resources
 var express = require("express");
 var cors = require("cors");
@@ -60,17 +62,9 @@ app.use(path, express.static("app/public"));
 // CORS
 app.use(cors());
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    saveUninitialized: true,
-    cookie: {
-      path: "/",
-      httpOnly: true
-    },
-    name: "murakami_biscuit"
-  })
-);
+// Set cookie.
+Helpers.setCookie(app, session);
+
 app.use(back());
 
 app.use(bodyParser.json());
@@ -104,6 +98,9 @@ app.use(function(req, res, next) {
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
+
+  // Refresh cookie
+  Helpers.setCookie(app, session);
 
   if (req.user) {
     if (req.user.class == "admin") {

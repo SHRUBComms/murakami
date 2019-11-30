@@ -73,7 +73,14 @@
 
 <div class="row mt-4">
 	<div class="col-md-12 mx-auto">
-		<table id="transactionsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
+		<div class="row">
+			<div class="col-md-12">
+				<div id="transactionsNote" class="alert alert-info d-none p-4" role="alert">
+					<span class="badge badge-pill badge-info mr-2">Info</span><b>Please note that refunds and failed card transactions have been redacted.</b>
+				</div>
+			</div>
+		</div>
+		<table id="transactionsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
          "fileName": "{{till.name}} Transactions"
        }'>
 		    <thead>
@@ -81,14 +88,15 @@
 		        	<th></th>
 		        	<th></th>
 		        	<th></th>
-		        	<th colspan="2">Totals</th>
+		        	<th colspan="3">Totals</th>
 		        </tr>
 		        <tr>
 		        	<th data-field="date">Timestamp</th>
 		        	<th data-field="customer.name">Customer</th>
 		            <th data-field="bill">Summary</th>
 		        	<th scope="col" data-field="totals.tokens">Tokens</th>
-		        	<th scope="col" data-field="totals.money">Money</th>
+		        	<th scope="col" data-field="totals.cash">Cash</th>
+							<th scope="col" data-field="totals.card">Card</th>
 		        </tr>
 		    </thead>
 
@@ -121,6 +129,7 @@
 				</div>
 			</div>
 		</div>
+
 		<table id="unitSalesTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
          "fileName": "{{till.name}} Unit Sales"
        }'   data-sort-name="salesInfo.totalSales" data-sort-order="desc">
@@ -220,6 +229,7 @@ function getReport(){
 						till_id: "{{till.till_id}}"
 					},
 					success: function(transactions){
+						$("#transactionsNote").removeClass("d-none");
 						$("#transactionsTable").removeClass("d-none")
 						$("#transactionsToolbar").removeClass("d-none");
 						transacationsTable.bootstrapTable('load', transactions)
@@ -268,6 +278,7 @@ function getReport(){
 function resetAllReports() {
 	$("#placeholderText").removeClass("d-none")
 
+	$("#transactionsNote").addClass("d-none");
 	$("#transactionsTable").addClass("d-none")
 	$("#transactionsToolbar").addClass("d-none");
 

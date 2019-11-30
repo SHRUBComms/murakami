@@ -80,7 +80,8 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                 ![
                                   "membership",
                                   "donation",
-                                  "volunteering"
+                                  "volunteering",
+                                  "refund"
                                 ].includes(transaction.summary.bill[0].item_id)
                               ) {
                                 if (

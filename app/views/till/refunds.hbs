@@ -1,0 +1,308 @@
+<div class="row m-4" id="infoAlert">
+	<div class="col-md-6 mx-auto">
+    <div class="alert alert-info p-4" role="alert">
+			<p class="text-center">
+				 A receipt from either Murakami or SumUp is required to issue a refund.
+			</p>
+			<a href="javascript::void();" data-toggle="modal" data-target="#refundPolicyModal" class="d-block mt-2 text-center">Read our refund policy</a>
+    </div>
+  </div>
+</div>
+
+<div class="row mx-4 mt-4 mb-0">
+	<div class="col-md-6 mx-auto" id="inputParent">
+    <div class="row">
+
+      <div class="col-sm-5 item-options mx-auto" onclick="selectRefundType('murakami')">
+        <center>
+          <span>Refund Cash</span>
+        </center>
+      </div>
+
+      <div class="col-sm-5 item-options mx-auto" onclick="selectRefundType('sumup')">
+        <center>
+          <span>Refund Card (SumUp)</span>
+        </center>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="row mx-4 mb-4">
+	<div class="col-md-6 mx-auto">
+    <div id="lookupFailMessage" class="alert alert-danger p-4 p d-none" role="alert">
+    </div>
+  </div>
+</div>
+
+<div class="row mx-4">
+	<div class="col-md-6 mx-auto">
+    <div id="lookupSuccessMessage">
+    </div>
+  </div>
+</div>
+
+<div class="row mx-4">
+	<div class="col-md-6 mx-auto">
+    <div id="refundFailMessage" class="alert alert-danger p-4 p d-none" role="alert">
+    </div>
+  </div>
+</div>
+
+<div class="row mx-4">
+	<div class="col-md-6 mx-auto">
+    <div id="refundSuccessMessage" class="alert alert-success p-4 p d-none" role="alert">
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="refundPolicyModal" tabindex="-1" role="dialog" aria-labelledby="refundPolicyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+		 <div class="modal-header">
+			 <h5 class="modal-title" id="exampleModalLabel">Refund Policy</h5>
+			 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				 <span aria-hidden="true">&times;</span>
+			 </button>
+		 </div>
+		 <div class="modal-body">
+			 {{{ refundPolicy.data.markup }}}
+		 </div>
+		 <div class="modal-footer">
+			 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		 </div>
+	 </div>
+  </div>
+</div>
+
+<script>
+
+var refundType;
+var lookupFailMessage = document.getElementById("lookupFailMessage");
+var lookupSuccessMessage = document.getElementById("lookupSuccessMessage");
+var refundFailMessage = document.getElementById("refundFailMessage");
+var refundSuccessMessage = document.getElementById("refundSuccessMessage");
+
+function selectRefundType(type) {
+  refundType = type;
+  var inputParentDiv = document.getElementById("inputParent");
+  inputParentDiv.innerHTML = "";
+
+  var containerDiv = document.createElement("div");
+  containerDiv.className = "form-group";
+
+  var input = document.createElement("input");
+  input.type = "text";
+  input.className = "form-control";
+  input.id = "transactionIdInput";
+
+  if(refundType == "sumup"){
+    input.placeholder = "SumUp Transaction ID";
+  } else {
+    input.placeholder = "Murakami Transaction ID";
+  }
+
+  var submitButton = document.createElement("button");
+  submitButton.id = "lookupSubmitButton"
+  submitButton.className = "mt-2 btn btn-block btn-primary";
+  submitButton.textContent = "Lookup Transaction"
+  submitButton.onclick = function(){
+    submitButton.disabled = true;
+    lookupFailMessage.classList.add("d-none");
+		lookupSuccessMessage.classList.add("d-none");
+		refundFailMessage.classList.add("d-none");
+		refundSuccessMessage.classList.add("d-none");
+    lookupTransaction();
+  }
+
+  containerDiv.appendChild(input);
+  containerDiv.appendChild(submitButton);
+  inputParentDiv.appendChild(containerDiv);
+}
+
+function lookupTransaction(){
+  $.ajax({
+      type: "POST",
+      url: "{{public_address}}/till/refunds/issue",
+      data: {
+        'tillId': "{{till.till_id}}",
+        'transactionId': $('#transactionIdInput').val(),
+				'refundType': refundType,
+				'action': 'lookup'
+      },
+      success: function(response){
+				console.log(response);
+        document.getElementById("lookupSubmitButton").disabled = false;
+        if(response.status == "fail"){
+          // Create fail message.
+          lookupFailMessage.innerHTML = "<h5 class='mb-1'>Uh-oh!</h5>" + response.msg;
+          lookupFailMessage.classList.remove("d-none");
+        } else {
+          // Create transaction dialog.
+					lookupSuccessMessage.innerHTML = "";
+
+					var summaryTable = document.createElement("table")
+					summaryTable.className = "table table-light";
+
+					// Transaction ID.
+					var transactionIdRow = document.createElement("tr");
+					var transactionIdNameCell = document.createElement("td");
+					var transactionIdValueCell = document.createElement("td");
+					transactionIdNameCell.innerHTML = "Murakami Transaction ID";
+					transactionIdValueCell.textContent = response.transaction.transaction_id;
+					transactionIdRow.appendChild(transactionIdNameCell);
+					transactionIdRow.appendChild(transactionIdValueCell);
+
+					// SumUp ID.
+					if(response.transaction.sumup_id){
+						var sumupIdRow = document.createElement("tr");
+						var sumupIdNameCell = document.createElement("td");
+						var sumupIdValueCell = document.createElement("td");
+						sumupIdNameCell.innerHTML = "SumUp ID";
+						sumupIdValueCell.textContent = response.transaction.sumup_id;
+						sumupIdRow.appendChild(sumupIdNameCell);
+						sumupIdRow.appendChild(sumupIdValueCell);
+					}
+
+					// Timestamp
+					var timestampRow = document.createElement("tr");
+					var timestampNameCell = document.createElement("td");
+					var timestampValueCell = document.createElement("td");
+					timestampNameCell.innerHTML = "Timestamp";
+					timestampValueCell.textContent = response.transaction.date;
+					timestampRow.appendChild(timestampNameCell);
+					timestampRow.appendChild(timestampValueCell);
+
+					// Customer
+					var customerRow = document.createElement("tr");
+					var customerNameCell = document.createElement("td");
+					var customerValueCell = document.createElement("td");
+					customerNameCell.innerHTML = "Customer";
+					customerValueCell.innerHTML = response.transaction.customer.name;
+					customerRow.appendChild(customerNameCell);
+					customerRow.appendChild(customerValueCell);
+
+					// Bill
+					var billRow = document.createElement("tr");
+					var billNameCell = document.createElement("td");
+					var billValueCell = document.createElement("td");
+					billNameCell.innerHTML = "Bill";
+					billValueCell.innerHTML = response.transaction.bill;
+					billRow.appendChild(billNameCell);
+					billRow.appendChild(billValueCell);
+
+					// Money Total
+					var moneyTotalRow = document.createElement("tr");
+					var moneyTotalNameCell = document.createElement("td");
+					var moneyTotalValueCell = document.createElement("td");
+					moneyTotalNameCell.innerHTML = "Money Total";
+					moneyTotalValueCell.textContent = response.transaction.totals.money;
+					moneyTotalRow.appendChild(moneyTotalNameCell);
+					moneyTotalRow.appendChild(moneyTotalValueCell);
+
+					// Tokens Total
+					var tokensTotalRow = document.createElement("tr");
+					var tokensTotalNameCell = document.createElement("td");
+					var tokensTotalValueCell = document.createElement("td");
+					tokensTotalNameCell.innerHTML = "Tokens Total";
+					tokensTotalValueCell.textContent = response.transaction.totals.tokens;
+					tokensTotalRow.appendChild(tokensTotalNameCell);
+					tokensTotalRow.appendChild(tokensTotalValueCell);
+
+					// Append table children.
+					summaryTable.appendChild(transactionIdRow);
+					if(response.transaction.sumup_id){
+						summaryTable.appendChild(sumupIdRow);
+					}
+					summaryTable.appendChild(timestampRow)
+					summaryTable.appendChild(customerRow)
+					summaryTable.appendChild(billRow)
+					summaryTable.appendChild(moneyTotalRow)
+					summaryTable.appendChild(tokensTotalRow)
+
+					// Refund Input dialog.
+					var refundInputParent = document.createElement("div");
+					refundInputParent.className = "form-group mt-2"
+
+					var refundInputWrapper = document.createElement("div");
+					refundInputWrapper.className = "input-group";
+					var refundInputPrepend = document.createElement("span");
+					refundInputPrepend.className = "input-group-prepend";
+					var refundInputPrependText = document.createElement("span");
+					refundInputPrependText.className = "input-group-text";
+					refundInputPrependText.textContent = "Refund Amount: £"
+
+					var refundInput = document.createElement("input");
+					refundInput.id = "refundAmount"
+					refundInput.type = "number";
+					refundInput.step = 0.01;
+					refundInput.min = 0.01;
+					refundInput.max = response.transaction.totals.moneyPlain;
+					refundInput.value = response.transaction.totals.moneyPlain;
+					refundInput.className = "form-control";
+
+					var refundSubmitButton = document.createElement("button");
+					refundSubmitButton.className = "btn btn-success btn-lg btn-block mt-2";
+					refundSubmitButton.id = "issueRefundButton";
+					refundSubmitButton.textContent = "Issue Refund";
+					refundSubmitButton.onclick = function(){
+						lookupFailMessage.classList.add("d-none");
+						refundFailMessage.classList.add("d-none");
+						refundSuccessMessage.classList.add("d-none");
+						issueRefund();
+					}
+					refundInputPrepend.appendChild(refundInputPrependText);
+					refundInputWrapper.appendChild(refundInputPrepend);
+					refundInputWrapper.appendChild(refundInput);
+					refundInputParent.appendChild(refundInputWrapper);
+					refundInputParent.appendChild(refundSubmitButton);
+
+					// Append to parents.
+					lookupSuccessMessage.appendChild(summaryTable);
+					lookupSuccessMessage.appendChild(refundInputParent)
+
+          lookupSuccessMessage.classList.remove("d-none");
+        }
+      }, error: function(){
+				document.getElementById("lookupSubmitButton").disabled = false;
+				lookupFailMessage.innerHTML = "<h5 class='mb-1'>Uh-oh!</h5>" + "Something went wrong. Please try again.";
+				lookupFailMessage.classList.remove("d-none");
+			}
+  });
+}
+
+function issueRefund(){
+	$.ajax({
+      type: "POST",
+      url: "{{public_address}}/till/refunds/issue",
+      data: {
+        'tillId': "{{till.till_id}}",
+        'transactionId': $('#transactionIdInput').val(),
+				'refundType': refundType,
+				'action': 'issue',
+				'amount': $('#refundAmount').val()
+      },
+      success: function(response){
+				if(response.status == "ok"){
+					document.getElementById("infoAlert").classList.add("d-none")
+					document.getElementById("inputParent").classList.add("d-none")
+					lookupSuccessMessage.classList.add("d-none");
+					refundSuccessMessage.innerHTML = "<h5 class='mb-1'>Success!</h5>" + response.msg;
+					refundSuccessMessage.innerHTML += "<br />";
+					refundSuccessMessage.innerHTML += "<p><a href='{{public_address}}/till/refunds/{{till.till_id}}'>Process another refund</a></p>"
+					refundSuccessMessage.classList.remove("d-none");
+				} else {
+					document.getElementById("issueRefundButton").disabled = false;
+					refundFailMessage.innerHTML = "<h5 class='mb-1'>Uh-oh!</h5>" + response.msg;
+					refundFailMessage.classList.remove("d-none");
+				}
+      }, error: function(){
+				document.getElementById("issueRefundButton").disabled = false;
+				refundFailMessage.innerHTML = "<h5 class='mb-1'>Uh-oh!</h5>" + response.msg;
+				refundFailMessage.classList.remove("d-none");
+			}
+  });
+}
+
+</script>

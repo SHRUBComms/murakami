@@ -54,7 +54,25 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                         flatCategories,
                         till_id,
                         function(formattedTransactions) {
-                          res.send(formattedTransactions);
+                          async.eachOf(
+                            formattedTransactions,
+                            function(transaction, index, callback) {
+                              if (
+                                transaction.paymentFailed ||
+                                transaction.isRefund
+                              ) {
+                                formattedTransactions[index] = {};
+                              }
+                              callback();
+                            },
+                            function() {
+                              res.send(
+                                formattedTransactions.filter(
+                                  value => Object.keys(value).length !== 0
+                                )
+                              );
+                            }
+                          );
                         }
                       );
                     });

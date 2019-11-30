@@ -40,5 +40,8 @@
 $(document).ready(function(){
 	$(".bootstrap-table > div.fixed-table-toolbar > div > div > button > i").addClass("fa-download");
 	$("div.bootstrap-table > div.fixed-table-toolbar > div > div > ul").css("padding-left", "10px");
+	$("#transaction_history").on("refresh.bs.table", function(){
+		getRunningBalance("{{public_address}}", "{{till.till_id}}");
+	})
 })
 </script>

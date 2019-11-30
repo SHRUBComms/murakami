@@ -15,7 +15,8 @@ module.exports = function(Settings, sequelize, DataTypes) {
             "activities",
             "commitmentLengths",
             "contactMethods",
-            "locations"
+            "locations",
+            "refundPolicy"
           ]
         }
       }
@@ -27,7 +28,8 @@ module.exports = function(Settings, sequelize, DataTypes) {
         "saferSpacesPolicy",
         "volunteerAgreement",
         "ourVision",
-        "privacyNotice"
+        "privacyNotice",
+        "refundPolicy"
       ];
 
       var validLists = [

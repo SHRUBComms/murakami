@@ -60,7 +60,7 @@
                                 {{#if till}}
                                   {{#ifCond user.permissions.tills.processTransaction '==' true}}
                                     <li {{#if transactionsActive}}class="active"{{/if}}>
-                                        <a href="{{public_address}}/till/transaction/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
+                                        <a href="{{public_address}}/till/transaction/{{till.till_id}}" aria-expanded="true"><i class="ti-shopping-cart"></i><span>Transaction</span></a>
                                     </li>
                                   {{/ifCond}}
 
@@ -70,6 +70,12 @@
                                           <a href="{{public_address}}/till/transaction/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Transaction</span></a>
                                       </li>
                                     {{/if}}
+                                  {{/ifCond}}
+
+                                  {{#ifCond user.permissions.tills.processRefunds '==' true}}
+                                    <li {{#if refundsActive}}class="active"{{/if}}>
+                                        <a href="{{public_address}}/till/refunds/{{till.till_id}}" aria-expanded="true"><i class="ti-money"></i><span>Refund</span></a>
+                                    </li>
                                   {{/ifCond}}
 
                                   {{#ifCond user.permissions.tills.processDonations '==' true}}
@@ -587,5 +593,8 @@ $(":input").each(function() {
     $(this).attr("autocomplete", "__away")
 });
 
+setTimeout(function(){
+  alert("Your session will expire in one minute - please refresh your page or you will be logged out.");
+}, (12 * 60 * 60 * 1000) - (60 * 1000))
 
 </script>

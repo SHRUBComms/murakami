@@ -56,9 +56,12 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                   transactions,
                   function(transaction, callback) {
                     if (
-                      ["membership", "donation", "volunteering"].includes(
-                        transaction.summary.bill[0].item_id
-                      )
+                      [
+                        "membership",
+                        "donation",
+                        "volunteering",
+                        "refund"
+                      ].includes(transaction.summary.bill[0].item_id)
                     ) {
                       response.summary.tokens.issued += +transaction.summary
                         .totals.tokens;
