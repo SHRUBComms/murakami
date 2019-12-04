@@ -449,7 +449,14 @@ router.post(
                       last_name: last_name,
                       email: email,
                       phone_no: phone_no,
-                      address: address
+                      address: address,
+                      balance: member.balance,
+                      is_member: member.is_member ? 1 : 0,
+                      membership_type: member.membership_type,
+                      free: member.free,
+                      current_exp_membership: moment(
+                        member.current_exp_membership
+                      ).toDate()
                     };
 
                     Members.updateBasic(updatedMember, function(

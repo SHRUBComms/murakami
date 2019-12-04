@@ -263,20 +263,6 @@ router.post(
                                                     }
                                                   );
                                                 } else {
-                                                  console.log(
-                                                    "Refund amount:",
-                                                    amount
-                                                  );
-
-                                                  console.log(
-                                                    "Total transaction:",
-                                                    transaction.summary.totals
-                                                      .money
-                                                  );
-
-                                                  console.log(tillBalance);
-                                                  response.msg =
-                                                    "Please enter a valid refund amount.";
                                                   res.send(response);
                                                 }
                                               } else {

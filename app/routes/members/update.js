@@ -33,16 +33,7 @@ router.get(
           res.render("members/update", {
             title: "Update Member",
             membersActive: true,
-
-            member_id: req.params.member_id,
-            first_name: member.first_name,
-            last_name: member.last_name,
-            email: member.email,
-            phone_no: member.phone_no,
-            address: member.address,
-            free: member.free,
-            current_exp_membership: member.current_exp_membership,
-            membership_type: member.membership_type
+            member: member
           });
         } else {
           req.flash(
@@ -64,165 +55,130 @@ router.post(
 
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member || !member.canUpdate) {
-        req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/members/update/" + req.params.member_id
-        );
-      } else {
-        var first_name = req.body.first_name.trim();
-        var last_name = req.body.last_name.trim();
-
-        var email;
-        var phone_no;
-        var address;
-        var free;
-        var current_exp_membership;
-        var membership_type;
-
-        if (["staff", "admin"].includes(req.user.class)) {
-          email = req.body.email.trim();
-          phone_no = req.body.phone_no.trim();
-          address = req.body.address.trim();
-          free = req.body.free;
-          current_exp_membership = req.body.current_exp_membership;
-          membership_type = req.body.membership_type;
-
-          if (membership_type == "none") {
-            membership_type = null;
+      if (!err && member && member.canUpdate) {
+        var updatedMember = req.body.member;
+        updatedMember.member_id = member.member_id;
+        updatedMember.is_member = member.is_member ? 1 : 0;
+        if (["admin", "staff"].includes(req.user.class)) {
+          if (updatedMember.balance % 1 != 0 || updatedMember.balance < 0) {
+            updatedMember.balance = member.balance;
           }
 
-          if (free == "free") {
-            free = 1;
+          if (
+            !["lifetime", "staff", "trustee", "none"].includes(
+              updatedMember.membership_type
+            )
+          ) {
+            updatedMember.membership_type = member.membership_type;
           } else {
-            free = 0;
+            if (updatedMember.membership_type == "none") {
+              updatedMember.membership_type = null;
+            } else {
+              updatedMember.current_exp_membership = "01/01/9999";
+            }
           }
-        } else {
-          email = member.email;
-          phone_no = member.phone_no;
-          address = member.address;
-          free = member.free;
-          current_exp_membership = member.current_exp_membership;
-          membership_type = member.membership_type;
-        }
 
-        // Validation
-        req.checkBody("first_name", "Please enter a first name").notEmpty();
-        req
-          .checkBody(
-            "first_name",
-            "Please enter a shorter first name (<= 20 characters)"
-          )
-          .isLength({ max: 20 });
+          if (!moment(updatedMember.current_exp_membership).isValid()) {
+            updatedMember.current_exp_membership = moment(
+              member.current_exp_membership
+            ).toDate();
+          }
 
-        req.checkBody("last_name", "Please enter a last name").notEmpty();
-        req
-          .checkBody(
-            "last_name",
-            "Please enter a shorter last name (<= 30 characters)"
-          )
-          .isLength({ max: 30 });
+          if (moment(updatedMember.current_exp_membership).isAfter(moment())) {
+            updatedMember.is_member = 1;
+          } else {
+            updatedMember.is_member = 0;
+          }
 
-        if (["staff", "admin"].includes(req.user.class)) {
-          req.checkBody("email", "Please enter an email address").notEmpty();
+          if (
+            updatedMember.free == "free" ||
+            ["lifetime", "staff", "trustee"].includes(
+              updatedMember.membership_type
+            )
+          ) {
+            updatedMember.free = 1;
+          } else {
+            updatedMember.free = 0;
+          }
+
+          req
+            .checkBody("member[email]", "Please enter an email address")
+            .notEmpty();
           req
             .checkBody(
-              "email",
+              "member[email]",
               "Please enter a shorter email address (<= 89 characters)"
             )
             .isLength({ max: 89 });
           req
-            .checkBody("email", "Please enter a valid email address")
+            .checkBody("member[email]", "Please enter a valid email address")
             .isEmail();
 
-          req.checkBody("address", "Please enter an address").notEmpty();
-
-          if (phone_no) {
-            req
-              .checkBody(
-                "phone_no",
-                "Please enter a shorter phone number (<= 15)"
-              )
-              .isLength({ max: 15 });
-          }
-
-          if (moment(current_exp_membership)) {
-            if (
-              moment(current_exp_membership).isAfter(
-                moment(member.current_init_membership)
-              )
-            ) {
-              Members.updateExpiryDate(
-                member.member_id,
-                current_exp_membership,
-                function(err) {}
-              );
-            }
-          }
-
-          if (
-            [null, "staff", "lifetime", "trustee"].includes(membership_type)
-          ) {
-            Members.update(
-              { membership_type: membership_type },
-              { where: { member_id: member.member_id } }
-            ).nodeify(function() {});
-          }
+          req
+            .checkBody("member[address]", "Please enter an address")
+            .notEmpty();
+        } else {
+          updatedMember.email = member.email;
+          updatedMember.phone_no = member.phone_no;
+          updatedMember.address = member.address;
+          updatedMember.balance = member.balance;
+          updatedMember.membership_type = member.membership_type;
+          updatedMember.free = member.free;
         }
 
-        var member = {
-          member_id: req.params.member_id,
-          first_name: first_name,
-          last_name: last_name,
-          email: email,
-          phone_no: phone_no,
-          address: address,
-          free: free
-        };
+        req
+          .checkBody("member[first_name]", "Please enter a first name")
+          .notEmpty();
+        req
+          .checkBody(
+            "member[first_name]",
+            "Please enter a shorter first name (<= 20 characters)"
+          )
+          .isLength({ max: 20 });
 
-        // Parse request's body
+        req
+          .checkBody("member[last_name]", "Please enter a last name")
+          .notEmpty();
+        req
+          .checkBody(
+            "member[last_name]",
+            "Please enter a shorter last name (<= 30 characters)"
+          )
+          .isLength({ max: 30 });
+
         var errors = req.validationErrors();
-        if (errors) {
-          res.render("members/update", {
-            title: "Update Member",
-            membersActive: true,
-            errors: errors,
-            member_id: req.params.member_id,
-            first_name: first_name,
-            last_name: last_name,
-            email: email,
-            phone_no: phone_no,
-            address: address,
-            free: free,
-            current_exp_membership: current_exp_membership
-          });
-        } else {
-          Members.updateBasic(member, function(err) {
-            console.log(err)
+
+        if (!errors) {
+          Members.updateBasic(updatedMember, function(err) {
             if (!err) {
-              req.flash("success_msg", first_name + " updated!");
+              req.flash("success_msg", "Member updated successfully!");
               res.redirect(
                 process.env.PUBLIC_ADDRESS +
                   "/members/view/" +
-                  req.params.member_id
+                  updatedMember.member_id
               );
             } else {
               res.render("members/update", {
-                errors: [{ msg: "Something went wrong! Try again" }],
+                errors: [{ msg: "Something went wrong, please try again!" }],
                 title: "Update Member",
                 membersActive: true,
-                member_id: req.params.member_id,
-                first_name: first_name,
-                last_name: last_name,
-                email: email,
-                phone_no: phone_no,
-                address: address,
-                free: free,
-                current_exp_membership: current_exp_membership
+                member: updatedMember
               });
             }
           });
+        } else {
+          res.render("members/update", {
+            errors: errors,
+            title: "Update Member",
+            membersActive: true,
+            member: updatedMember
+          });
         }
+      } else {
+        req.flash("error_msg", "Something went wrong, please try again!");
+        res.redirect(
+          process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id
+        );
       }
     });
   }

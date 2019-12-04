@@ -39,7 +39,10 @@ module.exports = function(Members, sequelize, DataType) {
       }
 
       try {
-        if (member.current_exp_membership == "01/01/9999") {
+        if (
+          member.current_exp_membership == "01/01/9999" ||
+          ["lifetime", "staff", "trustee"].includes(member.membership_type)
+        ) {
           member.current_exp_membership = "never";
         }
       } catch (err) {}
@@ -223,6 +226,11 @@ module.exports = function(Members, sequelize, DataType) {
 
             sanitizedMember.member_id = member.member_id;
             sanitizedMember.is_member = member.is_member;
+            if (
+              ["lifetime", "staff", "trustee"].includes(member.membership_type)
+            ) {
+              sanitizedMember.is_member = true;
+            }
             sanitizedMember.free = member.free;
             sanitizedMember.gdpr = member.gdpr;
             sanitizedMember.contactPreferences = member.contactPreferences;

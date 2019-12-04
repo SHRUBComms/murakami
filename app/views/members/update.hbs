@@ -1,4 +1,4 @@
-<form method="post" action="{{public_address}}/members/update/{{member_id}}" class="form-group">
+<form method="post" action="{{public_address}}/members/update/{{member.member_id}}" class="form-group">
 
   <div class="row mt-4 mb-4">
   	<div class="col-lg-4 mx-auto">
@@ -9,10 +9,10 @@
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <input type="text" class="form-control mr-sm-1 mr-md-1 mb-sm-1 mb-md-1" placeholder="First Name" name="first_name"name="first_name"{{#if first_name}} value="{{first_name}}"{{/if}} required />
+              <input type="text" class="form-control mr-sm-1 mr-md-1 mb-sm-1 mb-md-1" placeholder="First Name" name="member[first_name]" value="{{member.first_name}}" required />
             </div>
             <div class="col-md-6">
-              <input type="text" class="form-control" placeholder="Last Name"name="last_name"{{#if last_name}} value="{{last_name}}"{{/if}} required />
+              <input type="text" class="form-control" placeholder="Last Name"name="member[last_name]" value="{{member.last_name}}" required />
             </div>
           </div>
 
@@ -26,11 +26,11 @@
 
             <h3 class="mb-2">Contact Details</h3>
 
-            <input type="email" class="form-control mb-2" placeholder="Email" name="email"{{#if email}} value="{{email}}"{{/if}}>
+            <input type="email" class="form-control mb-2" placeholder="Email" name="member[email]" value="{{member.email}}">
 
-            <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="phone_no"{{#if phone_no}} value="{{phone_no}}"{{/if}}>
+            <input type="text" class="form-control mb-2" placeholder="Phone Number (optional)" name="member[phone_no]" value="{{member.phone_no}}">
 
-            <textarea type="text" class="form-control mb-2" placeholder="Address" name="address"{{#if address}} value="{{address}}"{{/if}} required></textarea>
+            <textarea type="text" class="form-control mb-2" placeholder="Address" name="member[address]" required>{{member.address}}</textarea>
           </div>
         </div>
 
@@ -38,26 +38,33 @@
           <div class="card-body">
             <h3 class="mb-2">Membership Info</h3>
 
-              <select class="form-control" name="free">
-                <option value="paid" {{#unless free }}selected{{/unless}}>Paid Membership</option>
-                <option value="free" {{#if free}}selected{{/if}}>Free Membership (as volunteer)</option>
+              <select id="free" class="form-control" name="member[free]">
+                <option value="paid" {{#unless member.free }}selected{{/unless}}>Paid Membership</option>
+                <option value="free" {{#if member.free}}selected{{/if}}>Free Membership (as volunteer)</option>
               </select>
 
               {{#ifUserClass user.class '["admin"]'}}
-                <select class="form-control mt-2" name="membership_type" required>
-                  <option value="none" {{#unless membership_type}}selected{{/unless}}>No special status</option>
-                  <option value="staff" {{#ifCond membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
-                  <option value="trustee" {{#ifCond membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
-                  <option value="lifetime" {{#ifCond membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honorary Lifetime Member</option>
-
+                <select class="form-control mt-2" id="membershipTypeSelect" name="member[membership_type]" required>
+                  <option value="none" {{#unless member.membership_type}}selected{{/unless}}>No special status</option>
+                  <option value="staff" {{#ifCond member.membership_type '==' 'staff'}}selected{{/ifCond}}>Staff</option>
+                  <option value="trustee" {{#ifCond member.membership_type '==' 'trustee'}}selected{{/ifCond}}>Trustee</option>
+                  <option value="lifetime" {{#ifCond member.membership_type '==' 'lifetime'}}selected{{/ifCond}}>Honourary Lifetime Member</option>
                 </select>
+
+                <div class="form-group row mt-3">
+                  <label for="tokens" class="col-sm-5 col-form-label text-right">Tokens</label>
+                  <div class="col-sm-7">
+                    <input type="number" class="form-control" name="member[balance]" value="{{member.balance}}" min=0 max=999 step=1 required />
+                  </div>
+                </div>
+
               {{/ifUserClass}}
 
 
-              <div class="form-group row mt-3">
-                <label for="staticEmail" class="col-sm-5 col-form-label">Membership expires</label>
+              <div class="form-group row mt-3 d-none" id="expiryWrapper">
+                <label for="staticEmail" class="col-sm-5 col-form-label text-right">Membership expires</label>
                 <div class="col-sm-7">
-                  <input type="date" class="form-control" name="current_exp_membership" value="{{current_exp_membership}}" required />
+                  <input id="expiryDate" type="date" class="form-control" name="member[current_exp_membership]" value="{{member.current_exp_membership}}" required />
                 </div>
               </div>
 
@@ -77,3 +84,40 @@
   </div>
 
 </form>
+
+<script>
+
+var membershipType = "{{member.membership_type}}";
+var free = "{{member.free}}";
+
+function toggleExpiry(){
+  if(membershipType == "none" || !membershipType){
+    $("#expiryWrapper").removeClass("d-none");
+    $("#expiryDate").prop("required", true)
+  } else {
+    $("#expiryWrapper").addClass("d-none");
+    $("#expiryDate").prop("required", false)
+  }
+}
+
+function toggleFree(){
+  if(membershipType == "none" || !membershipType){
+    $("#free").removeClass("d-none");
+    $("#free").prop("required", true)
+  } else {
+    $("#free").addClass("d-none");
+    $("#free").prop("required", false)
+  }
+}
+
+$("#membershipTypeSelect").on("change", function(){
+  membershipType = this.value;
+  console.log(membershipType);
+  toggleExpiry();
+  toggleFree();
+})
+
+toggleExpiry();
+toggleFree();
+
+</script>
