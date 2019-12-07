@@ -30,7 +30,7 @@
 				<div class="input-group">
 					<input id="emailReceiptInput" type="text" class="form-control" placeholder="Customer's Email Address" />
 					<div class="input-group-btn">
-						<a id="emailReceiptInputSubmit" class="btn btn-primary form-control">Send Receipt</a>
+						<button id="emailReceiptInputSubmit" class="btn btn-primary form-control">Send Receipt</button>
 					</div>
 				</div>
 			</div>
@@ -967,8 +967,8 @@ function sendEmailReceipt(transaction_id, member_id){
 				email: $("#emailReceiptInput").val() || null
 			},
 			success: function(response){
-				$("#emailReceiptButton").prop("disabled", false)
-				$("#emailReceiptInputSubmit").prop("disabled", false)
+				$("#emailReceiptButton").prop("disabled", false);
+				$("#emailReceiptInputSubmit").prop("disabled", false);
 				console.log(response);
 				if(response.status = "ok"){
 					alert("Receipt sent!");

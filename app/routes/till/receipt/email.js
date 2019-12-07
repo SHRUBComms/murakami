@@ -33,95 +33,130 @@ router.post(
     if (transaction_id) {
       Transactions.getById(transaction_id, function(err, transaction) {
         if (!err && transaction) {
-          Members.getById(
-            member_id,
-            {
-              permissions: {
-                members: {
-                  name: true,
-                  contactDetails: true
+          if (
+            moment(transaction.date).isBetween(
+              moment().startOf("day"),
+              moment().endOf("day")
+            )
+          ) {
+            Members.getById(
+              member_id,
+              {
+                permissions: {
+                  members: {
+                    name: true,
+                    contactDetails: true
+                  }
                 }
-              }
-            },
-            function(err, member) {
-              if (
-                (!err && member_id && member) ||
-                (!err && !member_id && !member && email)
-              ) {
-                email = email || member.email;
-                Tills.getById(transaction.till_id, function(err, till) {
-                  if (!err && till) {
-                    Carbon.getByFxId(transaction.transaction_id, function(
-                      err,
-                      simpleCarbon
-                    ) {
-                      CarbonCategories.getAll(function(err, carbonCategories) {
-                        Helpers.calculateCarbon(
-                          simpleCarbon,
-                          carbonCategories,
-                          function(carbonSaved) {
-                            carbon.savedThisTransaction = Math.abs(
-                              (carbonSaved * 1e-3).toFixed(2)
-                            );
-                            Members.getAll(function(err, members, membersObj) {
-                              StockCategories.getCategoriesByTillId(
-                                transaction.till_id,
-                                "tree",
-                                function(err, categories) {
-                                  var flatCategories = Helpers.flatten(
-                                    categories
-                                  );
-                                  Transactions.formatTransactions(
-                                    [transaction],
-                                    membersObj,
-                                    flatCategories,
-                                    transaction.till_id,
-                                    function(formattedTransactions) {
-                                      var formattedTransaction =
-                                        formattedTransactions[0];
-
-                                      formattedTransaction.till_name =
-                                        till.name;
-
-                                      if (carbon.savedThisTransaction > 0) {
-                                        formattedTransaction.carbon = carbon;
-                                      }
-
-                                      Mail.sendReceipt(
-                                        { email: email },
-                                        formattedTransaction,
-                                        function(err) {
-                                          if (!err) {
-                                            response.status = "ok";
-                                            response.msg = "Receipt sent!";
-                                            res.send(response);
-                                          } else {
-                                            response.msg =
-                                              "Email could not be sent - please check the email address is correct";
-                                            res.send(response);
-                                          }
-                                        }
+              },
+              function(err, member) {
+                if (
+                  (!err && member_id && member) ||
+                  (!err && !member_id && !member && email)
+                ) {
+                  email = email || member.email;
+                  Tills.getById(transaction.till_id, function(err, till) {
+                    if (!err && till) {
+                      if (till.disabled == 0) {
+                        TillActivity.getByTillId(transaction.till_id, function(
+                          status
+                        ) {
+                          if (status.opening == "1") {
+                            Carbon.getByFxId(
+                              transaction.transaction_id,
+                              function(err, simpleCarbon) {
+                                CarbonCategories.getAll(function(
+                                  err,
+                                  carbonCategories
+                                ) {
+                                  Helpers.calculateCarbon(
+                                    simpleCarbon,
+                                    carbonCategories,
+                                    function(carbonSaved) {
+                                      carbon.savedThisTransaction = Math.abs(
+                                        (carbonSaved * 1e-3).toFixed(2)
                                       );
+                                      Members.getAll(function(
+                                        err,
+                                        members,
+                                        membersObj
+                                      ) {
+                                        StockCategories.getCategoriesByTillId(
+                                          transaction.till_id,
+                                          "tree",
+                                          function(err, categories) {
+                                            var flatCategories = Helpers.flatten(
+                                              categories
+                                            );
+                                            Transactions.formatTransactions(
+                                              [transaction],
+                                              membersObj,
+                                              flatCategories,
+                                              transaction.till_id,
+                                              function(formattedTransactions) {
+                                                var formattedTransaction =
+                                                  formattedTransactions[0];
+
+                                                formattedTransaction.till_name =
+                                                  till.name;
+
+                                                if (
+                                                  carbon.savedThisTransaction >
+                                                  0
+                                                ) {
+                                                  formattedTransaction.carbon = carbon;
+                                                }
+
+                                                Mail.sendReceipt(
+                                                  { email: email },
+                                                  formattedTransaction,
+                                                  function(err) {
+                                                    if (!err) {
+                                                      response.status = "ok";
+                                                      response.msg =
+                                                        "Receipt sent!";
+                                                      res.send(response);
+                                                    } else {
+                                                      response.msg =
+                                                        "Email could not be sent - please check the email address is correct";
+                                                      res.send(response);
+                                                    }
+                                                  }
+                                                );
+                                              }
+                                            );
+                                          }
+                                        );
+                                      });
                                     }
                                   );
-                                }
-                              );
-                            });
+                                });
+                              }
+                            );
+                          } else {
+                            response.msg = "Till closed.";
+                            res.send(response);
                           }
-                        );
-                      });
-                    });
-                  } else {
-                    response.msg = "Can't find till.";
-                    res.send(response);
-                  }
-                });
-              } else {
-                response.msg = "Something went wrong!";
-                res.send(response);
+                        });
+                      } else {
+                        response.msg = "Till is disabled.";
+                        res.send(response);
+                      }
+                    } else {
+                      response.msg = "Can't find till.";
+                      res.send(response);
+                    }
+                  });
+                } else {
+                  response.msg = "Something went wrong!";
+                  res.send(response);
+                }
               }
-            }
-          );
+            );
+          } else {
+            response.msg = "Transaction too old!";
+            res.send(response);
+          }
         } else {
           response.msg = "Transaction not found!";
           res.send(response);
