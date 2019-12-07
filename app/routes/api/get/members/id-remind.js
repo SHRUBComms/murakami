@@ -9,7 +9,7 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Members = Models.Members;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 router.get(
   "/:member_id",

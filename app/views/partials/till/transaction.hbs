@@ -14,29 +14,49 @@
 			</div>
 		</div>
 
-
-
-
-
 </div>
 
-<div id="transaction_info" class="row pl-3 mt-4 mb-4">
 
-	<div id="transactionSuccess" class="alert alert-success alert-dismissible d-none col-md-6 p-3 mx-auto">
-		<h4 class="alert-heading">Transaction Successful!</h4>
-		<p id="transactionSuccessSummary"></p>
-		<hr />
-		<p id="transactionSuccessCarbon"></p>
-		<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-	</div>
-
-	<div id="transactionFail" class="alert alert-danger alert-dismissible d-none col-md-6 p-3 mx-auto">
-		<h4 class="alert-heading">Transaction Failed!</h4>
-		<p id="transactionFailSummary"></p>
-		<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
-	</div>
-
+<div class="modal fade" id="transactionSuccessModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div id="transactionSuccess" class="modal-body alert-success p-4">
+				<h4 class="alert-heading">Transaction Successful!</h4>
+				<p id="transactionSuccessSummary"></p>
+				<hr />
+				<p id="transactionSuccessCarbon"></p>
+      </div>
+			<div id="emailReceiptInputWrapper" class="modal-body col-md-12 d-none">
+				<div class="input-group">
+					<input id="emailReceiptInput" type="text" class="form-control" placeholder="Customer's Email Address" />
+					<div class="input-group-btn">
+						<a id="emailReceiptInputSubmit" class="btn btn-primary form-control">Send Receipt</a>
+					</div>
+				</div>
+			</div>
+      <div class="modal-footer">
+				<a id="emailReceiptButton" class="btn btn-success">Email Receipt</a>
+				<a id="printReceiptButton" class="btn btn-primary" target="_blank">Print Receipt</a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<div class="modal fade" id="transactionFailModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div id="transactionFail" class="modal-body alert-danger p-4">
+				<h4 class="alert-heading">Transaction Failed!</h4>
+				<p class="alert-heading" id="transactionFailSummary"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="row mt-4 mb-3">
 		<div class="col-md-3 ml-2 ml-md-4 ml-lg-4 ml-xl-4">
@@ -871,7 +891,7 @@ function completeTransaction(type){
 	            updateTransactionList();
 	            payWithTokens = false;
 
-							updateResponse("success", response.transactionSummary, response.carbonSummary, member)
+							updateResponse("success", response.transactionSummary, response.carbonSummary, member, response.transaction_id)
 
 
 	            if(member.name){
@@ -897,16 +917,33 @@ function completeTransaction(type){
     });
 }
 
-function updateResponse(outcome, transactionSummary, carbonSummary, member) {
+function updateResponse(outcome, transactionSummary, carbonSummary, member, transaction_id) {
 
 	if(outcome == "success"){
-		$("#transactionFail").addClass("d-none");
-		$("#transactionFail").css("display", "none")
+		$("#transactionSuccessModal").modal("show");
 
-		$("#transactionSuccess").removeClass("d-none");
-		$("#transactionSuccess").css("display", "block")
 		$("#transactionSuccessSummary").html(transactionSummary)
 		$("#transactionSuccessCarbon").html(carbonSummary)
+		$("#printReceiptButton").attr("href", "{{public_address}}/till/receipt/print/" + transaction_id);
+
+
+			$("#emailReceiptButton").click(function(){
+
+				if((Object.keys(member).length === 0 && member.constructor === Object) || member == null){
+					$("#emailReceiptInputWrapper").removeClass("d-none");
+					$("#emailReceiptInputSubmit").click(function(){
+						$("#emailReceiptInputSubmit").prop("disabled", true);
+						sendEmailReceipt(transaction_id, null);
+					})
+				} else {
+					$("#emailReceiptButton").prop("disabled", true)
+					sendEmailReceipt(transaction_id, member.member_id);
+				}
+			})
+
+
+
+
 		if(member.member_id) {
 			$.get("{{public_address}}/api/get/members/carbon-saved/" + member.member_id, function( response ) {
 				$("#transactionSuccessCarbon").html($("#transactionSuccessCarbon").html() + ", totalling " + response.carbon + "kg saved over entire membership!")
@@ -915,14 +952,39 @@ function updateResponse(outcome, transactionSummary, carbonSummary, member) {
 			$("#transactionSuccessCarbon").html($("#transactionSuccessCarbon").html() + "!")
 		}
 	} else {
-
-		$("#transactionSuccess").addClass("d-none");
-		$("#transactionSuccess").css("display", "none")
-
-		$("#transactionFail").removeClass("d-none");
-		$("#transactionFail").css("display", "block")
+		$("#transactionFailModal").modal("show");
 		$("#transactionFailSummary").html(transactionSummary)
 	}
+}
+
+function sendEmailReceipt(transaction_id, member_id){
+	$.ajax({
+			type: "POST",
+			url: "{{public_address}}/till/receipt/email/",
+			data :{
+				transaction_id: transaction_id || null,
+				member_id: member_id || null,
+				email: $("#emailReceiptInput").val() || null
+			},
+			success: function(response){
+				$("#emailReceiptButton").prop("disabled", false)
+				$("#emailReceiptInputSubmit").prop("disabled", false)
+				console.log(response);
+				if(response.status = "ok"){
+					alert("Receipt sent!");
+				} else {
+					if(member_id){
+						alert("Email bounced - please enter email address manually");
+						$("#emailReceiptInputWrapper").removeClass("d-none");
+						$("#emailReceiptInputSubmit").click(function(){
+							sendEmailReceipt(transaction_id, null);
+						})
+					} else {
+						alert("Email bounced - please check email address was entered correctly");
+					}
+				}
+			}
+	});
 }
 
 function getSavedCarbon(){

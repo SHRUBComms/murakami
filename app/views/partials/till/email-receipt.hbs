@@ -1,0 +1,84 @@
+<style>
+  table {
+    border-collapse: collapse;
+    font-family: sans-serif;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 8px;
+  }
+
+  p {
+    font-size: 14px;
+    font-family: sans-serif;
+  }
+
+  tr:nth-child(odd) {background-color: #f2f2f2;}
+</style>
+
+<center>
+
+  <br />
+
+  <img src="{{public_address}}/assets/images/icon/logo2.png" width="100" />
+
+  <br />
+  <br />
+
+  <table>
+    <tr>
+      <td>Murakami Transaction ID</td>
+      <td>{{transaction.transaction_id}}</td>
+    </tr>
+    {{#if transaction.sumup_id}}
+    <tr>
+      <td>SumUp Transaction ID</td>
+      <td>{{transaction.sumup_id}}</td>
+    </tr>
+    {{/if}}
+    <tr>
+      <td>Timestamp</td>
+      <td>{{transaction.date}}</td>
+    </tr>
+    <tr>
+      <td>Location</td>
+      <td>{{transaction.till_name}}</td>
+    </tr>
+    <tr>
+      <td>Bill</td>
+      <td>{{{transaction.bill}}}</td>
+    </tr>
+    <tr>
+      <td>Money Total</td>
+      <td>{{transaction.totals.money}}</td>
+    </tr>
+
+    <tr>
+      <td>Tokens Total</td>
+      <td>{{transaction.totals.tokens}}</td>
+    </tr>
+
+  </table>
+
+  <br />
+
+  {{#if transaction.carbon.savedThisTransaction}}
+    <p>
+      <b>
+        You saved {{transaction.carbon.savedThisTransaction}}kg of C0<sub>2</sub>!
+      </b>
+    </p>
+    <br />
+  {{/if}}
+
+  <p>Thank you!</p>
+
+  <br />
+
+  <p>Copyright © {{year}} SHRUB Cooperative, All rights reserved.</p>
+  <p>Scottish Charitable Incorporated Organisation</p>
+  <p>(Scottish Charity Number SC048825)</p>
+
+  <small>This is an automated email, please do not respond!</small>
+</center>

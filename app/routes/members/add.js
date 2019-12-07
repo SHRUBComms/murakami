@@ -16,7 +16,7 @@ var Tills = Models.Tills;
 var Transactions = Models.Transactions;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
   req,

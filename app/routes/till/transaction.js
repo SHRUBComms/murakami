@@ -488,7 +488,8 @@ router.post(
                                           let response = {
                                             status: "ok",
                                             transactionSummary: "",
-                                            carbonSummary: ""
+                                            carbonSummary: "",
+                                            transaction_id: transaction_id
                                           };
 
                                           if (
@@ -697,6 +698,9 @@ router.post(
                                                       "&currency=GBP" +
                                                       "&foreign-tx-id=" +
                                                       transaction_id +
+                                                      "&skipSuccessScreen=" +
+                                                      process.env
+                                                        .DISABLE_SUMUP_RECEIPTS +
                                                       "&callback=" +
                                                       encodeURIComponent(
                                                         process.env

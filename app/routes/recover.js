@@ -12,7 +12,7 @@ var Users = Models.Users;
 var PasswordReset = Models.PasswordReset;
 var Settings = Models.Settings;
 
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 router.get("/", function(req, res) {
   Settings.getAll(function(err, settings) {

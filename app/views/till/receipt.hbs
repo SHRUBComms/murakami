@@ -1,0 +1,107 @@
+<html>
+  <head>
+    <title>{{title}}</title>
+    <style>
+      body {
+        width: 80mm;
+        font-family: monospace;
+      }
+
+      p {
+        padding: 0 2mm 0 2mm;
+        margin: 0;
+      }
+
+      table {
+        width: 100%;
+        font-size: 4mm;
+      }
+
+      table th, table td {
+        text-align: left;
+      }
+
+      table tr {
+        padding: 0 2mm 0 2mm;
+      }
+
+    </style>
+  </head>
+  <body onload="window.print()">
+    <center>
+      <img src="{{public_address}}/assets/images/shrub-header.png" />
+    </center>
+
+    <p style="margin-top: 4mm; margin-bottom: 2mm">
+      {{transaction.date}}
+
+      <br />
+      Murakami Transaction ID: <b>{{transaction.transaction_id}}</b>
+
+      {{#if transaction.sumup_id}}
+        <br/>
+        SumUp Transaction ID: &nbsp;&nbsp;&nbsp;<b>{{transaction.sumup_id}}</b>
+      {{/if}}
+    </p>
+
+    {{#if transaction.paymentMethod}}
+      <p style="margin-top: 1mm; margin-bottom: 3mm">Payment Method: {{formToPlain transaction.paymentMethod}}</p>
+    {{/if}}
+
+    <hr />
+
+    <table>
+      <tr>
+        <th>Item</th>
+        <th>Value</th>
+        <th>Qty.</th>
+      </tr>
+      {{#each transaction.billArray}}
+        <tr>
+          <td>{{item}}</td>
+          <td>{{value}}</td>
+          <td>
+            {{#if quantity}}
+              {{quantity}}
+            {{else}}
+              1
+            {{/if}}
+          </td>
+        </tr>
+      {{/each}}
+      <tr>
+        <th>Total Paid:</th>
+        <th>£{{transaction.totals.moneyPlain}}</th>
+        <th></th>
+      </tr>
+      {{#ifCond transaction.totals.tokens '>' 0}}
+          <th>Tokens Paid:</th>
+          <th>{{transaction.totals.tokens}}</th>
+          <th></th>
+        </tr>
+      {{/ifCond}}
+    </table>
+
+    {{#if transaction.comment}}
+      <p>Comment: {{transaction.comment}}</p>
+    {{/if}}
+
+    <hr style="margin-bottom: 2mm;" />
+
+    {{#ifCond transaction.carbon.savedThisTransaction '>' 0}}
+      <p style="text-align: center; margin-top: 2mm; margin-bottom: 2mm;">You saved {{transaction.carbon.savedThisTransaction}}kg of C0<sub>2</sub>!</p>
+    {{/ifCond}}
+
+    <p style="text-align: center; margin-top: 2mm; margin-bottom: 2mm;">Thank you!</p>
+
+    <p style="text-align: center;">Email: hello@shrubcoop.org</p>
+    <p style="text-align: center;">Website: shrubcoop.org</p>
+
+  </body>
+
+  <script>
+    window.onafterprint = function(){
+      window.close();
+    }
+  </script>
+</html>

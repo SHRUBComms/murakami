@@ -17,7 +17,7 @@ var Users = Models.Users;
 var Volunteers = Models.Volunteers;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get(

@@ -12,7 +12,7 @@ var AccessTokens = Models.AccessTokens;
 
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
   req,

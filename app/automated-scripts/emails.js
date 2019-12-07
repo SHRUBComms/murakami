@@ -11,7 +11,7 @@ var Volunteers = Models.Volunteers;
 var Transactions = Models.Transactions;
 var MailTemplates = Models.MailTemplates;
 
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 var automatedMails = new CronJob({
   cronTime: "0 30 9 * * *",

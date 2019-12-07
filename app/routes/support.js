@@ -7,7 +7,7 @@ var rootDir = process.env.CWD;
 var Models = require(rootDir + "/app/models/sequelize");
 var Tills = Models.Tills;
 
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 router.get("/", function(req, res) {
   var till_id = req.query.till_id;

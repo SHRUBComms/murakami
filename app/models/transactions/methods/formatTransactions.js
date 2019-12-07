@@ -60,24 +60,37 @@ module.exports = function(Transactions, sequelize, DataTypes) {
 
             // Plain text totals.
             if (transaction.summary.paymentMethod == "cash") {
-              formattedTransaction.totals.cash = Number(
-                transaction.summary.totals.money
-              ).toFixed(2);
               formattedTransaction.totals.card = "0.00";
+              if (!isNaN(transaction.summary.totals.money)) {
+                formattedTransaction.totals.cash = Number().toFixed(2);
+              } else {
+                formattedTransaction.totals.cash == "0.00";
+              }
             }
 
             if (transaction.summary.paymentMethod == "card") {
-              formattedTransaction.totals.card = Number(
-                transaction.summary.totals.money
-              ).toFixed(2);
+              if (!isNaN(transaction.summary.totals.money)) {
+                formattedTransaction.totals.card = Number(
+                  transaction.summary.totals.money
+                ).toFixed(2);
+              } else {
+                formattedTransaction.totals.card = "0.00";
+              }
               formattedTransaction.totals.cash = "0.00";
             }
 
             formattedTransaction.totals.tokens =
               transaction.summary.totals.tokens || "0";
-            formattedTransaction.totals.money =
-              "£" +
-              (Number(transaction.summary.totals.money).toFixed(2) || "0.00");
+
+            if(!isNaN(transaction.summary.totals.money)){
+              formattedTransaction.totals.money =
+                "£" +
+                (Number(transaction.summary.totals.money).toFixed(2) || "0.00");
+            } else {
+              formattedTransaction.totals.money = "£0.00"
+            }
+
+
             formattedTransaction.paymentMethod =
               transaction.summary.paymentMethod || "";
 
@@ -86,10 +99,15 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                 " (" + formattedTransaction.paymentMethod.toProperCase() + ")";
             }
 
-            formattedTransaction.totals.moneyPlain =
-              transaction.summary.totals.money;
+            if (!isNaN(transaction.summary.totals.money)) {
+              formattedTransaction.totals.moneyPlain =
+                Number(transaction.summary.totals.money).toFixed(2);
+            } else {
+              formattedTransaction.totals.moneyPlain = "0.00";
+            }
 
-            formattedTransaction.bill = [];
+            formattedTransaction.billArray = [];
+
             let bill = "";
 
             if (
@@ -102,29 +120,42 @@ module.exports = function(Transactions, sequelize, DataTypes) {
 
             for (let i = 0; i < transaction.summary.bill.length; i++) {
               if (transaction.summary.bill[i].item_id == "donation") {
-                bill +=
-                  "Tokens added for donation: " +
-                  transaction.summary.bill[i].tokens;
+                bill += "c: " + transaction.summary.bill[i].tokens;
+                formattedTransaction.billArray.push({
+                  item: "Tokens added for donation",
+                  value: transaction.summary.bill[i].tokens
+                });
               } else if (
                 transaction.summary.bill[i].item_id == "volunteering"
               ) {
                 bill +=
                   "Tokens added for volunteering: " +
                   transaction.summary.bill[i].tokens;
+                formattedTransaction.billArray.push({
+                  item: "Tokens added for volunteering",
+                  value: transaction.summary.bill[i].tokens
+                });
               } else if (transaction.summary.bill[i].item_id == "membership") {
                 bill +=
                   "Tokens added for buying a 12 month membership: " +
                   transaction.summary.bill[i].tokens;
+                formattedTransaction.billArray.push({
+                  item: "Tokens added for buying a 12 month membership",
+                  value: transaction.summary.bill[i].tokens
+                });
               } else if (transaction.summary.bill[i].item_id == "refund") {
                 bill +=
                   "Refund: " +
                   Number(transaction.summary.bill[i].value).toFixed(2);
-              } else if (
-                flatCategoriesAsObj[transaction.summary.bill[i].item_id]
-              ) {
+                formattedTransaction.billArray.push({
+                  item: "Refund",
+                  value: Number(transaction.summary.bill[i].value).toFixed(2)
+                });
+              } else {
                 let value =
                   transaction.summary.bill[i].tokens ||
                   transaction.summary.bill[i].value;
+
                 let discount;
                 if (transaction.summary.discount_info) {
                   if (
@@ -140,12 +171,26 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                   }
                 }
 
-                bill +=
-                  flatCategoriesAsObj[transaction.summary.bill[i].item_id]
-                    .absolute_name;
+                let billObject = {
+                  value: Number(value).toFixed(2)
+                };
+
+                if (flatCategoriesAsObj[transaction.summary.bill[i].item_id]) {
+                  bill +=
+                    flatCategoriesAsObj[transaction.summary.bill[i].item_id]
+                      .absolute_name;
+                  billObject.item =
+                    flatCategoriesAsObj[
+                      transaction.summary.bill[i].item_id
+                    ].absolute_name;
+                } else {
+                  bill += "Unknown Item: ";
+                  billObject.item = "Unkown Item";
+                }
 
                 if (transaction.summary.bill[i].condition) {
                   bill += " (" + transaction.summary.bill[i].condition + ")";
+                  billObject.condition = transaction.summary.bill[i].condition;
                 }
 
                 bill += ": " + parseFloat(value).toFixed(2);
@@ -159,53 +204,20 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                         transaction.summary.bill[i].value
                     ).toFixed(2) +
                     ")</span>";
+                  billObject.item += " (-" + discount + "%)";
                 }
 
                 if (transaction.summary.bill[i].quantity > 1) {
                   bill +=
                     " <b>x" + transaction.summary.bill[i].quantity + "</b>";
-                }
-              } else {
-                let value =
-                  transaction.summary.bill[i].tokens ||
-                  transaction.summary.bill[i].value;
-                let discount;
-                if (transaction.summary.discount_info) {
-                  if (
-                    transaction.summary.discount_info[
-                      transaction.summary.bill[i].item_id
-                    ]
-                  ) {
-                    discount =
-                      transaction.summary.discount_info[
-                        transaction.summary.bill[i].item_id
-                      ];
-                    value = value - value * (discount / 100);
-                  }
+                  billObject.quantity = transaction.summary.bill[i].quantity;
                 }
 
-                bill += "Unknown Item";
+                formattedTransaction.billArray.push(billObject);
 
-                if (transaction.summary.bill[i].condition) {
-                  bill += " (" + transaction.summary.bill[i].condition + ")";
+                if (i + 1 !== transaction.summary.bill.length) {
+                  bill += "<br />";
                 }
-
-                bill += ": " + Number(value).toFixed(2);
-                if (discount) {
-                  bill +=
-                    " <span class='small'>(" +
-                    discount +
-                    "% off from " +
-                    Number(
-                      transaction.summary.bill[i].tokens ||
-                        transaction.summary.bill[i].value
-                    ).toFixed(2) +
-                    ")</span>";
-                }
-              }
-
-              if (i + 1 !== transaction.summary.bill.length) {
-                bill += "<br />";
               }
             }
 

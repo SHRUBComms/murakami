@@ -13,7 +13,7 @@ var Transactions = Models.Transactions;
 var Settings = Models.Settings;
 
 var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail");
+var Mail = require(rootDir + "/app/configs/mail/root");
 
 router.use("/issue", require("./issue"));
 
