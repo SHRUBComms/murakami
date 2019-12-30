@@ -1,0 +1,196 @@
+<div class="modal" id="addChild" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Category Under "<span id="parent_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+
+            <input type="text" placeholder="Category Name" id="addCategoryName" class="form-control mb-2" />
+
+            <select name="group_id" id="addCategoryGroupId" class="form-control mb-3">
+              <option value="">No Working Group</option>
+              {{#each user.allWorkingGroupsObj}}
+                <option value="{{group_id}}">{{name}}</option>
+              {{/each}}
+            </select>
+
+            <hr />
+
+            <h5 class="mb-2">Pricing</h5>
+
+            <p><input type="checkbox" class="mb-3" id="addCategoryFixedPriceCheck" onchange="toggleFixedPrice('add');" /> Fixed price</p>
+
+            <div id="addCategoryFixedPriceContainer" class="input-group valueInput d-none mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">£</span>
+              </span>
+              <input class="form-inline form-control" id="addCategoryValue" type="text" placeholder="0.00" />
+            </div>
+
+            <p><input type="checkbox" id="addCategoryAllowTokens" class="mb-3" /> Can be bought with tokens</p>
+
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Member discount: </span>
+              </span>
+              <input class="form-inline form-control" id="addCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">%</span>
+              </span>
+            </div>
+
+            <hr />
+
+            <h5 class="mb-2">Weight</h5>
+
+            <select name="carbon_id" id="addCategoryCarbonId" onchange="toggleFixedWeight('add');" class="form-control mb-3">
+              <option value="">None (can't be weighed)</option>
+              {{#each carbonCategories}}
+                <option value="{{carbon_id}}">{{name}}</option>
+              {{/each}}
+            </select>
+
+            <p id="addCategoryFixedWeightCheckWrapper"><input type="checkbox" class="mb-3" onchange="toggleFixedWeight('add');" id="addCategoryFixedWeightCheck" /> Fixed weight</p>
+
+            <div class="input-group mb-3 d-none" id="addCategoryFixedWeightContainer">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Weight: </span>
+              </span>
+              <input class="form-inline form-control" id="addCategoryFixedWeight" type="number" min="0" max="100000" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">grams</span>
+              </span>
+            </div>
+
+            <hr />
+
+            <h5 class="mb-2">Stock</h5>
+
+            <p><input type="checkbox" id="addCategoryStockControlCheck" onclick="toggleStockControl('add')" class="mb-3" /> Stock control</p>
+
+            <select id="addCategoryAvailableConditions" class="form-control d-none" multiple>
+              <option disabled>Select Available Condition(s)...</option>
+              {{#each validConditions}}
+                <option value="{{this}}" {{#ifCond this '==' "noCondition"}}selected{{/ifCond}}>{{camelCaseToPlain this}}</option>
+              {{/each}}
+            </select>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="addCategorySubmit" onclick="addCategory()">Add Category</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addCategory(path) {
+
+    let category = {};
+    category.till_id = "{{till.till_id}}";
+    category.item_id =
+    category.parent = eval(path).item_id;
+    category.name = $("#addCategoryName").val();
+    category.group_id = $("#addCategoryGroupId").val();
+    category.carbon_id = $("#addCategoryCarbonId").val() || null;
+    category.value = $("#addCategoryValue").val() || null;
+    category.member_discount = $("#addCategoryMemberDiscount").val() || 0;
+    category.weight = $("#addCategoryFixedWeight").val() || 0;
+
+    if ($("#addCategoryAllowTokens").is(":checked") == true) {
+      category.allowTokens = 1;
+    } else {
+      category.allowTokens = 0;
+    }
+
+    if ($("#addCategoryStockControlCheck").is(":checked") == true) {
+      category.stockControl = 1;
+    } else {
+      category.stockControl = 0;
+    }
+
+    if ($("#addCategoryStockControlCheck").is(":checked")) {
+      if ($("#addCategoryAvailableConditions").val() != []) {
+        category.conditions = $("#addCategoryAvailableConditions").val();
+      } else {
+        category.conditions = [];
+      }
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/tills/categories/add",
+      data: {
+        category: category
+      },
+      success: function(response) {
+
+        if (response.status == "ok") {
+
+          $("#addCategory").modal("hide");
+
+          category.item_id = response.newId;
+          if (!eval(path).children) {
+            eval(path + ".children=[]");
+          }
+
+          if (category.parent) {
+            getCategories(path + ".children");
+          } else {
+            getCategories("categories.options");
+          }
+
+          alert(response.msg);
+
+        } else {
+          alert(response.msg);
+        }
+      }
+    });
+  }
+
+
+
+
+  function openAddCategoryDialog(path) {
+    var category;
+    if (!eval(path).name) {
+      category = eval(path.split("."));
+      category.pop();
+      path = category.join(".");
+      category = eval(path);
+    } else {
+      category = eval(path);
+    }
+
+    $("#addCategoryName").val("");
+    $("#addCategoryGroupId").val("");
+    $("#addCategoryFixedPriceCheck").prop("checked", false);
+    $("#addCategoryValue").val(0);
+    $("#addCategoryAllowTokens").prop("checked", false);
+    $("#addCategoryMemberDiscount").val(0);
+    $("#addCategoryCarbonId").val("");
+    $("#addCategoryFixedWeight").prop("checked", false);
+    $("#addCategoryStockControlCheck").prop("checked", false);
+    $("#addCategoryAvailableConditions").val([]);
+
+    toggleFixedPrice('add');
+    toggleFixedWeight('add');
+    toggleStockControl('add');
+
+    $("#parent_name").html(category.name || "root");
+    $("#addChild").modal("show");
+    $("#addCategorySubmit").attr("onClick", "addCategory('" + path + "')");
+  }
+</script>

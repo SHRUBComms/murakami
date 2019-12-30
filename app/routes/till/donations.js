@@ -27,7 +27,8 @@ router.get(
             req.user.working_groups.includes(till.group_id))
         ) {
           TillActivity.getByTillId(req.params.till_id, function(status) {
-            if (status.opening) {
+            if (status.opening == 1) {
+              till.status = status.opening;
               res.render("till/donations", {
                 tillMode: true,
                 title: "Process Donation",
@@ -91,7 +92,7 @@ router.post(
                     if (!err && member) {
                       Members.updateBalance(
                         member_id,
-                        +member.balance + +tokens,
+                        Number(member.balance) + Number(tokens),
                         function() {
                           var formattedTransaction = {
                             till_id: till_id,
@@ -104,7 +105,8 @@ router.post(
                             }
                           };
 
-                          member.balance = +member.balance + +tokens;
+                          member.balance =
+                            Number(member.balance) + Number(tokens);
                           member.tokens = tokens;
                           member.name =
                             member.first_name + " " + member.last_name;

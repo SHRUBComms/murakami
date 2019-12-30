@@ -48,7 +48,6 @@ router.get("/:role_id", Auth.verifyByKey("publicVolunteerRoles"), function(
         res.send({ status: "fail", role: {} });
       }
     } catch (err) {
-      console.log(err);
       res.send({ status: "fail", role: {} });
     }
   });

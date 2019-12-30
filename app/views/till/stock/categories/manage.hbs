@@ -1,0 +1,36 @@
+<script src="{{public_address}}/assets/js/till-balance.js"></script>
+
+<div class="row mt-5 ml-1">
+	<div class="card">
+		<div class="card-body">
+			<h3>
+				<span id="tillName" {{#if user.permissions.tills.updateSettings}}contenteditable="true"{{/if}} class="align-middle">{{till.name}}</span>
+				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}} align-top">&#9679;</span></h3>
+				<p id="tillBalanceWrapper" class="d-none text-muted mb-0">Till Balance: <b>£<span id="tillBalance"></span></b></p>
+			{{#if till.disabled}}
+				<p class="text-danger font-weight-bold mt-1">Disabled</p>
+			{{/if}}
+		</div>
+	</div>
+</div>
+
+
+<div class="row mt-4">
+	<div class="col-md-8 mx-auto">
+		<div class="alert alert-info p-4">
+			<span class="badge badge-pill badge-info mr-2">Tip</span>Right click (long press on mobile) a category to open the options menu.
+		</div>
+	</div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-8 mx-auto">
+    {{>till/selection-ui mode="update-categories"}}
+  </div>
+</div>
+
+<script>
+
+getRunningBalance("{{public_address}}", "{{till.till_id}}");
+
+</script>

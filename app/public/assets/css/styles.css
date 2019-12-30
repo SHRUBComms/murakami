@@ -2357,6 +2357,11 @@ table.dataTable thead td {
   background-color: white;
 }
 
+.option-disabled {
+  background-color: #EFEFEF;
+  cursor: not-allowed;
+}
+
 .item-options:hover {
   font-size: 13px;
   transition: 0.75s;
@@ -2416,6 +2421,41 @@ ul > li {
 .plain-list > li,
 .pagination > ul > li {
   margin-left: 0px;
+}
+
+.border-left-primary {
+    border-left: .25rem solid var(--primary) !important;
+    border-left-width: 0.25rem !important;
+    border-left-style: solid !important;
+    border-left-color: var(--primary) !important;
+}
+
+.border-left-success {
+    border-left: .25rem solid var(--success) !important;
+    border-left-width: 0.25rem !important;
+    border-left-style: solid !important;
+    border-left-color: var(--success) !important;
+}
+
+.border-left-info {
+    border-left: .25rem solid var(--info) !important;
+    border-left-width: 0.25rem !important;
+    border-left-style: solid !important;
+    border-left-color: var(--info) !important;
+}
+
+.border-left-warning {
+    border-left: .25rem solid var(--warning) !important;
+    border-left-width: 0.25rem !important;
+    border-left-style: solid !important;
+    border-left-color: var(--warning) !important;
+}
+
+.border-left-danger {
+    border-left: .25rem solid var(--danger) !important;
+    border-left-width: 0.25rem !important;
+    border-left-style: solid !important;
+    border-left-color: var(--danger) !important;
 }
 
 /*-------------------- END Bootstrap Overrides ------------------- */

@@ -33,6 +33,7 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
       if (till.disabled == 1) {
         till = null;
       }
+      till.status = 1;
     }
     Members.getSignUpInfo(function(
       ourVision,

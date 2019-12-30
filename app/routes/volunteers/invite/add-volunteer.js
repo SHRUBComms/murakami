@@ -373,7 +373,6 @@ router.post(
           Members.add(newMember, function(err, member_id) {
             Volunteers.addExistingMember(member_id, volInfo, function(err) {
               if (err) {
-                console.log(err);
                 res.render("volunteers/add", {
                   errors: [{ msg: "Something went wrong!" }],
                   title: "Add Volunteer",

@@ -1,0 +1,224 @@
+<!-- Latest compiled and minified CSS -->
+<link href="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+<script src="{{public_address}}/assets/js/till-balance.js"></script>
+
+<div class="row mt-5 ml-1">
+	<div class="card">
+		<div class="card-body">
+			<h3>
+				<span id="tillName" class="align-middle">{{till.name}}</span>
+				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}} align-top">&#9679;</span></h3>
+				<p id="tillBalanceWrapper" class="d-none text-muted mb-0">Till Balance: <b>£<span id="tillBalance"></span></b></p>
+			{{#if till.disabled}}
+				<p class="text-danger font-weight-bold mt-1">Disabled</p>
+			{{/if}}
+		</div>
+	</div>
+</div>
+
+
+
+
+{{#unless till.disabled}}
+
+<div class="row mt-4">
+  <div class="col-md-8 mx-auto">
+    <div class="alert alert-info p-4">
+      <span class="badge badge-pill badge-info mr-2">Info</span><b>Includes all categories that have ever been under stock control</b>, some of which may no longer be available.
+    </div>
+  </div>
+</div>
+<div class="row mt-4">
+  <div class="col-md-8 mx-auto">
+    <table id="categories" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="true" data-toggle="table" data-sort-name="category" data-sort-order="asc" data-pagination="true" data-search="true" >
+        <thead>
+            <tr>
+              <th data-field="category" data-sortable=true>Category</th>
+							<th data-field="available" data-sortable=true>Available On Till</th>
+              <th data-field="qty">Current Qty.</th>
+              <th data-field="action">Action</th>
+            </tr>
+        </thead>
+
+      <tbody>
+
+				{{#each flatCategories}}
+					{{#unless children}}
+						{{#each stockInfo}}
+							<tr>
+								<td>{{../absolute_name}} ({{camelCaseToPlain @key}})</td>
+								<td>
+
+									{{#if ../stockControl}}
+										{{#if (lookupArray ../conditions @key)}}
+											<span class="text-success">Available</span>
+										{{else}}
+											<span class="text-danger">Unavailable</span>
+										{{/if}}
+									{{else}}
+										<span class="text-danger">Unavailable</span>
+									{{/if}}
+								</td>
+									{{#if quantity}}
+										<td>{{quantity}}</td>
+									{{else}}
+										<td>0</td>
+									{{/if}}
+								<td>
+										<button class="btn btn-primary btn-block" onclick="getRecords('{{../item_id}}', '{{../name}} ({{camelCaseToPlain @key}})', '{{@key}}')">View Records</button>
+								</td>
+							</tr>
+						{{/each}}
+					{{/unless}}
+				{{/each}}
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div id="recordsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">"<span id="recordCategoryName"></span>" Stock Records</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-12 px-4 mt-2 mx-auto">
+											<div class="container py-2">
+                        <ul id="recordsOutput" class="timeline"></ul>
+											</div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{{/unless}}
+
+
+
+
+<script>
+
+getRunningBalance("{{public_address}}", "{{till.till_id}}");
+
+function getRecords(item_id, name, condition) {
+
+	var recordsOutput = document.getElementById("recordsOutput");
+	recordsOutput.innerHTML = "";
+	$("#recordCategoryName").text(name);
+
+
+	$("#recordsModal").modal("show");
+
+	var url = "{{public_address}}/api/get/tills/stock/get-records/" + item_id + "?condition=" + condition;
+
+	$.ajax({
+			type: "GET",
+			url: url,
+			success: function(records) {
+				console.log(records);
+					$("#recordsModal").modal("show");
+					records.forEach(function(record){
+
+						var row = document.createElement("div");
+						row.className = "row";
+
+						var dotColumn = document.createElement("div");
+						dotColumn.className = "col-auto text-center flex-column d-none d-sm-flex"
+						dotColumn.innerHTML =
+										            '<h5 class="m-2">' +
+										                '<span class="badge badge-pill bg-light border">&nbsp;</span>' +
+										            '</h5>' +
+										            '<div class="row h-100">' +
+										                '<div class="col border-right">&nbsp;</div>' +
+										                '<div class="col">&nbsp;</div>' +
+										            '</div>';
+
+
+						var detailColumn = document.createElement("div");
+						detailColumn.className = "col py-2";
+
+						var card = document.createElement("div");
+						card.className = "card";
+
+						var cardBody = document.createElement("div");
+						cardBody.className = "card-body pt-0 pb-1";
+
+						var timestamp = document.createElement("div");
+						timestamp.className = "float-right text-muted";
+						timestamp.innerHTML = record.timestamp;
+						timestamp.innerHTML += "<br />";
+						timestamp.innerHTML += record.user;
+
+						var user = document.createElement("div");
+						user.className = "float-right text-muted";
+						user.textContent = record.user_id;
+
+						var infoText = document.createElement("p");
+						infoText.className = "card-text mb-0";
+						if(record.actionInfo.summary.qtyModifier > 0){
+							infoText.innerHTML = "<b>Added</b> " + record.actionInfo.summary.qtyModifier
+						} else {
+							infoText.innerHTML = "<b>Removed</b> " + Math.abs(record.actionInfo.summary.qtyModifier)
+						}
+
+						if(record.actionInfo.summary.qtyModifier == 1){
+							infoText.innerHTML += " unit"
+						} else {
+							infoText.innerHTML += " units"
+						}
+
+						if(record.actionInfo.method == "manual"){
+							infoText.innerHTML += " <span class='text-muted'>via admin panel</span>"
+						} else {
+							infoText.innerHTML += " <span class='text-muted'>via a till transaction</span>"
+						}
+
+						infoText.innerHTML += "<p class='text-muted small mb-1 mt-1' style='line-height: 1'>Previous stock total: <b>" + record.actionInfo.summary.oldQty + "</b></p>";
+
+						infoText.innerHTML += "<p class='text-muted small mb-2' style='line-height: 1'>New stock total: <b>" + record.actionInfo.summary.newQty + "</b></p>";
+
+						if(record.actionInfo.note){
+							var note = document.createElement("p");
+							note.className = "text-muted";
+							note.textContent = "Note: " + record.actionInfo.note;
+						}
+
+						cardBody.appendChild(timestamp);
+						cardBody.appendChild(infoText);
+						if(record.actionInfo.note){
+							cardBody.appendChild(note);
+						}
+
+						card.appendChild(cardBody);
+						detailColumn.appendChild(card);
+
+						row.appendChild(dotColumn);
+						row.appendChild(detailColumn);
+
+						recordsOutput.appendChild(row);
+
+					})
+			}
+	});
+}
+
+</script>

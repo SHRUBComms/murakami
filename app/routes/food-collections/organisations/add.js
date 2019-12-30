@@ -59,7 +59,6 @@ router.post(
                 organisation_id
             );
           } else {
-            console.log(formattedOrganisation);
             res.render("food-collections/organisations/add", {
               errors: [{ msg: "Something went wrong!" }],
               title: "Add Food Collection Organisations",

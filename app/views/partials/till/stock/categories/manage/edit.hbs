@@ -1,0 +1,218 @@
+<div class="modal" id="editCategory" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Category "<span id="category_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+
+            <input type="text" placeholder="Category Name" id="editCategoryName" class="form-control mb-3" />
+
+            <hr />
+
+            <h5 class="mb-2">Pricing</h5>
+
+            <p><input type="checkbox" class="mb-3" id="editCategoryFixedPriceCheck" onchange="toggleFixedPrice('edit');" /> Fixed price</p>
+
+            <div id="editCategoryFixedPriceContainer" class="input-group d-none mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">£</span>
+              </span>
+              <input class="form-inline form-control" id="editCategoryValue" type="text" placeholder="0.00" />
+            </div>
+
+            <p><input type="checkbox" id="editCategoryAllowTokens" class="mb-3" /> Can be bought with tokens</p>
+
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Member discount: </span>
+              </span>
+              <input class="form-inline form-control" id="editCategoryMemberDiscount" type="number" min="0" max="100" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">%</span>
+              </span>
+            </div>
+
+            <hr />
+
+            <h5 class="mb-2">Weight</h5>
+
+            <select name="carbon_id" id="editCategoryCarbonId" onchange="toggleFixedWeight('edit');" class="form-control mb-3">
+              <option value="">None (can't be weighed)</option>
+              {{#each carbonCategories}}
+                <option value="{{carbon_id}}">{{name}}</option>
+              {{/each}}
+            </select>
+
+            <p id="editCategoryFixedWeightCheckWrapper"><input type="checkbox" class="mb-3" onchange="toggleFixedWeight('edit');" id="editCategoryFixedWeightCheck" /> Fixed weight</p>
+
+            <div class="input-group mb-3 d-none" id="editCategoryFixedWeightContainer">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Weight: </span>
+              </span>
+              <input class="form-inline form-control" id="editCategoryFixedWeight" type="number" min="0" max="100000" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">grams</span>
+              </span>
+            </div>
+
+            <hr />
+
+            <h5 class="mb-2">Stock</h5>
+
+            <p><input type="checkbox" id="editCategoryStockControlCheck" onclick="toggleStockControl('edit')" class="mb-3" /> Stock control</p>
+
+            <select id="editCategoryAvailableConditions" class="form-control d-none" multiple>
+              <option disabled>Select Available Condition(s)...</option>
+              {{#each validConditions}}
+                <option value="{{this}}">{{camelCaseToPlain this}}</option>
+              {{/each}}
+            </select>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="editCategorySubmit" onclick="updateCategory()">Update Category</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateCategory(path) {
+
+    let category = {};
+    category.item_id = eval(path).item_id;
+    category.till_id = "{{till.till_id}}"
+    category.name = $("#editCategoryName").val();
+    category.carbon_id = $("#editCategoryCarbonId").val() || null;
+    category.value = $("#editCategoryValue").val() || null;
+    category.member_discount = $("#editCategoryMemberDiscount").val() || 0;
+    category.weight = $("#editCategoryFixedWeight").val() || 0;
+
+    if ($("#editCategoryAllowTokens").is(":checked") == true) {
+      category.allowTokens = 1;
+    } else {
+      category.allowTokens = 0;
+    }
+
+    if ($("#editCategoryStockControlCheck").is(":checked") == true) {
+      category.stockControl = 1;
+    } else {
+      category.stockControl = 0;
+    }
+
+    if ($("#editCategoryStockControlCheck").is(":checked")) {
+      if ($("#editCategoryAvailableConditions").val() != []) {
+        category.conditions = $("#editCategoryAvailableConditions").val();
+      } else {
+        category.conditions = [];
+      }
+    }
+
+    console.log(category);
+
+    $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/tills/categories/update",
+      data: {
+        category: category
+      },
+      success: function(response) {
+        if (response.status == "ok") {
+          $("#editCategory").modal("hide");
+
+          var parent = path.split("[")
+          parent.pop();
+          parent = parent.join("[");
+          $("#categorySearchResults").html("");
+          getCategories(parent);
+
+          alert(response.msg);
+
+        } else {
+          alert(response.msg);
+        }
+      }
+    });
+  }
+
+  function openEditCategoryDialog(path) {
+    category = eval(path);
+
+    $("#category_name").html(category.name);
+    $("#editCategoryName").val(category.name);
+    $("#editCategoryCarbonId").val(category.carbon_id);
+
+    if (category.value > 0) {
+      $("#editCategoryFixedPriceCheck").prop("checked", true);
+      $(".valueInput").removeClass("d-none");
+    } else {
+      $("#editCategoryFixedPriceCheck").prop("checked", false);
+      $(".valueInput").addClass("d-none");
+    }
+
+    if (category.carbon_id) {
+      $("#editCategoryFixedWeightCheckWrapper").removeClass("d-none");
+      if (category.weight > 0) {
+        $("#editCategoryFixedWeightCheck").prop("checked", true)
+        $("#editCategoryFixedWeight").removeClass("d-none");
+      } else {
+        $("#editCategoryFixedWeightCheck").prop("checked", false)
+        $("#editCategoryFixedWeight").addClass("d-none");
+      }
+
+    } else {
+      $("#editCategoryFixedWeightCheckWrapper").addClass("d-none");
+    }
+
+    if (category.allowTokens) {
+      $("#editCategoryAllowTokens").prop("checked", true);
+    } else {
+      $("#editCategoryAllowTokens").prop("checked", false);
+    }
+
+    $("#editCategoryValue").val(category.value || null);
+
+    $("#editCategoryMemberDiscount").val(category.member_discount || 0);
+
+    $("#editCategoryFixedWeight").val(category.weight || 0);
+
+    $("#editCategoryAvailableConditions").val(category.conditions || []);
+
+
+    if (category.stockControl == 1) {
+      $("#editCategoryAvailableConditions").removeClass("d-none");
+      $("#editCategoryStockControlCheck").prop("checked", true);
+      $("#editCategoryAvailableConditions").val(category.conditions);
+    } else {
+      $("#editCategoryAvailableConditions").addClass("d-none");
+      $("#editCategoryStockControlCheck").prop("checked", false);
+      $("#editCategoryAvailableConditions").val([]);
+    }
+
+
+    $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
+
+    if (category.needsCondition) {
+      $("#editCategoryNeedsCondition").prop("checked", true);
+    } else {
+      $("#editCategoryNeedsCondition").prop("checked", false);
+    }
+
+    toggleFixedPrice("edit");
+    toggleFixedWeight("edit");
+    toggleStockControl("edit");
+
+    $("#editCategory").modal("show");
+  }
+</script>

@@ -31,6 +31,8 @@ router.get(
         ) {
           TillActivity.getByTillId(req.params.till_id, function(status) {
             if (status.opening) {
+              till.status = status.opening;
+
               Settings.getStaticContent(function(err, staticContent) {
                 res.render("till/refunds", {
                   tillMode: true,

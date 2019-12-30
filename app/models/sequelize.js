@@ -89,6 +89,10 @@ var Models = {
     sequelize,
     Sequelize
   ),
+  StockRecords: require(rootDir + "/app/models/stock_records/schema")(
+    sequelize,
+    Sequelize
+  ),
   TillActivity: require(rootDir + "/app/models/till_activity/schema")(
     sequelize,
     Sequelize

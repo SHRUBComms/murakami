@@ -15,6 +15,7 @@ router.get("/", function(req, res) {
   Tills.getById(till_id, function(err, till) {
     if (till) {
       tillMode = true;
+      till.status = 1;
     }
     res.render("support", {
       tillMode: tillMode,

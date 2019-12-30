@@ -1,0 +1,598 @@
+<!-- Latest compiled and minified CSS -->
+<link href="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.css" rel="stylesheet">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://unpkg.com/bootstrap-table@1.13.4/dist/bootstrap-table.min.js"></script>
+
+<div class="row mt-4 h-100">
+  <div class="col-md-8 mx-auto">
+    <div class="alert alert-danger d-none p-4" id="noStockOptions"><b>There are no stock controlled categories on this till!</b> To add/update categories, go to <a href="{{public_address}}/till/stock/categories/manage/{{till.till_id}}">manage stock categories</a></div>
+  </div>
+</div>
+
+<div class="row mt-4 h-100">
+    <div class="col-lg-6 mx-auto">
+        <div class="btn-group btn-group-toggle mb-4" data-toggle="buttons">
+            <label class="btn btn-secondary active" id="gridViewOn">
+                <input type="radio" name="options" autocomplete="off" checked> Grid View
+            </label>
+            <label class="btn btn-secondary" id="listViewOn">
+                <input type="radio" name="options" autocomplete="off"> List View
+            </label>
+        </div>
+        <div id="gridView">
+            {{>till/selection-ui mode="manage-stock"}}
+        </div>
+        <div id="listView" class="d-none">
+            <div class="row mt-4">
+                <div class="col-12 mx-auto">
+                    <table id="categories" class="fadeIn table-light" data-search="true" data-icons-prefix="fas" data-sort-name="category" data-sort-order="asc" data-pagination="true" data-toggle="table">
+                        <thead>
+                            <tr>
+                                <th data-field="category" data-sortable=true>Category</th>
+                                <th data-field="qty" data-searchable="false">Current Qty.</th>
+                                <th data-field="action" data-searchable="false">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {{#each flatCategories}}
+                              {{#unless children}}
+                                {{#if stockControl}}
+                                  {{#if conditions}}
+                                    {{#each conditions}}
+                                      <tr>
+                                        <td>{{../absolute_name}} ({{camelCaseToPlain this}})</td>
+                                          {{#if (lookup (lookup ../stockInfo this) 'quantity')}}
+                                            <td>{{lookup (lookup ../stockInfo this) 'quantity'}}</td>
+                                          {{else}}
+                                            <td>0</td>
+                                          {{/if}}
+                                        <td>
+                                            <button class="btn btn-primary btn-block" onclick='addToTransaction({{{json ../this}}})'>Add To Update List</button>
+                                        </td>
+                                      </tr>
+                                    {{/each}}
+                                  {{else}}
+                                    <tr>
+                                      <td>{{absolute_name}}</td>
+                                      {{#if stockInfo.quantity}}
+                                        <td>{{stockInfo.quantity}}</td>
+                                      {{else}}
+                                        <td>0</td>
+                                      {{/if}}
+                                      <td>
+                                          <button class="btn btn-primary btn-block" onclick='addToTransaction({{{json this}}})'>Add To Update List</button>
+                                      </td>
+                                    </tr>
+
+                                  {{/if}}
+                                {{/if}}
+                              {{/unless}}
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-5 col-xl-5 mx-auto mt-4 mt-lg-0 mt-xl-0" id="transaction-list">
+        <table class="table table-light table-striped">
+            <thead>
+                <tr>
+                    <th width="30%">Category</th>
+                    <th>Current Qty.</th>
+                    <th>Modifier Qty.</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="transaction-info">
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row mt-4 mb-4">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-4 mx-auto">
+        <div id="transaction_btns" class="d-none">
+            <button type="button" class="btn btn-success btn-block btn-lg" data-toggle="modal" data-target="#updateSummaryModal" onclick="updateSummary();">Update Stock Levels</button>
+        </div>
+    </div>
+</div>
+
+<div id="updateSummaryModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Stock Summary Levels</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-12 px-4 mt-2 mx-auto">
+                        <table id="stockSummary" class="fadeIn table-light" data-toggle="table">
+                            <thead>
+                                <tr>
+                                    <th data-field="name">Category</th>
+                                    <th data-field="currentQty">Current Qty.</th>
+                                    <th data-field="qtyModifier">Qty. Modifier</th>
+                                    <th data-field="newQty">New Qty.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div id="stockSummaryError" class="alert alert-danger mx-auto p-4 w-50" role="alert"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <textarea id="note" placeholder="Note (optional)" class="form-control"></textarea>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="conatiner mx-auto">
+                        <div id="confirmTransactionContainer" class="form-check form-check-inline mt-2">
+                            <input class="form-check-input" type="checkbox" id="confirmTransaction">
+                            <label class="form-check-label">New stock levels are correct</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal" onclick="completeTransaction()" disabled="disabled">Update Stock Levels</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="stockUpdateSuccessModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div id="transactionSuccess" class="modal-body alert-success p-4">
+                <h4 class="alert-heading">Success!</h4>
+                <p id="stockUpdateSuccessMessage">Stock levels updated successfully</p>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary" href="{{public_address}}/till/stock/levels/view/{{till.till_id}}">View Stock Levels</a>
+                <button class="btn btn-secondary" onclick="location.reload();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="stockUpdateFailModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body alert-danger p-4">
+                <h4 class="alert-heading">Uh-oh!</h4>
+                <p id="stockUpdateFailMessage">Something went wrong updating stock levels - please try again.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="itemConditionModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+			<div class="modal-header">
+        <h5 class="modal-title">Item Condition</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<div class="row">
+
+					<div class="col-md-12">
+
+						<div class="p-4">
+
+							<h5 class="mb-1">Please select the condition of "<span id="itemConditionName" class="text-weight-bold"></span>"</h5>
+
+							<div id="availableItemConditions"></div>
+
+
+
+						</div>
+					</div>
+				</div>
+
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="addItemConditionToTrans" class="btn btn-success" data-dismiss="modal">Add To Transaction</button>
+        <button type="button" class="btn btn-danger" onclick="" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+    getRunningBalance("{{public_address}}", "{{till.till_id}}");
+
+    var transaction = [];
+		var summary = {};
+    var summaryArray = [];
+
+    var itemToAdd = {};
+
+    var uri = window.location.toString();
+    if (uri.indexOf("?") > 0) {
+        var clean_uri = uri.substring(0, uri.indexOf("?"));
+        window.history.replaceState({}, document.title, clean_uri);
+    }
+
+    function addToTransaction(item) {
+        var sanitizedItem = {};
+        if (item.stockControl) {
+            sanitizedItem.id = item.item_id || item.id;
+            sanitizedItem.name = item.name;
+            sanitizedItem.mode = item.mode || "Add";
+            sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
+            sanitizedItem.condition = item.condition || null;
+            sanitizedItem.conditions = item.conditions || [];
+
+            sanitizedItem.stockControl = true;
+            sanitizedItem.stockInfo = item.stockInfo;
+
+            if (sanitizedItem.stockInfo == null) {
+              if(!sanitizedItem.conditions){
+                sanitizedItem.stockInfo = {
+                    quantity: 0
+                }
+              } else {
+                sanitizedItem.stockInfo = {};
+                sanitizedItem.conditions.forEach(function(condition){
+                  sanitizedItem.stockInfo[condition] = { quantity: 0 };
+                })
+              }
+            } else {
+              if(!sanitizedItem.conditions){
+                if (!sanitizedItem.stockInfo.quantity) {
+                    sanitizedItem.stockInfo.quantity = 0;
+                }
+              } else {
+                sanitizedItem.conditions.forEach(function(condition){
+                  if(!sanitizedItem.stockInfo[condition]){
+                    sanitizedItem.stockInfo[condition] = { quantity: 0 };
+                  }
+                })
+              }
+            }
+
+            if(!sanitizedItem.condition && Array.isArray(sanitizedItem.conditions)){
+          		if(sanitizedItem.conditions.length == 1) {
+          			sanitizedItem.condition = sanitizedItem.conditions[0];
+          			itemToAdd = {};
+          			transaction.push(sanitizedItem);
+          		} else if(sanitizedItem.conditions.length > 0){
+          			$('input[name="itemCondition"]:radio').prop('checked', false);
+          			$("#addItemConditionToTrans").attr("onclick", "return false;");
+          			$("#itemConditionName").text(sanitizedItem.name);
+          			$("#availableItemConditions").html("");
+          			sanitizedItem.conditions.forEach(function(condition, index){
+          				var formWrapper = document.createElement("div");
+          				formWrapper.className = "form-check";
+
+          				var formLabel = document.createElement("label");
+          				formLabel.className = "form-check-label";
+
+          				var formInput = document.createElement("input");
+          				formInput.type = "radio";
+          				formInput.className = "form-check-input";
+          				formInput.name = "itemCondition";
+          				formInput.value = condition;
+
+          				var labelText = document.createElement("span");
+          				labelText.textContent = _.startCase(condition);
+
+          				formLabel.appendChild(formInput);
+          				formLabel.append(labelText)
+          				formWrapper.appendChild(formLabel);
+
+          				$("#availableItemConditions").append(formWrapper);
+
+          			})
+
+          			$('input[name="itemCondition"]:radio').change(function(){
+
+
+          				let condition = this.value;
+
+
+          				if(itemToAdd){
+          					itemToAdd.condition = condition
+          					document.getElementById("addItemConditionToTrans").onclick = function(){
+          						addToTransaction(itemToAdd)
+          					}
+          				}
+          			});
+
+          			$('#itemConditionModal').modal('show');
+          			itemToAdd = sanitizedItem;
+
+          		} else {
+          			itemToAdd = {};
+          			sanitizedItem.condition = ""
+          			transaction.push(sanitizedItem);
+          		}
+
+          	} else {
+
+          		itemToAdd = {};
+          		transaction.push(sanitizedItem);
+
+          	}
+
+            updateTransactionList();
+        }
+
+    }
+
+    function removeFromTransaction(index) {
+        if (index) {
+            transaction.splice(index, 1);
+        } else {
+            transaction.pop();
+        }
+
+        updateTransactionList();
+    }
+
+    function updateTransactionList() {
+        $("#transaction-info").html("");
+
+        var row, categoryColumn, existingQuantityColumn, quantityColumn, deleteColumn;
+
+        for (let i = 0; i < transaction.length; i++) {
+
+            row = document.createElement("tr");
+
+            categoryColumn = document.createElement("td");
+            categoryColumn.className = "align-middle"
+            categoryColumn.innerHTML = transaction[i].absoluteName;
+
+            if(transaction[i].condition){
+                categoryColumn.innerHTML += " (" + _.startCase(transaction[i].condition) + ")"
+            }
+
+            existingQuantityColumn = document.createElement("td");
+            existingQuantityColumn.className = "align-middle";
+            try {
+              existingQuantityColumn.innerHTML = transaction[i].stockInfo[transaction[i].condition].quantity
+            } catch(err){
+              existingQuantityColumn.innerHTML =  transaction[i].stockInfo.quantity;
+            }
+
+
+            quantityColumn = document.createElement("td");
+            quantityColumn.className = "align-middle"
+
+            var quantityColumnInput = document.createElement("input");
+            let minQuantity;
+            try {
+              minQuantity = transaction[i].stockInfo[transaction[i].condition].quantity * -1;
+            } catch(err){
+              minQuantity = transaction[i].stockInfo.quantity * -1;
+            }
+            quantityColumnInput.id = "quantity_" + i;
+            quantityColumnInput.type = "number";
+            quantityColumnInput.value = transaction[i].quantity || 0;
+            quantityColumnInput.className = "form-control align-middle";
+            quantityColumnInput.min = minQuantity || 0;
+            quantityColumnInput.max = "999";
+            quantityColumnInput.step = "1";
+
+            quantityColumnInput.oninput = function() {
+                updateTransaction(i);
+            };
+
+            quantityColumnInput.onblur = function() {
+                updateTransaction(i);
+            };
+
+            quantityColumn.append(quantityColumnInput);
+
+            removeColumn = document.createElement("td");
+            removeColumn.className = "remove-item clickable align-middle";
+            removeColumn.textContent = "x";
+            removeColumn.onclick = function() {
+                removeFromTransaction(i);
+            }
+
+            row.appendChild(categoryColumn);
+            row.appendChild(existingQuantityColumn);
+            row.appendChild(quantityColumn);
+            row.appendChild(removeColumn);
+
+            document.getElementById("transaction-info").appendChild(row);
+
+        }
+
+        updateButtons();
+        updateSummary();
+
+    }
+
+    function updateSummary() {
+        summary = {};
+        summaryArray = [];
+
+				var valid = true;
+
+        transaction.forEach(function(item, key) {
+            if (!summary[item.id]) {
+              summary[item.id] = {
+                  name: item.absoluteName,
+                  conditions: item.conditions
+              }
+            }
+
+            if(!summary[item.id][item.condition]){
+              summary[item.id][item.condition] = {
+                  name: item.absoluteName + " (" + _.startCase(item.condition) + ")",
+                  currentQty: Number(item.stockInfo[item.condition].quantity) || 0,
+                  qtyModifier: 0,
+                  newQty: 0
+              }
+            }
+
+            if(item.condition){
+              summary[item.id][item.condition].qtyModifier = Number(summary[item.id][item.condition].qtyModifier) + Number(item.quantity || 0);
+              summary[item.id][item.condition].newQty = Number(summary[item.id][item.condition].currentQty) + summary[item.id][item.condition].qtyModifier || 0;
+            }
+
+
+        });
+
+        Object.keys(summary).forEach(function(key) {
+          if (summary[key].newQty < 0) {
+              valid = false;
+          }
+          Object.keys(summary[key]).forEach(function(keyKey){
+            if(summary[key].conditions.includes(keyKey)){
+              if (summary[key][keyKey].newQty < 0) {
+                  valid = false;
+              }
+              summaryArray.push(summary[key][keyKey]);
+            }
+          })
+        });
+
+        console.log(summaryArray);
+
+        if (!valid) {
+            $("#stockSummaryError").removeClass("d-none");
+            $("#stockSummaryError").text("New quantity can't be less than 0!")
+            $("#note").addClass("d-none");
+            $("#confirmTransactionContainer").addClass("d-none");
+        } else {
+            $("#stockSummaryError").addClass("d-none");
+            $("#note").removeClass("d-none");
+            $("#confirmTransactionContainer").removeClass("d-none");
+        }
+
+        if ($("#confirmTransaction").is(":checked") && valid) {
+            $("#confirmTransactionBtn").prop("disabled", false);
+        } else {
+            $("#confirmTransactionBtn").prop("disabled", true);
+        }
+
+        // Update table
+        $('#stockSummary').bootstrapTable('load', summaryArray)
+    }
+
+    function updateButtons() {
+        if (transaction.length > 0) {
+            $("#transaction_btns").removeClass("d-none");
+        } else {
+            $("#transaction_btns").addClass("d-none");
+        }
+
+    }
+
+    function isNumericAndWhole(n) {
+        return !isNaN(parseFloat(n)) && n % 1 == 0;
+    }
+
+    function isNumeric(n) {
+        return !isNaN(parseFloat(n));
+    }
+
+    function updateTransaction(index) {
+
+        if (isNumericAndWhole($("#quantity_" + index).val())) {
+            transaction[index].quantity = $("#quantity_" + index).val();
+        } else {
+            $("#quantity_" + index).val(0);
+            transaction[index].quantity = 0;
+        }
+
+        if (["add", "remove"].includes($("#mode_" + index).val())) {
+            transaction[index].mode = $("#mode_" + index).val();
+        } else {
+            $("#mode_" + index).val("Add");
+            transaction[index].mode = "Add";
+        }
+
+        if (transaction.length > 0) {
+
+            var tokens_total = 0;
+            var weight_total = 0;
+
+        }
+
+        updateButtons();
+
+    }
+
+    function completeTransaction() {
+        $.ajax({
+            type: "POST",
+            url: "{{public_address}}/api/post/tills/stock/levels/update/{{till.till_id}}",
+            data: {
+                summary: summary,
+                note: $("#note").val()
+            },
+            success: function(response) {
+
+								console.log(response);
+
+                $("#confirmTransaction").prop("checked", false)
+                $("#confirmTransactionBtn").prop("disabled", true)
+
+                if (response.status == "ok") {
+                    $("#note").val("")
+                    transaction = [];
+                    updateResponse("Success", response.msg);
+                } else {
+                    updateResponse("Fail", response.msg)
+                }
+            }
+        });
+    }
+
+    function updateResponse(status, message) {
+				if(message) {
+	        var messageId = "#stockUpdate" + status + "Message";
+	        $(messageId).text(message);
+				}
+
+        var modalId = "#stockUpdate" + status + "Modal";
+        $(modalId).modal("show");
+    }
+
+    $("#confirmTransaction").change(function() {
+        updateSummary();
+    });
+
+    $("#gridViewOn").on("click", function() {
+        $("#listView").addClass("d-none");
+        $("#gridView").removeClass("d-none");
+    })
+
+    $("#listViewOn").on("click", function() {
+        $("#gridView").addClass("d-none");
+        $("#listView").removeClass("d-none");
+    })
+</script>

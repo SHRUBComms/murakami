@@ -7,10 +7,7 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="mb-0">{{till.name}} <span class="text-success">&#9679;</span></h3>
-				<p id="tillBalanceWrapper" class="d-none text-muted mb-2">Till Balance: <b>£<span id="tillBalance"></span></b></p>
-				{{#if user.permissions.tills.updateCategories}}
-					<a href="{{public_address}}/till/manage/{{till.till_id}}?till_id={{till.till_id}}" class="btn btn-block btn-primary">Update Categories</a>
-				{{/if}}
+				<p id="tillBalanceWrapper" class="d-none text-muted">Till Balance: <b>£<span id="tillBalance"></span></b></p>
 			</div>
 		</div>
 
@@ -207,23 +204,9 @@
 
 							<h5 class="mb-1">Please select the condition of "<span id="itemConditionName" class="text-weight-bold"></span>"</h5>
 
-							<div class="form-check">
-							  <label class="form-check-label">
-							    <input type="radio" class="form-check-input" name="itemCondition" value="Bought New">Bought New
-							  </label>
-							</div>
+							<div id="availableItemConditions"></div>
 
-							<div class="form-check">
-							  <label class="form-check-label">
-							    <input type="radio" class="form-check-input" name="itemCondition" value="Reused">Reused
-							  </label>
-							</div>
 
-							<div class="form-check">
-							  <label class="form-check-label">
-							    <input type="radio" class="form-check-input" name="itemCondition" value="Fixed in workshop">Fixed in workshop
-							  </label>
-							</div>
 
 						</div>
 					</div>
@@ -326,20 +309,6 @@ $('#isMemberCheck').click(function () {
 });
 
 
-
-$('input[name="itemCondition"]:radio').change(function(){
-
-	let condition = this.value;
-
-
-	if(itemToAdd){
-		itemToAdd.condition = condition
-		document.getElementById("addItemConditionToTrans").onclick = function(){
-			addToTransaction(itemToAdd)
-		}
-	}
-});
-
 function addToTransaction(item){
 
 	var sanitizedItem = {};
@@ -347,11 +316,12 @@ function addToTransaction(item){
 	sanitizedItem.name = item.name;
 	sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
 	sanitizedItem.weight = item.weight || 0;
-	sanitizedItem.needsCondition = item.needsCondition;
+	sanitizedItem.conditions = item.conditions;
 	sanitizedItem.condition = item.condition;
 	sanitizedItem.action = item.action;
 	sanitizedItem.quantity = item.quantity || 1;
-
+	sanitizedItem.stockControl = item.stockControl || 0;
+	sanitizedItem.stockInfo = item.stockInfo;
 	sanitizedItem.allowTokens = item.allowTokens;
 	sanitizedItem.carbon_id = item.carbon_id;
 	sanitizedItem.member_discount = item.member_discount;
@@ -364,6 +334,13 @@ function addToTransaction(item){
 		sanitizedItem.setValue = false;
 	}
 
+	if(Array.isArray(sanitizedItem.conditions)){
+		if(sanitizedItem.conditions.length == 1){
+			sanitizedItem.condition = sanitizedItem.conditions[0]
+		}
+	} else {
+		sanitizedItem.condition = null;
+	}
 
 
 	if("{{diode_api_key}}"){
@@ -379,12 +356,63 @@ function addToTransaction(item){
 		}
 	} catch(err){}
 
-	if(sanitizedItem.needsCondition == 1 && !sanitizedItem.condition){
-		$('input[name="itemCondition"]:radio').prop('checked', false);
-		$("#addItemConditionToTrans").attr("onclick", "return false;");
-		$("#itemConditionName").text(sanitizedItem.name);
-		$('#itemConditionModal').modal('show');
-		itemToAdd = sanitizedItem;
+	if(!sanitizedItem.condition && Array.isArray(sanitizedItem.conditions)){
+		if(sanitizedItem.conditions.length == 1) {
+			sanitizedItem.condition = sanitizedItem.conditions[0];
+			itemToAdd = {};
+			transaction.push(sanitizedItem);
+		} else if(sanitizedItem.conditions.length > 0){
+			$('input[name="itemCondition"]:radio').prop('checked', false);
+			$("#addItemConditionToTrans").attr("onclick", "return false;");
+			$("#itemConditionName").text(sanitizedItem.name);
+			$("#availableItemConditions").html("");
+			sanitizedItem.conditions.forEach(function(condition, index){
+				var formWrapper = document.createElement("div");
+				formWrapper.className = "form-check";
+
+				var formLabel = document.createElement("label");
+				formLabel.className = "form-check-label";
+
+				var formInput = document.createElement("input");
+				formInput.type = "radio";
+				formInput.className = "form-check-input";
+				formInput.name = "itemCondition";
+				formInput.value = condition;
+
+				var labelText = document.createElement("span");
+				labelText.textContent = _.startCase(condition);
+
+				formLabel.appendChild(formInput);
+				formLabel.append(labelText)
+				formWrapper.appendChild(formLabel);
+
+				$("#availableItemConditions").append(formWrapper);
+
+			})
+
+			$('input[name="itemCondition"]:radio').change(function(){
+
+
+				let condition = this.value;
+
+
+				if(itemToAdd){
+					itemToAdd.condition = condition
+					document.getElementById("addItemConditionToTrans").onclick = function(){
+						addToTransaction(itemToAdd)
+					}
+				}
+			});
+
+			$('#itemConditionModal').modal('show');
+			itemToAdd = sanitizedItem;
+
+		} else {
+			itemToAdd = {};
+			sanitizedItem.condition = ""
+			transaction.push(sanitizedItem);
+		}
+
 	} else {
 
 		itemToAdd = {};
@@ -431,7 +459,7 @@ function updateTransactionList(){
 		var note = "(";
 
 		if (transaction[i].condition){
-			note += transaction[i].condition
+			note += _.startCase(transaction[i].condition)
 		}
 
 		if(member.name){
@@ -467,12 +495,20 @@ function updateTransactionList(){
 		quantityColumn.className = "align-middle"
 		if(transaction[i].action == null){
 				var quantityColumnInput = document.createElement("input");
+
+				let maxQuantity;
+				try {
+					maxQuantity = transaction[i].stockInfo[transaction[i].condition].quantity;
+				} catch(err){
+					maxQuantity = transaction[i].stockInfo.quantity
+				}
+
 				quantityColumnInput.id = "quantity_" + i;
 				quantityColumnInput.type = "number";
 				quantityColumnInput.value = transaction[i].quantity;
 				quantityColumnInput.className = "form-control align-middle"
 				quantityColumnInput.setAttribute("step", 1)
-				quantityColumnInput.setAttribute("max", 99)
+				quantityColumnInput.setAttribute("max", maxQuantity || 999);
 				quantityColumnInput.setAttribute("min", 1)
 
 				quantityColumnInput.oninput = function(){
@@ -919,6 +955,8 @@ function completeTransaction(type){
 
 function updateResponse(outcome, transactionSummary, carbonSummary, member, transaction_id) {
 
+	getCategories("");
+
 	if(outcome == "success"){
 		$("#transactionSuccessModal").modal("show");
 
@@ -969,8 +1007,8 @@ function sendEmailReceipt(transaction_id, member_id){
 			success: function(response){
 				$("#emailReceiptButton").prop("disabled", false);
 				$("#emailReceiptInputSubmit").prop("disabled", false);
-				console.log(response);
-				if(response.status = "ok"){
+
+				if(response.status == "ok"){
 					alert("Receipt sent!");
 				} else {
 					if(member_id){

@@ -31,9 +31,12 @@ router.get(
     Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
         TillActivity.getByTillId(till.till_id, function(status) {
+          till.status = status.opening;
           res.render("till/reports", {
             title: "Till Reports",
             tillActive: true,
+            tillDashboardActive: true,
+            tillMode: true,
             till: till,
             status: status
           });

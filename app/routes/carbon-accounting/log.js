@@ -30,7 +30,8 @@ router.get(
           tillMode: tillMode,
           till: {
             till_id: till_id,
-            group_id: req.user.working_groups[0]
+            group_id: req.user.working_groups[0],
+            status: 1
           },
           carbonActive: true,
           title: "Log Outgoing Weight",

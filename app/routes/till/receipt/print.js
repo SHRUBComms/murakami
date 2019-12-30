@@ -81,7 +81,7 @@ router.get(
                                           formattedTransactions[0];
 
                                         formattedTransaction.carbon = carbon;
-                                        res.render("till/receipt", {
+                                        res.render("till/receipt/print", {
                                           layout: "",
                                           title: "Receipt",
                                           transaction: formattedTransaction

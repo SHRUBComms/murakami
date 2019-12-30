@@ -12,7 +12,7 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
       order: [["name", "ASC"]]
     }).nodeify(function(err, categories) {
       if (err) {
-        callback(null);
+        callback([]);
       } else {
         if (format == "tree") {
           StockCategories.treeify(categories, function(tree) {

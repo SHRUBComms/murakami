@@ -11,7 +11,7 @@ var MailTemplates = Models.MailTemplates;
 module.exports = function(Mail, nodemailer, htmlToText, sanitizeHtml, cleaner) {
   return function(recipient, transaction, callback) {
     var source = fs.readFileSync(
-      rootDir + "/app/views/partials/till/email-receipt.hbs",
+      rootDir + "/app/views/till/receipt/email.hbs",
       "utf-8"
     );
     // Create email generator
@@ -33,5 +33,8 @@ module.exports = function(Mail, nodemailer, htmlToText, sanitizeHtml, cleaner) {
     var transporter = nodemailer.createTransport(Mail.supportSmtpConfig);
     transporter.use("compile", htmlToText());
     transporter.sendMail(message, callback);
+
+
+
   };
 };

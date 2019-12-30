@@ -45,7 +45,8 @@ router.get("/", function(req, res) {
           logVolunteerHoursActive: true,
           till: {
             till_id: till_id,
-            group_id: req.user.working_groups[0]
+            group_id: req.user.working_groups[0],
+            status: 1
           },
           title: "Log Volunteer Hours",
           volunteerHoursActive: true,

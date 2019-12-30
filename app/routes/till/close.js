@@ -28,6 +28,7 @@ router.get(
           ) {
             TillActivity.getByTillId(req.params.till_id, function(status) {
               if (status.opening == 1) {
+                till.status = status.opening;
                 WorkingGroups.getAll(function(err, allWorkingGroups) {
                   var group = allWorkingGroups[till.group_id];
 
@@ -96,12 +97,6 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
                   total_refunds = Number(total_refunds) || 0;
                   status.counted_float = Number(status.counted_float) || 0;
 
-                  console.log(
-                    Number(status.counted_float),
-                    Number(total_sales.toFixed),
-                    Number(total_refunds)
-                  );
-
                   var expected_float = Number(
                     Number(status.counted_float) +
                       Number(total_sales) -
@@ -116,7 +111,6 @@ router.post("/:till_id", Auth.isLoggedIn, function(req, res) {
                     note,
                     function(err) {
                       if (err) {
-                        //console.log(err);
                         req.flash("error", "Something went wrong!");
                         res.redirect(
                           process.env.PUBLIC_ADDRESS +

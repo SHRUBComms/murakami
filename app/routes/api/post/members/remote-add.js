@@ -132,7 +132,6 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
             if (error || response.statusCode != 200) {
               res.send({ status: "fail", msg: "Authentication failed." });
             } else {
-              console.log("Sumup Authed");
 
               Transactions.addTransaction(
                 {
@@ -211,7 +210,6 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
           }
         );
       } else {
-        console.log(err);
         res.send({
           status: "fail",
           msg: "Something went wrong creating your! You have not been charged."

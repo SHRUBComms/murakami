@@ -13,6 +13,7 @@ var Tills = Models.Tills;
 var TillActivity = Models.TillActivity;
 var Transactions = Models.Transactions;
 var StockCategories = Models.StockCategories;
+var StockRecords = Models.StockRecords;
 var Members = Models.Members;
 var Carbon = Models.Carbon;
 var CarbonCategories = Models.CarbonCategories;
@@ -37,6 +38,7 @@ router.get(
           ) {
             TillActivity.getByTillId(req.params.till_id, function(status) {
               if (status.opening == "1") {
+                till.status = status.opening;
                 WorkingGroups.getAll(function(err, allWorkingGroups) {
                   var group = allWorkingGroups[till.group_id];
                   StockCategories.getCategoriesByTillId(
@@ -141,6 +143,8 @@ router.post(
                     var categoriesAsObj = {};
                     var transactionSanitized = [];
                     var carbonTransaction = {};
+                    var quantities = {};
+                    var quantityError = false;
 
                     var tokens_total = 0;
                     var money_total = 0;
@@ -171,6 +175,25 @@ router.post(
                                   value = Number(categoriesAsObj[id].value);
                                 }
 
+                                if (categoriesAsObj[id].conditions != null) {
+                                  if (
+                                    categoriesAsObj[id].conditions.length == 1
+                                  ) {
+                                    condition =
+                                      categoriesAsObj[id].conditions[0];
+                                  } else if (
+                                    categoriesAsObj[id].conditions.includes(
+                                      transaction[i].condition
+                                    )
+                                  ) {
+                                    condition = transaction[i].condition;
+                                  } else {
+                                    condition = null;
+                                  }
+                                } else {
+                                  condition = null;
+                                }
+
                                 if (
                                   transaction[i].quantity >= 1 &&
                                   transaction[i].quantity
@@ -184,6 +207,67 @@ router.post(
                                   }
                                 } else {
                                   quantity = 1;
+                                }
+
+                                if (categoriesAsObj[id].stockControl) {
+                                  if (!quantities[id]) {
+                                    quantities[id] = { max: 0, quantity: 0 };
+                                  }
+
+                                  if (!quantities[id][condition]) {
+                                    quantities[id][condition] = {
+                                      max: 0,
+                                      quantity: 0
+                                    };
+                                  }
+
+                                  if (categoriesAsObj[id].stockInfo) {
+                                    if (!condition) {
+                                      if (
+                                        categoriesAsObj[id].stockInfo.quantity
+                                      ) {
+                                        quantities[id].max =
+                                          categoriesAsObj[
+                                            id
+                                          ].stockInfo.quantity;
+                                      }
+                                    } else {
+                                      if (
+                                        categoriesAsObj[id].stockInfo[condition]
+                                      ) {
+                                        if (
+                                          categoriesAsObj[id].stockInfo[
+                                            condition
+                                          ].quantity
+                                        ) {
+                                          quantities[id][condition].max =
+                                            categoriesAsObj[id].stockInfo[
+                                              condition
+                                            ].quantity;
+                                        }
+                                      }
+                                    }
+                                  }
+
+                                  if (!condition) {
+                                    quantities[id].quantity += quantity;
+                                    if (
+                                      quantities[id].quantity >
+                                      quantities[id].max
+                                    ) {
+                                      quantityError = true;
+                                    }
+                                  } else {
+                                    quantities[id][
+                                      condition
+                                    ].quantity += quantity;
+                                    if (
+                                      quantities[id][condition].quantity >
+                                      quantities[id][condition].max
+                                    ) {
+                                      quantityError = true;
+                                    }
+                                  }
                                 }
 
                                 transaction[i] = lodash.clone(
@@ -213,10 +297,10 @@ router.post(
 
                                 if (transaction[i].allowTokens == 1) {
                                   tokens_total =
-                                    +tokens_total +
-                                    +(
+                                    Number(tokens_total) +
+                                    Number(
                                       transaction[i].value *
-                                      transaction[i].quantity
+                                        transaction[i].quantity
                                     );
                                   if (categoriesAsObj[id].member_discount) {
                                     member_discount_tokens +=
@@ -227,10 +311,10 @@ router.post(
                                   }
                                 } else {
                                   money_total =
-                                    +money_total +
-                                    +(
+                                    Number(money_total) +
+                                    Number(
                                       transaction[i].value *
-                                      transaction[i].quantity
+                                        transaction[i].quantity
                                     );
                                   if (categoriesAsObj[id].member_discount) {
                                     member_discount_money +=
@@ -239,19 +323,6 @@ router.post(
                                       (transaction[i].value *
                                         transaction[i].quantity);
                                   }
-                                }
-
-                                if (
-                                  categoriesAsObj[id].needsCondition == 1 &&
-                                  [
-                                    "Bought New",
-                                    "Reused",
-                                    "Fixed in workshop"
-                                  ].includes(transaction[i].condition)
-                                ) {
-                                  condition = transaction[i].condition;
-                                } else {
-                                  condition = null;
                                 }
 
                                 if (
@@ -284,12 +355,14 @@ router.post(
                                     carbonTransaction[
                                       transaction[i].carbon_id
                                     ] =
-                                      +carbonTransaction[
-                                        transaction[i].carbon_id
-                                      ] +
-                                      +(
+                                      Number(
+                                        carbonTransaction[
+                                          transaction[i].carbon_id
+                                        ]
+                                      ) +
+                                      Number(
                                         transaction[i].weight *
-                                        transaction[i].quantity
+                                          transaction[i].quantity
                                       );
                                   } else {
                                     carbonTransaction[group_id][
@@ -299,10 +372,10 @@ router.post(
                                       transaction[i].quantity;
                                   }
                                   weight_total =
-                                    +weight_total +
-                                    +(
+                                    Number(weight_total) +
+                                    Number(
                                       transaction[i].weight *
-                                      transaction[i].quantity
+                                        transaction[i].quantity
                                     );
                                 }
 
@@ -407,7 +480,8 @@ router.post(
                                       }
                                     } else {
                                       totals.money = (
-                                        +tokens_total + +money_total
+                                        Number(tokens_total) +
+                                        Number(money_total)
                                       ).toFixed(2);
                                     }
 
@@ -419,7 +493,7 @@ router.post(
                                     }
                                   } else {
                                     totals.money = (
-                                      tokens_total + money_total
+                                      Number(tokens_total) + Number(money_total)
                                     ).toFixed(2);
                                     formattedTransaction.summary.totals = totals;
 
@@ -474,278 +548,319 @@ router.post(
                                       "Please specify a payment method.";
                                   }
 
+                                  if (quantityError) {
+                                    validTransaction = false;
+                                    whyTransactionFailed =
+                                      "Quantities exceeded stock.";
+                                  }
+
                                   if (validTransaction) {
-                                    Transactions.addTransaction(
-                                      formattedTransaction,
-                                      function(err, transaction_id) {
-                                        if (err) {
-                                          res.send({
-                                            status: "fail",
-                                            msg:
-                                              "Something has gone terribly wrong!"
-                                          });
-                                        } else {
-                                          let response = {
-                                            status: "ok",
-                                            transactionSummary: "",
-                                            carbonSummary: "",
-                                            transaction_id: transaction_id
-                                          };
+                                    StockCategories.bulkUpdateQuantities(
+                                      StockRecords,
+                                      req.user.id,
+                                      till.till_id,
+                                      categoriesAsObj,
+                                      quantities,
+                                      function() {
+                                        if (!err) {
+                                          Transactions.addTransaction(
+                                            formattedTransaction,
+                                            function(err, transaction_id) {
+                                              if (err) {
+                                                res.send({
+                                                  status: "fail",
+                                                  msg:
+                                                    "Something has gone terribly wrong!"
+                                                });
+                                              } else {
+                                                let response = {
+                                                  status: "ok",
+                                                  transactionSummary: "",
+                                                  carbonSummary: "",
+                                                  transaction_id: transaction_id
+                                                };
 
-                                          if (
-                                            formattedTransaction.summary.totals
-                                              .money > 0
-                                          ) {
-                                            formattedTransaction.summary.paymentMethod = paymentMethod;
-                                            response.transactionSummary +=
-                                              " £" +
-                                              formattedTransaction.summary
-                                                .totals.money;
-                                            if (
-                                              formattedTransaction.summary
-                                                .totals.tokens > 0
-                                            ) {
-                                              response.transactionSummary +=
-                                                " and";
-                                            }
-                                          }
+                                                if (
+                                                  formattedTransaction.summary
+                                                    .totals.money > 0
+                                                ) {
+                                                  formattedTransaction.summary.paymentMethod = paymentMethod;
+                                                  response.transactionSummary +=
+                                                    " £" +
+                                                    formattedTransaction.summary
+                                                      .totals.money;
+                                                  if (
+                                                    formattedTransaction.summary
+                                                      .totals.tokens > 0
+                                                  ) {
+                                                    response.transactionSummary +=
+                                                      " and";
+                                                  }
+                                                }
 
-                                          if (
-                                            formattedTransaction.summary.totals
-                                              .tokens > 0
-                                          ) {
-                                            response.transactionSummary +=
-                                              " " +
-                                              formattedTransaction.summary
-                                                .totals.tokens +
-                                              " tokens";
-                                          }
+                                                if (
+                                                  formattedTransaction.summary
+                                                    .totals.tokens > 0
+                                                ) {
+                                                  response.transactionSummary +=
+                                                    " " +
+                                                    formattedTransaction.summary
+                                                      .totals.tokens +
+                                                    " tokens";
+                                                }
 
-                                          if (
-                                            !formattedTransaction.summary.totals
-                                              .tokens &&
-                                            !formattedTransaction.summary.totals
-                                              .money
-                                          ) {
-                                            response.transactionSummary +=
-                                              " Nothing";
-                                          }
+                                                if (
+                                                  !formattedTransaction.summary
+                                                    .totals.tokens &&
+                                                  !formattedTransaction.summary
+                                                    .totals.money
+                                                ) {
+                                                  response.transactionSummary +=
+                                                    " Nothing";
+                                                }
 
-                                          response.transactionSummary +=
-                                            " paid";
+                                                response.transactionSummary +=
+                                                  " paid";
 
-                                          if (foundMember) {
-                                            if (
-                                              formattedTransaction.summary
-                                                .totals.tokens > 0
-                                            ) {
-                                              member.balance =
-                                                member.balance -
-                                                formattedTransaction.summary
-                                                  .totals.tokens;
-                                            } else {
-                                              member.balance = member.balance;
-                                            }
+                                                if (foundMember) {
+                                                  if (
+                                                    formattedTransaction.summary
+                                                      .totals.tokens > 0
+                                                  ) {
+                                                    member.balance =
+                                                      member.balance -
+                                                      formattedTransaction
+                                                        .summary.totals.tokens;
+                                                  } else {
+                                                    member.balance =
+                                                      member.balance;
+                                                  }
 
-                                            if (membershipBought) {
-                                              if (
-                                                member.membership_type ==
-                                                "unpaid"
-                                              ) {
-                                                Members.update(
-                                                  { membership_type: null },
-                                                  {
-                                                    where: {
-                                                      member_id: member_id
+                                                  if (membershipBought) {
+                                                    if (
+                                                      member.membership_type ==
+                                                      "unpaid"
+                                                    ) {
+                                                      Members.update(
+                                                        {
+                                                          membership_type: null
+                                                        },
+                                                        {
+                                                          where: {
+                                                            member_id: member_id
+                                                          }
+                                                        }
+                                                      ).nodeify(function() {});
                                                     }
                                                   }
-                                                ).nodeify(function() {});
-                                              }
-                                            }
 
-                                            if (membershipBought == "MEM-FY") {
-                                              Members.renew(
-                                                member_id,
-                                                "full_year",
-                                                function() {}
-                                              );
+                                                  if (
+                                                    membershipBought == "MEM-FY"
+                                                  ) {
+                                                    Members.renew(
+                                                      member_id,
+                                                      "full_year",
+                                                      function() {}
+                                                    );
 
-                                              Transactions.addTransaction(
-                                                {
-                                                  member_id: member_id,
-                                                  till_id: till.till_id,
-                                                  user_id: "automatic",
-                                                  date: moment().add(
-                                                    1,
-                                                    "seconds"
-                                                  ),
-                                                  summary: {
-                                                    totals: {
-                                                      tokens: 5
-                                                    },
-                                                    bill: [
+                                                    Transactions.addTransaction(
                                                       {
-                                                        tokens: "5",
-                                                        item_id: "membership"
+                                                        member_id: member_id,
+                                                        till_id: till.till_id,
+                                                        user_id: "automatic",
+                                                        date: moment().add(
+                                                          1,
+                                                          "seconds"
+                                                        ),
+                                                        summary: {
+                                                          totals: {
+                                                            tokens: 5
+                                                          },
+                                                          bill: [
+                                                            {
+                                                              tokens: "5",
+                                                              item_id:
+                                                                "membership"
+                                                            }
+                                                          ],
+                                                          comment: "",
+                                                          paymentMethod: null
+                                                        }
+                                                      },
+                                                      function(err) {
+                                                        Members.updateBalance(
+                                                          member_id,
+                                                          (member.balance ||
+                                                            0) + 5,
+                                                          function(err) {}
+                                                        );
                                                       }
-                                                    ],
-                                                    comment: "",
-                                                    paymentMethod: null
+                                                    );
+
+                                                    response.transactionSummary +=
+                                                      " 12 months of membership issued.";
+                                                  } else if (
+                                                    membershipBought == "MEM-HY"
+                                                  ) {
+                                                    Members.renew(
+                                                      member_id,
+                                                      "half_year",
+                                                      function() {}
+                                                    );
+
+                                                    response.transactionSummary +=
+                                                      " 6 months of membership issued.";
+                                                  } else if (
+                                                    membershipBought == "MEM-QY"
+                                                  ) {
+                                                    Members.renew(
+                                                      member_id,
+                                                      "3_months",
+                                                      function() {}
+                                                    );
+
+                                                    response.transactionSummary +=
+                                                      " 3 months of membership issued.";
                                                   }
-                                                },
-                                                function(err) {
+                                                }
+
+                                                formattedTransaction.summary.totals.money =
+                                                  formattedTransaction.summary
+                                                    .totals.money || 0;
+
+                                                if (foundMember) {
                                                   Members.updateBalance(
                                                     member_id,
-                                                    (member.balance || 0) + 5,
+                                                    member.balance,
                                                     function(err) {}
                                                   );
                                                 }
-                                              );
 
-                                              response.transactionSummary +=
-                                                " 12 months of membership issued.";
-                                            } else if (
-                                              membershipBought == "MEM-HY"
-                                            ) {
-                                              Members.renew(
-                                                member_id,
-                                                "half_year",
-                                                function() {}
-                                              );
+                                                var simpleCarbon = [];
 
-                                              response.transactionSummary +=
-                                                " 6 months of membership issued.";
-                                            } else if (
-                                              membershipBought == "MEM-QY"
-                                            ) {
-                                              Members.renew(
-                                                member_id,
-                                                "3_months",
-                                                function() {}
-                                              );
-
-                                              response.transactionSummary +=
-                                                " 3 months of membership issued.";
-                                            }
-                                          }
-
-                                          formattedTransaction.summary.totals.money =
-                                            formattedTransaction.summary.totals
-                                              .money || 0;
-
-                                          if (foundMember) {
-                                            Members.updateBalance(
-                                              member_id,
-                                              member.balance,
-                                              function(err) {}
-                                            );
-                                          }
-
-                                          var simpleCarbon = [];
-
-                                          async.eachOf(
-                                            carbonTransaction,
-                                            function(
-                                              trans_object,
-                                              group_id,
-                                              callback
-                                            ) {
-                                              let carbon = {
-                                                member_id: member_id || "anon",
-                                                user_id: req.user.id,
-                                                trans_object: trans_object,
-                                                fx_transaction_id: transaction_id,
-                                                group_id: group_id,
-                                                method: "reused"
-                                              };
-                                              Carbon.add(carbon, function(err) {
-                                                simpleCarbon.push({
-                                                  trans_object: trans_object,
-                                                  method: "reused"
-                                                });
-                                                callback();
-                                              });
-                                            },
-                                            function() {
-                                              Helpers.calculateCarbon(
-                                                simpleCarbon,
-                                                carbonCategories,
-                                                function(carbonSaved) {
-                                                  response.carbonSummary =
-                                                    Math.abs(
-                                                      (
-                                                        carbonSaved * 1e-3
-                                                      ).toFixed(2)
-                                                    ) + "kg of carbon saved";
-
-                                                  if (paymentMethod == "card") {
-                                                    var sumupSummon =
-                                                      "sumupmerchant://pay/1.0?affiliate-key=" +
-                                                      process.env
-                                                        .SUMUP_AFFILIATE_KEY +
-                                                      "&app-id=" +
-                                                      process.env.SUMUP_APP_ID +
-                                                      "&title=" +
-                                                      req.user
-                                                        .allWorkingGroupsObj[
-                                                        till.group_id
-                                                      ].name +
-                                                      " purchase" +
-                                                      "&total=" +
-                                                      totals.money +
-                                                      "&amount=" +
-                                                      totals.money +
-                                                      "&currency=GBP" +
-                                                      "&foreign-tx-id=" +
-                                                      transaction_id +
-                                                      "&skipSuccessScreen=" +
-                                                      process.env
-                                                        .DISABLE_SUMUP_RECEIPTS +
-                                                      "&callback=" +
-                                                      encodeURIComponent(
-                                                        process.env
-                                                          .PUBLIC_ADDRESS +
-                                                          "/api/get/tills/smp-callback" +
-                                                          "/?murakamiStatus=" +
-                                                          response.status +
-                                                          "&transactionSummary=" +
-                                                          response.transactionSummary +
-                                                          "&carbonSummary=" +
-                                                          response.carbonSummary +
-                                                          "&till_id=" +
-                                                          till.till_id
-                                                      );
-
-                                                    if (member) {
-                                                      if (member.email) {
-                                                        sumupSummon +=
-                                                          "&receipt-email=" +
-                                                          member.email;
-                                                      }
-                                                      if (member.phone_no) {
-                                                        sumupSummon +=
-                                                          "&receipt-mobilephone=" +
-                                                          member.phone_no;
-                                                      }
-                                                    }
-
-                                                    if (
-                                                      response.status == "ok"
+                                                async.eachOf(
+                                                  carbonTransaction,
+                                                  function(
+                                                    trans_object,
+                                                    group_id,
+                                                    callback
+                                                  ) {
+                                                    let carbon = {
+                                                      member_id:
+                                                        member_id || "anon",
+                                                      user_id: req.user.id,
+                                                      trans_object: trans_object,
+                                                      fx_transaction_id: transaction_id,
+                                                      group_id: group_id,
+                                                      method: "reused"
+                                                    };
+                                                    Carbon.add(carbon, function(
+                                                      err
                                                     ) {
-                                                      res.send({
-                                                        status: "redirect",
-                                                        url: sumupSummon
+                                                      simpleCarbon.push({
+                                                        trans_object: trans_object,
+                                                        method: "reused"
                                                       });
-                                                    } else {
-                                                      res.send(response);
-                                                    }
-                                                  } else {
-                                                    res.send(response);
+                                                      callback();
+                                                    });
+                                                  },
+                                                  function() {
+                                                    Helpers.calculateCarbon(
+                                                      simpleCarbon,
+                                                      carbonCategories,
+                                                      function(carbonSaved) {
+                                                        response.carbonSummary =
+                                                          Math.abs(
+                                                            (
+                                                              carbonSaved * 1e-3
+                                                            ).toFixed(2)
+                                                          ) +
+                                                          "kg of carbon saved";
+
+                                                        if (
+                                                          paymentMethod ==
+                                                          "card"
+                                                        ) {
+                                                          var sumupSummon =
+                                                            "sumupmerchant://pay/1.0?affiliate-key=" +
+                                                            process.env
+                                                              .SUMUP_AFFILIATE_KEY +
+                                                            "&app-id=" +
+                                                            process.env
+                                                              .SUMUP_APP_ID +
+                                                            "&title=" +
+                                                            req.user
+                                                              .allWorkingGroupsObj[
+                                                              till.group_id
+                                                            ].name +
+                                                            " purchase" +
+                                                            "&total=" +
+                                                            totals.money +
+                                                            "&amount=" +
+                                                            totals.money +
+                                                            "&currency=GBP" +
+                                                            "&foreign-tx-id=" +
+                                                            transaction_id +
+                                                            "&skipSuccessScreen=" +
+                                                            process.env
+                                                              .DISABLE_SUMUP_RECEIPTS +
+                                                            "&callback=" +
+                                                            encodeURIComponent(
+                                                              process.env
+                                                                .PUBLIC_ADDRESS +
+                                                                "/api/get/tills/smp-callback" +
+                                                                "/?murakamiStatus=" +
+                                                                response.status +
+                                                                "&transactionSummary=" +
+                                                                response.transactionSummary +
+                                                                "&carbonSummary=" +
+                                                                response.carbonSummary +
+                                                                "&till_id=" +
+                                                                till.till_id
+                                                            );
+
+                                                          if (member) {
+                                                            if (member.email) {
+                                                              sumupSummon +=
+                                                                "&receipt-email=" +
+                                                                member.email;
+                                                            }
+                                                            if (
+                                                              member.phone_no
+                                                            ) {
+                                                              sumupSummon +=
+                                                                "&receipt-mobilephone=" +
+                                                                member.phone_no;
+                                                            }
+                                                          }
+
+                                                          if (
+                                                            response.status ==
+                                                            "ok"
+                                                          ) {
+                                                            res.send({
+                                                              status:
+                                                                "redirect",
+                                                              url: sumupSummon
+                                                            });
+                                                          } else {
+                                                            res.send(response);
+                                                          }
+                                                        } else {
+                                                          res.send(response);
+                                                        }
+                                                      }
+                                                    );
                                                   }
-                                                }
-                                              );
+                                                );
+                                              }
                                             }
                                           );
+                                        } else {
+                                          res.send({
+                                            status: "fail",
+                                            msg: "Couldn't update stock levels."
+                                          });
                                         }
                                       }
                                     );

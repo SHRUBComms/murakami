@@ -94,6 +94,22 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     transaction.summary.bill,
                                     function(item, callback) {
                                       if (flatCategoriesAsObj[item.item_id]) {
+                                        if (item.condition) {
+                                          flatCategoriesAsObj[
+                                            item.item_id + "_" + item.condition
+                                          ] = lodash.cloneDeep(
+                                            flatCategoriesAsObj[item.item_id]
+                                          );
+                                          item.item_id += "_" + item.condition;
+
+                                          flatCategoriesAsObj[
+                                            item.item_id
+                                          ].absolute_name +=
+                                            " (" +
+                                            lodash.startCase(item.condition) +
+                                            ")";
+                                        }
+
                                         if (!unitSales[item.item_id]) {
                                           if (
                                             flatCategoriesAsObj[item.item_id]

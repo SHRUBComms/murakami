@@ -4,12 +4,11 @@
 	<div class="card">
 		<div class="card-body">
 			<h3>
-				<span id="tillName">{{till.name}}</span>
-				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}}">&#9679;</span></h3>
+				<span id="tillName" class="align-middle">{{till.name}}</span>
+				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}} align-top">&#9679;</span></h3>
   			{{#if till.disabled}}
   				<p class="text-danger font-weight-bold mt-1">Disabled</p>
         {{/if}}
-  			<a href="{{public_address}}/till/manage/{{till.till_id}}" class="btn btn-block btn-primary mt-3">Manage Till</a>
 		</div>
 	</div>
 </div>
@@ -22,7 +21,8 @@
       <option value="transactions">Transactions</option>
       <option value="floats">Till Reconciliation (Opening/Closing Floats)</option>
       <option value="unit-sales">Sales</option>
-      <!--<option value="full-summary">Sales Summary</option>-->
+			<option value="stock-records">Stock Records</option>
+			<option value="stock-levels">Current Stock Levels</option>
     </select>
   </div>
 
@@ -73,89 +73,14 @@
 
 <div class="row mt-4">
 	<div class="col-md-12 mx-auto">
-		<div class="row">
-			<div class="col-md-12">
-				<div id="transactionsNote" class="alert alert-info d-none p-4" role="alert">
-					<span class="badge badge-pill badge-info mr-2">Info</span><b>Please note that refunds and failed card transactions have been redacted.</b>
-				</div>
-			</div>
-		</div>
-		<table id="transactionsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
-         "fileName": "{{till.name}} Transactions"
-       }'>
-		    <thead>
-		        <tr>
-		        	<th></th>
-		        	<th></th>
-		        	<th></th>
-		        	<th colspan="3">Totals</th>
-		        </tr>
-		        <tr>
-		        	<th data-field="date">Timestamp</th>
-		        	<th data-field="customer.name">Customer</th>
-		            <th data-field="bill">Summary</th>
-		        	<th scope="col" data-field="totals.tokens">Tokens</th>
-		        	<th scope="col" data-field="totals.cash">Cash</th>
-							<th scope="col" data-field="totals.card">Card</th>
-		        </tr>
-		    </thead>
 
-			<tbody>
-			</tbody>
-		</table>
+		{{>till/reports/transactions}}
 
-		<table id="floatsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
-         "fileName": "{{till.name}} Floats"
-       }'>
-		    <thead>
-		        <tr>
-		        	<th data-field="timestamp">Timestamp</th>
-		        	<th data-field="user">User</th>
-		          <th data-field="action">Action</th>
-		        	<th data-field="summary">Summary</th>
-		        	<th data-field="discrepancy">Discrepancy</th>
-							<th data-field="note" data-width="15%">Note</th>
-		        </tr>
-		    </thead>
+		{{>till/reports/floats}}
 
-			<tbody>
-			</tbody>
-		</table>
+		{{>till/reports/unit-sales}}
 
-		<div class="row">
-			<div class="col-md-12">
-				<div id="unitSalesNote" class="alert alert-info d-none p-4" role="alert">
-				  <span class="badge badge-pill badge-info mr-2">Info</span><b>Please note that "Estimated Revenue" includes tokens.</b> Tokens are automatically split over an entire transaction so can't be attributed to a single item.
-				</div>
-			</div>
-		</div>
-
-		<table id="unitSalesTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
-         "fileName": "{{till.name}} Unit Sales"
-       }'   data-sort-name="salesInfo.totalSales" data-sort-order="desc">
-		    <thead>
-
-						<tr>
-		        	<th colspan="2">Category</th>
-		        	<th></th>
-		        	<th></th>
-							<th></th>
-		        </tr>
-		        <tr>
-
-							<th scope="col" data-field="categoryInfo.groupName" data-sortable="true">Working Group</th>
-		        	<th scope="col" data-field="categoryInfo.name" data-sortable="true">Name</th>
-							<th data-field="salesInfo.totalSales" data-sortable="true">Units Sold</th>
-		          <th data-field="salesInfo.totalRevenue" data-sortable="true">Estimated Revenue (£)</th>
-							<th data-field="salesInfo.memberRatio" data-sortable="true">Bought By Members (%)</th>
-
-		        </tr>
-
-		    </thead>
-
-			<tbody>
-			</tbody>
-		</table>
+		{{>till/reports/stock-records}}
 
 	</div>
 
@@ -166,6 +91,7 @@
 var transacationsTable = $("#transactionsTable");
 var floatsTable = $("#floatsTable");
 var unitSalesTable = $("#unitSalesTable");
+var stockRecordsTable = $("#stockRecordsTable");
 
 let searchParams = new URLSearchParams(window.location.search)
 
@@ -270,6 +196,24 @@ function getReport(){
 						unitSalesTable.bootstrapTable('load', response.unitSales)
 					}
 				})
+		} else if (reportType == "stock-records"){
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/stock-records",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(response){
+						console.log(response);
+						$("#stockRecordsTable").removeClass("d-none")
+						$("#stockRecordsToolbar").removeClass("d-none");
+						stockRecordsTable.bootstrapTable('load', response)
+					}
+				})
 		}
 
 	}
@@ -289,10 +233,13 @@ function resetAllReports() {
 	$("#unitSalesToolbar").addClass("d-none");
 	$("#unitSalesNote").addClass("d-none");
 
+	$("#stockRecordsTable").addClass("d-none");
+	$("#stockRecordsToolbar").addClass("d-none");
+
 }
 
 $("document").ready(function(){
-	tableIds = ["transactions", "floats", "unitSales"]
+	tableIds = ["transactions", "floats", "unitSales", "stockRecords"]
 
 	$(".bootstrap-table > div.fixed-table-toolbar").each(function(i){
 		$(this).attr("id", tableIds[i] + "Toolbar");

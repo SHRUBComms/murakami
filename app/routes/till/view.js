@@ -41,6 +41,7 @@ router.get(
           res.render("till/manage", {
             title: "Manage Tills",
             tillsActive: true,
+            tillDashboardActive: true,
             tills: tills
           });
         }

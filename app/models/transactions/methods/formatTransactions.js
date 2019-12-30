@@ -1,4 +1,5 @@
 var async = require("async");
+var lodash = require("lodash");
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -64,7 +65,7 @@ module.exports = function(Transactions, sequelize, DataTypes) {
               if (!isNaN(transaction.summary.totals.money)) {
                 formattedTransaction.totals.cash = Number().toFixed(2);
               } else {
-                formattedTransaction.totals.cash == "0.00";
+                formattedTransaction.totals.cash = "0.00";
               }
             }
 
@@ -189,7 +190,7 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                 }
 
                 if (transaction.summary.bill[i].condition) {
-                  bill += " (" + transaction.summary.bill[i].condition + ")";
+                  bill += " (" + lodash.startCase(transaction.summary.bill[i].condition) + ")";
                   billObject.condition = transaction.summary.bill[i].condition;
                 }
 

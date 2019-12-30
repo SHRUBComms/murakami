@@ -139,7 +139,6 @@ router.post(
                 expectedQuestionnaire,
                 function(question, question_id, callback) {
                   if (!questionnaire[question_id]) {
-                    console.log(question_id + ": undefined");
                     questionnaireValid = false;
                   } else {
                     if (question.type == "multi-select") {
@@ -149,7 +148,6 @@ router.post(
                             questionnaire[question_id]
                           ];
                         } catch (err) {
-                          console.log(question_id + ": not array");
                           questionnaireValid = false;
                         }
                       }
@@ -159,7 +157,6 @@ router.post(
                           questionnaire[question_id]
                         );
                       } catch (err) {
-                        console.log(question_id + ": not text.");
                         questionnaireValid = false;
                       }
                     }

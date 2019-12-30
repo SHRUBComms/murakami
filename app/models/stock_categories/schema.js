@@ -35,14 +35,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.INTEGER(11),
         allowNull: true
       },
-      needsCondition: {
-        type: DataTypes.INTEGER(4),
-        allowNull: false,
-        defaultValue: "0"
-      },
-      quantity: {
-        type: DataTypes.INTEGER(11),
-        allowNull: true
+      conditions: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: []
       },
       allowTokens: {
         type: DataTypes.INTEGER(4),
@@ -66,6 +62,16 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.INTEGER(4),
         allowNull: false,
         defaultValue: "1"
+      },
+      stockControl: {
+        type: DataTypes.INTEGER(4),
+        allowNull: false,
+        defaultValue: "0"
+      },
+      stockInfo: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: {}
       }
     },
     {
