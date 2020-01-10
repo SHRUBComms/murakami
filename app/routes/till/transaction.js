@@ -71,6 +71,7 @@ router.get(
                         sumupCallback: req.query.sumupCallback || false,
                         transactionSummary:
                           req.query.transactionSummary || null,
+                        murakamiTransactionId: req.query.murakamiTransactionId || null,
                         carbonSummary: req.query.carbonSummary || null,
                         murakamiStatus: req.query.murakamiStatus || null,
                         smpStatus: req.query["smp-status"] || null,

@@ -945,7 +945,7 @@ function completeTransaction(type){
 
 							updateResponse("success", response.transactionSummary, response.carbonSummary, member, response.transaction_id)
 
-							updateReceipt(response.transaction_id);
+							updateReceipt(response.transaction_id || "{{murakamiTransactionId}}");
 
 	            if(member.name){
 

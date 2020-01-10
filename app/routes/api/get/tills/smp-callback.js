@@ -96,6 +96,9 @@ router.get(
                               }
                             }
                           ).nodeify(function(err) {
+                            redirectUri +=
+                              "&murakamiTransactionId=" +
+                              murakamiTransaction.transaction_id;
                             res.redirect(redirectUri);
                           });
                         } else {
