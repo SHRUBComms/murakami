@@ -116,7 +116,7 @@ router.post(
                                                               ) {
                                                                 // Issue sumup refund.
                                                                 Helpers.SumUpIssueRefund(
-                                                                  transaction_id,
+                                                                  sumupTransaction.id,
                                                                   amount,
                                                                   access_token,
                                                                   function(

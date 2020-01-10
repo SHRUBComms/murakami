@@ -1239,22 +1239,25 @@ $(document).ready(function(){
 
 {{/if}}
 
-{{#if sumupCallback}}
-	{{#ifCond smpStatus '==' 'failed'}}
-		updateResponse("fail", "Error code: {{smpMsg}}")
-	{{else}}
-		{{#ifCond murakamiStatus '==' 'ok'}}
-			{{#if transactionSummary}}
-				{{#if carbonSummary}}
-					updateResponse("success", "{{escape transactionSummary}}", "{{escape carbonSummary}}", { member_id: "{{member_id}}" })
-				{{/if}}
-			{{/if}}
+$(window).load(function() {
+	{{#if sumupCallback}}
+		{{#ifCond smpStatus '==' 'failed'}}
+			updateResponse("fail", "Error code: {{smpMsg}}")
 		{{else}}
-			{{#if transactionSummary}}
-				updateResponse("fail", "{{escape transactionSummary}}")
-			{{/if}}
+			{{#ifCond murakamiStatus '==' 'ok'}}
+				{{#if transactionSummary}}
+					{{#if carbonSummary}}
+							updateResponse("success", "{{escape transactionSummary}}", "{{escape carbonSummary}}", { member_id: "{{member_id}}" })
+					{{/if}}
+				{{/if}}
+			{{else}}
+				{{#if transactionSummary}}
+						updateResponse("fail", "{{escape transactionSummary}}")
+				{{/if}}
+			{{/ifCond}}
 		{{/ifCond}}
-	{{/ifCond}}
-{{/if}}
+	{{/if}}
+})
+
 
 </script>

@@ -1,6 +1,7 @@
 var request = require("request");
 
 module.exports = function(transaction_id, amount, access_token, callback) {
+  console.log(transaction_id);
   request.post(
     "https://api.sumup.com/v0.1/me/refund/" + transaction_id,
     {
@@ -12,10 +13,10 @@ module.exports = function(transaction_id, amount, access_token, callback) {
       }
     },
     function(error, sumupResponse, body) {
-      if (!err && sumupResponse.statusCode == 204) {
+      if (!error && sumupResponse.statusCode == 204) {
         callback(null);
       } else {
-        callback(err);
+        callback(error);
       }
     }
   );

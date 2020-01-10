@@ -32,7 +32,7 @@ module.exports = function(Transactions, sequelize, DataTypes) {
           updatedSummary.refunded = refundedTransactionId;
 
           if (updatedSummary.comment) {
-            updatedSummarycomment += "<br />";
+            updatedSummary.comment += "<br />";
           }
           updatedSummary.comment +=
             (Number(transactionToRefund.summary.totals.money).toFixed(2) ==
