@@ -48,35 +48,39 @@ router.post(
                 startDate,
                 endDate,
                 function(err, records) {
-                  if (records.length > 0) {
-                    Users.getAll(req.user, function(err, users, usersObj) {
-                      StockCategories.getCategories("tree", function(
-                        err,
-                        categories
-                      ) {
-                        var flatCategories = Helpers.flatten(categories);
+                  if (!err && records) {
+                    if (records.length > 0) {
+                      Users.getAll(req.user, function(err, users, usersObj) {
+                        StockCategories.getCategories("tree", function(
+                          err,
+                          categories
+                        ) {
+                          var flatCategories = Helpers.flatten(categories);
 
-                        var flatCategoriesAsObj = {};
-                        async.each(
-                          flatCategories,
-                          function(category, callback) {
-                            flatCategoriesAsObj[category.item_id] = category;
-                            callback();
-                          },
-                          function() {
-                            StockRecords.formatRecords(
-                              records,
-                              usersObj,
-                              flatCategoriesAsObj,
-                              req.user.allWorkingGroupsObj,
-                              function(formattedRecords) {
-                                res.send(formattedRecords);
-                              }
-                            );
-                          }
-                        );
+                          var flatCategoriesAsObj = {};
+                          async.each(
+                            flatCategories,
+                            function(category, callback) {
+                              flatCategoriesAsObj[category.item_id] = category;
+                              callback();
+                            },
+                            function() {
+                              StockRecords.formatRecords(
+                                records,
+                                usersObj,
+                                flatCategoriesAsObj,
+                                req.user.allWorkingGroupsObj,
+                                function(formattedRecords) {
+                                  res.send(formattedRecords);
+                                }
+                              );
+                            }
+                          );
+                        });
                       });
-                    });
+                    } else {
+                      res.send([]);
+                    }
                   } else {
                     res.send([]);
                   }
