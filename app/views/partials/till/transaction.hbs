@@ -510,7 +510,7 @@ function updateTransactionList(){
 				try {
 					maxQuantity = transaction[i].stockInfo[transaction[i].condition].quantity;
 				} catch(err){
-					maxQuantity = transaction[i].stockInfo.quantity
+					maxQuantity = null;
 				}
 
 				quantityColumnInput.id = "quantity_" + i;
