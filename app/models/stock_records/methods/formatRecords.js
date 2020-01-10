@@ -36,7 +36,7 @@ module.exports = function(StockRecords, sequelize, DataTypes) {
           }
         }
 
-        formattedRecord.actionInfo.method = lodash.startCase(
+        formattedRecord.actionInfo.niceMethod = lodash.startCase(
           formattedRecord.actionInfo.method
         );
 

@@ -22,23 +22,31 @@ router.get(
       category
     ) {
       if (!err && category) {
-        StockRecords.getRecords(req.params.item_id, req.query.condition, function(err, records) {
-          if (!err && records) {
-            Users.getAll(req.user, function(err, users, usersObj) {
-              StockRecords.formatRecords(
-                records,
-                usersObj,
-                null,
-                null,
-                function(formattedRecords) {
-                  res.send(formattedRecords);
-                }
-              );
-            });
-          } else {
-            res.send([]);
+        StockRecords.getRecords(
+          req.params.item_id,
+          req.query.condition,
+          function(err, records) {
+            if (!err && records) {
+              if (records.length > 0) {
+                Users.getAll(req.user, function(err, users, usersObj) {
+                  StockRecords.formatRecords(
+                    records,
+                    usersObj,
+                    null,
+                    null,
+                    function(formattedRecords) {
+                      res.send(formattedRecords);
+                    }
+                  );
+                });
+              } else {
+                res.send([]);
+              }
+            } else {
+              res.send([]);
+            }
           }
-        });
+        );
       } else {
         res.send([]);
       }

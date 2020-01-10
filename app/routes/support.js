@@ -6,6 +6,7 @@ var rootDir = process.env.CWD;
 
 var Models = require(rootDir + "/app/models/sequelize");
 var Tills = Models.Tills;
+var TillActivity = Models.TillActivity;
 
 var Mail = require(rootDir + "/app/configs/mail/root");
 
@@ -13,15 +14,17 @@ router.get("/", function(req, res) {
   var till_id = req.query.till_id;
   var tillMode = false;
   Tills.getById(till_id, function(err, till) {
-    if (till) {
-      tillMode = true;
-      till.status = 1;
-    }
-    res.render("support", {
-      tillMode: tillMode,
-      till: till,
-      supportActive: true,
-      title: "Support"
+    TillActivity.getByTillId(till.till_id, function(status) {
+      if (till) {
+        till.status = status.opening;
+        tillMode = true;
+      }
+      res.render("support", {
+        tillMode: tillMode,
+        till: till,
+        supportActive: true,
+        title: "Support"
+      });
     });
   });
 });

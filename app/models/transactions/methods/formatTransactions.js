@@ -63,7 +63,9 @@ module.exports = function(Transactions, sequelize, DataTypes) {
             if (transaction.summary.paymentMethod == "cash") {
               formattedTransaction.totals.card = "0.00";
               if (!isNaN(transaction.summary.totals.money)) {
-                formattedTransaction.totals.cash = Number().toFixed(2);
+                formattedTransaction.totals.cash = Number(
+                  transaction.summary.totals.money
+                ).toFixed(2);
               } else {
                 formattedTransaction.totals.cash = "0.00";
               }
@@ -81,16 +83,20 @@ module.exports = function(Transactions, sequelize, DataTypes) {
             }
 
             formattedTransaction.totals.tokens =
-              transaction.summary.totals.tokens || "0";
+              transaction.summary.totals.tokens || 0;
 
-            if(!isNaN(transaction.summary.totals.money)){
-              formattedTransaction.totals.money =
+            formattedTransaction.totals.money = "";
+            if (transaction.summary.bill[0].item_id == "refund") {
+              formattedTransaction.totals.money = "-";
+            }
+
+            if (!isNaN(transaction.summary.totals.money)) {
+              formattedTransaction.totals.money +=
                 "£" +
                 (Number(transaction.summary.totals.money).toFixed(2) || "0.00");
             } else {
-              formattedTransaction.totals.money = "£0.00"
+              formattedTransaction.totals.money += "£0.00";
             }
-
 
             formattedTransaction.paymentMethod =
               transaction.summary.paymentMethod || "";
@@ -101,8 +107,9 @@ module.exports = function(Transactions, sequelize, DataTypes) {
             }
 
             if (!isNaN(transaction.summary.totals.money)) {
-              formattedTransaction.totals.moneyPlain =
-                Number(transaction.summary.totals.money).toFixed(2);
+              formattedTransaction.totals.moneyPlain = Number(
+                transaction.summary.totals.money
+              ).toFixed(2);
             } else {
               formattedTransaction.totals.moneyPlain = "0.00";
             }
@@ -146,7 +153,8 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                 });
               } else if (transaction.summary.bill[i].item_id == "refund") {
                 bill +=
-                  "Refund: " +
+                  "<b>Outgoing</b><br />" +
+                  "Refund: -" +
                   Number(transaction.summary.bill[i].value).toFixed(2);
                 formattedTransaction.billArray.push({
                   item: "Refund",
@@ -190,7 +198,10 @@ module.exports = function(Transactions, sequelize, DataTypes) {
                 }
 
                 if (transaction.summary.bill[i].condition) {
-                  bill += " (" + lodash.startCase(transaction.summary.bill[i].condition) + ")";
+                  bill +=
+                    " (" +
+                    lodash.startCase(transaction.summary.bill[i].condition) +
+                    ")";
                   billObject.condition = transaction.summary.bill[i].condition;
                 }
 

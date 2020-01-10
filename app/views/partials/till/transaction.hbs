@@ -23,17 +23,30 @@
 				<hr />
 				<p id="transactionSuccessCarbon"></p>
       </div>
-			<div id="emailReceiptInputWrapper" class="modal-body col-md-12 d-none">
+			<div class="modal-body col-md-12">
+
+				<p class="mb-3 font-weight-bold">For paper receipts, write down the following summary:</p>
+				<div id="receiptSummary"></div>
+
+			</div>
+			<div id="emailReceiptInputWrapper" class="modal-body pt-0 col-md-12 d-none">
 				<div class="input-group">
 					<input id="emailReceiptInput" type="text" class="form-control" placeholder="Customer's Email Address" />
 					<div class="input-group-btn">
 						<button id="emailReceiptInputSubmit" class="btn btn-primary form-control">Send Receipt</button>
 					</div>
 				</div>
+
+					<div class="form-check mx-1 mt-3">
+						<input type="checkbox" class="form-check-input" id="receiptEmailConsentCheck">
+						<label class="form-check-label" for="receiptEmailConsentCheck">Customer has consented to one time use of their email address for the sole purpose of sending this receipt. </label>
+					</div>
+
 			</div>
+
       <div class="modal-footer">
 				<a id="emailReceiptButton" class="btn btn-success">Email Receipt</a>
-				<a id="printReceiptButton" class="btn btn-primary" target="_blank">Print Receipt</a>
+				<!--<a id="printReceiptButton" class="btn btn-primary" target="_blank">Print Receipt</a>-->
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -303,7 +316,7 @@ if (uri.indexOf("?") > 0) {
     window.history.replaceState({}, document.title, clean_uri);
 }
 
-$('#isMemberCheck').click(function () {
+$('#isMemberCheck').on("click", function () {
 		var checked = $('input', this).is(':checked');
 		$('span', this).text(checked ? 'Customer Is A Member' : 'Customer Is Not A Member');
 });
@@ -425,11 +438,8 @@ function addToTransaction(item){
 }
 
 function removeFromTransaction(index){
-	if(index){
-		transaction.splice(index, 1);
-	} else {
-		transaction.pop();
-	}
+
+	transaction.splice(index, 1);
 
 	updateTransactionList();
 }
@@ -552,7 +562,7 @@ function updateTransactionList(){
 
 		if(transaction[i].carbon_id != ""){
 			weightColumn.contentEditable = true;
-			weightColumn.textContent = transaction[i].weight;
+			weightColumn.textContent = transaction[i].weight || 0;
 		} else {
 			weightColumn.textContent = "-";
 		}
@@ -695,8 +705,14 @@ function updateTransaction(index){
 	if(isNumeric($("#weight_" + index).html())){
 		transaction[index].weight = $("#weight_" + index).html();
 	} else {
-		$("#weight_" + index).html("-");
-		transaction[index].weight = 0;
+		if(transaction[index].carbon_id){
+			$("#weight_" + index).html("0");
+			transaction[index].weight = 0;
+		} else {
+			$("#weight_" + index).html("-");
+			transaction[index].weight = 0;
+		}
+
 	}
 
 	if(isNumeric($("#value_" + index).text())){
@@ -929,6 +945,7 @@ function completeTransaction(type){
 
 							updateResponse("success", response.transactionSummary, response.carbonSummary, member, response.transaction_id)
 
+							updateReceipt(response.transaction_id);
 
 	            if(member.name){
 
@@ -953,31 +970,141 @@ function completeTransaction(type){
     });
 }
 
+function updateReceipt(transaction_id){
+  $.ajax({
+      type: "POST",
+      url: "{{public_address}}/till/refunds/issue",
+      data: {
+        'tillId': "{{till.till_id}}",
+        'transactionId': transaction_id,
+				'refundType': "murakami",
+				'action': 'lookup'
+      },
+      success: function(response){
+
+          // Create transaction dialog.
+					var lookupSuccessMessage = document.getElementById("receiptSummary");
+					lookupSuccessMessage.innerHTML = "";
+
+					var summaryTable = document.createElement("table")
+					summaryTable.className = "table table-striped mb-0";
+
+					// Transaction ID.
+					var transactionIdRow = document.createElement("tr");
+					var transactionIdNameCell = document.createElement("td");
+					var transactionIdValueCell = document.createElement("td");
+					transactionIdNameCell.innerHTML = "Murakami Transaction ID";
+					transactionIdValueCell.textContent = response.transaction.transaction_id;
+					transactionIdRow.appendChild(transactionIdNameCell);
+					transactionIdRow.appendChild(transactionIdValueCell);
+
+					// Timestamp
+					var timestampRow = document.createElement("tr");
+					var timestampNameCell = document.createElement("td");
+					var timestampValueCell = document.createElement("td");
+					timestampNameCell.innerHTML = "Timestamp";
+					timestampValueCell.textContent = response.transaction.date;
+					timestampRow.appendChild(timestampNameCell);
+					timestampRow.appendChild(timestampValueCell);
+
+					// Customer
+					var customerRow = document.createElement("tr");
+					var customerNameCell = document.createElement("td");
+					var customerValueCell = document.createElement("td");
+					customerNameCell.innerHTML = "Customer";
+					customerValueCell.innerHTML = response.transaction.customer.name;
+					customerRow.appendChild(customerNameCell);
+					customerRow.appendChild(customerValueCell);
+
+					// Bill
+					var billRow = document.createElement("tr");
+					var billNameCell = document.createElement("td");
+					var billValueCell = document.createElement("td");
+					billNameCell.innerHTML = "Bill";
+					billValueCell.innerHTML = response.transaction.bill;
+					billRow.appendChild(billNameCell);
+					billRow.appendChild(billValueCell);
+
+					// Money Total
+					var moneyTotalRow = document.createElement("tr");
+					var moneyTotalNameCell = document.createElement("td");
+					var moneyTotalValueCell = document.createElement("td");
+					moneyTotalNameCell.innerHTML = "Money Total";
+					moneyTotalValueCell.textContent = response.transaction.totals.money;
+					moneyTotalRow.appendChild(moneyTotalNameCell);
+					moneyTotalRow.appendChild(moneyTotalValueCell);
+
+					// Tokens Total
+					var tokensTotalRow = document.createElement("tr");
+					var tokensTotalNameCell = document.createElement("td");
+					var tokensTotalValueCell = document.createElement("td");
+					tokensTotalNameCell.innerHTML = "Tokens Total";
+					tokensTotalValueCell.textContent = response.transaction.totals.tokens;
+					tokensTotalRow.appendChild(tokensTotalNameCell);
+					tokensTotalRow.appendChild(tokensTotalValueCell);
+
+					// Append table children.
+					summaryTable.appendChild(transactionIdRow);
+					if(response.transaction.sumup_id){
+						summaryTable.appendChild(sumupIdRow);
+					}
+					summaryTable.appendChild(timestampRow)
+					summaryTable.appendChild(customerRow)
+					summaryTable.appendChild(billRow)
+					summaryTable.appendChild(moneyTotalRow)
+					summaryTable.appendChild(tokensTotalRow)
+
+					// Append to parents.
+					lookupSuccessMessage.appendChild(summaryTable);
+
+          lookupSuccessMessage.classList.remove("d-none");
+
+      }
+  });
+}
+
+
+$("#receiptEmailConsentCheck").on("change", function(){
+	if($("#receiptEmailConsentCheck").is(":checked")){
+		$("#emailReceiptInputSubmit").prop("disabled", false);
+	} else {
+		$("#emailReceiptInputSubmit").prop("disabled", true);
+	}
+})
+
 function updateResponse(outcome, transactionSummary, carbonSummary, member, transaction_id) {
 
 	getCategories("");
 
+	$("#receiptEmailConsentCheck").prop("checked", false)
+	$("#emailReceiptInputSubmit").prop("disabled", true);
+
 	if(outcome == "success"){
 		$("#transactionSuccessModal").modal("show");
+
 
 		$("#transactionSuccessSummary").html(transactionSummary)
 		$("#transactionSuccessCarbon").html(carbonSummary)
 		$("#printReceiptButton").attr("href", "{{public_address}}/till/receipt/print/" + transaction_id);
+		$("#emailReceiptInputWrapper").addClass("d-none");
 
+		if((Object.keys(member).length === 0 && member.constructor === Object) || member == null){
+			$("#emailReceiptButton").off('click').on("click", function(){
+				$("#emailReceiptInputWrapper").removeClass("d-none");
+			});
 
-			$("#emailReceiptButton").click(function(){
-
-				if((Object.keys(member).length === 0 && member.constructor === Object) || member == null){
-					$("#emailReceiptInputWrapper").removeClass("d-none");
-					$("#emailReceiptInputSubmit").click(function(){
-						$("#emailReceiptInputSubmit").prop("disabled", true);
-						sendEmailReceipt(transaction_id, null);
-					})
-				} else {
-					$("#emailReceiptButton").prop("disabled", true)
-					sendEmailReceipt(transaction_id, member.member_id);
-				}
+			$("#emailReceiptInputSubmit").off('click').on("click", function(){
+				$("#emailReceiptInputSubmit").prop("disabled", true);
+				sendEmailReceipt(transaction_id, null);
 			})
+
+		} else {
+			$("#emailReceiptButton").off('click').on("click", function(){
+				$("#emailReceiptButton").prop("disabled", true)
+				sendEmailReceipt(transaction_id, member.member_id);
+			})
+
+		}
 
 
 
@@ -1014,7 +1141,7 @@ function sendEmailReceipt(transaction_id, member_id){
 					if(member_id){
 						alert("Email bounced - please enter email address manually");
 						$("#emailReceiptInputWrapper").removeClass("d-none");
-						$("#emailReceiptInputSubmit").click(function(){
+						$("#emailReceiptInputSubmit").off('click').on("click", function(){
 							sendEmailReceipt(transaction_id, null);
 						})
 					} else {

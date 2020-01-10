@@ -10,6 +10,5 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
 });
 
 router.use("/levels", require("./levels/root"));
-router.use("/categories", require("./categories/root"));
 
 module.exports = router;

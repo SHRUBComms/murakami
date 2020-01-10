@@ -2,8 +2,15 @@ var async = require("async");
 var lodash = require("lodash");
 
 module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(StockRecords, user_id, till_id, categories, quantities, callback) {
-    var dbErr;
+  var dbErr;
+  return function(
+    StockRecords,
+    user_id,
+    till_id,
+    categories,
+    quantities,
+    callback
+  ) {
     async.eachOf(
       quantities,
       function(stockInfo, item_id) {
@@ -28,35 +35,47 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
             StockCategories.updateQuantity(item_id, newStockInfo, function(
               err
             ) {
+              if (err) {
+                dbErr = err;
+              }
               async.eachOf(
                 newStockInfo,
                 function(stockInfo, condition, callback) {
-
-                  var record = {
-                    item_id: item_id,
-                    condition: condition,
-                    user_id: user_id,
-                    till_id: till_id,
-                    actionInfo: {
-                      method: "transaction",
-                      summary: {
-                        newQty: Number(stockInfo.quantity),
-                        oldQty: Number(
-                          categories[item_id].stockInfo[condition].quantity
-                        ),
-                        qtyModifier:
-                          Number(stockInfo.quantity) -
-                          Number(
+                  if (
+                    Number(stockInfo.quantity) -
+                    Number(categories[item_id].stockInfo[condition].quantity)
+                  ) {
+                    var record = {
+                      item_id: item_id,
+                      condition: condition,
+                      user_id: user_id,
+                      till_id: till_id,
+                      actionInfo: {
+                        method: "transaction",
+                        summary: {
+                          newQty: Number(stockInfo.quantity),
+                          oldQty: Number(
                             categories[item_id].stockInfo[condition].quantity
-                          )
-                      },
-                      note: null
-                    }
-                  };
+                          ),
+                          qtyModifier:
+                            Number(stockInfo.quantity) -
+                            Number(
+                              categories[item_id].stockInfo[condition].quantity
+                            )
+                        },
+                        note: null
+                      }
+                    };
 
-                  StockRecords.addRecord(record, function() {
+                    StockRecords.addRecord(record, function(err) {
+                      if (err) {
+                        dbErr = err;
+                      }
+                      callback();
+                    });
+                  } else {
                     callback();
-                  });
+                  }
                 },
                 function() {
                   callback();
@@ -67,7 +86,7 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
         );
       },
       function() {
-        callback();
+        callback(dbErr);
       }
     );
   };

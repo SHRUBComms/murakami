@@ -143,7 +143,7 @@ router.post(
                                           note: note || null
                                         }
                                       };
-                                      
+
                                       StockRecords.addRecord(record, function(
                                         err
                                       ) {

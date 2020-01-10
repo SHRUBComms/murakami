@@ -154,6 +154,9 @@ var register = function(Handlebars) {
     setVariable: function(varName, varValue, options) {
       options.data.root[varName] = varValue;
     },
+    setVariableProperty: function(varName, varProperty, varValue, options) {
+      options.data.root[varName][varProperty] = varValue;
+    },
     niceDate: function(date) {
       if (date) {
         return moment(date).format("L");
@@ -192,6 +195,17 @@ var register = function(Handlebars) {
       } catch (err) {
         return "";
       }
+    },
+    round2DP: function(number) {
+      try {
+        return Number(number).toFixed(2);
+      } catch (err) {
+        if (err) console.log(err);
+        return "0.00";
+      }
+    },
+    multiply: function(num1, num2){
+      return num1 * num2;
     }
   };
 

@@ -11,7 +11,6 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
 });
 
 router.use("/export", require("./export"));
-router.use("/review", require("./review"));
 router.use("/log", require("./log"));
 
 module.exports = router;

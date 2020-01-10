@@ -41,6 +41,8 @@
                                 {{#if stockControl}}
                                   {{#if conditions}}
                                     {{#each conditions}}
+                                      {{ setVariable "item" ../this }}
+                                      {{ setVariableProperty "item" "condition" this}}
                                       <tr>
                                         <td>{{../absolute_name}} ({{camelCaseToPlain this}})</td>
                                           {{#if (lookup (lookup ../stockInfo this) 'quantity')}}
@@ -248,6 +250,7 @@
             sanitizedItem.id = item.item_id || item.id;
             sanitizedItem.name = item.name;
             sanitizedItem.mode = item.mode || "Add";
+            sanitizedItem.note = item.note || null;
             sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
             sanitizedItem.condition = item.condition || null;
             sanitizedItem.conditions = item.conditions || [];
@@ -444,7 +447,8 @@
             if (!summary[item.id]) {
               summary[item.id] = {
                   name: item.absoluteName,
-                  conditions: item.conditions
+                  conditions: item.conditions,
+                  note: item.note
               }
             }
 
@@ -478,8 +482,6 @@
             }
           })
         });
-
-        console.log(summaryArray);
 
         if (!valid) {
             $("#stockSummaryError").removeClass("d-none");
@@ -556,7 +558,6 @@
             },
             success: function(response) {
 
-								console.log(response);
 
                 $("#confirmTransaction").prop("checked", false)
                 $("#confirmTransactionBtn").prop("disabled", true)

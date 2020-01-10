@@ -22,7 +22,6 @@
       <option value="floats">Till Reconciliation (Opening/Closing Floats)</option>
       <option value="unit-sales">Sales</option>
 			<option value="stock-records">Stock Records</option>
-			<option value="stock-levels">Current Stock Levels</option>
     </select>
   </div>
 
@@ -208,7 +207,6 @@ function getReport(){
 						till_id: "{{till.till_id}}"
 					},
 					success: function(response){
-						console.log(response);
 						$("#stockRecordsTable").removeClass("d-none")
 						$("#stockRecordsToolbar").removeClass("d-none");
 						stockRecordsTable.bootstrapTable('load', response)

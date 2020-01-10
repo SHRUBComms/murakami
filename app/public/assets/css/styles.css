@@ -2355,6 +2355,9 @@ table.dataTable thead td {
   border-top: 5px solid #ef7070;
   color: black;
   background-color: white;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .option-disabled {
@@ -2430,11 +2433,15 @@ ul > li {
     border-left-color: var(--primary) !important;
 }
 
-.border-left-success {
-    border-left: .25rem solid var(--success) !important;
+.border-left-emerald {
+    border-left: .25rem solid #1aaf5d !important;
     border-left-width: 0.25rem !important;
     border-left-style: solid !important;
-    border-left-color: var(--success) !important;
+    border-left-color: #1aaf5d !important;
+}
+
+.text-emerald {
+  color: #1aaf5d !important;
 }
 
 .border-left-info {
@@ -2456,6 +2463,17 @@ ul > li {
     border-left-width: 0.25rem !important;
     border-left-style: solid !important;
     border-left-color: var(--danger) !important;
+}
+
+.border-left-purple {
+  border-left: .25rem solid #6a56a5 !important;
+  border-left-width: 0.25rem !important;
+  border-left-style: solid !important;
+  border-left-color: #6a56a5 !important;
+}
+
+.text-purple {
+  color: #6a56a5 !important;
 }
 
 /*-------------------- END Bootstrap Overrides ------------------- */

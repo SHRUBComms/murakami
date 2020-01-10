@@ -6,7 +6,8 @@ module.exports = function(StockRecords, sequelize, DataTypes) {
         where: {
           item_id: item_id,
           itemCondition: condition
-        }
+        },
+        raw: true
       }).nodeify(callback);
     });
   };

@@ -27,20 +27,22 @@
 {{#unless till.disabled}}
 
 <div class="row mt-4">
-  <div class="col-md-8 mx-auto">
+  <div class="col-md-10 mx-auto">
     <div class="alert alert-info p-4">
       <span class="badge badge-pill badge-info mr-2">Info</span><b>Includes all categories that have ever been under stock control</b>, some of which may no longer be available.
     </div>
   </div>
 </div>
 <div class="row mt-4">
-  <div class="col-md-8 mx-auto">
+  <div class="col-md-10 mx-auto">
     <table id="categories" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="true" data-toggle="table" data-sort-name="category" data-sort-order="asc" data-pagination="true" data-search="true" >
         <thead>
             <tr>
               <th data-field="category" data-sortable=true>Category</th>
 							<th data-field="available" data-sortable=true>Available On Till</th>
               <th data-field="qty">Current Qty.</th>
+							<th data-field="unitValue">Unit Value</th>
+							<th data-field="totalValue">Total Value</th>
               <th data-field="action">Action</th>
             </tr>
         </thead>
@@ -68,6 +70,17 @@
 										<td>{{quantity}}</td>
 									{{else}}
 										<td>0</td>
+									{{/if}}
+									{{#if ../value}}
+										<td>£{{round2DP ../value}}</td>
+										{{#if quantity}}
+											<td>£{{round2DP (multiply ../value quantity)}}</td>
+										{{ else }}
+											<td>£0.00</td>
+										{{/if}}
+									{{else}}
+										<td>-</td>
+										<td>-</td>
 									{{/if}}
 								<td>
 										<button class="btn btn-primary btn-block" onclick="getRecords('{{../item_id}}', '{{../name}} ({{camelCaseToPlain @key}})', '{{@key}}')">View Records</button>
@@ -134,7 +147,6 @@ function getRecords(item_id, name, condition) {
 			type: "GET",
 			url: url,
 			success: function(records) {
-				console.log(records);
 					$("#recordsModal").modal("show");
 					records.forEach(function(record){
 
@@ -188,7 +200,7 @@ function getRecords(item_id, name, condition) {
 
 						if(record.actionInfo.method == "manual"){
 							infoText.innerHTML += " <span class='text-muted'>via admin panel</span>"
-						} else {
+						} else if(record.actionInfo.method == "transaction") {
 							infoText.innerHTML += " <span class='text-muted'>via a till transaction</span>"
 						}
 

@@ -12,6 +12,7 @@ var CarbonCategories = Models.CarbonCategories;
 var StockCategories = Models.StockCategories;
 
 var Auth = require(rootDir + "/app/configs/auth");
+var Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get(
   "/:till_id",
@@ -46,6 +47,7 @@ router.get(
                     categories: categories,
                     carbonCategories: carbonCategories,
                     status: status,
+                    validConditions: Helpers.validItemConditions(),
                     endDate: req.query.endDate || null,
                     startDate: req.query.startDate || null
                   });

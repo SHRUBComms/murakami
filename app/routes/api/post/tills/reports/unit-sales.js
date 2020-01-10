@@ -17,8 +17,11 @@ var StockCategories = Models.StockCategories;
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post("/", Auth.isLoggedIn, function(req, res) {
-  var response = { status: "fail", msg: "Something went wrong!" };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), function(req, res) {
+  var response = {
+    status: "fail",
+    msg: "Something went wrong!"
+  };
 
   var till_id = req.body.till_id;
   var datePeriod = req.body.datePeriod || "today";
@@ -90,108 +93,75 @@ router.post("/", Auth.isLoggedIn, function(req, res) {
                                     transaction.summary.sumupId) ||
                                   transaction.summary.paymentMethod == "cash"
                                 ) {
-                                  async.each(
-                                    transaction.summary.bill,
-                                    function(item, callback) {
-                                      if (flatCategoriesAsObj[item.item_id]) {
-                                        if (item.condition) {
-                                          flatCategoriesAsObj[
-                                            item.item_id + "_" + item.condition
-                                          ] = lodash.cloneDeep(
-                                            flatCategoriesAsObj[item.item_id]
-                                          );
-                                          item.item_id += "_" + item.condition;
-
-                                          flatCategoriesAsObj[
-                                            item.item_id
-                                          ].absolute_name +=
-                                            " (" +
-                                            lodash.startCase(item.condition) +
-                                            ")";
-                                        }
-
-                                        if (!unitSales[item.item_id]) {
-                                          if (
-                                            flatCategoriesAsObj[item.item_id]
-                                              .group_id
-                                          ) {
+                                  if (transaction.summary.totals.money > 0 || transaction.summary.totals.tokens > 0) {
+                                    async.each(
+                                      transaction.summary.bill,
+                                      function(item, callback) {
+                                        if (flatCategoriesAsObj[item.item_id]) {
+                                          if (item.condition) {
                                             flatCategoriesAsObj[
-                                              item.item_id
-                                            ].groupName =
-                                              req.user.allWorkingGroupsObj[
-                                                flatCategoriesAsObj[
-                                                  item.item_id
-                                                ].group_id
-                                              ].name || "-";
+                                              item.item_id + "_" + item.condition
+                                            ] = lodash.cloneDeep(flatCategoriesAsObj[item.item_id]);
+                                            item.item_id += "_" + item.condition;
+
+                                            flatCategoriesAsObj[item.item_id].absolute_name +=
+                                              " (" + lodash.startCase(item.condition) + ")";
                                           }
 
-                                          unitSales[item.item_id] = {
-                                            salesInfo: {
-                                              totalSales: 0,
-                                              totalRevenue: 0,
-                                              boughtByMember: 0,
-                                              boughtByNonMember: 0,
-                                              memberRatio: 0
-                                            },
-                                            categoryInfo:
-                                              flatCategoriesAsObj[item.item_id]
-                                          };
+                                          if (!unitSales[item.item_id]) {
+                                            if (flatCategoriesAsObj[item.item_id].group_id) {
+                                              flatCategoriesAsObj[item.item_id].groupName =
+                                                req.user.allWorkingGroupsObj[
+                                                  flatCategoriesAsObj[item.item_id].group_id
+                                                ].name || "-";
+                                            }
 
-                                          unitSales[
-                                            item.item_id
-                                          ].categoryInfo.name =
-                                            flatCategoriesAsObj[item.item_id]
-                                              .absolute_name ||
-                                            flatCategoriesAsObj[item.item_id]
-                                              .name;
-                                        }
+                                            unitSales[item.item_id] = {
+                                              salesInfo: {
+                                                totalSales: 0,
+                                                totalRevenue: 0,
+                                                boughtByMember: 0,
+                                                boughtByNonMember: 0,
+                                                memberRatio: 0
+                                              },
+                                              categoryInfo: flatCategoriesAsObj[item.item_id]
+                                            };
 
-                                        try {
-                                          unitSales[
-                                            item.item_id
-                                          ].salesInfo.totalSales += +(
-                                            parseInt(item.quantity) || 1
-                                          );
-                                        } catch (err) {
-                                          unitSales[
-                                            item.item_id
-                                          ].salesInfo.totalSales += +1;
-                                        }
+                                            unitSales[item.item_id].categoryInfo.name =
+                                              flatCategoriesAsObj[item.item_id].absolute_name ||
+                                              flatCategoriesAsObj[item.item_id].name;
+                                          }
 
-                                        unitSales[
-                                          item.item_id
-                                        ].salesInfo.totalRevenue = parseFloat(
-                                          parseFloat(
-                                            unitSales[item.item_id].salesInfo
-                                              .totalRevenue
-                                          ) +
-                                            (parseFloat(item.value) ||
-                                              parseFloat(item.tokens) ||
-                                              0)
-                                        ).toFixed(2);
+                                          try {
+                                            unitSales[item.item_id].salesInfo.totalSales += +(
+                                              parseInt(item.quantity) || 1
+                                            );
+                                          } catch (err) {
+                                            unitSales[item.item_id].salesInfo.totalSales += +1;
+                                          }
 
-                                        if (transaction.member_id != "anon") {
-                                          unitSales[
-                                            item.item_id
-                                          ].salesInfo.boughtByMember += +1;
-                                        }
+                                          unitSales[item.item_id].salesInfo.totalRevenue = parseFloat(
+                                            parseFloat(unitSales[item.item_id].salesInfo.totalRevenue) +
+                                            (parseFloat(item.value) || parseFloat(item.tokens) || 0)
+                                          ).toFixed(2);
 
-                                        unitSales[
-                                          item.item_id
-                                        ].salesInfo.memberRatio = (
-                                          (unitSales[item.item_id].salesInfo
-                                            .boughtByMember /
-                                            unitSales[item.item_id].salesInfo
-                                              .totalSales) *
+                                          if (transaction.member_id != "anon") {
+                                            unitSales[item.item_id].salesInfo.boughtByMember += +1;
+                                          }
+
+                                          unitSales[item.item_id].salesInfo.memberRatio = (
+                                            (unitSales[item.item_id].salesInfo.boughtByMember /
+                                              unitSales[item.item_id].salesInfo.totalSales) *
                                             100 || 0
-                                        ).toFixed(2);
+                                          ).toFixed(2);
+                                        }
+                                        callback();
+                                      },
+                                      function() {
+                                        callback();
                                       }
-                                      callback();
-                                    },
-                                    function() {
-                                      callback();
-                                    }
-                                  );
+                                    );
+                                  }
                                 } else {
                                   callback();
                                 }

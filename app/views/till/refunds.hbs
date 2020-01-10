@@ -132,7 +132,6 @@ function lookupTransaction(){
 				'action': 'lookup'
       },
       success: function(response){
-				console.log(response);
         document.getElementById("lookupSubmitButton").disabled = false;
         if(response.status == "fail"){
           // Create fail message.

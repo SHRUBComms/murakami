@@ -60,7 +60,7 @@ router.post(
                                     if (!transaction.summary.refunded) {
                                       if (
                                         moment(transaction.date).isAfter(
-                                          moment().subtract(30, "days")
+                                          moment().subtract(7, "days")
                                         )
                                       ) {
                                         if (

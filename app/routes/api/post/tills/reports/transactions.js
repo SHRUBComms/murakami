@@ -17,82 +17,91 @@ var StockCategories = Models.StockCategories;
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post("/", Auth.isLoggedIn, function(req, res) {
-  var response = { status: "fail", msg: "Something went wrong!", summary: {} };
+router.post(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("tills", "viewReports"),
+  function(req, res) {
+    var response = {
+      status: "fail",
+      msg: "Something went wrong!",
+      summary: {}
+    };
 
-  var till_id = req.body.till_id;
-  var datePeriod = req.body.datePeriod || "today";
+    var till_id = req.body.till_id;
+    var datePeriod = req.body.datePeriod || "today";
 
-  var startDate = req.body.startDate || null;
-  var endDate = req.body.endDate || null;
+    var startDate = req.body.startDate || null;
+    var endDate = req.body.endDate || null;
 
-  if (till_id) {
-    Tills.getById(till_id, function(err, till) {
-      if (till) {
-        Helpers.plainEnglishDateRangeToDates(
-          datePeriod,
-          startDate,
-          endDate,
-          function(startDate, endDate) {
-            Transactions.getAllBetweenTwoDatesByTillId(
-              till_id,
-              startDate,
-              endDate,
-              function(err, transactions) {
-                if (transactions.length > 0) {
-                  Members.getAll(function(err, members, membersObj) {
-                    StockCategories.getCategories("tree", function(
-                      err,
-                      categories
-                    ) {
-                      var flatCategories = Helpers.flatten(categories);
+    if (till_id) {
+      Tills.getById(till_id, function(err, till) {
+        if (till) {
+          Helpers.plainEnglishDateRangeToDates(
+            datePeriod,
+            startDate,
+            endDate,
+            function(startDate, endDate) {
+              Transactions.getAllBetweenTwoDatesByTillId(
+                till_id,
+                startDate,
+                endDate,
+                function(err, transactions) {
+                  if (transactions.length > 0) {
+                    Members.getAll(function(err, members, membersObj) {
+                      StockCategories.getCategories("tree", function(
+                        err,
+                        categories
+                      ) {
+                        var flatCategories = Helpers.flatten(categories);
 
-                      var flatCategoriesAsObj = {};
-                      Transactions.formatTransactions(
-                        transactions,
-                        membersObj,
-                        flatCategories,
-                        till_id,
-                        function(formattedTransactions) {
-                          async.eachOf(
-                            formattedTransactions,
-                            function(transaction, index, callback) {
-                              if (
-                                transaction.paymentFailed ||
-                                transaction.isRefund
-                              ) {
-                                formattedTransactions[index] = {};
+                        var flatCategoriesAsObj = {};
+                        Transactions.formatTransactions(
+                          transactions,
+                          membersObj,
+                          flatCategories,
+                          till_id,
+                          function(formattedTransactions) {
+                            async.eachOf(
+                              formattedTransactions,
+                              function(transaction, index, callback) {
+                                if (
+                                  transaction.paymentFailed ||
+                                  transaction.isRefund
+                                ) {
+                                  formattedTransactions[index] = {};
+                                }
+                                callback();
+                              },
+                              function() {
+                                res.send(
+                                  formattedTransactions.filter(
+                                    value => Object.keys(value).length !== 0
+                                  )
+                                );
                               }
-                              callback();
-                            },
-                            function() {
-                              res.send(
-                                formattedTransactions.filter(
-                                  value => Object.keys(value).length !== 0
-                                )
-                              );
-                            }
-                          );
-                        }
-                      );
+                            );
+                          }
+                        );
+                      });
                     });
-                  });
-                } else {
-                  res.send([]);
+                  } else {
+                    res.send([]);
+                  }
                 }
-              }
-            );
-          }
-        );
-      } else {
-        response.msg = "No valid till selected.";
-        res.send(response);
-      }
-    });
-  } else {
-    response.msg = "No till selected.";
-    res.send(response);
+              );
+            }
+          );
+        } else {
+          response.msg = "No valid till selected.";
+          res.send(response);
+        }
+      });
+    } else {
+      response.msg = "No till selected.";
+      res.send(response);
+    }
   }
-});
+);
 
 module.exports = router;

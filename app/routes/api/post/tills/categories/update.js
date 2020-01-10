@@ -46,94 +46,90 @@ router.post(
                         if (categories[category.parent] || !category.parent) {
                           sanitizedCategory.parent = category.parent;
 
-                          if (category.value > 0 || !category.value) {
+                          if(category.value > 0){
                             sanitizedCategory.value = category.value;
-                            if (category.allowTokens == 1) {
-                              sanitizedCategory.allowTokens = 1;
-                            } else {
-                              sanitizedCategory.allowTokens = 0;
-                            }
+                          } else {
+                            sanitizedCategory.value = null;
+                          }
 
+                          if (category.allowTokens == 1) {
+                            sanitizedCategory.allowTokens = 1;
+                          } else {
+                            sanitizedCategory.allowTokens = 0;
+                          }
+
+                          if (
+                            category.member_discount < 0 &&
+                            category.member_discount > 100
+                          ) {
+                            sanitizedCategory.member_discount = 0;
+                          } else {
+                            sanitizedCategory.member_discount =
+                              category.member_discount;
+                          }
+
+                          if (category.weight < 0 || category.weight > 100000) {
+                            sanitizedCategory.weight = 0;
+                          } else {
+                            sanitizedCategory.weight = category.weight;
+                          }
+
+                          if (category.stockControl == 1) {
+                            sanitizedCategory.stockControl = 1;
+                          } else {
+                            sanitizedCategory.stockControl = 0;
+                          }
+
+                          sanitizedCategory.stockInfo =
+                            categories[category.item_id].stockInfo;
+
+                          if (Array.isArray(category.conditions)) {
                             if (
-                              category.member_discount < 0 &&
-                              category.member_discount > 100
+                              Helpers.allBelongTo(
+                                category.conditions,
+                                Helpers.validItemConditions()
+                              )
                             ) {
-                              sanitizedCategory.member_discount = 0;
-                            } else {
-                              sanitizedCategory.member_discount =
-                                category.member_discount;
-                            }
-
-                            if (
-                              category.weight < 0 ||
-                              category.weight > 100000
-                            ) {
-                              sanitizedCategory.weight = 0;
-                            } else {
-                              sanitizedCategory.weight = category.weight;
-                            }
-
-                            if (category.stockControl == 1) {
-                              sanitizedCategory.stockControl = 1;
-                            } else {
-                              sanitizedCategory.stockControl = 0;
-                            }
-
-                            sanitizedCategory.stockInfo =
-                              categories[category.item_id].stockInfo;
-
-                            if (Array.isArray(category.conditions)) {
-                              if (
-                                Helpers.allBelongTo(
-                                  category.conditions,
-                                  Helpers.validItemConditions()
-                                )
-                              ) {
-                                sanitizedCategory.conditions =
-                                  category.conditions;
-                              } else {
-                                sanitizedCategory.conditions = [];
-                              }
+                              sanitizedCategory.conditions =
+                                category.conditions;
                             } else {
                               sanitizedCategory.conditions = [];
                             }
+                          } else {
+                            sanitizedCategory.conditions = [];
+                          }
 
-                            if (sanitizedCategory.stockControl == 1) {
-                              if (sanitizedCategory.conditions.length > 0) {
-                                sanitizedCategory.conditions.forEach(function(
-                                  condition
-                                ) {
-                                  if (!sanitizedCategory.stockInfo[condition]) {
-                                    sanitizedCategory.stockInfo[condition] = {
-                                      quantity: 0
-                                    };
-                                  }
-                                });
+                          if (sanitizedCategory.stockControl == 1) {
+                            if (sanitizedCategory.conditions.length > 0) {
+                              sanitizedCategory.conditions.forEach(function(
+                                condition
+                              ) {
+                                if (!sanitizedCategory.stockInfo[condition]) {
+                                  sanitizedCategory.stockInfo[condition] = {
+                                    quantity: 0
+                                  };
+                                }
+                              });
+                            } else {
+                              sanitizedCategory.stockControl = 0;
+                            }
+                          }
+
+                          sanitizedCategory.value =
+                            sanitizedCategory.value || null;
+
+                          StockCategories.updateCategory(
+                            sanitizedCategory,
+                            function(err) {
+                              if (err) {
+                                res.send(response);
                               } else {
-                                sanitizedCategory.stockControl = 0;
+                                response.status = "ok";
+                                response.msg = "Category updated!";
+                                res.send(response);
                               }
                             }
-
-                            sanitizedCategory.value =
-                              sanitizedCategory.value || null;
-
-                            StockCategories.updateCategory(
-                              sanitizedCategory,
-                              function(err) {
-                                if (err) {
-                                  res.send(response);
-                                } else {
-                                  response.status = "ok";
-                                  response.msg = "Category updated!";
-                                  res.send(response);
-                                }
-                              }
-                            );
-                          } else {
-                            response.msg =
-                              "Enter a valid value or leave blank!";
-                            res.send(response);
-                          }
+                          );
                         } else {
                           response.msg =
                             "Select a valid parent or leave blank!";

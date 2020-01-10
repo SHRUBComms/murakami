@@ -156,7 +156,7 @@ router.post("/", function(req, res) {
                       }
                     });
                   } else {
-                    shift.approved = null;
+                    shift.approved = 1;
 
                     VolunteerHours.createShift(shift, function(err) {
                       res.send({
@@ -208,7 +208,7 @@ router.post("/", function(req, res) {
                       shift.working_group = working_group;
                       shift.duration = duration;
                       shift.note = sanitizeHtml(note);
-                      shift.approved = null;
+                      shift.approved = 1;
 
                       request.post(
                         {

@@ -20,90 +20,95 @@
 </div>
 
 
+
+
 <div class="row mt-4 mb-4">
 
-	{{#unless till.disabled}}
-		<div class="col-md-3">
-
-
-			<a href="{{public_address}}/till/stock/categories/manage/{{till.till_id}}">
-				<div class="card border-left-primary btn text-left shadow w-100 py-2">
-					<div class="card-body">
-						<div class="row no-gutters align-items-center">
-							<div class="col">
-		            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Stock Categories</div>
-		            <p class="mb-0 font-weight-bold">Manage available categories</p>
-		          </div>
-						</div>
-					</div>
-				</div>
-			</a>
-
-		</div>
-	{{/unless}}
-	{{#unless till.disabled}}
-		<div class="col-md-3">
-			<a href="{{public_address}}/till/stock/levels/view/{{till.till_id}}">
-				<div class="card border-left-success btn text-left shadow w-100 py-2">
-					<div class="card-body">
-						<div class="row no-gutters align-items-center">
-							<div class="col">
-		            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Stock Check</div>
-		            <p class="mb-0 font-weight-bold">View current stock levels</p>
-		          </div>
-						</div>
-					</div>
-				</div>
-			</a>
-		</div>
-	{{/unless}}
-	{{#unless till.disabled}}
-		<div class="col-md-3">
-			<a href="{{public_address}}/till/stock/levels/manage/{{till.till_id}}">
-				<div class="card border-left-danger btn text-left shadow w-100 py-2">
-					<div class="card-body">
-						<div class="row no-gutters align-items-center">
-							<div class="col">
-								<div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Update Stock Levels</div>
-								<p class="mb-0 font-weight-bold">Add/remove stock</p>
+	{{#if user.permissions.tills.viewReports}}
+			<div class="col-md-4 mb-3">
+				<a href="{{public_address}}/till/reports/{{till.till_id}}">
+					<div class="card border-left-purple btn text-left shadow w-100 py-2">
+						<div class="card-body">
+							<div class="row no-gutters align-items-center">
+								<div class="col">
+									<div class="text-xs font-weight-bold text-purple text-uppercase mb-1">Reports</div>
+									{{#unless till.disabled}}
+										<p class="mb-0 font-weight-bold">View analytics and reports</p>
+									{{ else }}
+										<p class="mb-0">View historic reports</p>
+									{{/unless}}
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</a>
-		</div>
-	{{/unless}}
-		<div class="col-md-3">
-			<a href="{{public_address}}/till/reports/{{till.till_id}}">
-				<div class="card border-left-warning btn text-left shadow w-100 py-2">
-					<div class="card-body">
-						<div class="row no-gutters align-items-center">
-							<div class="col">
-		            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Reports</div>
-								{{#unless till.disabled}}
-		            	<p class="mb-0 font-weight-bold">View analytics and reports</p>
-								{{ else }}
-								 	<p class="mb-0">View historic reports</p>
-								{{/unless}}
-		          </div>
+				</a>
+			</div>
+		{{/if}}
+
+
+		{{#if user.permissions.tills.viewStock}}
+			<div class="col-md-4  mb-3">
+				<a href="{{public_address}}/till/stock/levels/view/{{till.till_id}}">
+					<div class="card border-left-emerald btn text-left shadow w-100 py-2">
+						<div class="card-body">
+							<div class="row no-gutters align-items-center">
+								<div class="col">
+									<div class="text-xs font-weight-bold text-emerald text-uppercase mb-1">Stock Check</div>
+									<p class="mb-0 font-weight-bold">View current stock levels</p>
+								</div>
+							</div>
 						</div>
 					</div>
+				</a>
+			</div>
+		{{/if}}
+
+		{{#if user.permissions.tills.manageStock}}
+			{{#unless till.disabled}}
+				<div class="col-md-4 mb-3">
+					<a href="{{public_address}}/till/stock/levels/manage/{{till.till_id}}">
+						<div class="card border-left-info btn text-left shadow w-100 py-2">
+							<div class="card-body">
+								<div class="row no-gutters align-items-center">
+									<div class="col">
+										<div class="text-xs font-weight-bold text-info text-uppercase mb-1">Update Stock Levels</div>
+										<p class="mb-0 font-weight-bold">Add/remove stock</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</a>
 				</div>
-			</a>
-		</div>
-
-
+			{{/unless}}
+		{{/if}}
 
 </div>
-
-<div class="row mb-4">
-
-	<div class="col-md-4">
+<div class="row">
+	{{#if user.permissions.tills.updateCategories}}
 		{{#unless till.disabled}}
-			<div class="card border-left-warning btn text-left shadow w-100 py-2">
+			<div class="col-md-8">
+			<div class="row">
+				<div class="col-md-12 mx-auto">
+					<div class="alert alert-info p-4">
+						<span class="badge badge-pill badge-info mr-2">Tip</span>Right click (long press on mobile) a category to open the options menu.
+					</div>
+				</div>
+			</div>
+
+			<div class="row mt-3">
+			  <div class="col-md-12 mx-auto">
+			    {{>till/selection-ui mode="update-categories"}}
+			  </div>
+			</div>
+		</div>
+		{{/unless}}
+	{{/if}}
+	<div class="col-md-4">
+
+			<div class="card text-left shadow w-100 py-2">
 				<div class="card-body">
 					<div class="row no-gutters align-items-center">
-						<div class="text-xs font-weight-bold text-warning text-uppercase mb-3">Quick Summary</div>
+						<div class="h5 font-weight-bold mb-3">Quick Summary</div>
 						<select id="datePeriod" class="form-control mb-1">
 							<option value="today" selected>Today</option>
 							<option value="week">This Week</option>
@@ -125,11 +130,11 @@
 					</div>
 				</div>
 			</div>
-		{{/unless}}
+
 	</div>
 
-
 </div>
+
 
 
 

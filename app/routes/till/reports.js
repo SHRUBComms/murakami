@@ -17,7 +17,7 @@ var Auth = require(rootDir + "/app/configs/auth");
 router.get(
   "/",
   Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "exportTransactions"),
+  Auth.canAccessPage("tills", "viewReports"),
   function(req, res) {
     res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
@@ -26,7 +26,7 @@ router.get(
 router.get(
   "/:till_id",
   Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "exportTransactions"),
+  Auth.canAccessPage("tills", "viewReports"),
   function(req, res) {
     Tills.getById(req.params.till_id, function(err, till) {
       if (till) {
