@@ -1045,9 +1045,6 @@ function updateReceipt(transaction_id){
 
 					// Append table children.
 					summaryTable.appendChild(transactionIdRow);
-					if(response.transaction.sumup_id){
-						summaryTable.appendChild(sumupIdRow);
-					}
 					summaryTable.appendChild(timestampRow)
 					summaryTable.appendChild(customerRow)
 					summaryTable.appendChild(billRow)
@@ -1076,6 +1073,10 @@ function updateResponse(outcome, transactionSummary, carbonSummary, member, tran
 
 	getCategories("");
 
+	if(!transaction_id){
+		transaction_id = "{{murakamiTransactionId}}"
+	}
+
 	$("#receiptEmailConsentCheck").prop("checked", false)
 	$("#emailReceiptInputSubmit").prop("disabled", true);
 
@@ -1099,10 +1100,22 @@ function updateResponse(outcome, transactionSummary, carbonSummary, member, tran
 			})
 
 		} else {
-			$("#emailReceiptButton").off('click').on("click", function(){
-				$("#emailReceiptButton").prop("disabled", true)
-				sendEmailReceipt(transaction_id, member.member_id);
-			})
+			if(member.member_id == ""){
+				$("#emailReceiptButton").off('click').on("click", function(){
+					$("#emailReceiptInputWrapper").removeClass("d-none");
+				});
+
+				$("#emailReceiptInputSubmit").off('click').on("click", function(){
+					$("#emailReceiptInputSubmit").prop("disabled", true);
+					sendEmailReceipt(transaction_id, null);
+				})
+			} else {
+
+				$("#emailReceiptButton").off('click').on("click", function(){
+					$("#emailReceiptButton").prop("disabled", true)
+					sendEmailReceipt(transaction_id, member.member_id);
+				})
+			}
 
 		}
 
@@ -1135,6 +1148,7 @@ function sendEmailReceipt(transaction_id, member_id){
 				$("#emailReceiptButton").prop("disabled", false);
 				$("#emailReceiptInputSubmit").prop("disabled", false);
 
+					console.log(response);
 				if(response.status == "ok"){
 					alert("Receipt sent!");
 				} else {
@@ -1248,6 +1262,7 @@ $(window).load(function() {
 				{{#if transactionSummary}}
 					{{#if carbonSummary}}
 							updateResponse("success", "{{escape transactionSummary}}", "{{escape carbonSummary}}", { member_id: "{{member_id}}" })
+							updateReceipt("{{murakamiTransactionId}}");
 					{{/if}}
 				{{/if}}
 			{{else}}
