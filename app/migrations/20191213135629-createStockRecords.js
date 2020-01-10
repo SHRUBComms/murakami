@@ -33,7 +33,7 @@ module.exports = {
 
   down: (queryInterface, Sequelize) => {
     return Promise.all([
-      queryInterface.dropTable("stock_records", "stockControl")
+      queryInterface.dropTable("stock_records")
     ]);
   }
 };
