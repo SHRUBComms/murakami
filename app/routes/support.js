@@ -14,8 +14,11 @@ router.get("/", function(req, res) {
   var till_id = req.query.till_id;
   var tillMode = false;
   Tills.getById(till_id, function(err, till) {
+    if(!till) {
+      till = {};
+    }
     TillActivity.getByTillId(till.till_id, function(status) {
-      if (till) {
+      if (till.status) {
         till.status = status.opening;
         tillMode = true;
       }
