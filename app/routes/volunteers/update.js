@@ -2,6 +2,8 @@
 
 var router = require("express").Router();
 var async = require("async");
+var Mailchimp = require("mailchimp-api-v3");
+var md5 = require("md5");
 var moment = require("moment");
 moment.locale("en-gb");
 
@@ -500,42 +502,42 @@ router.post(
                                     LNAME: last_name
                                   }
                                 };
+
                                 if (generalNewsletterConsent == "on") {
                                   var shrubMailchimp = new Mailchimp(
                                     process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
                                   );
                                   shrubMailchimp.put(
                                     "/lists/" +
-                                      process.env
-                                        .SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+                                      process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
                                       "/members/" +
                                       md5(email),
                                     subscribeBody,
-                                    function() {
-                                      subscribeBody.marketing_permissions = [
-                                        {
-                                          marketing_permission_id:
-                                            response.marketing_permissions[0]
-                                              .marketing_permission_id,
-                                          text:
-                                            response.marketing_permissions[0]
-                                              .text,
-                                          enabled: true
-                                        }
-                                      ];
+                                    function(err, response) {
+                                      if (!err && response) {
+                                        subscribeBody.marketing_permissions = [
+                                          {
+                                            marketing_permission_id:
+                                              response.marketing_permissions[0]
+                                                .marketing_permission_id,
+                                            text: response.marketing_permissions[0].text,
+                                            enabled: true
+                                          }
+                                        ];
 
-                                      shrubMailchimp.put(
-                                        "/lists/" +
-                                          process.env
-                                            .SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                                          "/members/" +
-                                          md5(email),
-                                        subscribeBody,
-                                        function(err, response) {}
-                                      );
+                                        shrubMailchimp.put(
+                                          "/lists/" +
+                                            process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
+                                            "/members/" +
+                                            md5(email),
+                                          subscribeBody,
+                                          function(err, response) {}
+                                        );
+                                      }
                                     }
                                   );
                                 }
+
 
                                 if (
                                   moment(
