@@ -341,17 +341,70 @@ router.post("/:token", Auth.isNotLoggedIn, function(req, res) {
                               { deactivated: 0 },
                               { where: { id: user.id } }
                             ).nodeify(function(err) {
-                              AccessTokens.markAsUsed(invite.token, function(
-                                err
-                              ) {
+                              if (!err) {
+                                AccessTokens.markAsUsed(invite.token, function(
+                                  err
+                                ) {
+                                  req.flash(
+                                    "success_msg",
+                                    "Password set! You can now login."
+                                  );
+                                  res.redirect(
+                                    process.env.PUBLIC_ADDRESS + "/login"
+                                  );
+
+                                  Users.getById(
+                                    invite.details.invitedBy,
+                                    {
+                                      permissions: {
+                                        users: {
+                                          name: true,
+                                          email: true
+                                        }
+                                      }
+                                    },
+                                    function(err, userInvitedBy) {
+                                      if (!err && userInvitedBy) {
+                                        Mail.sendGeneral(
+                                          userInvitedBy.first_name +
+                                            " " +
+                                            userInvitedBy.last_name +
+                                            " <" +
+                                            userInvitedBy.email +
+                                            ">",
+                                          "New Account Activated",
+                                          "<p>Hey " +
+                                            userInvitedBy.first_name +
+                                            ",</p>" +
+                                            "<p>This email is to notify you that " +
+                                            user.first_name +
+                                            " " +
+                                            user.last_name +
+                                            " has activated their account using an invite you sent.</p>" +
+                                            "<p>If you didn't invite this user, please <a href='" +
+                                            process.env.PUBLIC_ADDRESS +
+                                            "/users/update/" +
+                                            user.id +
+                                            "'>deactivate the account</a> and <a href='" +
+                                            process.env.PUBLIC_ADDRESS +
+                                            "/support'>contact support</a> <b>as soon as possible</b></p>",
+                                          function(err) {}
+                                        );
+                                      }
+                                    }
+                                  );
+                                });
+                              } else {
                                 req.flash(
-                                  "success_msg",
-                                  "Password set! You can now login."
+                                  "error",
+                                  "Something went wrong! Please try again."
                                 );
                                 res.redirect(
-                                  process.env.PUBLIC_ADDRESS + "/login"
+                                  process.env.PUBLIC_ADDRESS +
+                                    "/users/invite/" +
+                                    invite.token
                                 );
-                              });
+                              }
                             });
                           } else {
                             req.flash(
