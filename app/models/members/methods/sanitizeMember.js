@@ -24,6 +24,10 @@ module.exports = function(Members, sequelize, DataType) {
         member.working_groups = [];
       }
 
+      if (!member.address) {
+        sanitizedMember.requiresAddress = true;
+      }
+
       if (!member.roles) {
         member.roles = [];
       }

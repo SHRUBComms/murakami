@@ -199,15 +199,12 @@
                                 </li>
                               {{/ifNotEmpty}}
 
-                              {{#ifNotEmpty user.permissions.volunteerHours '["log", "review", "export"]'}}
+                              {{#ifNotEmpty user.permissions.volunteerHours '["log", "export"]'}}
                                 <li {{#if volunteerHoursActive}}class="active"{{/if}}>
                                     <a href="javascript:void(0);" aria-expanded="true"><i class="fas fa-clock"></i><span>Volunteer Hours</span></a>
                                     <ul class="collapse plain-list">
                                       {{#if user.permissions.volunteerHours.log}}
                                         <li><a href="{{public_address}}/volunteers/hours/log">Log Hours</a></li>
-                                      {{/if}}
-                                      {{#if user.permissions.volunteerHours.review}}
-                                        <li><a href="{{public_address}}/volunteers/hours/review">Review Hours</a></li>
                                       {{/if}}
                                       {{#if user.permissions.volunteerHours.export}}
                                         <li><a href="{{public_address}}/volunteers/hours/export">Export Data</a></li>

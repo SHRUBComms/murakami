@@ -1,5 +1,6 @@
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="{{public_address}}/assets/js/till-balance.js"></script>
 
 <div class="row m-2 m-md-4 m-lg-4 m-xl-4">
@@ -25,7 +26,7 @@
       </div>
 			<div class="modal-body col-md-12">
 
-				<p class="mb-3 font-weight-bold">For paper receipts, write down the following summary:</p>
+				<p id="receiptSummaryPreamble" class="mb-3 font-weight-bold">For paper receipts, write down the following summary:</p>
 				<div id="receiptSummary"></div>
 
 			</div>
@@ -753,9 +754,6 @@ function searchMember(callback){
         	results = response.results;
           updateSearchResults(callback);
         }
-
-
-
       }
   });
 }
@@ -785,18 +783,29 @@ function updateSearchResults(callback){
 		memberMarkup.balance.textContent = results[i].balance + " tokens";
 
 		memberMarkup.membershipDates = document.createElement("p")
-		memberMarkup.membershipDates.className = "mb-3";
+		if(results[i].requiresAddress){
+			memberMarkup.membershipDates.className = "mb-2";
+		} else {
+			memberMarkup.membershipDates.className = "mb-3";
+		}
+
 		if(results[i].membership_type == "unpaid") {
 			memberMarkup.membershipDates.className += " text-danger font-weight-bold";
 			memberMarkup.membershipDates.textContent = "Unpaid!";
 		} else {
 
-			memberMarkup.membershipDates.textContent = "Membership expires: " + results[i].membership_expires;
+			memberMarkup.membershipDates.textContent = "Membership expires: " + moment(results[i].membership_expires).format("L");
+		}
+
+		if(results[i].requiresAddress){
+			memberMarkup.addressUpdate = document.createElement("p")
+			memberMarkup.addressUpdate.className = "mb-3 font-weight-bold text-center"
+			memberMarkup.addressUpdate.innerHTML = "No address on record!<br /><a href='{{public_address}}/members/update/" + results[i].id + "?till_id={{till.till_id}}' target='_blank'>Add address</a>"
 		}
 
 
 		memberMarkup.selectMember = document.createElement("a")
-		memberMarkup.selectMember.className = "btn btn-primary";
+		memberMarkup.selectMember.className = "btn btn-primary btn-block";
 		memberMarkup.selectMember.textContent = "Select Member";
 		memberMarkup.selectMember.onclick = function(){
 			selectMember(i)
@@ -807,11 +816,17 @@ function updateSearchResults(callback){
 		if(results[i].is_member == true){
 			memberMarkup.cardBody.appendChild(memberMarkup.balance);
 			memberMarkup.cardBody.appendChild(memberMarkup.membershipDates);
+			if(memberMarkup.addressUpdate){
+				memberMarkup.cardBody.appendChild(memberMarkup.addressUpdate);
+			}
 			memberMarkup.cardBody.appendChild(memberMarkup.selectMember);
 		} else {
 			memberMarkup.membershipDates.textContent = "Membership expired!"
 			memberMarkup.membershipDates.className = "mb-3"
 			memberMarkup.cardBody.appendChild(memberMarkup.membershipDates);
+			if(memberMarkup.addressUpdate){
+				memberMarkup.cardBody.appendChild(memberMarkup.addressUpdate);
+			}
 			memberMarkup.cardBody.appendChild(memberMarkup.selectMember);
 		}
 
@@ -860,9 +875,8 @@ function selectMember(index){
 		selectedMemberMarkup.membershipDates.className += " text-danger font-weight-bold";
 		selectedMemberMarkup.membershipDates.textContent = "Unpaid!";
 	} else {
-		selectedMemberMarkup.membershipDates.textContent = "Membership expires: " + member.membership_expires;
+		selectedMemberMarkup.membershipDates.textContent = "Membership expires: " + moment(member.membership_expires).format("L");
 	}
-
 
 	selectedMemberMarkup.payWithTokens = document.createElement("p")
 	selectedMemberMarkup.payWithTokens.className = "mb-2";
@@ -875,7 +889,11 @@ function selectMember(index){
 	selectedMemberMarkup.payWithTokens.appendChild(selectedMemberMarkup.payWithTokensCheckbox);
 	selectedMemberMarkup.payWithTokens.appendChild(selectedMemberMarkup.payWithTokensText);
 
-
+	if(member.requiresAddress){
+		selectedMemberMarkup.addressUpdate = document.createElement("p")
+		selectedMemberMarkup.addressUpdate.className = "mb-2 font-weight-bold text-center"
+		selectedMemberMarkup.addressUpdate.innerHTML = "No address on record!<br /><a href='{{public_address}}/members/update/" + member.id + "?till_id={{till.till_id}}' target='_blank'>Add address</a>"
+	}
 
 	selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.name)
 
@@ -883,6 +901,9 @@ function selectMember(index){
 		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.balance);
 		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.payWithTokens);
 		selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.membershipDates);
+		if(member.requiresAddress){
+			selectedMemberMarkup.cardBody.appendChild(selectedMemberMarkup.addressUpdate)
+		}
 	} else {
 		selectedMemberMarkup.card.className = "card member-result member-selected-expired";
 		selectedMemberMarkup.balance.textContent += " (unavailable)"
@@ -982,9 +1003,13 @@ function updateReceipt(transaction_id){
       },
       success: function(response){
 
-          // Create transaction dialog.
-					var lookupSuccessMessage = document.getElementById("receiptSummary");
-					lookupSuccessMessage.innerHTML = "";
+				// Create transaction dialog.
+				var lookupSuccessMessage = document.getElementById("receiptSummary");
+				lookupSuccessMessage.innerHTML = "";
+
+				if(response.status == "ok"){
+
+					$("#receiptSummaryPreamble").removeClass("d-none");
 
 					var summaryTable = document.createElement("table")
 					summaryTable.className = "table table-striped mb-0";
@@ -1055,8 +1080,10 @@ function updateReceipt(transaction_id){
 					lookupSuccessMessage.appendChild(summaryTable);
 
           lookupSuccessMessage.classList.remove("d-none");
-
-      }
+				} else {
+					$("#receiptSummaryPreamble").addClass("d-none");
+				}
+			}
   });
 }
 

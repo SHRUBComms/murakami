@@ -1,6 +1,6 @@
-module.exports = function(app, session){
+module.exports = function(app, session) {
   var now = new Date();
-  if(process.env.NODE_ENV == "production"){
+  if (process.env.NODE_ENV == "production") {
     app.use(
       session({
         secret: process.env.SESSION_SECRET,
@@ -9,7 +9,8 @@ module.exports = function(app, session){
         expires: now.setHours(now.getHours() + 12),
         cookie: {
           path: "/",
-          secure: true
+          secure: true,
+          httpOnly: true
         },
         name: "murakami_biscuit"
       })
@@ -29,4 +30,4 @@ module.exports = function(app, session){
       })
     );
   }
-}
+};

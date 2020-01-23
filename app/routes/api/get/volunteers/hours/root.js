@@ -184,8 +184,6 @@ router.get(
   }
 );
 
-router.use("/approve", require("./approve"));
-router.use("/deny", require("./deny"));
 router.use("/by-member-id", require("./by-member-id"));
 
 module.exports = router;

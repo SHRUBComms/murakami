@@ -13,5 +13,6 @@ router.get("/", Auth.isLoggedIn, function(req, res) {
 router.use("/log", require("./log"));
 router.use("/export", require("./export"));
 router.use("/settings", require("./settings"));
+router.use("/raw-csv-export", require("./raw-csv-export"));
 
 module.exports = router;

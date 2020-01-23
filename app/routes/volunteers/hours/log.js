@@ -161,7 +161,7 @@ router.post("/", function(req, res) {
                     VolunteerHours.createShift(shift, function(err) {
                       res.send({
                         status: "ok",
-                        msg: "Shift logged - awaiting review by an admin!"
+                        msg: "Shift logged successfully!"
                       });
                     });
                   }
@@ -226,7 +226,7 @@ router.post("/", function(req, res) {
                               VolunteerHours.createShift(shift, function(err) {
                                 req.flash(
                                   "success_msg",
-                                  "Shift logged - awaiting review by an admin!"
+                                  "Shift logged!"
                                 );
                                 res.redirect(
                                   process.env.PUBLIC_ADDRESS +
