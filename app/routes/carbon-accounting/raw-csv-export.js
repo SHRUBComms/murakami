@@ -4,6 +4,8 @@ var router = require("express").Router();
 var async = require("async");
 var lodash = require("lodash");
 var ExportToCsv = require("export-to-csv").ExportToCsv;
+var moment = require("moment");
+moment.locale("en-gb");
 
 var rootDir = process.env.CWD;
 
@@ -78,13 +80,16 @@ router.get(
               );
             },
             function() {
+              data = lodash.sortBy(data, "Timestamp");
+
               var options = {
                 fieldSeparator: ",",
                 quoteStrings: '"',
                 decimalSeparator: ".",
                 showLabels: true,
                 showTitle: true,
-                title: "Raw Carbon Accounting Data",
+                title:
+                  "Raw Carbon Accounting Data " + moment().format("YYYY-MM-DD"),
                 useTextFile: false,
                 useBom: true,
                 useKeysAsHeaders: true
@@ -93,10 +98,12 @@ router.get(
 
               var csvExporter = new ExportToCsv(options);
 
-              res.setHeader('Content-disposition', 'attachment; filename=' + options.title + '.csv');
-              res.set('Content-Type', 'text/csv');
+              res.setHeader(
+                "Content-disposition",
+                "attachment; filename=" + options.title + ".csv"
+              );
+              res.set("Content-Type", "text/csv");
               res.status(200).send(csvExporter.generateCsv(data, true));
-
             }
           );
         });
