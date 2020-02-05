@@ -59,6 +59,8 @@ var Models = {
     sequelize,
     Sequelize
   ),
+  FoodCollectionsKeys: require(rootDir +
+    "/app/models/food_collections_keys/schema")(sequelize, Sequelize),
   FoodCollectionsOrganisations: require(rootDir +
     "/app/models/food_collections_organisations/schema")(sequelize, Sequelize),
   FoodCollections: require(rootDir + "/app/models/food_collections/schema")(

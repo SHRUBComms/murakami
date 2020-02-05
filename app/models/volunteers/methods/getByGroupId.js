@@ -31,7 +31,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                   volunteers.push(volunteer);
                 }
               } else if (group_id !== null) {
+
                 if (volunteer.working_groups.includes(group_id) == true) {
+                  console.log(group_id, volunteer.working_groups);
                   volunteers.push(volunteer);
                 }
               } else {

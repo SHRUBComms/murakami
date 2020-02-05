@@ -58,8 +58,9 @@ router.post(
                                 function(err, transaction) {
                                   if (!err && transaction) {
                                     if (!transaction.summary.refunded) {
+
                                       if (
-                                        moment(transaction.date).isAfter(
+                                        moment(transaction.date).endOf("day").isAfter(
                                           moment().subtract(7, "days")
                                         )
                                       ) {
@@ -312,7 +313,7 @@ router.post(
                                         }
                                       } else {
                                         response.msg =
-                                          "Transaction is older than 30 days";
+                                          "Transaction is older than 7 days";
                                         res.send(response);
                                       }
                                     } else {

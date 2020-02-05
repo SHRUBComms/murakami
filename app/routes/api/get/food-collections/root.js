@@ -62,7 +62,7 @@ router.get(
 
                     formattedCollection.date = moment(
                       collection.timestamp
-                    ).format("l");
+                    ).format("D/M/YY hh:mm A");
                     formattedCollection.amount = collection.amount;
                     formattedCollection.note = collection.note || "-";
                     if (formattedCollection.note == "null") {

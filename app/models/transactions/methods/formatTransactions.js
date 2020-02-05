@@ -120,7 +120,8 @@ module.exports = function(Transactions, sequelize, DataTypes) {
 
             if (
               transaction.summary.paymentMethod == "card" &&
-              !transaction.summary.sumupId
+              !transaction.summary.sumupId &&
+              !transaction.summary.refundedTransactionId
             ) {
               bill =
                 "<p class='text-danger font-weight-bold'>Payment failed!</p>";

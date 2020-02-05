@@ -8,3 +8,8 @@
   <option value="collections" {{#if (lookupArray organisation.type "collections")}}selected{{/if}}>Collections</option>
   <option value="drop-offs" {{#if (lookupArray organisation.type "drop-offs")}}selected{{/if}}>Drop-offs</option>
 </select>
+
+<div class="form-check mt-3">
+  <input type="checkbox" class="form-check-input" name="organisation[default]" value="true" {{#if organisation.default}}checked{{/if}} />
+  <label class="form-check-label text-dark"><b>Default Organisation</b> (automatically available to all collection volunteers)</label>
+</div>

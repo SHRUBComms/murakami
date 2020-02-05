@@ -21,10 +21,7 @@ router.get(
   Auth.canAccessPage("volunteers", "view"),
   function(req, res) {
     Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member) {
-        req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-      } else {
+      if (!err && member) {
         Volunteers.getVolunteerById(req.params.member_id, req.user, function(
           err,
           volInfo
@@ -43,7 +40,6 @@ router.get(
                     err,
                     allOrganisations
                   ) {
-                    
                     res.render("volunteers/view", {
                       title: "View Volunteer",
                       volunteersActive: true,
@@ -65,6 +61,9 @@ router.get(
             res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
           }
         });
+      } else {
+        req.flash("error_msg", "Volunteer doesn't exist!");
+        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
       }
     });
   }

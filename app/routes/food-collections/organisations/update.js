@@ -53,6 +53,10 @@ router.post(
         if (organisation.name) {
           formattedOrganisation.name = organisation.name;
 
+          if (organisation.default) {
+            formattedOrganisation.default = true;
+          }
+
           var validTypes = ["drop-offs", "collections"];
 
           if (!Array.isArray(organisation.type)) {
@@ -66,6 +70,7 @@ router.post(
           }
 
           if (formattedOrganisation.type.length > 0) {
+            console.log(formattedOrganisation);
             FoodCollectionsOrganisations.updateOrganisation(
               formattedOrganisation,
               function(err) {

@@ -452,6 +452,22 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     }
                   } catch (err) {}
 
+                  try {
+                    if (
+                      user.permissions.volunteers.manageFoodCollectionLink ==
+                        true ||
+                      (user.permissions.volunteers.manageFoodCollectionLink ==
+                        "commonWorkingGroup" &&
+                        commonWorkingGroup)
+                    ) {
+                      sanitizedVolunteer.canManageFoodCollectionLink = true;
+                      if (volunteer.fc_key) {
+                        sanitizedVolunteer.fc_key = volunteer.fc_key;
+                        sanitizedVolunteer.fc_key_active = volunteer.fc_key_active;
+                      }
+                    }
+                  } catch (err) {}
+
                   if (Object.keys(sanitizedVolunteer).length > 0) {
                     if (sanitizedVolunteer.roles.length > 0) {
                       sanitizedVolunteer.active = true;

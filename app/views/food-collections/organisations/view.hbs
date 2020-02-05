@@ -48,7 +48,11 @@
             </td>
             <td class="p-3">
               {{#if organisation.active}}
-                <p class="text-success">Active</p>
+                <p><span class="text-success">Active</span>
+                  {{~#if organisation.default~}}
+                  , <span class="font-weight-bold">default</span>
+                  {{/if}}
+                </p>
               {{else}}
                 <p class="text-danger">Inactive</p>
               {{/if}}

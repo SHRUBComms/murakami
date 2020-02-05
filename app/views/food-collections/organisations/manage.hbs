@@ -34,6 +34,9 @@
                 <td>
                   {{#if active}}
                     <span class="text-success">Active</span>
+                    {{~#if default~}}
+                    , <span class="font-weight-bold">default</span>
+                    {{/if}}
                   {{else}}
                     <span class="text-danger">Inactive</span>
                   {{/if}}

@@ -3,74 +3,66 @@
 
 <div class="row mt-4">
   <div class="col-md-6 mx-auto">
-    <form method="post" action="{{public_address}}/food-collections/log{{#if uriOrganisations}}?organisations={{uriOrganisations}}{{/if}}">
+    <form method="post" action="{{public_address}}/food-collections/log{{#unless user}}/{{foodCollectionKey.key}}{{/unless}}">
       {{#if user}}
 
-          <select class="form-control mb-2 selectpicker show-tick" name="member_id" title="Select a member" data-style="btn-info" data-size="auto" data-header="Select a member" data-live-search="true" required />
-            {{#each members}}
-              <option value="{{member_id}}" {{#ifCond member_id '==' ../member_id}}selected{{/ifCond}}>{{first_name}} {{last_name}}</option>
-            {{/each}}
-          </select>
-
-      {{else}}
-        <input type="text" name="member_id" class="form-control mb-2" placeholder="Member ID" value="{{member_id}}" />
-      {{/if}}
-
-      {{#unless noOrganisationSelect}}
-          <select name="organisation_id" class="form-control mb-2">
-            <option selected disabled>Select pick-up organisation</option>
-          {{#if user}}
-            {{#each allOrganisations}}
-
-              {{#if (lookupArray type 'collections')}}
-                <option value="{{organisation_id}}"{{#ifCond active '==' '0'}} disabled{{/ifCond}}>{{name}}</option>
-              {{/if}}
-
-            {{/each}}
-          {{else}}
-
-            {{#each organisations}}
-
-                {{#if (lookup ../allOrganisations this)}}
-                  {{#if (lookupArray (lookup (lookup ../allOrganisations this) 'type') 'collections')}}
-                    <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}"{{#ifCond (lookup (lookup ../allOrganisations this) 'active') '==' '0'}} disabled{{/ifCond}}>{{lookup (lookup ../allOrganisations this) 'name'}}</option>
-                  {{/if}}
-                {{/if}}
-            {{else}}
-              <option disabled selected>No organisations - please contact a staff member</option>
-            {{/each}}
-          {{/if}}
+        <select class="form-control mb-2 selectpicker show-tick" name="member_id" title="Select a member" data-style="btn-info" data-size="auto" data-header="Select a member" data-live-search="true" required />
+          {{#each members}}
+            <option value="{{member_id}}" {{#ifCond member_id '==' ../member_id}}selected{{/ifCond}}>{{first_name}} {{last_name}}</option>
+          {{/each}}
         </select>
 
-        <select name="destination_organisation_id" class="form-control mb-2">
-          <option selected disabled>Select drop-off organisation</option>
-        {{#if user}}
-          {{#each allOrganisations}}
+      {{else}}
+      <input type="hidden" name="member_id" value="{{member.member_id}}" />
+        <div id="volunteerNote" class="alert alert-info p-4" role="alert">
+          <h4 class="alert-heading">Hey, {{member.first_name}}!</h4>
+          <p>To log your collection, simply enter where you collected it from, where you dropped it off to and how much it weighed. You can also add a note if there's some extra information you think needs to be recorded.</p>
+          <hr>
+          <p class="mb-0">If you are experiencing any issues, please <a href="{{public_address}}/support">contact support</a>.</p>
+        </div>
+      {{/if}}
 
-          {{#if (lookupArray type 'drop-offs')}}
-            <option value="{{organisation_id}}"{{#ifCond active '==' '0'}} disabled{{/ifCond}}>{{name}}</option>
-          {{/if}}
+      <select class="form-control mb-2 selectpicker show-tick" name="organisation_id" title="Select a collection organisation" data-style="btn-info" data-size="auto" data-header="Select a collection organisation" data-live-search="true" required />
 
-          {{/each}}
-        {{else}}
-
-          {{#each organisations}}
-
-              {{#if (lookup ../allOrganisations this)}}
-                {{#if (lookupArray (lookup (lookup ../allOrganisations this) 'type') 'drop-offs')}}
-                  <option value="{{lookup (lookup ../allOrganisations this) 'organisation_id'}}"{{#ifCond (lookup (lookup ../allOrganisations this) 'active') '==' '0'}} disabled{{/ifCond}}>{{lookup (lookup ../allOrganisations this) 'name'}}</option>
+      {{#each allOrganisations}}
+        {{#if (lookupArray type "collections")}}
+          {{#if active}}
+            {{#if ../user}}
+              <option value="{{organisation_id}}">{{name}}</option>
+            {{else}}
+              {{#if default}}
+                <option value="{{organisation_id}}">{{name}}</option>
+              {{else}}
+                {{#if (lookupArray ../foodCollectionKey.organisations organisation_id)}}
+                  <option value="{{organisation_id}}">{{name}}</option>
                 {{/if}}
               {{/if}}
-          {{else}}
-            <option disabled selected>No organisations - please contact a staff member</option>
-          {{/each}}
+            {{/if}}
+          {{/if}}
         {{/if}}
+      {{/each}}
+
       </select>
 
-      {{else}}
-        <input type="text" name="organisation_id" class="form-control mb-2" placeholder="Pick-up Organisation ID" value="{{organisation_id}}" />
-        <input type="text" name="destination_organisation_id" class="form-control mb-2" placeholder="Destination Organisation ID" value="{{organisation_id}}" />
-      {{/unless}}
+      <select class="form-control mb-3 selectpicker show-tick" name="destination_organisation_id" title="Select a drop-off organisation" data-style="btn-info" data-size="auto" data-header="Select a drop-off organisation" data-live-search="true" required >
+        {{#each allOrganisations}}
+          {{#if (lookupArray type "drop-offs")}}
+            {{#if active}}
+              {{#if ../user}}
+                <option value="{{organisation_id}}">{{name}}</option>
+              {{else}}
+                {{#if default}}
+                  <option value="{{organisation_id}}">{{name}}</option>
+                {{else}}
+                  {{#if (lookupArray ../foodCollectionKey.organisations organisation_id)}}
+                    <option value="{{organisation_id}}">{{name}}</option>
+                  {{/if}}
+                {{/if}}
+              {{/if}}
+            {{/if}}
+          {{/if}}
+        {{/each}}
+      </select>
 
       <div class="form-inline mb-4">
         <div class="mx-auto">

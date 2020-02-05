@@ -61,6 +61,19 @@ module.exports = function(Members, sequelize, DataType) {
                   user.allVolunteerRoles[role].group_id
                 );
               }
+              try {
+                if (
+                  user.allWorkingGroupsObj[
+                    user.allVolunteerRoles[role].group_id
+                  ].parent
+                ) {
+                  member.working_groups.push(
+                    user.allWorkingGroupsObj[
+                      user.allVolunteerRoles[role].group_id
+                    ].parent
+                  );
+                }
+              } catch (err) {}
             } catch (err) {
               member.working_groups = [user.allVolunteerRoles[role].group_id];
             }
