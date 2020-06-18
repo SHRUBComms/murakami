@@ -218,7 +218,7 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
               }
             },
             function() {
-              var month = moment(transactions[0].date);
+              var month = moment("2018-11-01");
               var monthDifference = Math.ceil(
                 moment().diff(moment(month), "months")
               );
