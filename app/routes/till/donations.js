@@ -107,7 +107,6 @@ router.post(
 
                           member.balance =
                             Number(member.balance) + Number(tokens);
-                          member.tokens = tokens;
                           member.name =
                             member.first_name + " " + member.last_name;
                           member.membership_expires =
@@ -115,10 +114,12 @@ router.post(
                           Transactions.addTransaction(
                             formattedTransaction,
                             function(err) {
-                              Mail.sendDonation(
-                                member,
-
+                              Mail.sendAutomatedMember(
+                                "donation",
+                                member.member_id,
+                                { tokens: tokens },
                                 function(err) {
+                                  console.log(err);
                                   if (err) {
                                     response.msg =
                                       "Tokens added but something went wrong notifying the member!";

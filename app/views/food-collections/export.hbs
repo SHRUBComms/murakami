@@ -64,11 +64,11 @@
 
 {{#if showCollections}}
 	<div class="row mt-4">
-	<div class="col-12 col-lg-10 col-xl-9 mx-auto">
+	<div class="col-12 col-lg-12 col-xl-11 mx-auto">
 		<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true"  data-show-export="true"
       {{#if organisation_id}}
         data-export-options='{
-           "fileName": "Food Collections From {{lookup (lookup organisations organisation_id) 'name'}} - {{startDate}} to {{endDate}}"
+           "fileName": "Food Collections From {{lookup (lookup organisations collection_organisation_id) 'name'}} - {{startDate}} to {{endDate}}"
          }'
       {{else}}
         data-export-options='{
@@ -81,7 +81,8 @@
 		        	<th>Date</th>
 							<th>Collected From</th>
 							<th>Dropped Off To</th>
-              <th>Amount (kilos)</th>
+              <th>Total Weight Collected (kg)</th>
+							<th>Weight Per Drop-off Organisation (kg)</th>
 							<th>Collected By</th>
 		          <th>Note</th>
 		        </tr>
@@ -96,6 +97,11 @@
 						<td>
 
 								{{amount}}
+
+						</td>
+						<td>
+
+								{{amountPortion}}
 
 						</td>
             <td>{{collectedBy}}</td>
@@ -116,11 +122,11 @@
 {{/if}}
 {{#if showDropoffs}}
 	<div class="row mt-4">
-		<div class="col-12 col-lg-10 col-xl-9 mx-auto">
+		<div class="col-12 col-lg-12 col-xl-11 mx-auto">
 			<table id="transaction_history" class="fadeIn table-light" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true"  data-show-export="true"
 	      {{#if organisation_id}}
 	        data-export-options='{
-	           "fileName": "Food Dropped Off To {{lookup (lookup organisations organisation_id) 'name'}} - {{startDate}} to {{endDate}}"
+	           "fileName": "Food Dropped Off To {{lookup (lookup organisations collection_organisation_id) 'name'}} - {{startDate}} to {{endDate}}"
 	         }'
 	      {{else}}
 	        data-export-options='{
@@ -133,7 +139,8 @@
 			        	<th>Date</th>
 								<th>Collected From</th>
 								<th>Dropped Off To</th>
-	              <th>Amount (kilos)</th>
+								<th>Total Weight Collected (kg)</th>
+								<th>Weight Per Drop-off Organisation (kg)</th>
 								<th>Collected By</th>
 			          <th>Note</th>
 			        </tr>
@@ -147,6 +154,11 @@
 							<td>{{droppedOffTo}}</td>
 							<td>
 									{{amount}}
+							</td>
+							<td>
+
+									{{amountPortion}}
+
 							</td>
 	            <td>{{collectedBy}}</td>
 	            <td>

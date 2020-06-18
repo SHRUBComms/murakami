@@ -22,7 +22,7 @@
         </div>
       {{/if}}
 
-      <select class="form-control mb-2 selectpicker show-tick" name="organisation_id" title="Select a collection organisation" data-style="btn-info" data-size="auto" data-header="Select a collection organisation" data-live-search="true" required />
+      <select class="form-control mb-2 selectpicker show-tick" name="collectionOrganisation" title="Select a collection organisation" data-style="btn-info" data-size="auto" data-header="Select a collection organisation" data-live-search="true" required />
 
       {{#each allOrganisations}}
         {{#if (lookupArray type "collections")}}
@@ -44,7 +44,7 @@
 
       </select>
 
-      <select class="form-control mb-3 selectpicker show-tick" name="destination_organisation_id" title="Select a drop-off organisation" data-style="btn-info" data-size="auto" data-header="Select a drop-off organisation" data-live-search="true" required >
+      <select class="form-control mb-3 selectpicker show-tick" name="destinationOrganisations" title="Select drop-off organisations" data-style="btn-info" data-size="auto" data-header="Select drop-off organisations" data-live-search="true" multiple required >
         {{#each allOrganisations}}
           {{#if (lookupArray type "drop-offs")}}
             {{#if active}}

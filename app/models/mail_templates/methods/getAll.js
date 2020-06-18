@@ -2,7 +2,7 @@ var async = require("async");
 
 module.exports = function(MailTemplates, sequelize, DataTypes) {
   return function(callback) {
-    MailTemplates.findAll({ order: [["mail_desc", "ASC"]] }).nodeify(function(
+    MailTemplates.findAll({ order: [["short_description", "ASC"]] }).nodeify(function(
       err,
       templates
     ) {

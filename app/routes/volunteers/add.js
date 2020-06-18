@@ -20,6 +20,12 @@ var Auth = require(rootDir + "/app/configs/auth");
 var Mail = require(rootDir + "/app/configs/mail/root");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
+router.get("/test-mail", function(req, res) {
+  Members.getAll(function(err, members) {
+    res.send(members);
+  });
+});
+
 router.get(
   "/",
   Auth.isLoggedIn,

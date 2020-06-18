@@ -27,6 +27,11 @@ router.get(
           "/volunteers/manage/?group_id=my-volunteers"
       );
     } else {
+      
+      if (req.user.permissions.volunteers.view == "isCoordinator") {
+        req.query.group_id = "my-volunteers";
+      }
+
       if (
         req.user.permissions.volunteers.view == true ||
         (req.user.permissions.volunteers.view == "commonWorkingGroup" &&

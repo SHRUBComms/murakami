@@ -326,7 +326,12 @@ router.post(
                   );
                 }
 
-                Mail.sendAutomated("hello", member_id, function(err) {});
+                Mail.sendAutomatedMember(
+                  "welcome-paid-member",
+                  member_id,
+                  {},
+                  function(err) {}
+                );
 
                 if (!till) {
                   req.flash("success_msg", "New member added!");

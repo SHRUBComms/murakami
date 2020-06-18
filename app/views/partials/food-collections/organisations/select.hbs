@@ -1,0 +1,38 @@
+<select class="form-control mb-3 selectpicker show-tick" name="organisations" id="organisations" title="Select available food collection organisations" data-style="btn-info" data-size="auto" data-header="Select available food collection organisations" data-live-search="true" multiple required /></select>
+
+
+<script>
+
+$(document).ready(function(){
+  getFoodCollectionOrganisations();
+})
+
+function getFoodCollectionOrganisations(){
+  $.ajax({
+    type:"post",
+    url:"{{public_address}}/api/post/volunteers/food-collections/get-organisations",
+    success: function(response) {
+      console.log(response);
+      if(response.status == "ok") {
+
+        $("#organisations").html("");
+
+        $.each(Object.keys(response.organisations), function(index, organisation_id){
+          var organisation = response.organisations[organisation_id];
+
+          if(organisation.default){
+            $("#organisations").append('<option value=' + organisation.organisation_id + ' selected disabled>' + organisation.name +  '</option>');
+          } else {
+            $("#organisations").append('<option value=' + organisation.organisation_id + '>' + organisation.name  + '</option>');
+          }
+
+
+        });
+
+        $("#organisations").selectpicker('refresh');
+
+      }
+    }
+  })
+}
+</script>

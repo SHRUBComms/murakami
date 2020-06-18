@@ -44,7 +44,9 @@ fs.readdirSync(process.env.CWD + "/app/configs/mail").forEach(function(
     .slice(0, -1)
     .join(".");
 
-  if (functionName != "root") {
+  if (
+    !["root", "dynamicVariables.config", "getFooter"].includes(functionName)
+  ) {
     Mail[functionName] = require(process.env.CWD +
       "/app/configs/mail/" +
       functionName)(Mail, nodemailer, htmlToText, sanitizeHtml, cleaner);

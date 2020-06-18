@@ -20,6 +20,7 @@ var automatedMails = new CronJob({
     var memberMails = {};
     // Begone expired members!
     Members.getAll(function(err, members) {
+      console.log(members);
       var sanitizedMembers = [];
       async.eachOf(
         members,
@@ -86,9 +87,9 @@ var automatedMails = new CronJob({
                     .format("YYYY-MM-DD")
                 ) {
                   try {
-                    memberMails[member.member_id].push("renewal_notice_long");
+                    memberMails[member.member_id].push("renewal-notice-long");
                   } catch (err) {
-                    memberMails[member.member_id] = ["renewal_notice_long"];
+                    memberMails[member.member_id] = ["renewal-notice-long"];
                   }
                 } else if (
                   moment(member.current_exp_membership).format("YYYY-MM-DD") ==
@@ -98,9 +99,9 @@ var automatedMails = new CronJob({
                 ) {
                   // Expires in one week
                   try {
-                    memberMails[member.member_id].push("renewal_notice_short");
+                    memberMails[member.member_id].push("renewal-notice-short");
                   } catch (err) {
-                    memberMails[member.member_id] = ["renewal_notice_short"];
+                    memberMails[member.member_id] = ["renewal-notice-short"];
                   }
                 }
               } else {

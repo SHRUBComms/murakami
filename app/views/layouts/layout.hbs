@@ -27,6 +27,8 @@
     <!--<script src="{{public_address}}/assets/js/vendor/modernizr-2.8.3.min.js"></script>-->
 
     <!-- jquery latest version -->
+    <script src="https://js.pusher.com/5.0/pusher.min.js"></script>
+
     <script src="{{public_address}}/assets/js/vendor/jquery-2.2.4.min.js"></script>
     <script src="{{public_address}}/assets/js/vendor/lodash.min.js"></script>
 
@@ -222,11 +224,8 @@
                                         {{#if user.permissions.foodCollections.log}}
                                           <li><a href="{{public_address}}/food-collections/log">Log Collection</a></li>
                                         {{/if}}
-                                        {{#if user.permissions.foodCollections.review}}
-                                          <li><a href="{{public_address}}/food-collections/review">Review Collections</a></li>
-                                        {{/if}}
                                         {{#if user.permissions.foodCollections.export}}
-                                          <li><a href="{{public_address}}/food-collections/export">Export Data</a></li>
+                                          <li><a href="{{public_address}}/food-collections/export">Export Collections</a></li>
                                         {{/if}}
 
                                         {{#if user.permissions.foodCollections.viewOrganisations}}

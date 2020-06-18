@@ -444,41 +444,43 @@ router.post(
                   );
                 }
 
-                Mail.sendAutomated("welcome_volunteer", member_id, function(
+                Mail.sendAutomated("welcome_volunteer", member_id, {}, function(
                   err
                 ) {});
 
-                Users.getById(res.invite.details.user_id, {
-                  permissions: { users: { name: true, email: true } }
-                }, function(err, userInvitedBy){
-                  Mail.sendGeneral(
-                    userInvitedBy.first_name +
-                      " " +
-                      userInvitedBy.last_name +
-                      " <" +
-                      userInvitedBy.email +
-                      ">",
-                    "Volunteer Profile Activated",
-                    "<p>Hey " +
+                Users.getById(
+                  res.invite.details.user_id,
+                  {
+                    permissions: { users: { name: true, email: true } }
+                  },
+                  function(err, userInvitedBy) {
+                    Mail.sendGeneral(
                       userInvitedBy.first_name +
-                      ",</p>" +
-                      "<p>This email is to notify you that " +
-                      first_name +
-                      " " +
-                      last_name +
-                      " has activated their volunteer profile using an invite you sent.</p>" +
-                      "<p>If you didn't invite this volunteer, please <a href='" +
-                      process.env.PUBLIC_ADDRESS +
-                      "/volunteers/view/" +
-                      member_id +
-                      "'>remove the account</a> and <a href='" +
-                      process.env.PUBLIC_ADDRESS +
-                      "/support'>contact support</a> <b>as soon as possible</b></p>",
-                    function(err) {}
-                  );
-                });
-
-
+                        " " +
+                        userInvitedBy.last_name +
+                        " <" +
+                        userInvitedBy.email +
+                        ">",
+                      "Volunteer Profile Activated",
+                      "<p>Hey " +
+                        userInvitedBy.first_name +
+                        ",</p>" +
+                        "<p>This email is to notify you that " +
+                        first_name +
+                        " " +
+                        last_name +
+                        " has activated their volunteer profile using an invite you sent.</p>" +
+                        "<p>If you didn't invite this volunteer, please <a href='" +
+                        process.env.PUBLIC_ADDRESS +
+                        "/volunteers/view/" +
+                        member_id +
+                        "'>remove the account</a> and <a href='" +
+                        process.env.PUBLIC_ADDRESS +
+                        "/support'>contact support</a> <b>as soon as possible</b></p>",
+                      function(err) {}
+                    );
+                  }
+                );
 
                 if (res.invite) {
                   AccessTokens.markAsUsed(res.invite.token, function() {});

@@ -106,14 +106,195 @@
       			</div>
 
             {{#if volInfo.canManageFoodCollectionLink}}
+              <div class="row mt-1">
+                <a class='btn btn-info form-control' data-toggle="modal" data-target="#foodCollectionLink">
+                  <span id="foodCollectionAction">
+                    Create
+                  </span>
+                  Food Collection Link
+                </a>
+              </div>
+              <div class="modal fade" id="foodCollectionLink" tabindex="-1" role="dialog" aria-labelledby="foodCollectionLinkLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="foodCollectionLinkLabel">Manage Food Collection Link</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
 
-        			<div class="row mt-1">
-        			   <a class='btn btn-info form-control' data-toggle="modal" data-target="#foodCollectionLink">
-                   <span id="foodCollectionAction">
-                     Manage
-                   </span>
-                   Food Collection Link</a>
-        			</div>
+                    <div id="foodCollectionLinkResponseBox" class="alert alert-dismissible fade show d-none" role="alert">
+                      <span id="foodCollectionLinkResponse"></span>
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+
+                    <select class="form-control mb-3 selectpicker show-tick" id="organisations" title="Select organisations" data-style="btn-info" data-size="auto" data-header="Select organisations" data-live-search="true" multiple required /></select>
+
+
+                    <div class="input-group">
+                      <input type="text" class="form-control"
+                          value="" placeholder="Food Collection Logging Link..." id="foodCollectionLinkOutput" readonly>
+                       <div class="input-group-append">
+                        <button id="copy-btn" class="btn btn-default" type="button" data-clipboard-target="#foodCollectionLinkOutput"
+                            title="Copy to Clipboard">
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+
+                    <button class="btn btn-danger btn-block mt-3" id="disableFoodCollectionsLinkButton">Disable Link</button>
+
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="emailFoodCollectionLink">Email Link</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <script>
+              $(document).ready(function(){
+                getFoodCollectionsLink()
+              })
+
+              new ClipboardJS('#copy-btn');
+
+              $("#organisations").on('change', function(){
+                updateFoodCollectionsLink();
+              })
+
+              $('#foodCollectionLink').on('show.bs.modal', function (e) {
+                updateFoodCollectionsLink();
+                getFoodCollectionsLink();
+              })
+
+              function setFoodCollectionsLink(key){
+                if(key){
+                  $("#foodCollectionLinkOutput").val("{{public_address}}/food-collections/log/" + key);
+
+                  $("#foodCollectionLinkOutput").addClass("member-selected");
+                  setTimeout(function(){
+                    $("#foodCollectionLinkOutput").removeClass("member-selected");
+                  }, 2500)
+
+                }
+              }
+
+              function getFoodCollectionsLink(){
+                $.ajax({
+                  type:"post",
+                  url:"{{public_address}}/api/post/volunteers/food-collections/get-by-member-id",
+                  data: {
+                    member_id: "{{member.member_id}}"
+                  }, success: function(response) {
+                    if(response.status == "ok") {
+                      if(response.foodCollectionKey.organisations.length > 0 && response.foodCollectionKey.active == 1){
+                        $("#foodCollectionAction").text("Manage");
+                      } else if (response.foodCollectionKey.organisations.length > 0 && response.foodCollectionKey.active == 0){
+                        $("#foodCollectionAction").text("Activate");
+                      } else {
+                        $("#foodCollectionAction").text("Create");
+                      }
+
+                      $("#organisations").html("");
+
+                      $.each(Object.keys(response.organisations), function(index, organisation_id){
+                        var organisation = response.organisations[organisation_id];
+                        if(response.foodCollectionKey.organisations.includes(organisation_id)){
+                          $("#organisations").append('<option value=' + organisation.organisation_id + ' selected>' + organisation.name +'</option>');
+                        } else {
+                          if(organisation.default){
+                            $("#organisations").append('<option value=' + organisation.organisation_id + ' selected disabled>' + organisation.name +  '</option>');
+                          } else {
+                            $("#organisations").append('<option value=' + organisation.organisation_id + '>' + organisation.name  + '</option>');
+                          }
+
+                        }
+                      });
+
+                      $("#organisations").selectpicker('refresh');
+
+
+                      setFoodCollectionsLink(response.foodCollectionKey.key)
+
+
+                    }
+                  }
+                })
+              }
+
+              function updateFoodCollectionsLink(){
+                $("#foodCollectionAction").text("Manage");
+                $.ajax({
+                  type:"post",
+                  url:"{{public_address}}/api/post/volunteers/food-collections/update",
+                  data: {
+                    organisations: $("#organisations").val(),
+                    member_id: "{{member.member_id}}"
+                  }, success: function(response) {
+                    if(response.status == "ok") {
+                      setFoodCollectionsLink(response.key)
+                    }
+                  }
+                })
+              }
+
+              function disableFoodCollectionsLink(){
+                $.ajax({
+                  type:"post",
+                  url:"{{public_address}}/api/post/volunteers/food-collections/disable",
+                  data: {
+                    member_id: "{{member.member_id}}"
+                  }, success: function(response) {
+                    if(response.status == "ok") {
+                      $("#foodCollectionLink").modal("hide");
+                      setFoodCollectionsLink("Link Disabled.")
+                      $("#foodCollectionAction").text("Activate");
+                    } else {
+                      alert(response.msg)
+                    }
+                  }
+                })
+              }
+
+              function sendFoodCollectionsLink() {
+                $("#emailFoodCollectionLink").prop("disabled", true)
+                $.ajax({
+                  type:"post",
+                  url:"{{public_address}}/api/post/volunteers/food-collections/send-link",
+                  data: {
+                    member_id: "{{member.member_id}}"
+                  }, success: function(response) {
+                    $("#emailFoodCollectionLink").prop("disabled", false)
+                    if(response.status == "ok") {
+                      $("#foodCollectionLinkResponseBox").removeClass("alert-danger");
+                      $("#foodCollectionLinkResponseBox").addClass("alert-success");
+                    } else {
+                      $("#foodCollectionLinkResponseBox").removeClass("alert-success");
+                      $("#foodCollectionLinkResponseBox").addClass("alert-danger");
+
+                    }
+                    $("#foodCollectionLinkResponseBox").removeClass("d-none");
+                    $("#foodCollectionLinkResponse").text(response.msg);
+                  }
+                })
+              }
+
+              $("#emailFoodCollectionLink").click(function(){
+                sendFoodCollectionsLink();
+              })
+
+              $("#disableFoodCollectionsLinkButton").click(function(){
+                if (confirm("Are you sure you want to disable {{member.first_name}}'s food collection link?")) {
+                  disableFoodCollectionsLink();
+                }
+              })
+            </script>
 
             {{/if}}
 
@@ -267,196 +448,8 @@
   </div>
 </div>
 
-
-{{#if volInfo.canManageFoodCollectionLink}}
-  <div class="modal fade" id="foodCollectionLink" tabindex="-1" role="dialog" aria-labelledby="foodCollectionLinkLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="foodCollectionLinkLabel">Manage Food Collection Link</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-        <div id="foodCollectionLinkResponseBox" class="alert alert-dismissible fade show d-none" role="alert">
-          <span id="foodCollectionLinkResponse"></span>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-
-        <select class="form-control mb-3 selectpicker show-tick" id="organisations" title="Select organisations" data-style="btn-info" data-size="auto" data-header="Select organisations" data-live-search="true" multiple required /></select>
-
-
-        <div class="input-group">
-          <input type="text" class="form-control"
-              value="" placeholder="Food Collection Logging Link..." id="foodCollectionLinkOutput" readonly>
-           <div class="input-group-append">
-            <button id="copy-btn" class="btn btn-default" type="button" data-clipboard-target="#foodCollectionLinkOutput"
-                title="Copy to Clipboard">
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <button class="btn btn-danger btn-block mt-3" id="disableFoodCollectionsLinkButton">Disable Link</button>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="emailFoodCollectionLink">Email Link</button>
-      </div>
-    </div>
-  </div>
-</div>
-{{/if}}
-
 <script>
 
-
-
-{{#if user.permissions.volunteers.manageFoodCollectionLink}}
-
-  $(document).ready(function(){
-    getFoodCollectionsLink()
-  })
-
-  new ClipboardJS('#copy-btn');
-
-  $("#organisations").on('change', function(){
-    updateFoodCollectionsLink();
-  })
-
-  $('#foodCollectionLink').on('show.bs.modal', function (e) {
-    updateFoodCollectionsLink();
-    getFoodCollectionsLink();
-  })
-
-  function setFoodCollectionsLink(key){
-    if(key){
-      $("#foodCollectionLinkOutput").val("{{public_address}}/food-collections/log/" + key);
-
-      $("#foodCollectionLinkOutput").addClass("member-selected");
-      setTimeout(function(){
-        $("#foodCollectionLinkOutput").removeClass("member-selected");
-      }, 2500)
-
-    }
-  }
-
-  function getFoodCollectionsLink(){
-    $.ajax({
-      type:"post",
-      url:"{{public_address}}/api/post/volunteers/food-collections/get-by-member-id",
-      data: {
-        member_id: "{{member.member_id}}"
-      }, success: function(response) {
-        if(response.status == "ok") {
-          if(response.foodCollectionKey.organisations.length > 0 && response.foodCollectionKey.active == 1){
-            $("#foodCollectionAction").text("Manage");
-          } else if (response.foodCollectionKey.organisations.length > 0 && response.foodCollectionKey.active == 0){
-            $("#foodCollectionAction").text("Activate");
-          } else {
-            $("#foodCollectionAction").text("Create");
-          }
-
-          $("#organisations").html("");
-
-          $.each(Object.keys(response.organisations), function(index, organisation_id){
-            var organisation = response.organisations[organisation_id];
-            if(response.foodCollectionKey.organisations.includes(organisation_id)){
-              $("#organisations").append('<option value=' + organisation.organisation_id + ' selected>' + organisation.name +'</option>');
-            } else {
-              if(organisation.default){
-                $("#organisations").append('<option value=' + organisation.organisation_id + ' selected disabled>' + organisation.name +  '</option>');
-              } else {
-                $("#organisations").append('<option value=' + organisation.organisation_id + '>' + organisation.name  + '</option>');
-              }
-
-            }
-          });
-
-          $("#organisations").selectpicker('refresh');
-
-
-          setFoodCollectionsLink(response.foodCollectionKey.key)
-
-
-        }
-      }
-    })
-  }
-
-  function updateFoodCollectionsLink(){
-    $("#foodCollectionAction").text("Manage");
-    $.ajax({
-      type:"post",
-      url:"{{public_address}}/api/post/volunteers/food-collections/update",
-      data: {
-        organisations: $("#organisations").val(),
-        member_id: "{{member.member_id}}"
-      }, success: function(response) {
-        if(response.status == "ok") {
-          setFoodCollectionsLink(response.key)
-        }
-      }
-    })
-  }
-
-  function disableFoodCollectionsLink(){
-    $.ajax({
-      type:"post",
-      url:"{{public_address}}/api/post/volunteers/food-collections/disable",
-      data: {
-        member_id: "{{member.member_id}}"
-      }, success: function(response) {
-        if(response.status == "ok") {
-          $("#foodCollectionLink").modal("hide");
-          setFoodCollectionsLink("Link Disabled.")
-          $("#foodCollectionAction").text("Activate");
-        } else {
-          alert(response.msg)
-        }
-      }
-    })
-  }
-
-  function sendFoodCollectionsLink() {
-    $("#emailFoodCollectionLink").prop("disabled", true)
-    $.ajax({
-      type:"post",
-      url:"{{public_address}}/api/post/volunteers/food-collections/send-link",
-      data: {
-        member_id: "{{member.member_id}}"
-      }, success: function(response) {
-        $("#emailFoodCollectionLink").prop("disabled", false)
-        if(response.status == "ok") {
-          $("#foodCollectionLinkResponseBox").removeClass("alert-danger");
-          $("#foodCollectionLinkResponseBox").addClass("alert-success");
-        } else {
-          $("#foodCollectionLinkResponseBox").removeClass("alert-success");
-          $("#foodCollectionLinkResponseBox").addClass("alert-danger");
-
-        }
-        $("#foodCollectionLinkResponseBox").removeClass("d-none");
-        $("#foodCollectionLinkResponse").text(response.msg);
-      }
-    })
-  }
-
-  $("#emailFoodCollectionLink").click(function(){
-    sendFoodCollectionsLink();
-  })
-
-  $("#disableFoodCollectionsLinkButton").click(function(){
-    if (confirm("Are you sure you want to disable {{member.first_name}}'s food collection link?")) {
-      disableFoodCollectionsLink();
-    }
-  })
-
-{{/if}}
 
 function markAsInactive(member_id, row){
   var confirmed = confirm("Are you sure you want to mark this volunteer as inactive?");

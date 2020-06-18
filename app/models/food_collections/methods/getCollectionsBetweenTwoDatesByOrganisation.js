@@ -18,7 +18,7 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
     };
 
     if (organisation_id) {
-      query.where.organisation_id = organisation_id;
+      query.where.collection_organisation_id = organisation_id;
     }
 
     FoodCollections.findAll(query).nodeify(function(err, collections) {

@@ -1,8 +1,8 @@
 module.exports = function(FoodCollections, sequelize, DataTypes) {
   return function(
     member_id,
-    organisation_id,
-    destination_organisation_id,
+    collectionOrganisation,
+    destinationOrganisations,
     amount,
     note,
     approved,
@@ -12,8 +12,8 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
       FoodCollections.create({
         transaction_id: transaction_id,
         member_id: member_id,
-        organisation_id: organisation_id,
-        destination_organisation_id: destination_organisation_id,
+        collection_organisation_id: collectionOrganisation,
+        destination_organisations: destinationOrganisations,
         amount: amount,
         note: note || null,
         timestamp: new Date(),

@@ -2,8 +2,13 @@
 
 <style>
 
-.nuanceAccess {
+.workingGroupAccess {
   background-color: orange;
+  color: white;
+}
+
+.coordinatorAccess {
+  background-color: blue;
   color: white;
 }
 
@@ -125,18 +130,26 @@
     $(".permissionsDropdown").on("change", function(){
 
       if(this.value == "false") {
-        $(this).removeClass("nuanceAccess");
+        $(this).removeClass("workingGroupAccess");
         $(this).removeClass("alwaysAccess");
+        $(this).removeClass("coordinatorAccess");
         $(this).addClass("noAccess");
       } else if (this.value == "true") {
-        
-        $(this).removeClass("nuanceAccess");
+
+        $(this).removeClass("workingGroupAccess");
         $(this).removeClass("noAccess");
+        $(this).removeClass("coordinatorAccess");
         $(this).addClass("alwaysAccess");
-      } else {
+      } else if(this.value == "commonWorkingGroup") {
         $(this).removeClass("alwaysAccess");
         $(this).removeClass("noAccess");
-        $(this).addClass("nuanceAccess");
+        $(this).removeClass("coordinatorAccess");
+        $(this).addClass("workingGroupAccess");
+      } else if (this.value == "isCoordinator") {
+        $(this).removeClass("alwaysAccess");
+        $(this).removeClass("noAccess");
+        $(this).removeClass("workingGroupAccess");
+        $(this).addClass("coordinatorAccess");
       }
     })
   })

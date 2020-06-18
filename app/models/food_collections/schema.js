@@ -15,12 +15,12 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING(11),
         allowNull: false
       },
-      organisation_id: {
+      collection_organisation_id: {
         type: DataTypes.STRING(15),
         allowNull: false
       },
-      destination_organisation_id: {
-        type: DataTypes.STRING(15),
+      destination_organisations: {
+        type: DataTypes.JSON,
         allowNull: false
       },
       timestamp: {

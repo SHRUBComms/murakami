@@ -2,6 +2,8 @@
 
 var router = require("express").Router();
 
+var lodash = require("lodash");
+
 var rootDir = process.env.CWD;
 
 var Models = require(rootDir + "/app/models/sequelize");
@@ -15,14 +17,9 @@ router.get(
   Auth.isLoggedIn,
   Auth.canAccessPage("settings", "emailTemplates"),
   function(req, res) {
-    MailTemplates.getAll(function(err, templates, templatesObj) {
-      if (err) throw err;
-      res.redirect(
-        process.env.PUBLIC_ADDRESS +
-          "/settings/email-templates/" +
-          templates[0].mail_id
-      );
-    });
+    res.redirect(
+      process.env.PUBLIC_ADDRESS + "/settings/email-templates/footer"
+    );
   }
 );
 
@@ -33,19 +30,44 @@ router.get(
   function(req, res) {
     MailTemplates.getAll(function(err, templatesArray, templates) {
       WorkingGroups.getById("WG-100", function(err, group) {
-        if (err || !templates[req.params.mail_id]) {
-          res.redirect(
-            process.env.PUBLIC_ADDRESS + "/settings/email-templates/"
-          );
-        } else {
+        if (!err && templates[req.params.mail_id]) {
+          var dynamicVariablesAvailable = require(rootDir +
+            "/app/configs/mail/dynamicVariables.config");
+
           res.render("settings/email-templates", {
             title: "Email Templates",
             settingsActive: true,
             templates: templates,
             template: templates[req.params.mail_id],
-            footer: templates.footer,
-            group: group
+            group: group,
+            dynamicVariablesAvailable: dynamicVariablesAvailable,
+            categories: [
+              {
+                id: "common",
+                plain: "Common (Members & Non-members)"
+              },
+              {
+                id: "members",
+                plain: "All Members (Paid Members & Volunteers)"
+              },
+              {
+                id: "paid-members",
+                plain: "Paid Members Only"
+              },
+              {
+                id: "volunteers",
+                plain: "Volunteers Only"
+              },
+              {
+                id: "footers",
+                plain: "Footers"
+              }
+            ]
           });
+        } else {
+          res.redirect(
+            process.env.PUBLIC_ADDRESS + "/settings/email-templates/"
+          );
         }
       });
     });

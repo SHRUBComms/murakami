@@ -5,7 +5,7 @@ module.exports = function(Users, sequelize, DataTypes) {
     Users.findAll({
       where: {
         class: {
-          [DataTypes.Op.or]: ["staff", "admin"]
+          [DataTypes.Op.or]: ["staff", "admin", "volunteer"]
         }
       }
     }).nodeify(function(err, coordinators) {

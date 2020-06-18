@@ -59,6 +59,13 @@ var register = function(Handlebars) {
         return options.inverse(this);
       }
     },
+    ifArrayIncludes: function(string, array, options) {
+      if (array.includes(string)) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
+    },
     groupedEach: function(every, context, options) {
       var out = "",
         subcontext = [];

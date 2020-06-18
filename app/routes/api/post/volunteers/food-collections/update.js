@@ -25,7 +25,6 @@ router.post(
     var response = { status: "fail" };
 
     FoodCollectionsOrganisations.getAll(function(err, allOrganisations) {
-      console.log(allOrganisations);
       if (Array.isArray(organisations)) {
         if (
           !Helpers.allBelongTo(organisations, Object.keys(allOrganisations))

@@ -55,7 +55,7 @@ router.post(
   Auth.isOfClass(["admin"]),
   function(req, res) {
     if (userClasses.includes(req.params.user_class)) {
-      var validPermissions = ["true", "false", "commonWorkingGroup"];
+      var validPermissions = ["true", "false", "commonWorkingGroup", "isCoordinator"];
       var newPermissions = req.body.permissions;
       var sanitizedPermissions = {};
       DataPermissions.getAll(function(err, permissions) {

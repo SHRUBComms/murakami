@@ -117,10 +117,18 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
               }
 
               if (volunteer.roles.length > 0) {
+                volunteer.formatted_roles = "<ul>";
+              } else {
+                volunteer.formatted_roles = "No assigned roles.";
+              }
+
+              if (volunteer.roles.length > 0) {
                 volunteer.active = true;
               } else {
                 volunteer.active = false;
               }
+
+              volunteer.wg_summary = "";
 
               if (volunteer.working_groups) {
                 volunteer.working_groups = volunteer.working_groups || [];
@@ -156,9 +164,67 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                 function(role, callback) {
                   if (user.allVolunteerRoles) {
                     if (user.allVolunteerRoles[role]) {
+                      volunteer.formatted_roles +=
+                        "<li><p><b>" +
+                        user.allVolunteerRoles[role].details.title +
+                        "</b>";
+
+                      if (
+                        user.allVolunteerRoles[role].public == 1 &&
+                        user.allVolunteerRoles[role].removed == 0
+                      ) {
+                        volunteer.formatted_roles +=
+                          " - <a href='https://www.shrubcoop.org/volunteer/view/?roleId=" +
+                          role +
+                          "'>view role details</a></p>";
+                      } else {
+                        volunteer.formatted_roles += "</p>";
+                      }
+
+                      if (
+                        user.allVolunteerRoles[role].details.short_description
+                      ) {
+                        volunteer.formatted_roles +=
+                          "<p>" +
+                          user.allVolunteerRoles[role].details
+                            .short_description +
+                          "</p></li>";
+                      } else {
+                        volunteer.formatted_roles += "</li>";
+                      }
+
+                      if (
+                        user.allWorkingGroupsObj[
+                          user.allVolunteerRoles[role].group_id
+                        ] &&
+                        !volunteer.working_groups.includes(
+                          user.allVolunteerRoles[role].group_id
+                        )
+                      ) {
+                        volunteer.wg_summary +=
+                          "<p><b>" +
+                          user.allWorkingGroupsObj[
+                            user.allVolunteerRoles[role].group_id
+                          ].name +
+                          "</b></p>";
+                        if (
+                          user.allWorkingGroupsObj[
+                            user.allVolunteerRoles[role].group_id
+                          ].welcomeMessage
+                        ) {
+                          volunteer.wg_summary +=
+                            "<div>" +
+                            user.allWorkingGroupsObj[
+                              user.allVolunteerRoles[role].group_id
+                            ].welcomeMessage +
+                            "</div>";
+                        }
+                      }
+
                       volunteer.working_groups.push(
                         user.allVolunteerRoles[role].group_id
                       );
+
                       try {
                         if (
                           user.allWorkingGroupsObj[
@@ -187,9 +253,11 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       }
                     }
                   }
+
                   callback();
                 },
                 function() {
+                  volunteer.formatted_roles += "</ul>";
                   volunteer.working_groups = Array.from(
                     new Set(volunteer.working_groups)
                   );
@@ -202,11 +270,18 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.working_groups
                   );
 
+                  var isCoordinator = volunteer.assignedCoordinators.includes(
+                    user.id
+                  );
+
                   if (
                     user.permissions.volunteers.shiftHistory == true ||
                     (user.permissions.volunteers.shiftHistory ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.shiftHistory ==
+                      "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.shiftHistory = true;
                     sanitizedVolunteer.nextShiftDue = volunteer.nextShiftDue;
@@ -224,7 +299,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.conductCheckIn == true ||
                     (user.permissions.volunteers.conductCheckIn ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.conductCheckIn ==
+                      "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.conductCheckIn = true;
                     sanitizedVolunteer.checkin_id = volunteer.checkin_id;
@@ -239,7 +317,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.dates == true ||
                     (user.permissions.volunteers.dates ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.dates == "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.dateCreated = volunteer.dateCreated;
                     sanitizedVolunteer.lastUpdated = volunteer.lastUpdated;
@@ -250,16 +330,24 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.roles == true ||
                     (user.permissions.volunteers.roles ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.roles == "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.roles = volunteer.roles;
+                    sanitizedVolunteer.formatted_roles =
+                      volunteer.formatted_roles;
+                    sanitizedVolunteer.wg_summary = volunteer.wg_summary;
                   }
 
                   if (
                     user.permissions.volunteers.assignedCoordinators == true ||
                     (user.permissions.volunteers.assignedCoordinators ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.assignedCoordinators ==
+                      "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.assignedCoordinators =
                       volunteer.assignedCoordinators;
@@ -269,7 +357,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.availability == true ||
                     (user.permissions.volunteers.availability ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.availability ==
+                      "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.availability = volunteer.availability;
                   }
@@ -278,7 +369,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.survey == true ||
                     (user.permissions.volunteers.survey ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.survey == "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.survey = volunteer.survey;
                   }
@@ -287,7 +380,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.emergencyContact == true ||
                     (user.permissions.volunteers.emergencyContact ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.emergencyContact ==
+                      "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.emergencyContactName =
                       volunteer.emergencyContactName;
@@ -301,7 +397,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     user.permissions.volunteers.update == true ||
                     (user.permissions.volunteers.update ==
                       "commonWorkingGroup" &&
-                      commonWorkingGroup)
+                      commonWorkingGroup) ||
+                    (user.permissions.volunteers.update == "isCoordinator" &&
+                      isCoordinator)
                   ) {
                     sanitizedVolunteer.canUpdate = true;
                   }
@@ -310,7 +408,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                     if (
                       user.permissions.members.name == true ||
                       (user.permissions.members.name == "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.name == "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.first_name = volunteer.first_name;
                       sanitizedVolunteer.last_name = volunteer.last_name;
@@ -326,7 +426,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.membershipDates == true ||
                       (user.permissions.members.membershipDates ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.membershipDates ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.current_exp_membership =
                         member.current_exp_membership;
@@ -342,7 +445,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.contactDetails == true ||
                       (user.permissions.members.contactDetails ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.contactDetails ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.email = volunteer.email;
                       sanitizedVolunteer.phone_no = volunteer.phone_no;
@@ -355,7 +461,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.balance == true ||
                       (user.permissions.members.balance ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.balance == "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.balance = volunteer.balance;
                     }
@@ -366,7 +474,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.workingGroups == true ||
                       (user.permissions.members.workingGroups ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.workingGroups ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.working_groups =
                         volunteer.working_groups;
@@ -381,7 +492,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.carbonSaved == true ||
                       (user.permissions.members.carbonSaved ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.carbonSaved ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.canViewSavedCarbon = true;
                     }
@@ -392,7 +506,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.transactionHistory == true ||
                       (user.permissions.members.transactionHistory ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.transactionHistory ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.transactionHistory = true;
                     }
@@ -404,7 +521,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       (user.permissions.volunteers.view ==
                         "commonWorkingGroup" &&
                         commonWorkingGroup &&
-                        member.volunteer_id)
+                        member.volunteer_id) ||
+                      (user.permissions.volunteers.view == "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.volunteer_id = volunteer.volunteer_id;
                     }
@@ -415,7 +534,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.update == true ||
                       (user.permissions.members.update ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.update == "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.canUpdate = true;
                     }
@@ -426,7 +547,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.canRevokeMembership == true ||
                       (user.permissions.members.canRevokeMembership ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.canRevokeMembership ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.canRevokeMembership = true;
                     }
@@ -436,7 +560,9 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.delete == true ||
                       (user.permissions.members.delete ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.delete == "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.canDelete = true;
                     }
@@ -446,7 +572,10 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                       user.permissions.members.manageMembershipCard == true ||
                       (user.permissions.members.manageMembershipCard ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.members.manageMembershipCard ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.canManageMembershipCard = true;
                     }
@@ -458,12 +587,16 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
                         true ||
                       (user.permissions.volunteers.manageFoodCollectionLink ==
                         "commonWorkingGroup" &&
-                        commonWorkingGroup)
+                        commonWorkingGroup) ||
+                      (user.permissions.volunteers.manageFoodCollectionLink ==
+                        "isCoordinator" &&
+                        isCoordinator)
                     ) {
                       sanitizedVolunteer.canManageFoodCollectionLink = true;
                       if (volunteer.fc_key) {
                         sanitizedVolunteer.fc_key = volunteer.fc_key;
-                        sanitizedVolunteer.fc_key_active = volunteer.fc_key_active;
+                        sanitizedVolunteer.fc_key_active =
+                          volunteer.fc_key_active;
                       }
                     }
                   } catch (err) {}

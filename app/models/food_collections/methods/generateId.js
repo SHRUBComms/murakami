@@ -3,7 +3,7 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
   var GetId = function(callback) {
     var id = Helpers.generateBase64Id(15);
     FoodCollections.findAll({
-      where: { organisation_id: id }
+      where: { transaction_id: id }
     }).nodeify(function(err, result) {
       if (result.length > 0) {
         GetId(callback);

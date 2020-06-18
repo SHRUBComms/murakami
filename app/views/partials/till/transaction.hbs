@@ -1175,7 +1175,6 @@ function sendEmailReceipt(transaction_id, member_id){
 				$("#emailReceiptButton").prop("disabled", false);
 				$("#emailReceiptInputSubmit").prop("disabled", false);
 
-					console.log(response);
 				if(response.status == "ok"){
 					alert("Receipt sent!");
 				} else {

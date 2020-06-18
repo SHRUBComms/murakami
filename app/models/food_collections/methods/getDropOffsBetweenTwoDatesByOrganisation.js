@@ -12,14 +12,12 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
     var query = {
       where: {
         approved: 1,
-        timestamp: { [DataTypes.Op.between]: [startDate, endDate] }
+        timestamp: {
+          [DataTypes.Op.between]: [startDate, endDate]
+        }
       },
       order: [["timestamp", "DESC"]]
     };
-
-    if (organisation_id) {
-      query.where.destination_organisation_id = organisation_id;
-    }
 
     FoodCollections.findAll(query).nodeify(function(err, collections) {
       if (collections || !err) {
@@ -27,15 +25,21 @@ module.exports = function(FoodCollections, sequelize, DataTypes) {
         async.each(
           collections,
           function(collection, callback) {
-            FoodCollections.sanitizeCollection(
-              collection,
-              organisations,
-              membersObj,
-              function(sanitizedCollection) {
-                sanitizedCollections.push(sanitizedCollection);
-                callback();
-              }
-            );
+            if (
+              collection.destination_organisations.includes(organisation_id)
+            ) {
+              FoodCollections.sanitizeCollection(
+                collection,
+                organisations,
+                membersObj,
+                function(sanitizedCollection) {
+                  sanitizedCollections.push(sanitizedCollection);
+                  callback();
+                }
+              );
+            } else {
+              callback();
+            }
           },
           function() {
             callback(err, sanitizedCollections);

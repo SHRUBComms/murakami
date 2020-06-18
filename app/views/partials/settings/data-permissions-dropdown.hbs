@@ -1,4 +1,4 @@
-<select class="permissionsDropdown form-control {{#ifCond value '==' false}}noAccess{{else}}{{#ifCond value '==' true}}alwaysAccess{{else}}nuanceAccess{{/ifCond}}{{/ifCond}}" name="permissions[{{subject}}][{{specific}}]">
+<select class="permissionsDropdown form-control {{#ifCond value '==' false}}noAccess{{else}}{{#ifCond value '==' true}}alwaysAccess{{else}}{{#ifCond value '==' 'commonWorkingGroup'}}workingGroupAccess{{else}}coordinatorAccess{{/ifCond}}{{/ifCond}}{{/ifCond}}" name="permissions[{{subject}}][{{specific}}]">
   <option selected disabled>Select when this data should be available</option>
 
   <option value="false" class="noAccess" {{#ifCond value '==' false}}selected{{/ifCond}}>No access under any circumstances</option>
@@ -10,6 +10,7 @@
 
   {{#ifCond subject '==' "members"}}
     {{>settings/commonWorkingGroupOption}}
+    {{>settings/isCoordinatorOption}}
   {{/ifCond}}
 
   {{#ifCond subject '==' "tills"}}
@@ -30,6 +31,7 @@
 
   {{#ifCond subject '==' "volunteers"}}
     {{>settings/commonWorkingGroupOption}}
+    {{>settings/isCoordinatorOption}}
   {{/ifCond}}
 
   {{#ifCond subject '==' "workingGroups"}}

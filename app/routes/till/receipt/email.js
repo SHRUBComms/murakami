@@ -110,8 +110,16 @@ router.post(
                                                   formattedTransaction.carbon = carbon;
                                                 }
 
+                                                var recipient = {
+                                                  email: email
+                                                };
+
+                                                if (member && member_id) {
+                                                  recipient.member_id = member_id;
+                                                }
+
                                                 Mail.sendReceipt(
-                                                  { email: email },
+                                                  recipient,
                                                   formattedTransaction,
                                                   function(err) {
                                                     if (!err) {

@@ -344,7 +344,7 @@ router.post(
         }
       });
     } else {
-      res.redirect("/");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   }
 );

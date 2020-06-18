@@ -13,6 +13,12 @@ router.get("/", function(req, res) {
   }
 });
 
+router.get("/run-reports", function(req, res){
+  var RunReports = require("../automated-scripts/test");
+  RunReports();
+  res.send("OK");
+})
+
 router.use("/members", require("./members/root"));
 router.use("/api", require("./api/root"));
 router.use("/till", require("./till/root"));

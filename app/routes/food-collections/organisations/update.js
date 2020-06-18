@@ -70,7 +70,6 @@ router.post(
           }
 
           if (formattedOrganisation.type.length > 0) {
-            console.log(formattedOrganisation);
             FoodCollectionsOrganisations.updateOrganisation(
               formattedOrganisation,
               function(err) {

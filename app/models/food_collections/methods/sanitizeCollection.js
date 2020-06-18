@@ -1,4 +1,5 @@
 var sanitizeHtml = require("sanitize-html");
+var async = require("async");
 
 module.exports = function() {
   return function(collection, organisations, members, callback) {
@@ -19,19 +20,38 @@ module.exports = function() {
       collection.note = sanitizeHtml(collection.note);
     }
 
-    if (organisations[collection.organisation_id]) {
-      collection.collectedFrom = organisations[collection.organisation_id].name;
+    collection.amountPortion =
+      collection.amount / collection.destination_organisations.length;
+
+    if (organisations[collection.collection_organisation_id]) {
+      collection.collectedFrom =
+        organisations[collection.collection_organisation_id].name;
     } else {
       collection.collectedFrom = "Unknown";
     }
 
-    if (organisations[collection.destination_organisation_id]) {
-      collection.droppedOffTo =
-        organisations[collection.destination_organisation_id].name;
-    } else {
-      collection.droppedOffTo = "Unknown";
-    }
+    collection.droppedOffTo = "";
 
-    callback(collection);
+    async.eachOf(
+      collection.destination_organisations,
+      function(organisation, index, callback) {
+        if (
+          index != 0 &&
+          index != collection.destination_organisations.length
+        ) {
+          collection.droppedOffTo += ", ";
+        }
+
+        if (organisations[organisation]) {
+          collection.droppedOffTo += organisations[organisation].name;
+        } else {
+          collection.droppedOffTo += "Unknown";
+        }
+        callback();
+      },
+      function() {
+        callback(collection);
+      }
+    );
   };
 };

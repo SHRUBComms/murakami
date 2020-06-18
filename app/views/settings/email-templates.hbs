@@ -14,11 +14,17 @@
           <div class="form-group form-inline">
             <select class="form-control" id="templates">
               <option selected disbaled>Select an email template...</option>
-              {{#each templates}}
-                  <option value="{{mail_id}}" {{#ifCond mail_id '==' ../template.mail_id}}selected{{/ifCond}}>
-                    {{mail_desc}}
-                  </option>
+              {{#each categories}}
+                <optgroup label="{{plain}}" />
+                {{#each ../templates}}
+                  {{#ifCond category '==' ../id}}
+                    <option value="{{mail_id}}" {{#ifCond mail_id '==' ../../template.mail_id}}selected{{/ifCond}}>
+                      {{short_description}}
+                    </option>
+                  {{/ifCond}}
+                {{/each}}
               {{/each}}
+
             </select>
           </div>
         </div>
@@ -31,7 +37,7 @@
             <div class="card-body">
 
               <div class="row">
-                <p{{#ifCond template.mail_id '==' 'footer'}} class="mb-2"{{/ifCond}}>
+                <p class="mb-2 font-weight-bold">
                   This template is currently
                   {{#if template.active}}
                     <span class="text-success">enabled</span>
@@ -40,11 +46,21 @@
                   {{/if}}
                 </p>
               </div>
-              {{#ifCond template.mail_id '!=' 'footer'}}
+              {{#ifCond template.category '!=' 'footers'}}
+                <div class="row">
+                  <p>
+                    Member footer:
+                    {{#if (lookup templates "footer")}}
+                      <span class="text-success">enabled</span>
+                    {{else}}
+                      <span class="text-danger">disabled</span>
+                    {{/if}}
+                  </p>
+                </div>
                 <div class="row">
                   <p class="mb-2">
-                    Footer template is currently
-                    {{#if footer.active}}
+                    Non-member footer:
+                    {{#if (lookup templates "generic-footer")}}
                       <span class="text-success">enabled</span>
                     {{else}}
                       <span class="text-danger">disabled</span>
@@ -55,24 +71,30 @@
               <div class="row">
                 <div id="preview" style="width: 100%;">
 
-                  <h4{{#ifCond template.mail_id '==' 'footer'}} class="mb-2"{{/ifCond}}>Preview</h4>
+                  <h4{{#ifCond template.category '==' 'footers'}} class="mb-2"{{/ifCond}}>Preview</h4>
 
 
-                  {{#ifCond template.mail_id '!=' 'footer'}}
-                    <p>From: <b>Shrub Coop</b></p>
+                  {{#ifCond template.category '!=' 'footers'}}
+                    <p>From: <b>SHRUB Coop</b></p>
                     <p class="mb-2">Subject: <b id="subject-preview"></b></p>
                   {{/ifCond}}
                   <div style="border: 1px grey solid; padding: 25px; width: 100%;">
                     <div id="preview-content">
 
                     </div>
-                    {{#ifCond template.mail_id '!=' 'footer'}}
-                      {{#if footer.active}}
+                    {{#ifCond template.category '!=' 'footers'}}
+
+                      {{#ifCond template.category '==' "common"}}
                         <div id="footer">
                           <hr />
-                          {{{footer.markup}}}
+                          {{{lookup (lookup templates "generic-footer") "markup"}}}
                         </div>
-                      {{/if}}
+                      {{ else }}
+                        <div id="footer">
+                          <hr />
+                          {{{lookup (lookup templates "footer") "markup"}}}
+                        </div>
+                      {{/ifCond}}
                     {{/ifCond}}
                   </div>
 
@@ -94,7 +116,7 @@
 
             <div class="row mb-4 no-gutters">
                 <div class="col mb-4">
-                  {{#ifCond template.mail_id '!=' 'footer'}}
+                  {{#ifCond template.category '!=' 'footers'}}
                     <input type="text" name="subject" id="subject" style="width: 100%; margin-bottom: 15px;" oninput="update_preview()" class="form-control" value="{{template.subject}}">
 
                   {{/ifCond}}
@@ -110,34 +132,30 @@
                   </div>
 
                 </div>
-
-
-
             </div>
 
-            {{#ifCond template.mail_id '!=' 'footer'}}
 
-              <div class="row mt-4">
-                  <div id="mail_info">
-                      <p>To include personalised information in the body of an email, please use a | (vertical line symbol) at the start and end of its reference name</p>
-                      <p>Find below the personalised information you can use, and their reference names.</p>
+
+            <div class="row mt-4">
+              <div id="mail_info">
+                  <p>To include dynamic content in the body of an email, please use a | (vertical line symbol) at the start and end of its reference name</p>
+                  <p class="mb-2">Find below the dynamic content available on this template:</p>
+                    <div class="col-md-8 mx-auto">
                       <ul>
-                          <li><b>first_name</b> - the recipient's first name</li>
-                          <li><b>last_name</b> - the recipient's last name</li>
-                          <li><b>fullname</b> - the recipient's full name</li>
-                          <li><b>exp_date</b> - the date the recipient's membership will end</li>
-                          <li><b>balance</b> - the recipient's current balance</li>
-                          <li><b>contact-contact_preferences_link</b> - a link the recipient can use to update their contact preferences</li>
-                          {{#ifCond template.mail_id '==' 'donation'}}
-                            <li><b>tokens</b> - the amount of tokens given to member after donation</li>
-                          {{/ifCond}}
-                          <li><b>roles</b> - lists assigned volunteer role(s)</li>
-                          <li><b>wg_summary</b> - adds working group welcome message(s)</li>
-                      </ul>
-                  </div>
-              </div>
+                        {{#each dynamicVariablesAvailable}}
+                          {{#ifArrayIncludes ../template.mail_id availableOn }}
+                            <li>
+                              <p><b>{{@key}}</b> - {{descriptor}}</p>
+                            </li>
+                          {{/ifArrayIncludes}}
 
-              {{/ifCond}}
+                        {{/each}}
+                      </ul>
+                    </div>
+              </div>
+            </div>
+
+
 
           </div>
         </div>
@@ -158,6 +176,9 @@
 
 <script>
 
+var dynamicVariables = {{{json dynamicVariablesAvailable}}};
+var template_id = "{{template.mail_id}}";
+
 $('#templates').on('change', function () {
     var url = "{{public_address}}/settings/email-templates/" + $(this).val();
     window.location = url;
@@ -166,20 +187,18 @@ $('#templates').on('change', function () {
 function update_preview(){
     var raw_markup = $("#editor").summernote('code');
     $("#markup").val(raw_markup.trim());
-    var modified_markup;
+    var modified_markup = raw_markup;
 
-      modified_markup = raw_markup.replace(/\|first_name\|/g, "Ringo")
-                                  .replace(/\|last_name\|/g, "Starr")
-                                  .replace(/\|fullname\|/g, "Ringo Starr")
-                                  .replace(/\|exp_date\|/g, "September 20th 2023")
-                                  .replace(/\|membership_id\|/g, "64917625122")
-                                  .replace(/\|balance\|/g, "11")
-                                  .replace(/\|tokens\|/g, "4")
-                                  .replace(/\|wg_summary\|/g, "{{{escape group.welcomeMessage}}}")
-                                  .replace(/\|contact_preferences_link\|/g, "{{public_address}}/contact-preferences/64917625122")
-                                  .replace(/\|roles\|/g, "<ul><li><a href='#'>Shop Assistant</a></li></ul>");
+    Object.keys(dynamicVariables).forEach(function(identifier){
+      var variable = dynamicVariables[identifier];
+      if(variable.availableOn.includes(template_id)){
+        var regex = new RegExp("\\|" + identifier + "\\|", "g");
+        modified_markup = modified_markup.replace(regex, variable.exampleData);
+      }
 
-    {{#ifCond template.mail_id '!=' 'footer'}}
+    })
+
+    {{#ifCond template.category '!=' 'footers'}}
       $("#subject-preview").html($("#subject").val());
     {{/ifCond}}
     $("#preview-content").html(modified_markup.trim());

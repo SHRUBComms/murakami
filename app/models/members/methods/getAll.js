@@ -3,7 +3,7 @@ var async = require("async");
 module.exports = function(Members, sequelize, DataType) {
   return function(callback) {
     var query = `SELECT * FROM members
-                  LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles
+                  LEFT JOIN (SELECT member_id volunteer_id, gdpr, roles, assignedCoordinators
                   FROM volunteer_info GROUP BY member_id) volInfo ON volInfo.volunteer_id=members.member_id
                   ORDER BY first_name ASC LIMIT 1000000`;
     sequelize.query(query).nodeify(function(err, members) {

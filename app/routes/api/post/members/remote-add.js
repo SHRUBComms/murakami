@@ -132,6 +132,17 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
             if (error || response.statusCode != 200) {
               res.send({ status: "fail", msg: "Authentication failed." });
             } else {
+              var transactionSummary = {
+                sumupCheckoutId: "",
+                bill: [
+                  {
+                    value: membershipCost,
+                    item_id: "membership"
+                  }
+                ],
+                totals: { money: membershipCost },
+                comment: "1 year of membership. Processed through website."
+              };
 
               Transactions.addTransaction(
                 {
@@ -139,17 +150,7 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
                   user_id: "website",
                   member_id: member_id,
                   date: new Date(),
-                  summary: {
-                    sumupCheckoutId: "",
-                    bill: [
-                      {
-                        value: membershipCost,
-                        item_id: "membership"
-                      }
-                    ],
-                    totals: { money: membershipCost },
-                    comment: "1 year of membership. Processed through website."
-                  }
+                  summary: transactionSummary
                 },
                 function(err, transaction_id) {
                   if (!err) {
@@ -173,8 +174,17 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
                       },
                       function(error, response, body) {
                         if (!error) {
-                          Transactions.update({summary: {sumupCheckoutId: body.id}}, {where: {transaction_id: transaction_id}}).nodeify(function(err){
-                            if(!err){
+                          transactionSummary.sumupCheckoutId = body.id;
+
+                          Transactions.update(
+                            { summary: transactionSummary },
+                            {
+                              where: {
+                                transaction_id: transaction_id.toString()
+                              }
+                            }
+                          ).nodeify(function(err) {
+                            if (!err) {
                               res.send({
                                 status: "ok",
                                 checkoutId: body.id,
@@ -187,8 +197,7 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
                                   "Something went wrong! You have not been charged."
                               });
                             }
-                          })
-
+                          });
                         } else {
                           res.send({
                             status: "fail",

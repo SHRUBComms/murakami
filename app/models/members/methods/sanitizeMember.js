@@ -42,6 +42,10 @@ module.exports = function(Members, sequelize, DataType) {
         member.gdpr = {};
       }
 
+      if (!member.assignedCoordinators) {
+        member.assignedCoordinators = [];
+      }
+
       try {
         if (
           member.current_exp_membership == "01/01/9999" ||
@@ -88,11 +92,15 @@ module.exports = function(Members, sequelize, DataType) {
             user.working_groups
           );
 
+          var isCoordinator = member.assignedCoordinators.includes(user.id);
+
           try {
             if (
               user.permissions.members.name == true ||
               (user.permissions.members.name == "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.name == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.first_name = member.first_name;
               sanitizedMember.last_name = member.last_name;
@@ -105,8 +113,11 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.members.membershipDates == true ||
               (user.permissions.members.membershipDates ==
                 "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.membershipDates == "isCoordinator" &&
+                isCoordinator)
             ) {
+              sanitizedMember.exp_date = member.current_exp_membership;
               sanitizedMember.current_exp_membership =
                 member.current_exp_membership;
               sanitizedMember.current_init_membership =
@@ -121,7 +132,9 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.members.contactDetails == true ||
               (user.permissions.members.contactDetails ==
                 "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.contactDetails == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.email = member.email;
               sanitizedMember.phone_no = member.phone_no;
@@ -134,7 +147,10 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.members.manageMembershipCard == true ||
               (user.permissions.members.manageMembershipCard ==
                 "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.manageMembershipCard ==
+                "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.barcode = member.barcode;
             }
@@ -144,7 +160,9 @@ module.exports = function(Members, sequelize, DataType) {
             if (
               user.permissions.members.balance == true ||
               (user.permissions.members.balance == "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.balance == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.balance = member.balance;
             }
@@ -154,7 +172,9 @@ module.exports = function(Members, sequelize, DataType) {
             if (
               user.permissions.members.workingGroups == true ||
               (user.permissions.members.workingGroups == "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.workingGroups == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.working_groups = member.working_groups;
             }
@@ -164,7 +184,9 @@ module.exports = function(Members, sequelize, DataType) {
             if (
               user.permissions.members.carbonSaved == true ||
               (user.permissions.members.carbonSaved == "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.carboNSaved == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.canViewSavedCarbon = true;
             }
@@ -175,7 +197,9 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.members.transactionHistory == true ||
               (user.permissions.members.transactionHistory ==
                 "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.transactionHistory == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.transactionHistory = true;
             }
@@ -186,7 +210,9 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.volunteers.view == true ||
               (user.permissions.volunteers.view == "commonWorkingGroup" &&
                 commonWorkingGroup &&
-                member.volunteer_id)
+                member.volunteer_id) ||
+              (user.permissions.volunteers.view == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.volunteer_id = member.volunteer_id;
             }
@@ -196,7 +222,9 @@ module.exports = function(Members, sequelize, DataType) {
             if (
               user.permissions.members.update == true ||
               (user.permissions.members.update == "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.update == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.canUpdate = true;
             }
@@ -207,7 +235,10 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.members.canRevokeMembership == true ||
               (user.permissions.members.canRevokeMembership ==
                 "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.canRevokeMembership ==
+                "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.canRevokeMembership = true;
             }
@@ -216,7 +247,9 @@ module.exports = function(Members, sequelize, DataType) {
             if (
               user.permissions.members.delete == true ||
               (user.permissions.members.delete == "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.delete == "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.canDelete = true;
             }
@@ -226,7 +259,10 @@ module.exports = function(Members, sequelize, DataType) {
               user.permissions.members.manageMembershipCard == true ||
               (user.permissions.members.manageMembershipCard ==
                 "commonWorkingGroup" &&
-                commonWorkingGroup)
+                commonWorkingGroup) ||
+              (user.permissions.members.manageMembershipCard ==
+                "isCoordinator" &&
+                isCoordinator)
             ) {
               sanitizedMember.canManageMembershipCard = true;
             }
@@ -251,6 +287,12 @@ module.exports = function(Members, sequelize, DataType) {
             sanitizedMember.free = member.free;
             sanitizedMember.gdpr = member.gdpr;
             sanitizedMember.contactPreferences = member.contactPreferences;
+            sanitizedMember.fullname = member.full_name;
+            sanitizedMember.membership_id = member.member_id;
+            sanitizedMember.contact_preferences_link =
+              process.env.PUBLIC_ADDRESS +
+              "/contact-preferences/" +
+              member.member_id;
           } else {
             sanitizedMember = null;
           }

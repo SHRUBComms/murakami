@@ -14,7 +14,6 @@
 			</thead>
 			<tbody>
 			{{#each tills}}
-				<!-- {{this}} -->
 				<tr>
 					<td>{{name}}</td>
 					<td>
@@ -28,7 +27,7 @@
 							{{/if}}
 						{{/if}}
 					</td>
-					<td><a href="{{public_address}}/till/dashboard/{{till_id}}" class="btn btn-primary">View/Update</a></td>
+					<td><a href="{{../public_address}}/till/dashboard/{{till_id}}" class="btn btn-primary">View/Update</a></td>
 				</tr>
 			{{/each}}
 			</tbody>
