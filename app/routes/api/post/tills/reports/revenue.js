@@ -218,6 +218,27 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
               }
             },
             function() {
+              var month = moment(transactions[0].date);
+              var monthDifference = Math.ceil(
+                moment().diff(moment(month), "months")
+              );
+
+              for (i = 0; i < monthDifference; i++) {
+                month = moment(month).add(1, "months");
+
+                let monthKey = moment(month)
+                  .startOf("month")
+                  .format("YYYY-MM-DD");
+
+                if (response.summary[monthKey] === undefined) {
+                  response.summary[monthKey] = {};
+                  response.summary[monthKey].revenue = lodash.cloneDeep(
+                    blankSummary
+                  );
+                  response.summary[monthKey].byGroup = {};
+                }
+              }
+
               response.status = "ok";
               delete response.msg;
               res.send(response);
