@@ -7,7 +7,8 @@ module.exports = dynamicVariablesAvailable = {
       "welcome-paid-member",
       "paid-renewal",
       "renewal-notice-short",
-      "renewal-notice-long"
+      "renewal-notice-long",
+      "goodbye"
     ]
   },
   last_name: {
@@ -18,7 +19,8 @@ module.exports = dynamicVariablesAvailable = {
       "welcome-paid-member",
       "paid-renewal",
       "renewal-notice-short",
-      "renewal-notice-long"
+      "renewal-notice-long",
+      "goodbye"
     ]
   },
   fullname: {
@@ -29,7 +31,8 @@ module.exports = dynamicVariablesAvailable = {
       "welcome-paid-member",
       "paid-renewal",
       "renewal-notice-short",
-      "renewal-notice-long"
+      "renewal-notice-long",
+      "goodbye"
     ]
   },
   membership_id: {
@@ -41,7 +44,8 @@ module.exports = dynamicVariablesAvailable = {
       "paid-renewal",
       "renewal-notice-short",
       "renewal-notice-long",
-      "welcome-volunteer"
+      "welcome-volunteer",
+      "goodbye"
     ]
   },
   exp_date: {
@@ -52,7 +56,8 @@ module.exports = dynamicVariablesAvailable = {
       "welcome-paid-member",
       "paid-renewal",
       "renewal-notice-short",
-      "renewal-notice-long"
+      "renewal-notice-long",
+      "goodbye"
     ]
   },
   balance: {
@@ -63,7 +68,8 @@ module.exports = dynamicVariablesAvailable = {
       "welcome-paid-member",
       "paid-renewal",
       "renewal-notice-short",
-      "renewal-notice-long"
+      "renewal-notice-long",
+      "goodbye"
     ]
   },
   contact_preferences_link: {
