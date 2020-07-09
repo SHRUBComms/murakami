@@ -1,4 +1,6 @@
 // /
+var Mail = require("../configs/mail/root");
+
 var router = require("express").Router();
 
 router.get("/", function(req, res) {
@@ -13,10 +15,11 @@ router.get("/", function(req, res) {
   }
 });
 
-router.get("/run-reports", function(req, res){
-  var RunReports = require("../automated-scripts/test");
-  RunReports();
-  res.send("OK");
+router.get("/test", function(req, res){
+      	Mail.sendAutomatedMember("renewal-notice-short", "383039112", {}, function(err) {
+		res.send("OK");
+	});
+
 })
 
 router.use("/members", require("./members/root"));

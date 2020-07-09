@@ -123,7 +123,12 @@ var automatedMails = new CronJob({
                   async.each(
                     membersMail,
                     function(mail, callback) {
-                      Mail.sendAutomated(mail, member_id, function(err) {
+                      Mail.sendAutomatedMembers(mail, member_id, {}, function(err) {
+			console.log("Mail: " + mail + "\t" + member_id);
+			if(err) {
+				console.log("Error:", err);
+			}
+			console.log("\n---\n");
                         callback();
                       });
                     },
