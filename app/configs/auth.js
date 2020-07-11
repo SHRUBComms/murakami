@@ -57,6 +57,7 @@ Auth.verifyByKey = function(resource) {
       "carbonSavings",
       "publicVolunteerRoles",
       "tillRevenue",
+      "membershipReport",
       "membershipSignUp"
     ];
 
