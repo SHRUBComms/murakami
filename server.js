@@ -9,7 +9,9 @@ var cors = require("cors");
 var app = express();
 var bodyParser = require("body-parser");
 var flash = require("connect-flash");
-var hbs = require("express-handlebars");
+var handlebars = require('handlebars')
+var expressHandlebars = require('express-handlebars');
+var handlebarsPrototypePermission = require('@handlebars/allow-prototype-access')
 var path = require("path");
 var session = require("cookie-session");
 var passport = require("passport");
@@ -29,7 +31,8 @@ if (process.env.NODE_ENV != "development") {
 app.set("views", path.join(__dirname, "app/views"));
 app.engine(
   "hbs",
-  hbs({
+  expressHandlebars({
+    handlebars: handlebarsPrototypePermission.allowInsecurePrototypeAccess(handlebars),
     layoutsDir: path.join(__dirname, "app/views/layouts"),
     partialsDir: path.join(__dirname, "app/views/partials"),
     defaultLayout: "layout",
