@@ -238,9 +238,15 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                   response.summary[monthKey].byGroup = {};
                 }
               }
+		
+              var sortedSummary = {} 
+	      Object.keys(response.summary).sort().forEach(function(key, index) {
+  			sortedSummary[key] = response.summary[key];
+	      }); 
 
               response.status = "ok";
               delete response.msg;
+	      response.summary = sortedSummary;
               res.send(response);
             }
           );
