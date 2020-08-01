@@ -17,6 +17,8 @@ var StockCategories = Models.StockCategories;
 var Auth = require(rootDir + "/app/configs/auth");
 var Helpers = require(rootDir + "/app/helper-functions/root");
 
+var refundPeriod = 14;
+
 router.post(
   "/",
   Auth.isLoggedIn,
@@ -61,7 +63,7 @@ router.post(
 
                                       if (
                                         moment(transaction.date).endOf("day").isAfter(
-                                          moment().subtract(7, "days")
+                                          moment().subtract(refundPeriod, "days")
                                         )
                                       ) {
                                         if (
@@ -313,7 +315,7 @@ router.post(
                                         }
                                       } else {
                                         response.msg =
-                                          "Transaction is older than 7 days";
+                                          "Transaction is older than " + refundPeriod + " days";
                                         res.send(response);
                                       }
                                     } else {

@@ -44,8 +44,9 @@ router.use("/privacy", require("./privacy"));
 
 // Legacy path.
 router.get("/get-carbon-calculations", function(req, res) {
+  var key = req.query.key || "";
   res.redirect(
-    process.env.PUBLIC_ADDRESS + "/api/get/reports/all-time/carbon-saved"
+    process.env.PUBLIC_ADDRESS + "/api/get/reports/all-time/carbon-saved?key=" + key
   );
 });
 
