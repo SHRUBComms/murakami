@@ -32,7 +32,7 @@ router.post(
           if (volunteer.canUpdate) {
             var rolesToRemove = [];
 
-            if (volunteer.old_working_groups.indexOf(group_id) >= 0) {
+            if (volunteer.old_working_groups.includes(group_id)) {
               volunteer.old_working_groups.splice(
                 volunteer.old_working_groups.indexOf(group_id),
                 1
@@ -49,7 +49,9 @@ router.post(
                     function(role, index, callback) {
                       if (req.user.allVolunteerRoles[role]) {
                         role = req.user.allVolunteerRoles[role];
-                        if (role.group_id == group_id) {
+			console.log(group_id);
+			console.log(req.user.working_groups);
+                        if (role.group_id == group_id || (group_id == "MY-VOLUNTEERS" && req.user.working_groups.includes(role.group_id))) {
                           rolesToRemove.push(role.role_id);
                         }
                       }

@@ -97,6 +97,7 @@
 var allWorkingGroups = {{{json user.allWorkingGroupsObj}}}
 var allRoles = {{{json roles}}}
 var currentGroup = "{{group.group_id}}"
+var userWorkingGroups = {{{json user.working_groups}}}
 
 $('#working_groups').on('change', function () {
   var url = "{{public_address}}/volunteers/manage?group_id=" + $("#working_groups").val();
@@ -115,7 +116,7 @@ function openRemoveVolunteerDialog(member_id, name, roles, old_working_groups) {
   var rolesFound = [];
 
   roles.forEach(function(role, roleIndex){
-    if(allRoles[role].group_id == currentGroup){
+    if(allRoles[role].group_id == currentGroup || (currentGroup == "my-volunteers" && userWorkingGroups.includes(allRoles[role].group_id))){
       rolesFound.push(allRoles[role]);
       var roleToRemove = document.createElement("li");
       roleToRemove.innerText = allRoles[role].details.title;
@@ -150,7 +151,6 @@ function openRemoveVolunteerDialog(member_id, name, roles, old_working_groups) {
       member_id: member_id,
       group_id: currentGroup
     }, function(response){
-
       if(response.status == "ok") {
         $("#removeDialogSuccessBox").removeClass("d-none");
         $("#removeDialogErrorBox").addClass("d-none");

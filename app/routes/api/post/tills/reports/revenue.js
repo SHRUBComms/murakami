@@ -34,6 +34,7 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
 
     var blankSummary = {
       total: 0,
+      nonMemberTotal: 0,
       breakdown: {
         card: 0,
         cash: 0
@@ -164,6 +165,11 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                                           group_id
                                         ].total += +itemValue;
 
+					if(transaction.member_id != "anon") {
+						response.summary[monthKey].byGroup[group_id].nonMemberTotal += +itemValue;
+					}
+
+
                                         if (
                                           response.summary[monthKey].byGroup[
                                             group_id
@@ -177,6 +183,8 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                                             transaction.summary.paymentMethod
                                           ] += +itemValue;
                                         }
+
+
                                         callback();
                                       } else {
                                         callback();
@@ -238,11 +246,11 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                   response.summary[monthKey].byGroup = {};
                 }
               }
-		
-              var sortedSummary = {} 
+
+              var sortedSummary = {}
 	      Object.keys(response.summary).sort().forEach(function(key, index) {
   			sortedSummary[key] = response.summary[key];
-	      }); 
+	      });
 
               response.status = "ok";
               delete response.msg;
