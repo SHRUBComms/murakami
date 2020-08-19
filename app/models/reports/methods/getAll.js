@@ -2,7 +2,7 @@ module.exports = function(Reports, sequelize, DataTypes) {
   return function(callback) {
     Reports.findAll({
     	order: [
-		["date","desc"]
+		["date","asc"]
 	]
     })
     .nodeify(function(err, reports){
