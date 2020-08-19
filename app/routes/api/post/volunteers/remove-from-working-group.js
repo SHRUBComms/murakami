@@ -49,8 +49,6 @@ router.post(
                     function(role, index, callback) {
                       if (req.user.allVolunteerRoles[role]) {
                         role = req.user.allVolunteerRoles[role];
-			console.log(group_id);
-			console.log(req.user.working_groups);
                         if (role.group_id == group_id || (group_id == "MY-VOLUNTEERS" && req.user.working_groups.includes(role.group_id))) {
                           rolesToRemove.push(role.role_id);
                         }

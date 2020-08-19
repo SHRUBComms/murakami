@@ -5,9 +5,11 @@ module.exports = dynamicVariablesAvailable = {
     availableOn: [
       "donation",
       "welcome-paid-member",
+      "welcome-volunteer",
       "paid-renewal",
       "renewal-notice-short",
       "renewal-notice-long",
+      "member-id-remind",
       "goodbye"
     ]
   },
@@ -17,9 +19,11 @@ module.exports = dynamicVariablesAvailable = {
     availableOn: [
       "donation",
       "welcome-paid-member",
+      "welcome-volunteer",
       "paid-renewal",
       "renewal-notice-short",
       "renewal-notice-long",
+      "member-id-remind",
       "goodbye"
     ]
   },
@@ -30,8 +34,10 @@ module.exports = dynamicVariablesAvailable = {
       "donation",
       "welcome-paid-member",
       "paid-renewal",
+      "welcome-volunteer",
       "renewal-notice-short",
       "renewal-notice-long",
+      "member-id-remind",
       "goodbye"
     ]
   },
@@ -45,6 +51,7 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-short",
       "renewal-notice-long",
       "welcome-volunteer",
+      "member-id-remind",
       "goodbye"
     ]
   },
@@ -66,6 +73,7 @@ module.exports = dynamicVariablesAvailable = {
     availableOn: [
       "donation",
       "welcome-paid-member",
+      "welcome-volunteer",
       "paid-renewal",
       "renewal-notice-short",
       "renewal-notice-long",
@@ -76,7 +84,10 @@ module.exports = dynamicVariablesAvailable = {
     descriptor:
       "a link the recipient can use to update their contact preferences",
     exampleData: process.env.PUBLIC_ADDRESS + "/contact-preferences/123456789",
-    availableOn: ["footer"]
+    availableOn: [
+	"footer",
+	"member-id-remind"
+    ]
   },
   tokens: {
     descriptor: "the amount of tokens given to member after donation",

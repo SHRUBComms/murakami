@@ -119,7 +119,6 @@ router.post(
                                 member.member_id,
                                 { tokens: tokens },
                                 function(err) {
-                                  console.log(err);
                                   if (err) {
                                     response.msg =
                                       "Tokens added but something went wrong notifying the member!";

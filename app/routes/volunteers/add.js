@@ -514,7 +514,7 @@ router.post(
                   );
                 }
 
-                Mail.sendAutomated("welcome_volunteer", member_id, function(
+                Mail.sendAutomatedVolunteer("welcome-volunteer", member_id, function(
                   err
                 ) {});
 
