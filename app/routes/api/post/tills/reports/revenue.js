@@ -34,7 +34,8 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
 
     var blankSummary = {
       total: 0,
-      nonMemberTotal: 0,
+      totalSales: 0,
+      memberTotalSales: 0,
       breakdown: {
         card: 0,
         cash: 0
@@ -165,8 +166,11 @@ router.post("/", Auth.verifyByKey("tillRevenue"), function(req, res) {
                                           group_id
                                         ].total += +itemValue;
 
+					
+					response.summary[monthKey].byGroup[group_id].totalSales += +1;
+
 					if(transaction.member_id != "anon") {
-						response.summary[monthKey].byGroup[group_id].nonMemberTotal += +itemValue;
+						response.summary[monthKey].byGroup[group_id].memberTotalSales += +1;
 					}
 
 
