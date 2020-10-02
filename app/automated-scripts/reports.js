@@ -23,7 +23,7 @@ var automatedReports = new CronJob({
     // Members
     // Number of current members and active volunteers
     var report = {
-      members: { current: 0, new: 0, renewed: 0, expired: 0 },
+	    members: { current: 0, new: 0, newFree: 0, newPaid: 0, renewed: 0, renewedPaid: 0, renewedFree: 0, expired: 0 },
       volunteers: {
         registered: 0,
         volunteered: 0,
@@ -55,6 +55,11 @@ var automatedReports = new CronJob({
                   .isSame(startOfMonth)
               ) {
                 report.members.new += 1;
+		if(member.free){
+			report.members.newFree += 1;
+		} else {
+			report.members.newPaid += 1;
+		}
               } else if (
                 moment(member.current_exp_membership)
                   .startOf("month")
@@ -70,6 +75,11 @@ var automatedReports = new CronJob({
                   .isSame(startOfMonth)
               ) {
                 report.members.renewed += 1;
+		if(member.free) {
+			report.members.renewedFree += 1;
+		} else {
+			report.members.renewedPaid += 1;
+		}
               }
               callback();
             },
