@@ -38,11 +38,9 @@
               {{#ifCond user.class '==' 'admin'}}
                 <option value="staff" {{#ifCond viewedUser.class '==' 'staff'}}selected{{/ifCond}}>Staff Co-ordinator</option>
                 <option value="admin" {{#ifCond viewedUser.class '==' 'admin'}}selected{{/ifCond}}>Admin</option>
-              {{/ifCond}}
+	      {{/ifCond}}
               {{#ifCond user.class '==' 'staff'}}
-                {{#ifCond user.id '==' user_id}}
-                  <option value="staff" selected>Staff Co-ordinator</option>
-                {{/ifCond}}
+                <option value="staff" selected>Staff Co-ordinator</option>
               {{/ifCond}}
             </select>
 

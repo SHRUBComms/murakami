@@ -1,11 +1,5 @@
-module.exports = function(Users, sequelize, DataTypes) {
-  return function(email, callback) {
-    Users.findOne({
-      where: {
-        email: email
-      }
-    }).nodeify(function(err, user) {
-      callback(err, user);
-    });
-  };
-};
+module.exports = (Users, sequelize, DataTypes) => {
+	return async (email, callback) => {
+    		return Users.findOne({ where: { email: email } });
+	}
+}

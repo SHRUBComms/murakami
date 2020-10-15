@@ -1,124 +1,109 @@
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var moment = require("moment");
+const moment = require("moment");
 moment.locale("en-gb");
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
 
-var AccessTokens = Models.AccessTokens;
+const AccessTokens = Models.AccessTokens;
 
-var Auth = {};
+let Auth = {};
 
-Auth.isLoggedIn = function(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  } else {
-    res.redirect(process.env.PUBLIC_ADDRESS + "/login");
-  }
-};
+Auth.isLoggedIn = (req, res, next) => {
+  	if (req.isAuthenticated()) {
+    		return next();
+  	} else {
+    		res.redirect(process.env.PUBLIC_ADDRESS + "/login");
+  	}
+}
 
-Auth.canAccessPage = function(parent, page) {
-  return function(req, res, next) {
-    try {
-      if (req.user.permissions[parent][page]) {
-        return next();
-      } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/");
-      }
-    } catch (err) {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/");
-    }
-  };
-};
+Auth.canAccessPage = (parent, page) => {
+	return (req, res, next) => {
+    		try {
+      			if (req.user.permissions[parent][page]) {
+        			return next();
+      			} else {
+        			res.redirect(process.env.PUBLIC_ADDRESS + "/");
+      			}
+    		} catch (error) {
+      			res.redirect(process.env.PUBLIC_ADDRESS + "/");
+    		}
+  	}
+}
 
-Auth.isNotLoggedIn = function(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return next();
-  } else {
-    res.redirect(process.env.PUBLIC_ADDRESS + "/");
-  }
-};
+Auth.isNotLoggedIn = (req, res, next) => {
+	if (!req.isAuthenticated()) {
+    		return next();
+  	} else {
+    		res.redirect(process.env.PUBLIC_ADDRESS + "/");
+  	}
+}
 
-Auth.isOfClass = function(allowedClasses) {
-  return function(req, res, next) {
-    if (allowedClasses.includes(req.user.class)) {
-      return next();
-    } else {
-      res.redirect("/");
-    }
-  };
-};
+Auth.isOfClass = (allowedClasses) => {
+	return (req, res, next) => {
+    		if (allowedClasses.includes(req.user.class)) {
+      			return next();
+    		} else {
+      			res.redirect("/");
+   		}
+  	}
+}
 
-Auth.verifyByKey = function(resource) {
-  return function(req, res, next) {
-    var failResponse = { status: "fail", msg: "Permission denied." };
+Auth.verifyByKey = (resource) => {
+	return async (req, res, next) => {
+		try {
+			if(!validResources.includes(resource)) {
+				throw "Invalid resource key";
+			}
 
-    var validResources = [
-      "carbonSavings",
-      "publicVolunteerRoles",
-      "tillRevenue",
-      "membershipReport",
-      "membershipSignUp"
-    ];
+			if(!req.query.key || !req.query.token) {
+				throw "Permission denied - no key given";
+			}
 
-    if (validResources.includes(resource)) {
-      if (req.query.key || req.query.token) {
-        var key = req.query.key || req.query.token;
-        AccessTokens.getById(key, function(err, token) {
-          if (!err && token) {
-            if (token.used == 0) {
-              if (moment(token.expirationTimestamp).isAfter(moment())) {
-                try {
-                  if (token.details.resource == resource) {
-                    return next();
-                  } else {
-                    res.send(failResponse);
-                  }
-                } catch (err) {
-                  res.send(failResponse);
-                }
-              } else {
-                failResponse.msg =
-                  "Key has expired. Contact administrator to reissue.";
-                res.send(failResponse);
-              }
-            } else {
-              failResponse.msg =
-                "Key is no longer valid. Contact administrator to reissue.";
-              res.send(failResponse);
-            }
-          } else {
-            res.send(failResponse);
-          }
-        });
-      } else {
-        failResponse.msg = "Key has expired.";
-        res.send(failResponse);
-      }
-    } else {
-      res.send(failResponse);
-    }
-  };
-};
+			const accessToken = await AccessTokens.getById(key);
 
-Auth.hasValidToken = function(action) {
-  return function(req, res, next) {
-    AccessTokens.getById(req.params.token || req.query.token, function(
-      err,
-      invite
-    ) {
-      if (invite.details) {
-        if (invite.details.action == action) {
-          res.invite = invite;
-          return next();
-        } else {
-          res.redirect("/");
-        }
-      } else {
-        res.redirect("/");
-      }
-    });
-  };
-};
+			if(!token) {
+				throw "Permission denied - invalid key given";
+			}
+
+			if(token.used == 1) {
+				throw "Permission denied - key expired";
+			}
+
+			if(!moment(token.expirationTimestamp).isAfter(moment())) {
+				throw "Permission denied - key expired";
+			}
+
+                  	if (token.details.resource != resource) {
+				throw "Permission denied - invalid key given";
+			}
+
+                    	return next();
+		} catch (error) {
+			if(typeof error != "string") {
+				error = "Permission denied";
+			}
+
+			res.send({ status: "fail", msg: error });
+		}
+	}
+}
+
+Auth.hasValidToken = (action) => {
+	return async (req, res, next) => {
+		try {
+			const invite = await AccessTokens.getById(req.params.token || req.query.token);
+
+			if (invite.details.action != action) {
+				throw "Token invalid";
+			}
+
+			res.invite = invite;
+			return next();
+		} catch (error) {
+			res.redirect("/");
+		}
+	}
+}
 
 module.exports = Auth;

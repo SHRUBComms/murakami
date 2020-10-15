@@ -1,9 +1,9 @@
 // /users
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-router.get("/", function(req, res) {
-  res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
+router.get("/", (req, res) => {
+	res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
 });
 
 router.use("/invite", require("./invite"));

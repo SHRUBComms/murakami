@@ -1,58 +1,56 @@
-var async = require("async");
+module.exports = (Settings, sequelize, DataTypes) => {
+  	return async() => {
+		try {
+			const rawStaticContent = await Settings.findAll({
+				raw: true,
+				where: {
+					id: {
+						[DataTypes.Op.or]: [
+							"membershipBenefits",
+							"saferSpacesPolicy",
+							"volunteerAgreement",
+							"ourVision",
+							"privacyNotice",
+							"activities",
+							"commitmentLengths",
+							"contactMethods",
+							"locations",
+							"refundPolicy"
+						]
+					}
+				}
+			});
 
-module.exports = function(Settings, sequelize, DataTypes) {
-  return function(callback) {
-    Settings.findAll({
-      raw: true,
-      where: {
-        id: {
-          [DataTypes.Op.or]: [
-            "membershipBenefits",
-            "saferSpacesPolicy",
-            "volunteerAgreement",
-            "ourVision",
-            "privacyNotice",
-            "activities",
-            "commitmentLengths",
-            "contactMethods",
-            "locations",
-            "refundPolicy"
-          ]
-        }
-      }
-    }).nodeify(function(err, settings) {
-      var staticContent = { lists: {}, texts: {} };
+			let staticContent = { lists: {}, texts: {} };
 
-      var validTexts = [
-        "membershipBenefits",
-        "saferSpacesPolicy",
-        "volunteerAgreement",
-        "ourVision",
-        "privacyNotice",
-        "refundPolicy"
-      ];
+			const validTexts = [
+				"membershipBenefits",
+				"saferSpacesPolicy",
+				"volunteerAgreement",
+				"ourVision",
+				"privacyNotice",
+				"refundPolicy"
+			];
 
-      var validLists = [
-        "activities",
-        "commitmentLengths",
-        "contactMethods",
-        "locations"
-      ];
+			const validLists = [
+				"activities",
+				"commitmentLengths",
+				"contactMethods",
+				"locations"
+			];
 
-      async.each(
-        settings,
-        function(setting, callback) {
-          if (validTexts.includes(setting.id)) {
-            staticContent.texts[setting.id] = setting;
-          } else if (validLists.includes(setting.id)) {
-            staticContent.lists[setting.id] = setting;
-          }
-          callback();
-        },
-        function() {
-          callback(err, staticContent);
-        }
-      );
-    });
-  };
-};
+			for await (const setting of rawStaticContent) {
+				if (validTexts.includes(setting.id)) {
+					staticContent.texts[setting.id] = setting;
+				} else if (validLists.includes(setting.id)) {
+					staticContent.lists[setting.id] = setting;
+				}
+			}
+
+			return staticContent;
+
+		} catch(error) {
+			throw error;
+		}
+  	}
+}

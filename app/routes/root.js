@@ -1,27 +1,21 @@
 // /
-var Mail = require("../configs/mail/root");
+const Mail = require("../configs/mail/root");
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-router.get("/", function(req, res) {
-  if (req.user) {
-    if (["admin", "staff", "volunteer"].includes(req.user.class)) {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-    } else {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/till");
-    }
-  } else {
-    res.redirect(process.env.PUBLIC_ADDRESS + "/login");
-  }
+router.get("/", (req, res) => {
+  	if (req.user) {
+    		if (["admin", "staff", "volunteer"].includes(req.user.class)) {
+      			res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
+    		} else {
+      			res.redirect(process.env.PUBLIC_ADDRESS + "/till");
+    		}
+  	} else {
+    		res.redirect(process.env.PUBLIC_ADDRESS + "/login");
+  	}
 });
 
-router.get("/test", function(req, res){
-      	Mail.sendAutomatedMember("renewal-notice-short", "383039112", {}, function(err) {
-		res.send("OK");
-	});
-
-})
-
+// Setup routes
 router.use("/members", require("./members/root"));
 router.use("/api", require("./api/root"));
 router.use("/till", require("./till/root"));
@@ -43,18 +37,17 @@ router.use("/success", require("./success"));
 router.use("/privacy", require("./privacy"));
 
 // Legacy path.
-router.get("/get-carbon-calculations", function(req, res) {
-  var key = req.query.key || "";
-  res.redirect(
-    process.env.PUBLIC_ADDRESS + "/api/get/reports/all-time/carbon-saved?key=" + key
-  );
+router.get("/get-carbon-calculations", (req, res) => {
+  	const key = req.query.key || "";
+  	res.redirect(process.env.PUBLIC_ADDRESS + "/api/get/reports/all-time/carbon-saved?key=" + key);
 });
 
-router.get("*", function(req, res) {
-  res.render("error", {
-    title: "Page Not Found",
-    notFound: true
-  });
+// Page not found
+router.get("*", (req, res) => {
+  	res.render("error", {
+   		title: "Page Not Found",
+    		notFound: true
+  	});
 });
 
 module.exports = router;

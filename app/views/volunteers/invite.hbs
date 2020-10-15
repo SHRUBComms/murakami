@@ -16,7 +16,7 @@
       <input type="text" name="email" class="form-control mb-2" placeholder="Email Address" required />
 
       <div class="row-fluid mb-2">
-        <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="assignedCoordinators" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple required />
+        <select class="selectpicker show-tick form-control" title="Assign one or more staff co-ordinators" name="assignedCoordinators" data-style="btn-info" data-size="auto" data-header="Assign one or more staff co-ordinators" data-live-search="true" multiple />
 
           <option value="{{user.id}}" selected disabled>{{user.first_name}} {{user.last_name}}</option>
 
@@ -31,7 +31,7 @@
       </div>
 
       <div class="row-fluid mb-2">
-        <select class="selectpicker volunteer-roles show-tick form-control" name="roles" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple required />
+        <select class="selectpicker volunteer-roles show-tick form-control" name="roles" title="Select one or more roles" data-style="btn-info" data-size="auto" data-header="Select one or more roles" data-live-search="true" multiple />
           <option value={{defaultFoodCollectorRole.role_id}} selected disabled>{{defaultFoodCollectorRole.details.title}}</option>
         </select>
       </div>

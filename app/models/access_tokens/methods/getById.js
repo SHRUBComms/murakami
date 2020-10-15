@@ -1,13 +1,7 @@
-var moment = require("moment");
+const moment = require("moment");
 
-module.exports = function(AccessTokens, sequelize, DataTypes) {
-  return function(token, callback) {
-    AccessTokens.findOne({
-      where: {
-        token: token
-      }
-    }).nodeify(function(err, invite) {
-      callback(err, invite);
-    });
-  };
-};
+module.exports = (AccessTokens, sequelize, DataTypes) => {
+	return async (token, callback) => {
+    		return AccessTokens.findOne({ where: { token: token } });
+      	}
+}

@@ -1,8 +1,5 @@
-module.exports = function(Volunteers, sequelize, DataTypes) {
-  return function(member_id, roles, callback) {
-    Volunteers.update(
-      { roles: roles },
-      { where: { member_id: member_id } }
-    ).nodeify(callback);
-  };
+module.exports = (Volunteers, sequelize, DataTypes) => {
+	return async (member_id, roles) => {
+    		return Volunteers.update({ roles: roles }, { where: { member_id: member_id } });
+	}
 };

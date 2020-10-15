@@ -1,16 +1,14 @@
-module.exports = function(PasswordReset, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-  var GetId = function(callback) {
-    var reset_code = Helpers.generateBase64Id(25);
-    PasswordReset.findAll({ where: { reset_code: reset_code } }).nodeify(
-      function(err, result) {
-        if (result.length > 0) {
-          GetId(callback);
-        } else if (result.length == 0) {
-          callback(reset_code);
-        }
-      }
-    );
-  };
-  return GetId;
-};
+module.exports = (PasswordReset, sequelize, DataTypes) => {
+	const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  	const GetId = async () => {
+    		const resetCode = Helpers.generateBase64Id(25);
+    		const result = await PasswordReset.findAll({ where: { reset_code: resetCode } });
+        	if (result.length > 0) {
+          		GetId();
+        	} else if (result.length == 0) {
+          		return resetCode;
+        	}
+      	}
+
+  	return GetId;
+}

@@ -1,15 +1,15 @@
 // /users/change-password
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
-  req.logout();
-  req.session = null;
-  res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
+router.get("/", Auth.isLoggedIn, (req, res) => {
+	req.logout();
+  	req.session = null;
+  	res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
 });
 
 module.exports = router;

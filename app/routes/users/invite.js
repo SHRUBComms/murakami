@@ -1,489 +1,231 @@
 // /users/invite
 
-var router = require("express").Router();
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Users = Models.Users;
-var AccessTokens = Models.AccessTokens;
+const Models = require(rootDir + "/app/models/sequelize");
+const Users = Models.Users;
+const AccessTokens = Models.AccessTokens;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
-var Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
+const Mail = require(rootDir + "/app/configs/mail/root");
+const validateUser = require(rootDir + "/app/controllers/users/validateUser");
 
-router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
-  req,
-  res
-) {
-  res.render("users/invite", {
-    title: "Invite User",
-    usersActive: true,
-    callback: req.query.callback || null
-  });
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), (req, res) => {
+	res.render("users/invite", {
+    		title: "Invite User",
+    		usersActive: true,
+    		callback: req.query.callback || null
+  	});
 });
 
-router.post("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), function(
-  req,
-  res
-) {
-  var first_name = req.body.first_name.trim();
-  var last_name = req.body.last_name.trim();
-  var username = req.body.username.trim();
-  var email = req.body.email.trim();
-  var userClass = req.body.class;
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), async (req, res) => {
+	let activationToken, activationLink;
+	try {
+		if (!Array.isArray(req.body.working_groups)) {
+			req.body.working_groups = [req.body.working_groups];
+		}
 
-  var working_groups = req.body.working_groups;
-  var notification_preferences = req.body.notification_preferences;
+		const submittedFormValid = await validateUser(req.user, req.body);
 
-  if (!Array.isArray(working_groups)) {
-    working_groups = [working_groups];
-  }
+		const usernameInUse = await Users.getByUsername(req.body.username);
+		if(usernameInUse) {
+			throw "Username is already in use";
+		}
 
-  var validClasses, validWorkingGroups;
+		const emailInUse = await Users.getByEmail(req.body.email);
+		if(emailInUse) {
+			throw "Email address is already in use";
+		}
 
-  if (req.user.class == "admin") {
-    validClasses = ["admin", "till", "volunteer", "staff"];
-  } else if (req.user.class == "staff") {
-    validClasses = ["till", "volunteer", "staff"];
-  }
+		const blankNotificationPreferences = {
+			"pending-volunteer-hours": {
+				email: "off",
+				murakami: "off"
+			},
+			"volunteers-need-to-volunteer": {
+				email: "off",
+				murakami: "off"
+			},
+			"unfinished-roles": {
+				email: "off",
+				murakami: "off"
+			}
+		};
 
-  if (req.user.permissions.users.add == true) {
-    validWorkingGroups = req.user.allWorkingGroupsFlat;
-  } else if (req.user.permissions.users.add == "commonWorkingGroup") {
-    validWorkingGroups = req.user.working_groups;
-  }
+		let newUser = {
+			id: null,
+			first_name: req.body.first_name,
+			last_name: req.body.last_name,
+			username: req.body.username,
+			email: req.body.email,
+			class: req.body.class,
+			working_groups: req.body.working_groups.sort(),
+			notification_preferences: blankNotificationPreferences
+		};
 
-  if (!validClasses.includes(userClass)) {
-    userClass = null;
-  }
+		const userId = await Users.add(newUser);
 
-  // Validation
-  if (username) {
-    req
-      .check(
-        "username",
-        "This username is already in use! Please enter something different"
-      )
-      .isUsernameAvailable();
-  }
-  if (email) {
-    req
-      .check(
-        "email",
-        "This email address is already in use! Please enter something different"
-      )
-      .isEmailAvailable();
-  }
+		const expirationTimestamp = moment().add(7, "days").toDate();
+		activationToken = await AccessTokens.createInvite(expirationTimestamp, { action: "add-user", invitedBy: req.user.id, user_id: userId });
 
-  req.checkBody("first_name", "Please enter a first name").notEmpty();
-  req
-    .checkBody(
-      "first_name",
-      "Please enter a shorter first name (<= 20 characters)"
-    )
-    .isLength({ max: 20 });
+		activationLink = process.env.PUBLIC_ADDRESS + "/users/invite/" + activationToken;
 
-  req.checkBody("last_name", "Please enter a last name").notEmpty();
-  req
-    .checkBody(
-      "last_name",
-      "Please enter a shorter last name (<= 30 characters)"
-    )
-    .isLength({ max: 30 });
+		const mailRecipient = `${newUser.first_name} ${newUser.last_name} <${newUser.email}>`;
+		const message = `<p>Hey ${newUser.first_name}</p>
+				<p>You've been invited to Murakami by ${req.user.first_name} ${req.user.last_name}!</p>
+				<p>Please follow the link below to complete your registration. It will expire at <b>${moment(expirationTimestamp).format("L hh:mm A")}</b>.</p>
+				<p><a href="${activationLink}">${activationLink}</a></p>`
 
-  req.checkBody("username", "Please enter a username").notEmpty();
-  req
-    .checkBody("username", "Please enter a shorter username (<= 20 characters)")
-    .isLength({ max: 20 });
-  req
-    .checkBody("username", "Please enter a valid username")
-    .matches(/^[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*$/);
+		await Mail.sendGeneral(mailRecipient, "Murakami Invite", message);
+		req.flash("success_msg", "Invite sent successfully!");
+		res.redirect(process.env.PUBLIC_ADDRESS + "/users/invite?callback=true");
 
-  req.checkBody("email", "Please enter an email address").notEmpty();
-  req
-    .checkBody(
-      "email",
-      "Please enter a shorter email address (<= 89 characters)"
-    )
-    .isLength({ max: 89 });
-  req.checkBody("email", "Please enter a valid email address").isEmail();
+	} catch (error) {
+		console.log(error);
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
 
-  req
-    .checkBody("working_groups", "Please select at least one working group")
-    .notEmpty();
+		if(activationToken) {
+			error = "Something went wrong sending the email! Please send the activation link manually: " + activationLink;
+		}
 
-  if (!Helpers.allBelongTo(working_groups, validWorkingGroups)) {
-    req
-      .checkBody("placeholder", "Please select valid working groups")
-      .notEmpty();
-  }
-
-  var sanitized_notification_preferences = {
-    "pending-volunteer-hours": {
-      email: "off",
-      murakami: "off"
-    },
-    "volunteers-need-to-volunteer": {
-      email: "off",
-      murakami: "off"
-    },
-    "unfinished-roles": {
-      email: "off",
-      murakami: "off"
-    }
-  };
-
-  req
-    .asyncValidationErrors()
-    .then(function() {
-      var newUser = {
-        id: null,
-        first_name: first_name,
-        last_name: last_name,
-        username: username,
-        email: email,
-        class: userClass,
-        working_groups: working_groups.sort(),
-        notification_preferences: sanitized_notification_preferences
-      };
-
-      Users.add(newUser, function(err, userId) {
-        if (!err && userId) {
-          var expirationTimestamp = moment()
-            .add(7, "days")
-            .toDate();
-          AccessTokens.createInvite(
-            expirationTimestamp,
-            {
-              action: "add-user",
-              invitedBy: req.user.id,
-              user_id: userId
-            },
-            function(err, token) {
-              if (!err && token) {
-                var inviteLink =
-                  process.env.PUBLIC_ADDRESS + "/users/invite/" + token;
-                Mail.sendGeneral(
-                  newUser.first_name +
-                    " " +
-                    newUser.last_name +
-                    " <" +
-                    newUser.email +
-                    ">",
-                  "Murakami Invite",
-                  "<p>Hey " +
-                    first_name +
-                    ",</p>" +
-                    "<p>You've been invited to Murakami by " +
-                    req.user.first_name +
-                    " " +
-                    req.user.last_name +
-                    "!</p>" +
-                    "<p>Please follow the link below to complete your registration. It will expire at <b>" +
-                    moment(expirationTimestamp).format("L hh:mm A") +
-                    "</b>.</p>" +
-                    "<p><a href='" +
-                    inviteLink +
-                    "'>" +
-                    inviteLink +
-                    "</a>" +
-                    "</p>",
-                  function(err) {
-                    if (err) {
-                      req.flash(
-                        "error_msg",
-                        "Something went wrong sending the email! Manually send the link " +
-                          inviteLink
-                      );
-                      res.redirect(
-                        process.env.PUBLIC_ADDRESS +
-                          "/users/invite?callback=true"
-                      );
-                    } else {
-                      req.flash("success_msg", "Invite sent successfully!");
-                      res.redirect(
-                        process.env.PUBLIC_ADDRESS +
-                          "/users/invite?callback=true"
-                      );
-                    }
-                  }
-                );
-              } else {
                 res.render("users/invite", {
-                  errors: [{ msg: "Something went wrong!" }],
-                  title: "Invite User",
-                  usersActive: true,
-                  first_name: first_name,
-                  last_name: last_name,
-                  username: username,
-                  email: email,
-                  working_groups: working_groups,
-                  class: userClass
+                	errors: [{ msg: error }],
+                  	title: "Invite User",
+                  	usersActive: true,
+                  	first_name: req.body.first_name,
+                  	last_name: req.body.last_name,
+                  	username: req.body.username,
+                  	email: req.body.email,
+                  	working_groups: req.body.working_groups,
+                  	class: req.body.class
                 });
-              }
-            }
-          );
-        } else {
-          res.render("users/invite", {
-            errors: [{ msg: "Something went wrong!" }],
-            title: "Invite User",
-            usersActive: true,
-            first_name: first_name,
-            last_name: last_name,
-            username: username,
-            email: email,
-            working_groups: working_groups,
-            class: userClass
-          });
-        }
-      });
-    })
-    .catch(function(errors) {
-      res.render("users/invite", {
-        errors: errors,
-        title: "Invite User",
-        usersActive: true,
-        first_name: first_name,
-        last_name: last_name,
-        username: username,
-        email: email,
-        working_groups: working_groups,
-        class: userClass
-      });
-    });
+	}
 });
 
-router.get("/:token", Auth.isNotLoggedIn, function(req, res) {
-  AccessTokens.getById(req.params.token, function(err, invite) {
-    if (!err && invite) {
-      Users.getById(
-        invite.details.user_id,
-        { permissions: { users: { name: true } } },
-        function(err, user) {
-          if (
-            !err &&
-            user &&
-            user.deactivated == 1 &&
-            invite.details.action == "add-user"
-          ) {
-            if (invite.used == 0) {
-              if (moment(invite.expirationTimestamp).isAfter(moment())) {
-                res.render("reset", {
-                  title: "Complete Registration",
-                  invite: invite,
-                  viewedUser: user
+router.get("/:token", Auth.isNotLoggedIn, async (req, res) => {
+
+	try {
+		const invite = await AccessTokens.getById(req.params.token);
+		if (!invite) {
+			throw "Invalid Invite";
+		}
+
+		const user = await Users.getById(invite.details.user_id, { permissions: { users: { name: true } } });
+
+		if (!user) {
+			throw "Invite Malformed";
+		}
+
+		if(user.deactivated == 0) {
+			throw "Invite Used";
+		}
+
+		if(invite.details.action != "add-user") {
+			throw "Invite Malformed";
+		}
+
+		if (invite.used == 1) {
+			throw "Invite Used";
+		}
+
+		if (!moment(invite.expirationTimestamp).isAfter(moment())) {
+			throw "Invite Expired";
+		}
+
+		res.render("reset", {
+			title: "Complete Registration",
+			invite: invite,
+			viewedUser: user
+		});
+	} catch (error) {
+		console.log(error);
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+
+		res.render("error", {
+                	title: error,
                 });
-              } else {
-                res.render("error", {
-                  title: "Invite Expired",
-                  specificError: {
-                    title: "Invalid Expired",
-                    message: "This invite has expired!"
-                  }
-                });
-              }
-            } else {
-              res.render("error", {
-                title: "Invite Used",
-                specificError: {
-                  title: "Invalid Used",
-                  message: "This invite has already been used!"
-                }
-              });
-            }
-          } else {
-            res.render("error", {
-              title: "Invalid Invite",
-              specificError: {
-                title: "Invalid Invite",
-                message:
-                  "Something went wrong when creating this invite. Please <a href='" +
-                  process.env.PUBLIC_ADDRESS +
-                  "/support'>contact support</a>."
-              }
-            });
-          }
-        }
-      );
-    } else {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/");
-    }
-  });
+	}
 });
 
-router.post("/:token", Auth.isNotLoggedIn, function(req, res) {
-  var password = req.body.password;
-  var passwordConfirm = req.body.passwordConfirm;
+router.post("/:token", Auth.isNotLoggedIn, async (req, res) => {
+	const password = req.body.password;
+	const passwordConfirm = req.body.passwordConfirm;
+	try {
+		const invite = await AccessTokens.getById(req.params.token);
+		if (!invite) {
+			throw "Invalid Invite";
+		}
 
-  AccessTokens.getById(req.params.token, function(err, invite) {
-    if (!err && invite) {
-      Users.getById(
-        invite.details.user_id,
-        { permissions: { users: { name: true } } },
-        function(err, user) {
-          if (!err && user && invite.details.action == "add-user") {
-            if (invite.used == 0) {
-              if (moment(invite.expirationTimestamp).isAfter(moment())) {
-                if (password) {
-                  if (
-                    password.match(
-                      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/
-                    )
-                  ) {
-                    if (passwordConfirm) {
-                      if (password == passwordConfirm) {
-                        Users.updatePassword(user.id, password, function(err) {
-                          if (!err) {
-                            Users.update(
-                              { deactivated: 0 },
-                              { where: { id: user.id } }
-                            ).nodeify(function(err) {
-                              if (!err) {
-                                AccessTokens.markAsUsed(invite.token, function(
-                                  err
-                                ) {
-                                  req.flash(
-                                    "success_msg",
-                                    "Password set! You can now login."
-                                  );
-                                  res.redirect(
-                                    process.env.PUBLIC_ADDRESS + "/login"
-                                  );
+		const user = await Users.getById(invite.details.user_id, { permissions: { users: { name: true } } });
 
-                                  Users.getById(
-                                    invite.details.invitedBy,
-                                    {
-                                      permissions: {
-                                        users: {
-                                          name: true,
-                                          email: true
-                                        }
-                                      }
-                                    },
-                                    function(err, userInvitedBy) {
-                                      if (!err && userInvitedBy) {
-                                        Mail.sendGeneral(
-                                          userInvitedBy.first_name +
-                                            " " +
-                                            userInvitedBy.last_name +
-                                            " <" +
-                                            userInvitedBy.email +
-                                            ">",
-                                          "New Account Activated",
-                                          "<p>Hey " +
-                                            userInvitedBy.first_name +
-                                            ",</p>" +
-                                            "<p>This email is to notify you that " +
-                                            user.first_name +
-                                            " " +
-                                            user.last_name +
-                                            " has activated their account using an invite you sent.</p>" +
-                                            "<p>If you didn't invite this user, please <a href='" +
-                                            process.env.PUBLIC_ADDRESS +
-                                            "/users/update/" +
-                                            user.id +
-                                            "'>deactivate the account</a> and <a href='" +
-                                            process.env.PUBLIC_ADDRESS +
-                                            "/support'>contact support</a> <b>as soon as possible</b></p>",
-                                          function(err) {}
-                                        );
-                                      }
-                                    }
-                                  );
-                                });
-                              } else {
-                                req.flash(
-                                  "error",
-                                  "Something went wrong! Please try again."
-                                );
-                                res.redirect(
-                                  process.env.PUBLIC_ADDRESS +
-                                    "/users/invite/" +
-                                    invite.token
-                                );
-                              }
-                            });
-                          } else {
-                            req.flash(
-                              "error",
-                              "Something went wrong! Please try again."
-                            );
-                            res.redirect(
-                              process.env.PUBLIC_ADDRESS +
-                                "/users/invite/" +
-                                invite.token
-                            );
-                          }
-                        });
-                      } else {
-                        req.flash("error", "Passwords don't match!");
-                        res.redirect(
-                          process.env.PUBLIC_ADDRESS +
-                            "/users/invite/" +
-                            invite.token
-                        );
-                      }
-                    } else {
-                      req.flash("error", "Please confirm you password.");
-                      res.redirect(
-                        process.env.PUBLIC_ADDRESS +
-                          "/users/invite/" +
-                          invite.token
-                      );
-                    }
-                  } else {
-                    req.flash("error", "Please enter a valid password.");
-                    res.redirect(
-                      process.env.PUBLIC_ADDRESS +
-                        "/users/invite/" +
-                        invite.token
-                    );
-                  }
-                } else {
-                  req.flash("error", "Please enter a password.");
-                  res.redirect(
-                    process.env.PUBLIC_ADDRESS + "/users/invite/" + invite.token
-                  );
-                }
-              } else {
-                res.render("error", {
-                  title: "Invite Expired",
-                  specificError: {
-                    title: "Invalid Expired",
-                    message: "This invite has expired!"
-                  }
-                });
-              }
-            } else {
-              res.render("error", {
-                title: "Invite Used",
-                specificError: {
-                  title: "Invalid Used",
-                  message: "This invite has already been used!"
-                }
-              });
-            }
-          } else {
-            res.render("error", {
-              title: "Invalid Invite",
-              specificError: {
-                title: "Invalid Invite",
-                message:
-                  "Something went wrong when creating this invite. Please <a href='" +
-                  process.env.PUBLIC_ADDRESS +
-                  "/support'>contact support</a>."
-              }
-            });
-          }
-        }
-      );
-    } else {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/");
-    }
-  });
+		if (!user) {
+			throw "Invite Malformed";
+		}
+
+		if(user.deactivated == 0) {
+			throw "Invite Used";
+		}
+
+		if(invite.details.action != "add-user") {
+			throw "Invite Malformed";
+		}
+
+		if (invite.used == 1) {
+			throw "Invite Used";
+		}
+
+		if (!moment(invite.expirationTimestamp).isAfter(moment())) {
+			throw "Invite Expired";
+		}
+
+
+		if (!password) {
+			throw "Please enter a new password"
+		}
+
+		if (!password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/)) {
+			throw "Please enter a valid password";
+		}
+
+		if(!passwordConfirm) {
+			throw "Please confirm your password";
+		}
+
+		if (password != passwordConfirm) {
+			throw "Passwords don't match";
+		}
+
+		await Users.updatePassword(user.id, password);
+                await Users.update({ deactivated: 0 }, { where: { id: user.id } });
+                await AccessTokens.markAsUsed(invite.token);
+
+                const userInvitedBy = await Users.getById(invite.details.invitedBy, {permissions: { users: { name: true, email: true } } });
+		const mailRecipient = `${userInvitedBy.first_name} ${userInvitedBy.last_name} <${userInvitedBy.email}>`;
+		const message = `<p>Hey ${userInvitedBy.first_name},</p>
+				<p>This email is to notify you that ${user.first_name} ${user.last_name} has activated their acount using your invite.</p>
+				<p>If you didn't invite this user, please <a href="${process.env.PUBLIC_ADDRESS}/users/update/${user.id}">deactivate the account</a> and <a href="${process.env.PUBLIC_ADDRESS}/support">contact support</a> <b>as soon as possible</b></p>`
+                Mail.sendGeneral(mailRecipient, "Murakami Account Activated", message);
+
+                req.flash("success_msg", "Password set! You can now login.");
+                res.redirect(process.env.PUBLIC_ADDRESS + "/login");
+	} catch (error) {
+		console.log(error);
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+
+		req.flash("error_msg", error);
+		res.redirect(process.env.PUBLIC_ADDRESS + "/users/invite/" + req.params.token);
+	}
 });
 
 module.exports = router;

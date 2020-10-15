@@ -1,20 +1,16 @@
-var bcrypt = require("bcrypt-nodejs");
+const bcrypt = require("bcrypt-nodejs");
 
-module.exports = function(Users, sequelize, DataTypes) {
-  return function(user_id, password, callback) {
-    var query = "UPDATE login SET password = ? WHERE id = ?";
-    bcrypt.genSalt(10, function(err, salt) {
-      bcrypt.hash(password, salt, null, function(err, hash) {
-        password = hash.replace(/^\$2y(.+)$/i, "$2a$1");
-        Users.update(
-          {
-            password: password
-          },
-          { where: { id: user_id } }
-        ).nodeify(function(err) {
-          callback(err);
-        });
-      });
-    });
-  };
-};
+module.exports = (Users, sequelize, DataTypes) => {
+  	return async (user_id, password) => {
+		try {
+			const query = "UPDATE login SET password = ? WHERE id = ?";
+			const salt = await bcrypt.genSaltSync(10);
+			const hash = await bcrypt.hashSync(password, salt);
+
+			password = hash.replace(/^\$2y(.+)$/i, "$2a$1"); // Convert hash format (hangover from original user database)
+			return Users.update({ password: password }, { where: { id: user_id } })
+		} catch (error) {
+			throw error;
+		}
+	}
+}

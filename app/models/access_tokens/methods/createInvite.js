@@ -1,14 +1,16 @@
-module.exports = function(AccessTokens, sequelize, DataTypes) {
-  return function(expirationTimestamp, details, callback) {
-    AccessTokens.generateId(function(token) {
-      AccessTokens.create({
-        token: token,
-        expirationTimestamp: expirationTimestamp,
-        details: details,
-        used: 0
-      }).nodeify(function(err) {
-        callback(err, token);
-      });
-    });
-  };
+module.exports = (AccessTokens, sequelize, DataTypes) => {
+	return async (expirationTimestamp, details) => {
+		try {
+			const token = await AccessTokens.generateId();
+			await AccessTokens.create({
+				token: token,
+				expirationTimestamp: expirationTimestamp,
+				details: details,
+				used: 0
+			});
+			return token;
+		} catch(error) {
+			throw error;
+		}
+	};
 };

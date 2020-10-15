@@ -1,9 +1,9 @@
 // /error
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-router.get("/", function(req, res) {
-  res.render("error");
+router.get("/", (req, res) => {
+  	res.render("error");
 });
 
 module.exports = router;

@@ -1,26 +1,21 @@
 // /users/manage
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Users = Models.Users;
+const Models = require(rootDir + "/app/models/sequelize");
+const Users = Models.Users;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "view"), function(
-  req,
-  res
-) {
-  Users.getAll(req.user, function(err, users, usersObj) {
-    res.render("users/manage", {
-      title: "Users",
-      users: usersObj,
-      usersActive: true
-    });
-  });
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "view"), async (req, res) => {
+  	const users = await Users.getAll(req.user);
+    	res.render("users/manage", {
+      		title: "Users",
+      		users: users,
+      		usersActive: true
+    	});
 });
 
 module.exports = router;

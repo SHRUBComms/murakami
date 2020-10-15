@@ -1,19 +1,10 @@
-var async = require("async");
-
-module.exports = function(Settings, sequelize, DataTypes) {
-  return function(callback) {
-    Settings.findAll({}).nodeify(function(err, settings) {
-      settingsObj = {};
-      async.each(
-        settings,
-        function(setting, callback) {
-          settingsObj[setting.id] = setting.data;
-          callback();
-        },
-        function() {
-          callback(err, settingsObj);
-        }
-      );
-    });
-  };
-};
+module.exports = (Settings, sequelize, DataTypes) => {
+	return async() => {
+		try {
+			let settings = await Settings.findAll({});
+			return settings.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {});
+		} catch(error) {
+			throw error;
+		}
+	}
+}

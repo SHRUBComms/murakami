@@ -1,320 +1,195 @@
 // volunteers/invite
 
-var router = require("express").Router();
-var async = require("async");
-var validator = require("email-validator");
-var moment = require("moment");
+const router = require("express").Router();
+const async = require("async");
+const util = require("util");
+const validator = require("email-validator");
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
 
-var Users = Models.Users;
-var Members = Models.Members;
-var Volunteers = Models.Volunteers;
-var VolunteerRoles = Models.VolunteerRoles;
-var AccessTokens = Models.AccessTokens;
-var Settings = Models.Settings;
-var FoodCollectionsKeys = Models.FoodCollectionsKeys;
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Users = Models.Users;
+const Members = Models.Members;
+const Volunteers = Models.Volunteers;
+const VolunteerRoles = Models.VolunteerRoles;
+const AccessTokens = Models.AccessTokens;
+const Settings = Models.Settings;
+const FoodCollectionsKeys = Models.FoodCollectionsKeys;
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail/root");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Mail = require(rootDir + "/app/configs/mail/root");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "invite"),
-  function(req, res) {
-    var errors = [];
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "invite"), async (req, res) => {
+	let errors = [];
 
-    if (req.query.callback != "true") {
-      errors = [
-        {
-          msg:
-            "If possible, you should add volunteers in person. Please use this feature wisely!"
-        }
-      ];
-    }
+	if (req.query.callback != "true") {
+      		errors = [{msg:"If possible, you should add volunteers in person. Please use this feature wisely!"}];
+    	}
 
-    Settings.getById("defaultFoodCollectorRole", function(
-      err,
-      defaultFoodCollectorRoleId
-    ) {
-      VolunteerRoles.getRoleById(
-        defaultFoodCollectorRoleId.data.role_id,
-        function(err, defaultFoodCollectorRole) {
-          Users.getCoordinators(req.user, function(err, coordinators) {
-            res.render("volunteers/invite", {
-              title: "Invite Volunteer",
-              volunteersActive: true,
-              errors: errors,
-              coordinators: coordinators,
-              defaultFoodCollectorRole: defaultFoodCollectorRole
-            });
-          });
-        }
-      );
-    });
+
+    	try {
+		const defaultFoodCollectorRoleId = await Settings.getById("defaultFoodCollectorRole");
+		const defaultFoodCollectorRole = { role_id: defaultFoodCollectorRoleId.data.role_id, title: "Default Food Collector Role"}; //await VolunteerRoles.getRoleById(defaultFoodCollectorRoleId.data.role_id);
+		const coordinators = {"123": {"id": "123", "first_name": "fn", "last_name": "ln"}};//await Users.getCoordinators(req.user);
+
+
+		res.render("volunteers/invite", {
+		      title: "Invite Volunteer",
+		      volunteersActive: true,
+		      errors: errors,
+		      coordinators: coordinators,
+		      defaultFoodCollectorRole: defaultFoodCollectorRole
+		});
+	} catch(error) {
+		console.log(error);
+		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+	}
+
   }
 );
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "invite"),
-  function(req, res) {
-    var first_name = req.body.first_name;
-    var last_name = req.body.last_name;
-    var email = req.body.email;
-    var roles = [];
-    var organisations = req.body.organisations;
-    var assignedCoordinators = [req.user.id];
 
-    if (first_name && last_name) {
-      if (email) {
-        if (validator.validate(email)) {
-          Settings.getById("defaultFoodCollectorRole", function(
-            err,
-            defaultFoodCollectorRoleId
-          ) {
-            roles.push(defaultFoodCollectorRoleId.data.role_id);
-            FoodCollectionsOrganisations.getAll(function(
-              err,
-              allOrganisations
-            ) {
-              if (Array.isArray(organisations)) {
-                if (
-                  !Helpers.allBelongTo(
-                    organisations,
-                    Object.keys(allOrganisations)
-                  )
-                ) {
-                  organisations = [];
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "invite"), async (req, res) => {
+	const first_name = req.body.first_name;
+    	const last_name = req.body.last_name;
+    	const email = req.body.email;
+    	let roles = [];
+    	let organisations = req.body.organisations;
+    	let assignedCoordinators = [req.user.id];
+
+	try {
+		if(!first_name) {
+			throw "Please enter first name";
+		}
+
+		if(!last_name) {
+			throw "Please enter last name";
+		}
+
+		if(!validator.validate(email)) {
+			throw "Please enter a valid email"
+		}
+
+		const defaultFoodCollectorRoleId = await Settings.getById("defaultFoodCollectorRole");
+		roles.push(defaultFoodCollectorRoleId.data.role_id);
+
+		// Sanitize submitted food collection organosations
+            	const allFoodCollectionOrganisations = await FoodCollectionsOrganisations.getAll();
+              	if (Array.isArray(organisations)) {
+			if (!Helpers.allBelongTo(organisations, Object.keys(allOrganisations))) {
+			  organisations = [];
+			}
+              	} else {
+                	organisations = [];
+              	}
+
+		// Sanitize submitted co-ordinators
+
+		// Sanitize submitted roles
+
+		// Check if member/volunteer profile already exists
+              	const member = await Members.getByEmail(email);
+
+        	if (member && !member.volunteer_id) {
+			/*
+			* If member & volunteer profile already exists:
+			* 	* Assign default food collection role to existing volunteer profile
+			*	* Assign current user as co-ordinator
+			*	* Create unique food collection link, email link to volunteer
+			*/
+
+			let volunteer = await Volunteers.getVolunteerById(member.volunteer_id, { permissions: { volunteers: { roles: true, assignedCoordinators: true}, members: { name: true, contactDetails: true } } });
+			if (!volunteer.roles.includes(defaultFoodCollectorRoleId.data.role_id)) {
+				volunteer.roles.push(defaultFoodCollectorRoleId.data.role_id);
+			}
+
+			if (!volunteer.assignedCoordinators.includes(req.user.id)) {
+				volunteer.assignedCoordinators.push(req.user.id);
+			}
+
+			await Volunteers.updateRoles(volunteer.member_id, volunteer.roles);
+			await Volunteers.updateAssignedCoordinators(volunteer.member_id, volunteer.assignedCoordinators)
+			const foodCollectionKey = await FoodCollectionsKeys.createKey({member_id: volunteer.member_id, organisations: organisations });
+
+			if(!foodCollectionKey) {
+				throw "Something went wrong! Please try again";
+			}
+
+			const foodCollectionLink = process.env.PUBLIC_ADDRESS + "/food-collections/log/" + foodCollectionKey;
+
+			await Mail.sendGeneral(`${volunteer.first_name} ${volunteer.last_name} <${volunteer.email}>`, "Logging Food Collections",
+						`
+						<p>Hey ${volunteer.first_name},</p>
+						<p>Please use the link below to log your food collections!</p>
+						<p><a href="${foodCollectionLink}">${foodCollectionLink}</a></p>
+						<p><small>Please note that this is an automated email.</small></p>
+						`
+					      );
+
+			req.flash("success_msg", "Volunteer already exists!<br/><ul><li>You have been assigned as their co-coordinator</li><li>The food collector role has been added to their profile</li><li>They have been emailed their unique food collection link</li></ul>");
+			res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/view/" + volunteer.member_id);
+
+		} else if (!member){
+			/*
+			* If member profile doesn't exist:
+			* 	* Create volunteer sign up invitation, email link to prospective volunteer
+			*/
+
+			let accessTokenDetails = {
+				action: "add-volunteer",
+				user_id: req.user.id
+			}
+
+			accessTokenDetails.roles = roles;
+			accessTokenDetails.assignedCoordinators = assignedCoordinators;
+			accessTokenDetails.foodCollectionOrganisations = organisations;
+
+			accessTokenDetails.email = email;
+			accessTokenDetails.first_name = first_name;
+			accessTokenDetails.last_name = last_name;
+
+			const expirationTimestamp = moment().add(7, "days").toDate();
+
+			const token = await AccessTokens.createInvite(expirationTimestamp, details);
+
+			if(!token) {
+				throw "Something went wrong! Please try again";
+			}
+
+                        const inviteLink = process.env.PUBLIC_ADDRESS + "/volunteers/invite/" + token;
+
+
+                        await Mail.sendGeneral(`${first_name} ${last_name} <${email}>`, "Volunteer Registration",
+			`<p>Hey ${first_name},</p>
+			<p>You've been invited to register as a volunteer with SHRUB by ${req.user.first_name} ${req.user.last_name}!</p>
+			<p>Please follow the link below to register. It will expire at <b>${moment(expirationTimestamp).format("L hh:mm A")}</b>.</p>
+			<p><a href="${inviteLink}">${inviteLink}</a></p>`);
+
+
+                        req.flash("success_msg", `Invite sent successfully! Expires at <b>${moment(expirationTimestamp).format("L hh:mm A")}</b>.`);
+                        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/invite?callback=true");
+
                 }
-              } else {
-                organisations = [];
-              }
-              Members.getByEmail(email, function(err, member) {
-                member = member[0] || null;
-                if (!member || (member && !member.volunteer_id)) {
-                  var details = {
-                    action: "add-volunteer",
-                    user_id: req.user.id
-                  };
 
-                  details.roles = roles;
-                  details.assignedCoordinators = assignedCoordinators;
-                  details.foodCollectionOrganisations = organisations;
+	} catch(error) {
+		console.log(error);
+		let errorMessage = "Something went wrong! Please try again";
+		if(typeof error == "string") {
+			errorMessage = error;
+		}
 
-                  details.email = email;
-                  details.first_name = first_name;
-                  details.last_name = last_name;
+		req.flash("error_msg", errorMessage);
+		res.redirect(
+			process.env.PUBLIC_ADDRESS + "/volunteers/invite?callback=true"
+		);
+	}
+  })
 
-                  var expirationTimestamp = moment()
-                    .add(7, "days")
-                    .toDate();
-
-                  AccessTokens.createInvite(
-                    expirationTimestamp,
-                    details,
-                    function(err, token) {
-                      if (err || !token) {
-                        req.flash("error_msg", "Something went wrong!");
-                        res.redirect(
-                          process.env.PUBLIC_ADDRESS +
-                            "/volunteers/invite?callback=true"
-                        );
-                      } else {
-                        var inviteLink =
-                          process.env.PUBLIC_ADDRESS +
-                          "/volunteers/invite/" +
-                          token;
-                        Mail.sendGeneral(
-                          first_name + " " + last_name + " <" + email + ">",
-                          "Volunteer Registration",
-                          "<p>Hey " +
-                            first_name +
-                            ",</p>" +
-                            "<p>You've been invited to register as a volunteer with SHRUB by " +
-                            req.user.first_name +
-                            " " +
-                            req.user.last_name +
-                            "!</p>" +
-                            "<p>Please follow the link below to register. It will expire at <b>" +
-                            moment(expirationTimestamp).format("L hh:mm A") +
-                            "</b>.</p>" +
-                            "<p><a href='" +
-                            inviteLink +
-                            "'>" +
-                            inviteLink +
-                            "</a>" +
-                            "</p>",
-                          function(err) {
-                            if (err) {
-                              req.flash(
-                                "error_msg",
-                                "Something went wrong sending the email! Manually send the link " +
-                                  inviteLink
-                              );
-                              res.redirect(
-                                process.env.PUBLIC_ADDRESS +
-                                  "/volunteers/invite?callback=true"
-                              );
-                            } else {
-                              req.flash(
-                                "success_msg",
-                                "Invite sent successfully! Expires at <b>" +
-                                  moment(expirationTimestamp).format(
-                                    "L hh:mm A"
-                                  ) +
-                                  "</b>."
-                              );
-                              res.redirect(
-                                process.env.PUBLIC_ADDRESS +
-                                  "/volunteers/invite?callback=true"
-                              );
-                            }
-                          }
-                        );
-                      }
-                    }
-                  );
-                } else {
-                  Volunteers.getVolunteerById(
-                    member.volunteer_id,
-                    {
-                      permissions: {
-                        volunteers: {
-                          roles: true,
-                          assignedCoordinators: true
-                        },
-                        members: {
-                          name: true,
-                          contactDetails: true
-                        }
-                      }
-                    },
-                    function(err, volunteer) {
-                      if (
-                        !volunteer.roles.includes(
-                          defaultFoodCollectorRoleId.data.role_id
-                        )
-                      ) {
-                        volunteer.roles.push(
-                          defaultFoodCollectorRoleId.data.role_id
-                        );
-                      }
-
-                      if (
-                        !volunteer.assignedCoordinators.includes(req.user.id)
-                      ) {
-                        volunteer.assignedCoordinators.push(req.user.id);
-                      }
-
-                      Volunteers.updateRoles(
-                        volunteer.member_id,
-                        volunteer.roles,
-                        function(err) {
-                          if (!err) {
-                            Volunteers.updateAssignedCoordinators(
-                              volunteer.member_id,
-                              volunteer.assignedCoordinators,
-                              function(err) {
-                                if (!err) {
-                                  FoodCollectionsKeys.createKey(
-                                    {
-                                      member_id: volunteer.member_id,
-                                      organisations: organisations
-                                    },
-                                    function(err, foodCollectionKey) {
-                                      var link =
-                                        process.env.PUBLIC_ADDRESS +
-                                        "/food-collections/log/" +
-                                        foodCollectionKey;
-                                      Mail.sendGeneral(
-                                        volunteer.first_name +
-                                          " " +
-                                          volunteer.last_name +
-                                          "<" +
-                                          volunteer.email +
-                                          ">",
-                                        "Logging Food Collections",
-                                        "<p>Hey " +
-                                          volunteer.first_name +
-                                          ",</p>" +
-                                          "<p>Please use the link below to log your food collections!</p>" +
-                                          "<a href='" +
-                                          link +
-                                          "'>" +
-                                          link +
-                                          "</a>" +
-                                          "<p><small>Please note that this is an automated email.</small></p>",
-                                        function(err) {}
-                                      );
-
-                                      req.flash(
-                                        "success_msg",
-                                        "Volunteer already exists!<br/><ul><li>You have been assigned as their co-coordinator</li><li>The food collector role has been added to their profile</li><li>They have been emailed their unique food collection link</li></ul>"
-                                      );
-                                      res.redirect(
-                                        process.env.PUBLIC_ADDRESS +
-                                          "/volunteers/view/" +
-                                          volunteer.member_id
-                                      );
-                                    }
-                                  );
-                                } else {
-                                  req.flash(
-                                    "error_msg",
-                                    "Volunteer already exists, but something went wrong adding you as their coordinator."
-                                  );
-                                  res.redirect(
-                                    process.env.PUBLIC_ADDRESS +
-                                      "/volunteers/invite"
-                                  );
-                                }
-                              }
-                            );
-                          } else {
-                            req.flash(
-                              "error_msg",
-                              "Volunteer already exists, but something went wrong adding the food collector role."
-                            );
-                            res.redirect(
-                              process.env.PUBLIC_ADDRESS + "/volunteers/invite"
-                            );
-                          }
-                        }
-                      );
-                    }
-                  );
-                }
-              });
-            });
-          });
-        } else {
-          req.flash("error_msg", "Please enter a valid email address");
-          res.redirect(
-            process.env.PUBLIC_ADDRESS + "/volunteers/invite?callback=true"
-          );
-        }
-      } else {
-        req.flash("error_msg", "Please enter an email address");
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/volunteers/invite?callback=true"
-        );
-      }
-    } else {
-      req.flash("error_msg", "Please enter a name.");
-      res.redirect(
-        process.env.PUBLIC_ADDRESS + "/volunteers/invite?callback=true"
-      );
-    }
-  }
-);
 
 router.get(
   "/:token",

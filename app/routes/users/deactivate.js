@@ -1,58 +1,56 @@
 // /users/deactivate
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Users = Models.Users;
+const Models = require(rootDir + "/app/models/sequelize");
+const Users = Models.Users;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get(
-  "/:user_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("users", "deactivate"),
-  function(req, res) {
-    Users.getById(req.params.user_id, req.user, function(err, user) {
-      if (user && !err && user.deactivated == 0) {
-        var validClasses = [];
-        if (req.user.class == "admin") {
-          validClasses = ["admin", "staff", "volunteer", "till"];
-        } else {
-          validClasses = ["till", "volunteer"];
-        }
+router.get("/:user_id", Auth.isLoggedIn, Auth.canAccessPage("users", "deactivate"), async (req, res) => {
+	try {
+		const user = await Users.getById(req.params.user_id, req.user);
 
-        if (
-          req.user.class == "admin" ||
-          (Helpers.hasOneInCommon(
-            req.user.working_groups,
-            user.working_groups
-          ) &&
-            validClasses.includes(user.class))
-        ) {
-          Users.deactivate(user.id, function(err) {
-            if (err) {
-              req.flash("error", "Something went wrong!");
-              res.redirect(
-                process.env.PUBLIC_ADDRESS + "/users/update/" + user.id
-              );
-            } else {
-              req.flash("success_msg", "User deactivated!");
-              res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
-            }
-          });
-        } else {
-          req.flash("error", "You don't have permission to do that!");
-          res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + user.id);
-        }
-      } else {
-        req.flash("error", "Something went wrong.");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
-      }
-    });
-  }
-);
+		if(!user) {
+			throw "User not found";
+		}
+
+		if(user.deactivated == 1) {
+			throw "User already deactivated";
+		}
+
+		let validClasses = [];
+		if (req.user.class == "admin") {
+		  validClasses = ["admin", "staff", "volunteer", "till"];
+		} else {
+		  validClasses = ["till", "volunteer"];
+		}
+
+		console.log("Permitted to deactivate:", user.canDeactivate);
+
+		if(!user.canDeactivate) {
+			throw "You don't have permission to deactivate this user";
+		}
+
+		if(!validClasses.includes(user.class)) {
+			throw "You can't deactivate a user of a higher class";
+		}
+
+		await Users.deactivate(user.id)
+
+		req.flash("success_msg", "User deactivated!");
+		res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
+	} catch (error) {
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+
+		req.flash("error_msg", error);
+		res.redirect(process.env.PUBLIC_ADDRESS + "/users/update/" + req.params.user_id);
+	}
+});
 
 module.exports = router;

@@ -1,29 +1,29 @@
 // Load environment variables
 require("dotenv").config();
 
-var Helpers = require(process.env.CWD + "/app/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
 // Import resources
-var express = require("express");
-var cors = require("cors");
-var app = express();
-var bodyParser = require("body-parser");
-var flash = require("connect-flash");
-var handlebars = require('handlebars')
-var expressHandlebars = require('express-handlebars');
-var handlebarsPrototypePermission = require('@handlebars/allow-prototype-access')
-var path = require("path");
-var session = require("cookie-session");
-var passport = require("passport");
-var cookieParser = require("cookie-parser");
-var back = require("express-back");
-var validator = require("express-validator");
-var async = require("async");
+const express = require("express");
+const cors = require("cors");
+const app = express();
+const bodyParser = require("body-parser");
+const flash = require("connect-flash");
+const handlebars = require('handlebars')
+const expressHandlebars = require('express-handlebars');
+const handlebarsPrototypePermission = require('@handlebars/allow-prototype-access')
+let path = require("path");
+const session = require("cookie-session");
+const passport = require("passport");
+const cookieParser = require("cookie-parser");
+const back = require("express-back");
+const validator = require("express-validator");
+const async = require("async");
 
 if (process.env.NODE_ENV != "development") {
-  process.on("uncaughtException", function(err) {
-    console.error(err);
-    console.log("Exception caught");
+  process.on("uncaughtException", (error) => {
+    console.error(error);
+    console.log("Exception caught!");
   });
 }
 
@@ -56,8 +56,8 @@ String.prototype.toProperCase = function() {
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 // Define port (if not already)
-var port = process.env.PORT || 3000;
-var path = process.env.PUBLIC_PATH || "";
+const port = process.env.PORT || 3000;
+path = process.env.PUBLIC_PATH || "";
 
 // Define public (static) directory
 app.use(path, express.static("app/public"));
@@ -89,66 +89,73 @@ console.log("Server started on local port " + port);
 console.log("Running on public address " + process.env.PUBLIC_ADDRESS);
 
 // Initiate DB stuffs
-var Models = require("./app/models/sequelize");
+const Models = require("./app/models/sequelize");
 
-var VolunteerRoles = Models.VolunteerRoles;
-var Users = Models.Users;
-var WorkingGroups = Models.WorkingGroups;
+const VolunteerRoles = Models.VolunteerRoles;
+const Users = Models.Users;
+const WorkingGroups = Models.WorkingGroups;
 
-// Global variables
-app.use(function(req, res, next) {
+// Request pre-processor
+app.use(async (req, res, next) => {
+  // Server -> client messages
   res.locals.success_msg = req.flash("success_msg");
   res.locals.error_msg = req.flash("error_msg");
   res.locals.error = req.flash("error");
+
+  // Pass base URL to client
   res.locals.public_address = process.env.PUBLIC_ADDRESS;
 
   // Refresh cookie
   Helpers.setCookie(app, session);
 
   if (req.user) {
+
+    // Hard-code admin access to modifying access permissions
     if (req.user.class == "admin") {
       req.user.permissions.settings.dataPermissions = true;
     }
-    res.locals.user = req.user;
+
+    res.locals.user = req.user; // Pass user object to client
+
     if (req.user.deactivated == 0) {
       req.user[req.user.class] = 1;
       req.user.name = req.user.first_name + " " + req.user.last_name;
 
-      req.user.notification_preferences =
-        req.user.notification_preferences || {};
+      req.user.notification_preferences = req.user.notification_preferences || {};
 
-      VolunteerRoles.getAll(function(err, rolesArray, rolesByGroup, rolesObj) {
-        req.user.allVolunteerRoles = rolesObj;
-        WorkingGroups.getAll(function(
-          err,
-          allWorkingGroupsObj,
-          allWorkingGroupsArray,
-          allWorkingGroupsFlat
-        ) {
-          req.user.allWorkingGroups,
-            (req.user.allWorkingGroupsObj = allWorkingGroupsObj);
-          req.user.all_working_groups_arr,
-            (req.user.working_groups_arr = allWorkingGroupsArray);
+      // Pass all volunteer roles to client
+      const { rolesArray, rolesByGroup, rolesObj } = await VolunteerRoles.getAll();
+      req.user.allVolunteerRoles = rolesObj;
 
-          req.user.allWorkingGroupsFlat = allWorkingGroupsFlat;
-          next();
-        });
-      });
+      // Pass working groups (in various forms) to client
+      const { allWorkingGroupsObj, allWorkingGroupsArray, allWorkingGroupsFlat } = await WorkingGroups.getAll();
+      req.user.allWorkingGroups = allWorkingGroupsObj;
+      req.user.allWorkingGroupsObj = allWorkingGroupsObj;
+      req.user.all_working_groups_arr = allWorkingGroupsArray;
+      req.user.working_groups_arr = allWorkingGroupsArray;
+      req.user.allWorkingGroupsFlat = allWorkingGroupsFlat;
+
+      next();
     } else {
+      // If user has been deactivated, chuck them out.
       res.locals.user = null;
       req.logout();
       req.session = null;
+
       next();
     }
   } else {
+    // No user logged in -
     res.locals.user = null;
+
     next();
   }
 });
 
-var automatedMails = require("./app/automated-scripts/emails");
-var automatedReports = require("./app/automated-scripts/reports");
-var cleanFailedTransactions = require("./app/automated-scripts/clean-failed-transactions");
+// Automated processes
+const automatedMails = require("./app/automated-scripts/emails");
+const automatedReports = require("./app/automated-scripts/reports");
+const cleanFailedTransactions = require("./app/automated-scripts/clean-failed-transactions");
 if (process.env.NODE_ENV == "production") {
   automatedMails.start();
   automatedReports.start();

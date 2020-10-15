@@ -1,15 +1,8 @@
-var async = require("async");
+module.exports = async (array, id) => {
+  	let flatArray = [];
+	for await(const obj of array) {
+		flatArray.push(obj[id]);
+	}
 
-module.exports = function(array, id, callback) {
-  var flatArray = [];
-  async.each(
-    array,
-    function(obj, callback) {
-      flatArray.push(obj[id]);
-      callback();
-    },
-    function() {
-      callback(flatArray);
-    }
-  );
-};
+	return flatArray;
+}
