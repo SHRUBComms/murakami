@@ -1,9 +1,8 @@
-module.exports = function(VolunteerCheckIns, sequelize, DataTypes) {
-  return function(checkin, callback) {
+module.exports = () => {
+  return async (checkin) => {
     if (!checkin.questionnaire) {
       checkin.questionnaire = {};
     }
-
-    callback(checkin);
+    return checkin;
   };
 };

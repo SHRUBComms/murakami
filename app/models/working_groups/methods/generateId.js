@@ -1,21 +1,18 @@
-module.exports = function(WorkingGroups, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-  var GetId = function(parent, callback) {
+module.exports = (WorkingGroups, sequelize, DataTypes) => {
+  const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  const GetId = async (parent) => {
+    let id;
     if (parent) {
       id = parent + "-" + Helpers.generateIntId(3);
     } else {
       id = "WG-" + Helpers.generateIntId(3);
     }
-    WorkingGroups.findAll({ where: { group_id: id } }).nodeify(function(
-      err,
-      result
-    ) {
-      if (result.length > 0) {
-        GetId(callback);
-      } else if (result.length == 0) {
-        callback(id);
-      }
-    });
+    const result = await WorkingGroups.findAll({ where: { group_id: id } });
+    if (result.length > 0) {
+      GetId(parent);
+    } else if (result.length == 0) {
+      return id;
+    }
   };
   return GetId;
 };

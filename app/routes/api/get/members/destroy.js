@@ -1,47 +1,37 @@
 // /api/get/members/destroy
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Members = Models.Members;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "delete"), async (req, res) => {
+	try {
+		const member = await Members.getById(req.params.member_id, req.user);
+      		if (!member) {
+			throw "Member not found";
+		}
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("members", "delete"),
-  function(req, res) {
-    var member_id = req.params.member_id;
-    Members.getById(member_id, req.user, function(err, member) {
-      if (!err && member) {
-        if (member.canDelete) {
-          Members.redact(member_id, function(err) {
-            if (err) {
-              req.flash("error_msg", "Something went wrong!");
-              res.redirect(
-                process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
-              );
-            } else {
-              req.flash("success_msg", "Member destroyed!");
-              res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-            }
-          });
-        } else {
-          req.flash("error_msg", "You don't have permission!");
-          res.redirect(
-            process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
-          );
-        }
-      } else {
-        req.flash("error_msg", "Something went wrong!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
-      }
-    });
-  }
-);
+		if (!member.canDelete) {
+			throw "You don't have permission to delete this member";
+		}
+
+          	await Members.redact(req.params.member_id);
+
+              	req.flash("success_msg", "Member destroyed!");
+              	res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
+        } catch (error) {
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+
+              	req.flash("error_msg", "Something went wrong!");
+              	res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+	}
+});
 
 module.exports = router;

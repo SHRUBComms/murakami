@@ -1,31 +1,28 @@
 // /volunteers/roles/manage
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const VolunteerRoles = Models.VolunteerRoles;
 
-var VolunteerRoles = Models.VolunteerRoles;
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
-
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteerRoles", "view"),
-  function(req, res) {
-    VolunteerRoles.getAll(function(err, roles, rolesGroupedByGroup) {
-      res.render("volunteers/roles/manage", {
-        title: "Manage Volunteer Roles",
-        volunteerRolesActive: true,
-        rolesGroupedByGroupId: rolesGroupedByGroup,
-        roles: roles,
-        group_id: req.query.group_id || req.user.working_groups[0]
-      });
-    });
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("volunteerRoles", "view"), async (req, res) => {
+	try {
+		const { rolesArray, rolesByGroup } = await VolunteerRoles.getAll();
+		res.render("volunteers/roles/manage", {
+			title: "Manage Volunteer Roles",
+			volunteerRolesActive: true,
+			rolesGroupedByGroupId: rolesByGroup,
+			roles: rolesArray,
+			group_id: req.query.group_id || req.user.working_groups[0]
+		});
+	} catch (error) {
+		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+	}
+});
 
 module.exports = router;

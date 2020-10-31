@@ -1,33 +1,13 @@
-var async = require("async");
+module.exports = (FoodCollections, sequelize, DataTypes) => {
+	return async (organisation_id, organisations, membersObj) => {
+		const collections = await FoodCollections.findAll({ where: { destination_organisations: { [DataTypes.contains]: organisation_id }, approved: 1 }, order: [["timestamp", "DESC"]] });
 
-module.exports = function(FoodCollections, sequelize, DataTypes) {
-  return function(organisation_id, organisations, membersObj, callback) {
-    FoodCollections.findAll({
-      where: { destination_organisation_id: organisation_id, approved: 1 },
-      order: [["timestamp", "DESC"]]
-    }).nodeify(function(err, collections) {
-      if (collections) {
-        var sanitizedCollections = [];
-        async.each(
-          collections,
-          function(collection, callback) {
-            FoodCollections.sanitizeCollection(
-              collection,
-              organisations,
-              membersObj,
-              function(sanitizedCollection) {
-                sanitizedCollections.push(sanitizedCollection);
-                callback();
-              }
-            );
-          },
-          function() {
-            callback(err, sanitizedCollections);
-          }
-        );
-      } else {
-        callback(err, null);
-      }
-    });
-  };
-};
+		let sanitizedCollections = [];
+		for await (const collection of collections) {
+			const sanitizedCollection = await FoodCollections.sanitizeCollection(collection, organisations, membersObj);
+                	sanitizedCollections.push(sanitizedCollection);
+              	}
+
+		return sanitizedCollections;
+	}
+}

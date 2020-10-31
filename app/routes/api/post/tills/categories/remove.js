@@ -1,77 +1,58 @@
 // /api/post/tills/categories/remove
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var StockCategories = Models.StockCategories;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const StockCategories = Models.StockCategories;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "updateCategories"),
-  function(req, res) {
-    var response = { status: "fail", msg: "something went wrong!" };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"), async (req, res) => {
+  try {
+    const till_id = req.body.till_id;
+    const item_id = req.body.item_id;
 
-    var till_id = req.body.till_id;
-    var item_id = req.body.item_id;
-
-    if (till_id) {
-      Tills.getById(till_id, function(err, till) {
-        if (till) {
-          if (till.disabled == 0) {
-            if (
-              req.user.permissions.tills.updateCategories == true ||
-              (req.user.permissions.tills.updateCategories ==
-                "commonWorkingGroup" &&
-                req.user.working_groups.includes(till.group_id))
-            ) {
-              if (item_id) {
-                StockCategories.getCategoriesByTillId(till_id, "kv", function(
-                  err,
-                  categories
-                ) {
-                  if (categories[item_id]) {
-                    StockCategories.removeCategory(item_id, function(err) {
-                      if (err) {
-                        res.send(response);
-                      } else {
-                        response.status = "ok";
-                        response.msg = "Category removed!";
-                        res.send(response);
-                      }
-                    });
-                  } else {
-                    response.msg = "Select a valid category!";
-                    res.send(response);
-                  }
-                });
-              } else {
-                response.msg = "Please select a category!";
-                res.send(response);
-              }
-            } else {
-              response.msg = "You don't have permission to do that!";
-              res.send(response);
-            }
-          } else {
-            response.msg = "Till is disabled!";
-            res.send(response);
-          }
-        } else {
-          response.msg = "Select a valid till!";
-          res.send(response);
-        }
-      });
-    } else {
-      response.msg = "Please enter a category!";
-      res.send(response);
+    if (!till_id) {
+      throw "No till specified"
     }
+
+    const till = await Tills.getById(till_id);
+    
+    if (!till) {
+      throw "Till not found";
+    }
+    
+    if (till.disabled == 1) {
+      throw "Till is disabled!";
+    }
+    
+    if (!(req.user.permissions.tills.updateCategories == true || (req.user.permissions.tills.updateCategories == "commonWorkingGroup" && req.user.working_groups.includes(till.group_id)))) {
+      throw "You don't have permission to update categories on this till";
+    }
+    
+    if (!item_id) {
+      throw "No item specified";
+    }
+    
+    const categories = await StockCategories.getCategoriesByTillId(till_id, "kv");
+    
+    if (!categories[item_id]) {
+      throw "Category not found";
+    }
+    
+    await StockCategories.removeCategory(item_id);
+
+    res.send({ status: "ok", msg: "Category removed!"});
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    res.send({ status: "fail", msg: error });
   }
-);
+});
 
 module.exports = router;

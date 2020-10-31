@@ -1,19 +1,7 @@
-var async = require("async");
-
-module.exports = function(Tills, sequelize, DataTypes) {
-  return function(callback) {
-    Tills.findAll({}).nodeify(function(err, tills) {
-      var tillsObj = {};
-      async.each(
-        tills,
-        function(till, callback) {
-          tillsObj[till.till_id] = till;
-          callback();
-        },
-        function() {
-          callback(err, tills, tillsObj);
-        }
-      );
-    });
-  };
-};
+module.exports = (Tills, sequelize, DataTypes) => {
+  return async () => {
+    const tills = await Tills.findAll({});
+		const tillsObj = tills.reduce((obj, item) => Object.assign(obj, { [item.till_id]: item }), {});
+		return { tills, tillsObj };
+	}
+}

@@ -1,25 +1,21 @@
 // /volunteers/check-in
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Users = Models.Users;
+const Members = Models.Members;
+const Volunteers = Models.Volunteers;
+const VolunteerCheckIns = Models.VolunteerCheckIns;
+const Settings = Models.Settings;
 
-var Users = Models.Users;
-var Members = Models.Members;
-var Volunteers = Models.Volunteers;
-var VolunteerCheckIns = Models.VolunteerCheckIns;
-var VolunteerRoles = Models.VolunteerRoles;
-var Settings = Models.Settings;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+let expectedQuestionnaire;
 
-var expectedQuestionnaire;
-
-Settings.getById("activities", function(err, skills) {
+Settings.findOne({ where: { id: "activities" } }).nodeify((err, skills) => {
   expectedQuestionnaire = {
     W7cnfJVW: {
       question_id: "W7cnfJVW",
@@ -60,171 +56,113 @@ Settings.getById("activities", function(err, skills) {
   };
 });
 
-router.get("/", function(req, res) {
+router.get("/", (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
 });
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "conductCheckIn"),
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member) {
-        req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-      } else {
-        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
-          err,
-          volInfo
-        ) {
-          if (volInfo) {
-            if (volInfo.conductCheckIn) {
-              VolunteerCheckIns.getById(volInfo.checkin_id, function(
-                err,
-                checkin
-              ) {
-                Users.getAll(req.user, function(err, users, usersObj) {
-                  res.render("volunteers/check-in", {
-                    title: "Volunteer Check-in",
-                    volunteersActive: true,
-                    allUsers: usersObj,
-                    member: member,
-                    volInfo: volInfo,
-                    lastCheckIn: checkin,
-                    questionnaire: expectedQuestionnaire
-                  });
-                });
-              });
-            } else {
-              req.flash(
-                "error_msg",
-                "You don't have permission to conduct a check-in this volunteer!"
-              );
-              res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-            }
-          } else {
-            req.flash("error_msg", "Member is not a volunteer!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/members/make-volunteer/" +
-                member.member_id
-            );
-          }
-        });
-      }
-    });
-  }
-);
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "conductCheckIn"), async (req, res) => {
+  try {
+    const member = await Members.getById(req.params.member_id, req.user);
+    if (!member) {
+      throw "Member not found";
+    }
+    
+    const volunteer = await Volunteers.getVolunteerById(req.params.member_id, req.user);
 
-router.post(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "conductCheckIn"),
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member) {
-        req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-      } else {
-        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
-          err,
-          volInfo
-        ) {
-          if (volInfo) {
-            if (volInfo.conductCheckIn) {
-              var questionnaire = req.body.questionnaire;
-              var questionnaireValid = true;
-              async.eachOf(
-                expectedQuestionnaire,
-                function(question, question_id, callback) {
-                  if (!questionnaire[question_id]) {
-                    questionnaireValid = false;
-                  } else {
-                    if (question.type == "multi-select") {
-                      if (!Array.isArray(questionnaire[question_id])) {
-                        try {
-                          questionnaire[question_id] = [
-                            questionnaire[question_id]
-                          ];
-                        } catch (err) {
-                          questionnaireValid = false;
-                        }
-                      }
-                    } else if (question.type == "plaintext") {
-                      try {
-                        questionnaire[question_id] = String(
-                          questionnaire[question_id]
-                        );
-                      } catch (err) {
-                        questionnaireValid = false;
-                      }
-                    }
-                  }
-                  callback();
-                },
-                function() {
-                  if (questionnaireValid) {
-                    VolunteerCheckIns.add(
-                      req.params.member_id,
-                      req.user.id,
-                      questionnaire,
-                      function(err) {
-                        if (!err) {
-                          req.flash(
-                            "success_msg",
-                            "Questionnaire complete! Please update this volunteer's details to finish check-in"
-                          );
-                          res.redirect(
-                            process.env.PUBLIC_ADDRESS +
-                              "/volunteers/update/" +
-                              req.params.member_id
-                          );
-                        } else {
-                          req.flash(
-                            "error_msg",
-                            "Something went wrong! Try again"
-                          );
-                          res.redirect(
-                            process.env.PUBLIC_ADDRESS +
-                              "/volunteers/check-in/" +
-                              req.params.member_id
-                          );
-                        }
-                      }
-                    );
-                  } else {
-                    req.flash(
-                      "error_msg",
-                      "Please complete the questionnaire!"
-                    );
-                    res.redirect(
-                      process.env.PUBLIC_ADDRESS +
-                        "/volunteers/check-in/" +
-                        req.params.member_id
-                    );
-                  }
-                }
-              );
-            } else {
-              req.flash(
-                "error_msg",
-                "You don't have permission to conduct a check-in this volunteer!"
-              );
-              res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-            }
-          } else {
-            req.flash("error_msg", "Member is not a volunteer!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/members/make-volunteer/" +
-                member.member_id
-            );
-          }
-        });
-      }
+    if(!volunteer) {
+      throw "Member is not a volunteer";
+    }
+
+    if (!volunteer.conductCheckIn) {
+      throw "You don't have permission to conduct a check-in with this volunteer";
+    }
+
+    const checkin = await VolunteerCheckIns.getById(volunteer.checkin_id);
+    const { usersObj } = await Users.getAll(req.user);
+    
+    res.render("volunteers/check-in", {
+      title: "Volunteer Check-in",
+      volunteersActive: true,
+      allUsers: usersObj,
+      member: member,
+      volInfo: volunteer,
+      lastCheckIn: checkin,
+      questionnaire: expectedQuestionnaire
     });
+  } catch (error) {
+    console.log(error);
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+    req.flash("error_msg", error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
   }
-);
+});
+
+router.post("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "conductCheckIn"), async (req, res) => {
+  try {
+    const member = await Members.getById(req.params.member_id, req.user);
+    if (!member) {
+      throw "Member not found";
+    }
+    
+    const volunteer = await Volunteers.getVolunteerById(req.params.member_id, req.user);
+
+    if(!volunteer) {
+      throw "Member is not a volunteer";
+    }
+
+    if (!volunteer.conductCheckIn) {
+      throw "You don't have permission to conduct a check-in with this volunteer";
+    }
+    
+    const questionnaire = req.body.questionnaire;
+    let questionnaireValid = true;
+
+    for await (const questionId of Object.keys(expectedQuestionnaire)) {
+      if(!questionnaire[questionId]) {
+        questionnaireValid = false;
+        break;
+      }
+
+      const question = expectedQuestionnaire[questionId];
+
+      if (question.type == "multi-select") {
+        if (!Array.isArray(questionnaire[questionId])) {
+          try {
+            questionnaire[questionId] = [questionnaire[questionId]];
+          } catch (error) {
+            questionnaireValid = false;
+            break;
+          }
+        } else if (question.type == "plaintext") {
+          try {
+            questionnaire[questionId] = String(questionnaire[questionId]);
+          } catch (error) {
+            questionnaireValid = false;
+            break;
+          }
+        }
+      }
+    }
+
+    if(!questionnaireValid) {
+      throw "Please complete the questionnaire";
+    }
+
+    if(Object.keys(questionnaire).length !== Object.keys(expectedQuestionnaire).length) {
+      throw "Please complete the questionnaire";
+    }
+
+    await VolunteerCheckIns.add(req.params.member_id, req.user.id, questionnaire);
+
+    req.flash("success_msg", "Questionnaire complete! Please update this volunteer's details to finish check-in");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/update/" + req.params.member_id);
+
+  } catch (error) {
+    req.flash("error_msg", "Please complete the questionnaire!");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/check-in/" + req.params.member_id);
+  }
+});
 
 module.exports = router;

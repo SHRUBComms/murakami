@@ -1,22 +1,14 @@
-var async = require("async");
+module.exports = (FoodCollectionsOrganisations, sequelize, DataTypes) => {
+	return async () => {
+		try {
+			const defaultOrganisations = await FoodCollectionsOrganisations.findAll({
+				where: { default: 1 },
+				raw: true
+			});
 
-module.exports = function(FoodCollectionsOrganisations, sequelize, DataTypes) {
-  return function(callback) {
-    FoodCollectionsOrganisations.findAll({
-      where: { default: 1 },
-      raw: true
-    }).nodeify(function(err, organisations) {
-      var organisationsObj = {};
-      async.each(
-        organisations,
-        function(organisation, callback) {
-          organisationsObj[organisation.organisation_id] = organisation;
-          callback();
-        },
-        function() {
-          callback(err, organisationsObj);
-        }
-      );
-    });
-  };
-};
+    			return defaultOrganisations.reduce((obj, item) => Object.assign(obj, { [item.organisation_id]: item }), {});
+		} catch (error) {
+			throw error;
+		}
+	}
+}

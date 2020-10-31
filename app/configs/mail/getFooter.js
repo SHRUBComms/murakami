@@ -9,7 +9,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const MailTemplates = Models.MailTemplates;
 
 module.exports = async (member_id) => {
-	const footer = await MailTemplates.getFooters();
+	const footers = await MailTemplates.getFooters();
     	let footerTemplate;
     	if (member_id) {
       		footerTemplate = footers.members.markup;
@@ -31,5 +31,5 @@ module.exports = async (member_id) => {
       		footerTemplate = "";
     	}
 
-    	return footerTemplate();
+    	return footerTemplate;
 }

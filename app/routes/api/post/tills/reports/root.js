@@ -1,6 +1,6 @@
 // /api/post/tills/reports
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/quick-summary", require("./quick-summary"));
 router.use("/transactions", require("./transactions"));

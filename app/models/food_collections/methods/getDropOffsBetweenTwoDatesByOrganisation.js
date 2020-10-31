@@ -1,53 +1,26 @@
-var async = require("async");
+module.exports = (FoodCollections, sequelize, DataTypes) => {
+	return async(organisation_id, organisations, membersObj, startDate, endDate) => {
+		try {
+			const query = {
+				where: {
+					approved: 1,
+					timestamp: { [DataTypes.Op.between]: [startDate, endDate] }
+				},
+				order: [["timestamp", "DESC"]]
+			};
 
-module.exports = function(FoodCollections, sequelize, DataTypes) {
-  return function(
-    organisation_id,
-    organisations,
-    membersObj,
-    startDate,
-    endDate,
-    callback
-  ) {
-    var query = {
-      where: {
-        approved: 1,
-        timestamp: {
-          [DataTypes.Op.between]: [startDate, endDate]
-        }
-      },
-      order: [["timestamp", "DESC"]]
-    };
+			const collections = await FoodCollections.findAll(query);
+			let sanitizedCollections = [];
+			for await (const collection of collections) {
+				if (collection.destination_organisations.includes(organisation_id) || !organisation_id) {
+				    	const sanitizedCollection = await FoodCollections.sanitizeCollection(collection, organisations, membersObj);
+				    	sanitizedCollections.push(sanitizedCollection)
+			    	}
+			}
 
-    FoodCollections.findAll(query).nodeify(function(err, collections) {
-      if (collections || !err) {
-        var sanitizedCollections = [];
-        async.each(
-          collections,
-          function(collection, callback) {
-            if (
-              collection.destination_organisations.includes(organisation_id)
-            ) {
-              FoodCollections.sanitizeCollection(
-                collection,
-                organisations,
-                membersObj,
-                function(sanitizedCollection) {
-                  sanitizedCollections.push(sanitizedCollection);
-                  callback();
-                }
-              );
-            } else {
-              callback();
-            }
-          },
-          function() {
-            callback(err, sanitizedCollections);
-          }
-        );
-      } else {
-        callback(err, []);
-      }
-    });
-  };
-};
+			return sanitizedCollections;
+		} catch (error) {
+			throw error;
+		}
+	}
+}

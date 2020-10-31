@@ -1,604 +1,207 @@
 // volunteers/update
 
-var router = require("express").Router();
-var async = require("async");
-var Mailchimp = require("mailchimp-api-v3");
-var md5 = require("md5");
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const Users = Models.Users;
+const Volunteers = Models.Volunteers;
 
-var Members = Models.Members;
-var Users = Models.Users;
-var Volunteers = Models.Volunteers;
+const Auth = require(rootDir + "/app/configs/auth");
+const validateMember = require(rootDir + "/app/controllers/members/validateMember");
+const validateVolunteer = require(rootDir + "/app/controllers/volunteers/validateVolunteer");
+const MailchimpAPI = require(rootDir + "/app/controllers/mailchimp");
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "update"), async (req, res) => {
+  try {
+    const { coordinators } = await Users.getCoordinators(req.user);
+    const { skills, contactMethods, rolesByGroup, volunteerAgreement, ourVision, saferSpacesPolicy, membershipBenefits, privacyNotice } = await Volunteers.getSignUpInfo();
+    const member = await Members.getById(req.params.member_id, req.user);
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "update"),
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member) {
-        req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-      } else {
-        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
-          err,
-          volInfo
-        ) {
-          if (volInfo) {
-            if (volInfo.canUpdate) {
-              Users.getCoordinators(req.user, function(err, coordinators) {
-                Volunteers.getSignUpInfo(function(
-                  skills,
-                  contactMethods,
-                  roles,
-                  rolesGroupedByGroup,
-                  rolesGroupedById,
-                  volunteerAgreement,
-                  ourVision,
-                  saferSpacesPolicy,
-                  membershipBenefits,
-                  privacyNotice
-                ) {
-                  res.render("volunteers/update", {
-                    title: "Update Volunteer",
-                    volunteersActive: true,
-                    member: member,
-                    first_name: member.first_name,
-                    last_name: member.last_name,
-                    email: member.email,
-                    phone_no: member.phone_no,
-                    address: member.address,
-                    volInfo: volInfo,
-                    roleChanged: false,
-                    coordinators: coordinators,
-                    roles: rolesGroupedByGroup,
-                    skills: skills,
-                    contactMethods: contactMethods,
-                    privacyNotice: privacyNotice
-                  });
-                });
-              });
-            } else {
-              req.flash(
-                "error_msg",
-                "You don't have permission to update this volunteer!"
-              );
-              res.redirect(
-                process.env.PUBLIC_ADDRESS +
-                  "/volunteers/view/" +
-                  member.member_id
-              );
-            }
-          }
-        });
+    if(!member) {
+      throw "Member not found";
+    }
+
+    const volunteer = await Volunteers.getVolunteerById(req.params.member_id, req.user);
+
+    if(!volunteer) {
+      throw "Member is not a volunteer";
+    }
+
+    if(!volunteer.canUpdate) {
+      throw "You don't have permission to update this volunteer";
+    }
+
+    res.render("volunteers/update", {
+      title: "Update Volunteer",
+      volunteerActive: true,
+
+      member: member,
+      volInfo: volunteer,
+      
+      coordinators: coordinators,
+      roles: rolesByGroup,
+      
+      first_name: member.first_name,
+      last_name: member.last_name,
+      email: member.email,
+      phone_no: member.phone_no,
+      address: member.address,
+
+      staticContent: {
+        volunteerAgreement: volunteerAgreement,
+        ourVision: ourVision,
+        saferSpacesPolicy: saferSpacesPolicy,
+        membershipBenefitsInfo: membershipBenefits,
+        skills: skills,
+        contactMethods: contactMethods,
+        privacyNotice: privacyNotice
+      }
+    });
+
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    req.flash("error_msg", error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/view/" + req.params.member_id);
+  }
+}); 
+
+router.post("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "add"), async (req, res) => {
+  const { coordinators, coordinatorsObj } = await Users.getCoordinators(req.user);
+  const { skills, contactMethods, rolesByGroup, rolesObj, volunteerAgreement, ourVision, saferSpacesPolicy, membershipBenefits, privacyNotice } = await Volunteers.getSignUpInfo();
+  let volunteer = req.body.volInfo; 
+
+  if(!Array.isArray(volunteer.roles)) {
+    volunteer.roles = [volunteer.roles]
+  }
+
+  if(!Array.isArray(volunteer.assignedCoordinators)) {
+    volunteer.assignedCoordinators = [volunteer.assignedCoordinators]
+  }
+
+  if(volunteer.survey.skills) {
+    if (!Array.isArray(volunteer.survey.skills)) {
+      volunteer.survey.skills = [volunteer.survey.skills];
+    }
+  }
+
+  if (volunteer.survey.preferredCommMethods) {
+    if (!Array.isArray(volunteer.survey.preferredCommMethods)) {
+      volunteer.survey.preferredCommMethods = [volunteer.survey.preferredCommMethods];
+    }
+  }
+
+  try {
+
+    const member = await Members.getById(req.params.member_id, req.user);
+
+    if(!member) {
+      throw "Member not found";
+    }
+
+    const volunteerExists = await Volunteers.getVolunteerById(req.params.member_id, req.user);
+
+    if(!volunteerExists) {
+      throw "Member is not a volunteer";
+    }
+
+    if(!volunteerExists.canUpdate) {
+      throw "You don't have permission to update this volunteer";
+    }
+
+    await validateMember(req.user, req.body);
+
+    const sanitizedMember = {
+      member_id: req.params.member_id,
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      email: req.body.email,
+      phone_no: req.body.phone_no,
+      address: req.body.address,
+    };
+
+    volunteer.gdpr = volunteer.gdpr || {};
+    volunteer.availability = volunteer.availability || {};
+    volunteer.survey = volunteer.survey || {};
+    console.log(volunteer); 
+    await validateVolunteer(req.user, volunteer, { skills, rolesObj, coordinatorsObj, contactMethods });
+
+    const sanitizedVolunteer = {
+      emergencyContactRelation: volunteer.emergencyContactRelation,
+      emergencyContactName: volunteer.emergencyContactName,
+      emergencyContactPhoneNo: volunteer.emergencyContactPhoneNo,
+      roles: volunteer.roles,
+      assignedCoordinators: volunteer.assignedCoordinators,
+      availability: volunteer.availability,
+      survey: volunteer.survey,
+      gdpr: volunteer.gdpr
+    };
+
+
+    await Members.updateBasic(sanitizedMember);
+    await Volunteers.updateVolunteer(req.params.member_id, sanitizedVolunteer);
+
+
+    if (moment(member.current_exp_membership, "L").isBefore(moment().add(3, "months"))) {
+      await Members.renew(member.member_id, "3_months");
+      await Members.updateFreeStatus(member.member_id, 1);
+    }
+
+    if (req.body.generalNewsletterConsent == "on") {
+        await MailchimpAPI.subscribeToNewsletter(process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID, process.env.SHRUB_MAILCHIMP_SECRET_API_KEY, sanitizedMember);
+    }
+
+    req.flash("success_msg", "Volunteer successfully updated!");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/view/" + req.params.member_id);
+  } catch (error) {
+
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    } 
+
+    res.render("volunteers/update", {
+      errors: [{ msg: error }],
+      title: "Update Volunteer",
+      volunteerActive: true,
+      
+      member: { member_id: req.params.member_id },
+      volInfo: volunteer,
+      
+      coordinators: coordinators,
+      roles: rolesByGroup,
+      
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      email: req.body.email,
+      phone_no: req.body.phone_no,
+      address: req.body.address,
+      dob: req.body.dob,
+
+      contactConsent: req.body.contactConsent,
+      medicalDisclosed: req.body.medicalDisclosed,
+      volunteerAgreementAgreed: req.body.volunteerAgreementAgreed,
+      shrubExplained: req.body.shrubExplained,
+      safeSpace: req.body.safeSpace,
+      membershipBenefits: req.body.membershipBenefits,
+      gdprConsent: req.body.gdprConsent,
+
+      staticContent: {
+        volunteerAgreement: volunteerAgreement,
+        ourVision: ourVision,
+        saferSpacesPolicy: saferSpacesPolicy,
+        membershipBenefitsInfo: membershipBenefits,
+        skills: skills,
+        contactMethods: contactMethods,
+        privacyNotice: privacyNotice
       }
     });
   }
-);
-
-router.post(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "update"),
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member) {
-        req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-      } else {
-        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
-          err,
-          oldVolInfo
-        ) {
-          if (oldVolInfo) {
-            if (oldVolInfo.canUpdate) {
-              Users.getCoordinators(req.user, function(
-                err,
-                coordinators,
-                coordinatorsObj,
-                coordinatorsFlat
-              ) {
-                Volunteers.getSignUpInfo(function(
-                  skills,
-                  contactMethods,
-                  roles,
-                  rolesGroupedByGroup,
-                  rolesGroupedById,
-                  volunteerAgreement,
-                  ourVision,
-                  saferSpacesPolicy,
-                  membershipBenefits,
-                  privacyNotice
-                ) {
-                  // Membership validation
-                  var first_name = req.body.first_name.trim();
-                  var last_name = req.body.last_name.trim();
-                  var email = req.body.email.trim();
-                  var phone_no = req.body.phone_no.trim();
-                  var address = req.body.address.trim();
-
-                  var gdprConsent = req.body.gdprConsent;
-
-                  var generalNewsletterConsent =
-                    req.body.generalNewsletterConsent;
-
-                  // Validation
-                  req
-                    .checkBody("first_name", "Please enter a date of birth")
-                    .notEmpty();
-
-                  req
-                    .checkBody("first_name", "Please enter a first name")
-                    .notEmpty();
-                  req
-                    .checkBody(
-                      "first_name",
-                      "Please enter a shorter first name (<= 20 characters)"
-                    )
-                    .isLength({ max: 20 });
-
-                  req
-                    .checkBody("last_name", "Please enter a last name")
-                    .notEmpty();
-                  req
-                    .checkBody(
-                      "last_name",
-                      "Please enter a shorter last name (<= 30 characters)"
-                    )
-                    .isLength({ max: 30 });
-
-                  req
-                    .checkBody("email", "Please enter an email address")
-                    .notEmpty();
-                  req
-                    .checkBody(
-                      "email",
-                      "Please enter a shorter email address (<= 89 characters)"
-                    )
-                    .isLength({ max: 89 });
-                  req
-                    .checkBody("email", "Please enter a valid email address")
-                    .isEmail();
-
-                  req
-                    .checkBody(
-                      "gdprConsent",
-                      "Please confirm the prospective member has agreed to our privacy policy"
-                    )
-                    .notEmpty();
-
-                  if (phone_no) {
-                    req
-                      .checkBody(
-                        "phone_no",
-                        "Please enter a shorter phone number (<= 30)"
-                      )
-                      .isLength({ max: 30 });
-                  }
-
-                  //Volunteer Validation
-                  var volInfo = req.body.volInfo;
-
-                  if (!volInfo.gdpr) {
-                    volInfo.gdpr = {};
-                  }
-
-                  req
-                    .checkBody(
-                      "volInfo.emergencyContactRelation",
-                      "Please enter the emergency contact's relation to the member"
-                    )
-                    .notEmpty();
-                  req
-                    .checkBody(
-                      "volInfo.emergencyContactRelation",
-                      "Emergency contact's relation to the member must be <= 25 characters long"
-                    )
-                    .isLength({ max: 25 });
-
-                  req
-                    .checkBody(
-                      "volInfo.emergencyContactName",
-                      "Please enter the emergency contact's name to the member"
-                    )
-                    .notEmpty();
-                  req
-                    .checkBody(
-                      "volInfo.emergencyContactName",
-                      "Emergency contact's name must be <= 25 characters long"
-                    )
-                    .isLength({ max: 25 });
-
-                  req
-                    .checkBody(
-                      "volInfo.emergencyContactPhoneNo",
-                      "Please enter the emergency contact's phone number"
-                    )
-                    .notEmpty();
-
-                  req
-                    .checkBody(
-                      "volInfo.emergencyContactPhoneNo",
-                      "Please enter a shorter phone number (<= 15)"
-                    )
-                    .isLength({ max: 15 });
-
-                  req
-                    .checkBody(
-                      "volInfo.roles",
-                      "Please select at least one role"
-                    )
-                    .notEmpty();
-
-                  req
-                    .checkBody(
-                      "volInfo.survey.goals",
-                      "Please enter what the volunteer wants to achieve through their work with Shrub"
-                    )
-                    .notEmpty();
-
-                  req
-                    .checkBody(
-                      "volInfo.survey.preferredCommMethods",
-                      "Please select at least one preferred contact method"
-                    )
-                    .notEmpty();
-
-                  var errors = req.validationErrors() || [];
-
-                  var days = {
-                    mon: true,
-                    tue: true,
-                    wed: true,
-                    thu: true,
-                    fri: true,
-                    sat: true,
-                    sun: true
-                  };
-                  var periods = { m: true, a: true, e: true };
-
-                  var validTimes = 0;
-
-                  if (volInfo.availability) {
-                    Object.keys(volInfo.availability).forEach(function(key) {
-                      var validDay = false;
-                      var validPeriod = false;
-
-                      if (days[key.substring(0, 3)]) {
-                        validDay = true;
-                      }
-
-                      if (periods[key.substring(4, 5)]) {
-                        validPeriod = true;
-                      }
-
-                      if (
-                        validDay &&
-                        key.substring(3, 4) == "_" &&
-                        validPeriod
-                      ) {
-                        validTimes++;
-                      } else {
-                        delete volInfo.availability[key];
-                      }
-                    });
-                  }
-
-                  if (validTimes == 0) {
-                    let error = {
-                      param: "volInfo.availability",
-                      msg:
-                        "Please tick at least one box in the availability matrix",
-                      value: req.body.volInfo.availability
-                    };
-                    errors.push(error);
-                  }
-
-                  var rolesChanged = false;
-
-                  if (
-                    volInfo.roles.length != oldVolInfo.roles.length ||
-                    volInfo.roles.sort().every(function(value, index) {
-                      return value != oldVolInfo.roles.sort()[index];
-                    })
-                  ) {
-                    rolesChanged = true;
-                    if (volInfo.volunteerAgreementAgreed != "on") {
-                      let error = {
-                        param: "volInfo.volunteerAgreementAgreed",
-                        msg: "Please agree to the volunteer agreement",
-                        value: req.body.volInfo.volunteerAgreementAgreed
-                      };
-                      errors.push(error);
-                    }
-                  }
-
-                  if (!Array.isArray(volInfo.assignedCoordinators)) {
-                    volInfo.assignedCoordinators = [
-                      volInfo.assignedCoordinators
-                    ];
-                  }
-
-                  if (
-                    !Helpers.allBelongTo(
-                      volInfo.assignedCoordinators,
-                      coordinatorsFlat
-                    )
-                  ) {
-                    let error = {
-                      param: "volInfo.assignedCoordinators",
-                      msg: "Please select a valid staff coordinators",
-                      value: req.body.volInfo.assignedCoordinators
-                    };
-
-                    errors.push(error);
-                  }
-
-                  if (volInfo.survey.skills) {
-                    if (!Array.isArray(volInfo.survey.skills)) {
-                      volInfo.survey.skills = [volInfo.survey.skills];
-                    }
-                    if (
-                      !Helpers.allBelongTo(
-                        volInfo.survey.skills,
-                        Object.keys(skills)
-                      )
-                    ) {
-                      let error = {
-                        param: "volInfo.survey.skills",
-                        msg: "Please select valid skills",
-                        value: req.body.volInfo.survey.skills
-                      };
-
-                      errors.push(error);
-                    }
-                  }
-
-                  if (!Array.isArray(volInfo.survey.preferredCommMethods)) {
-                    volInfo.survey.preferredCommMethods = [
-                      volInfo.survey.preferredCommMethods
-                    ];
-                  }
-
-                  if (
-                    !Helpers.allBelongTo(
-                      volInfo.survey.preferredCommMethods,
-                      Object.keys(contactMethods)
-                    )
-                  ) {
-                    let error = {
-                      param: "volInfo.survey.preferredCommMethods",
-                      msg: "Please select valid contact methods",
-                      value: req.body.volInfo.survey.preferredCommMethods
-                    };
-
-                    errors.push(error);
-                  }
-
-                  var rolesValid = true;
-                  if (!Array.isArray(volInfo.roles)) {
-                    volInfo.roles = [volInfo.roles];
-                  }
-                  async.each(
-                    volInfo.roles,
-                    function(role, callback) {
-                      if (!rolesGroupedById[role]) {
-                        rolesValid = false;
-                        callback();
-                      } else {
-                        if (
-                          member.working_groups.includes(
-                            rolesGroupedById[role].group_id
-                          )
-                        ) {
-                          member.working_groups.splice(
-                            member.working_groups.indexOf(
-                              rolesGroupedById[role].group_id
-                            ),
-                            1
-                          );
-                          callback();
-                        } else {
-                          callback();
-                        }
-                      }
-                    },
-                    function() {
-                      if (rolesValid == false) {
-                        let error = {
-                          param: "volInfo.roles",
-                          msg: "Please select valid roles",
-                          value: req.body.volInfo.roles
-                        };
-
-                        errors.push(error);
-                      }
-                    }
-                  );
-
-                  if (errors[0]) {
-                    res.render("volunteers/update", {
-                      errors: errors,
-                      title: "Update Volunteer",
-                      volunteersActive: true,
-                      volInfo: volInfo,
-                      rolesChanged: rolesChanged,
-                      member: member,
-                      coordinators: coordinators,
-                      roles: rolesGroupedByGroup,
-                      skills: skills,
-                      contactMethods: contactMethods,
-                      first_name: first_name,
-                      last_name: last_name,
-                      email: email,
-                      phone_no: phone_no,
-                      address: address,
-                      gdprConsent: gdprConsent,
-                      privacyNotice: privacyNotice
-                    });
-                  } else {
-                    var updatedMember = {
-                      member_id: member.member_id,
-                      first_name: first_name,
-                      last_name: last_name,
-                      email: email,
-                      phone_no: phone_no,
-                      address: address,
-                      balance: member.balance,
-                      is_member: member.is_member ? 1 : 0,
-                      membership_type: member.membership_type,
-                      free: member.free,
-                      current_exp_membership: moment(
-                        member.current_exp_membership
-                      ).toDate()
-                    };
-
-                    Members.updateBasic(updatedMember, function(
-                      err,
-                      member_id
-                    ) {
-                      Members.updateWorkingGroups(
-                        member.member_id,
-                        member.working_groups,
-                        function(err) {
-                          Volunteers.updateVolunteer(
-                            member.member_id,
-                            volInfo,
-                            function(err) {
-                              if (err) {
-                                res.render("volunteers/update", {
-                                  errors: [{ msg: "Something went wrong!" }],
-                                  title: "Update Volunteer",
-                                  volunteersActive: true,
-                                  volInfo: volInfo,
-                                  rolesChanged: rolesChanged,
-                                  member: member,
-                                  coordinators: coordinators,
-                                  roles: rolesGroupedByGroup,
-                                  skills: skills,
-                                  contactMethods: contactMethods,
-                                  first_name: first_name,
-                                  last_name: last_name,
-                                  email: email,
-                                  phone_no: phone_no,
-                                  address: address,
-                                  gdprConsent: gdprConsent,
-                                  privacyNotice: privacyNotice
-                                });
-                              } else {
-                                var subscribeBody = {
-                                  email_address: email,
-                                  status: "subscribed",
-                                  merge_fields: {
-                                    FNAME: first_name,
-                                    LNAME: last_name
-                                  }
-                                };
-
-                                if (generalNewsletterConsent == "on") {
-                                  var shrubMailchimp = new Mailchimp(
-                                    process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-                                  );
-                                  shrubMailchimp.put(
-                                    "/lists/" +
-                                      process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                                      "/members/" +
-                                      md5(email),
-                                    subscribeBody,
-                                    function(err, response) {
-                                      if (!err && response) {
-                                        subscribeBody.marketing_permissions = [
-                                          {
-                                            marketing_permission_id:
-                                              response.marketing_permissions[0]
-                                                .marketing_permission_id,
-                                            text: response.marketing_permissions[0].text,
-                                            enabled: true
-                                          }
-                                        ];
-
-                                        shrubMailchimp.put(
-                                          "/lists/" +
-                                            process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                                            "/members/" +
-                                            md5(email),
-                                          subscribeBody,
-                                          function(err, response) {}
-                                        );
-                                      }
-                                    }
-                                  );
-                                }
-
-
-                                if (
-                                  moment(
-                                    member.current_exp_membership,
-                                    "L"
-                                  ).isBefore(moment().add(3, "months"))
-                                ) {
-                                  Members.renew(
-                                    member.member_id,
-                                    "3_months",
-                                    function() {
-                                      Members.updateFreeStatus(
-                                        member.member_id,
-                                        1,
-                                        function(err) {}
-                                      );
-                                    }
-                                  );
-                                }
-
-                                req.flash(
-                                  "success_msg",
-                                  "Volunteer successfully updated!"
-                                );
-                                res.redirect(
-                                  process.env.PUBLIC_ADDRESS +
-                                    "/volunteers/view/" +
-                                    member.member_id
-                                );
-                              }
-                            }
-                          );
-                        }
-                      );
-                    });
-                  }
-                });
-              });
-            } else {
-              req.flash(
-                "error_msg",
-                "You don't have permission to update this volunteer!"
-              );
-              res.redirect(
-                process.env.PUBLIC_ADDRESS +
-                  "/volunteers/view/" +
-                  member.member_id
-              );
-            }
-          } else {
-            req.flash("error_msg", "This member is not a volunteer!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/members/view/" +
-                req.params.member_id
-            );
-          }
-        });
-      }
-    });
-  }
-);
-
+});
 module.exports = router;

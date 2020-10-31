@@ -1,15 +1,17 @@
-module.exports = function(FoodCollectionsOrganisations, sequelize, DataTypes) {
-  return function(organisation, callback) {
-    FoodCollectionsOrganisations.generateId(function(organisation_id) {
-      FoodCollectionsOrganisations.create({
-        organisation_id: organisation_id,
-        name: organisation.name,
-        type: organisation.type,
-        default: organisation.default,
-        dateCreated: new Date()
-      }).nodeify(function(err) {
-        callback(err, organisation_id);
-      });
-    });
-  };
-};
+module.exports = (FoodCollectionsOrganisations, sequelize, DataTypes) => {
+  	return async (organisation) => {
+		try {
+			const organisation_id = await FoodCollectionsOrganisations.generateId();
+			await FoodCollectionsOrganisations.create({
+				organisation_id: organisation_id,
+				name: organisation.name,
+				type: organisation.type,
+				default: organisation.default,
+				dateCreated: new Date()
+			});
+			return organisation_id;
+		} catch (error) {
+			throw error;
+		}
+  	}
+}

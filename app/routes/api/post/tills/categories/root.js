@@ -1,6 +1,6 @@
 // /api/post/tills/categories
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/add", require("./add"));
 router.use("/search", require("./search"));

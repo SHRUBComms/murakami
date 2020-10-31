@@ -1,58 +1,50 @@
 // /volunteers/roles/make-copy
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const WorkingGroups = Models.WorkingGroups;
+const VolunteerRoles = Models.VolunteerRoles;
 
-var WorkingGroups = Models.WorkingGroups;
-var VolunteerRoles = Models.VolunteerRoles;
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+router.get("/:role_id", Auth.isLoggedIn, Auth.canAccessPage("volunteerRoles", "add"), async (req, res) => {
+	try {
+		let role = await VolunteerRoles.getRoleById(req.params.role_id);
+		if (!role) {
+			throw "Role not found";
+		}
 
-router.get(
-  "/:role_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteerRoles", "add"),
-  function(req, res) {
-    VolunteerRoles.getRoleById(req.params.role_id, function(err, role) {
-      if (role) {
-        if (
-          req.user.permissions.volunteerRoles.view == true ||
-          (req.user.permissions.volunteerRoles.view == "commonWorkingGroup" &&
-            req.user.working_groups.includes(role.group_id))
-        ) {
-          role.details.working_group = role.group_id;
-          if (!Array.isArray(role.details.activities)) {
-            role.details.activities = [role.details.activities];
-          }
-          if (!Array.isArray(role.details.locations)) {
-            role.details.locations = [role.details.locations];
-          }
+		if (!(req.user.permissions.volunteerRoles.view == true || (req.user.permissions.volunteerRoles.view == "commonWorkingGroup" && req.user.working_groups.includes(role.group_id)))) {
+			throw "Not permitted";
+		}
 
-          VolunteerRoles.getRoleSignUpInfo(function(
-            allLocations,
-            allActivities,
-            commitmentLengths
-          ) {
-            res.render("volunteers/roles/add", {
-              title: "Duplicate Volunter Role",
-              volunteerRolesActive: true,
-              role: role.details,
-              availability: role.availability,
-              locations: allLocations,
-              commitmentLengths: commitmentLengths,
-              activities: allActivities
-            });
-          });
-        }
-      } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage");
-      }
-    });
-  }
-);
+		role.details.working_group = role.group_id;
 
+		if (!Array.isArray(role.details.activities)) {
+			role.details.activities = [role.details.activities];
+		}
+
+		if (!Array.isArray(role.details.locations)) {
+			role.details.locations = [role.details.locations];
+		}
+
+		const { allLocations, allActivities, commitmentLengths } = await VolunteerRoles.getRoleSignUpInfo();
+
+		res.render("volunteers/roles/add", {
+			title: "Duplicate Volunter Role",
+			volunteerRolesActive: true,
+			role: role.details,
+			availability: role.availability,
+			locations: allLocations,
+			commitmentLengths: commitmentLengths,
+			activities: allActivities
+		});
+	} catch (error) {
+		res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/view/" + req.params.role_id);
+	}
+});
 module.exports = router;

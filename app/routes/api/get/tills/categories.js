@@ -1,26 +1,21 @@
 // /api/get/tills/categories
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const StockCategories = Models.StockCategories;
 
-var StockCategories = Models.StockCategories;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
-  StockCategories.getCategoriesByTillId(req.params.till_id, "tree", function(
-    err,
-    categories
-  ) {
-    if (err) {
-      res.send({});
-    } else {
-      res.send(categories);
-    }
-  });
+router.get("/:till_id", Auth.isLoggedIn, async (req, res) => {
+  try {
+    const categories = await StockCategories.getCategoriesByTillId(req.params.till_id, "tree");
+    res.send(categories);
+  } catch (error) {
+    res.send({});
+  }
 });
 
 module.exports = router;

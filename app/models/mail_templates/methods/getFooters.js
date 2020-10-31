@@ -1,28 +1,23 @@
-var async = require("async");
+module.exports = (MailTemplates, sequelize, DataTypes) => {
+	return async () => {
+    		const footers = await MailTemplates.findAll({
+			where: { category: "footers" },
+      			raw: true
+    		});
 
-module.exports = function(MailTemplates, sequelize, DataTypes) {
-  return function(callback) {
-    MailTemplates.findAll({
-      where: { category: "footers" },
-      raw: true
-    }).nodeify(function(err, footers) {
-      var footersObj = {};
-      async.each(
-        footers,
-        function(footer, callback) {
-          if (footer.mail_id == "footer") {
-            footersObj.members = footer;
-          }
+		let footersObj = {};
 
-          if (footer.mail_id == "generic-footer") {
-            footersObj.generic = footer;
-          }
-          callback();
-        },
-        function() {
-          callback(err, footersObj);
-        }
-      );
-    });
-  };
-};
+		for await (const footer of footers) {
+
+	          	if (footer.mail_id == "footer") {
+            			footersObj.members = footer;
+          		}
+
+          		if (footer.mail_id == "generic-footer") {
+            			footersObj.generic = footer;
+          		}
+		}
+
+		return footersObj;
+  	}
+}

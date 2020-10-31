@@ -1,11 +1,9 @@
-module.exports = function(Carbon, sequelize, DataTypes) {
-  return function(startDate, endDate, callback) {
-    Carbon.findAll({
+module.exports = (Carbon, sequelize, DataTypes) => {
+  return async (startDate, endDate) => {
+    return Carbon.findAll({
       where: {
         trans_date: { [DataTypes.Op.between]: [startDate, endDate] }
       }
-    }).nodeify(function(err, carbon) {
-      callback(err, carbon);
-    });
+    })  
   };
 };

@@ -1,29 +1,21 @@
 // /food-collections/organisations/manage
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("foodCollections", "viewOrganisations"),
-  function(req, res) {
-    FoodCollectionsOrganisations.getAll(function(err, organisations) {
-      res.render("food-collections/organisations/manage", {
-        title: "Food Collection Organisations",
-        foodCollectionsActive: true,
-        organisations: organisations
-      });
-    });
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "viewOrganisations"), async (req, res) => {
+	const organisations = await FoodCollectionsOrganisations.getAll();
+      	res.render("food-collections/organisations/manage", {
+        	title: "Food Collection Organisations",
+        	foodCollectionsActive: true,
+        	organisations: organisations
+      	});
+});
 
 module.exports = router;

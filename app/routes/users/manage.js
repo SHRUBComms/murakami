@@ -10,7 +10,7 @@ const Users = Models.Users;
 const Auth = require(rootDir + "/app/configs/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "view"), async (req, res) => {
-  	const users = await Users.getAll(req.user);
+  	const { users } = await Users.getAll(req.user);
     	res.render("users/manage", {
       		title: "Users",
       		users: users,

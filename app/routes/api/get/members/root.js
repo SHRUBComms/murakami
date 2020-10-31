@@ -1,6 +1,6 @@
 // /api/get/members
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/transactions", require("./transactions"));
 router.use("/carbon-saved", require("./carbon-saved"));

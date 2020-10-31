@@ -1,13 +1,13 @@
 // /volunteers/hours
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
-  res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), async (req, res) => {
+	res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
 });
 
 router.use("/export", require("./export"));

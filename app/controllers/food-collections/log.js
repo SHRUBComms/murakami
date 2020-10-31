@@ -1,172 +1,107 @@
-var lodash = require("lodash");
+const lodash = require("lodash");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var FoodCollections = Models.FoodCollections;
-var FoodCollectionsKeys = Models.FoodCollectionsKeys;
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
-var Members = Models.Members;
-var VolunteerHours = Models.VolunteerHours;
-var Settings = Models.Settings;
+const Models = require(rootDir + "/app/models/sequelize");
+const FoodCollections = Models.FoodCollections;
+const FoodCollectionsKeys = Models.FoodCollectionsKeys;
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Members = Models.Members;
+const VolunteerHours = Models.VolunteerHours;
+const Settings = Models.Settings;
 
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-var ValidDropOffs = require("./valid-drop-offs");
+const ValidDropOffs = require("./valid-drop-offs");
 
-var LogFoodCollection = function(req, res, foodCollectionKey, callback) {
-  var member_id = req.body.member_id;
-  var collectionOrganisation = req.body.collectionOrganisation;
-  var destinationOrganisations = req.body.destinationOrganisations;
-  var amount = req.body.amount;
-  var note = req.body.note;
+const LogFoodCollection = async (req, res, foodCollectionKey) => {
 
-  if (!member_id) {
-    callback("Please select a member");
-    return;
-  }
+	try {
+		const member_id = req.body.member_id;
+		const collectionOrganisation = req.body.collectionOrganisation;
+		const destinationOrganisations = req.body.destinationOrganisations;
+		const amount = req.body.amount;
+		const note = req.body.note;
 
-  if (!collectionOrganisation) {
-    callback("Please select a collection organisation");
-    return;
-  }
+		if (!member_id) {
+			throw "Please select a member";
+		}
 
-  if (destinationOrganisations) {
-    if (!Array.isArray(destinationOrganisations)) {
-      destinationOrganisations = [destinationOrganisations];
-    }
-  } else {
-    destinationOrganisations = [];
-  }
+		if (!collectionOrganisation) {
+			throw "Please select a collection organisation";
+		}
 
-  if (destinationOrganisations.length == 0) {
-    callback("Please select at least one destination organisation");
-    return;
-  }
+		if (destinationOrganisations) {
+			if (!Array.isArray(destinationOrganisations)) {
+				destinationOrganisations = [destinationOrganisations];
+			}
+		} else {
+			destinationOrganisations = [];
+		}
 
-  if (isNaN(amount) || amount < 0.1) {
-    callback("Please enter a valid amount");
-    return;
-  }
+		if (destinationOrganisations.length == 0) {
+			throw "Please select at least one destination organisation";
+		}
 
-  Members.getById(
-    member_id,
-    { permissions: { members: { name: true } } },
-    function(err, member) {
-      if (!member || err) {
-        callback("Member not found!");
-        return;
-      }
+		if (isNaN(amount) || amount < 0.1) {
+			throw "Please enter a valid amount";
+		}
 
-      FoodCollectionsOrganisations.getAll(function(err, allOrganisations) {
-        FoodCollectionsOrganisations.getAllDefault(function(
-          err,
-          defaultOrganisations
-        ) {
-          if (foodCollectionKey) {
-            var availableOrganisations = lodash.spread(lodash.union)([
-              lodash.clone(foodCollectionKey.organisations),
-              Object.keys(defaultOrganisations)
-            ]);
+		const member = await Members.getById(member_id, { permissions: { members: { name: true } } });
 
-            console.log("Default:", Object.keys(defaultOrganisations));
-            console.log("Access key:", foodCollectionKey.organisations);
-            console.log("Available:", availableOrganisations);
-            console.log("Collections:", collectionOrganisation);
-            console.log("Drop-offs:", destinationOrganisations);
+		if (!member) {
+			throw "Member not found!";
+		}
 
-            if (
-              !Helpers.allBelongTo(
-                collectionOrganisation,
-                availableOrganisations
-              ) ||
-              !Helpers.allBelongTo(
-                destinationOrganisations,
-                availableOrganisations
-              )
-            ) {
-              callback("You are not authorised to use these organisations.");
-              return;
-            }
-          }
+		const allOrganisations = await FoodCollectionsOrganisations.getAll();
+		const defaultOrganisations = await FoodCollectionsOrganisations.getAllDefault();
 
-          if (!allOrganisations[collectionOrganisation]) {
-            callback("Collection organisation doesn't exist.");
-            return;
-          }
+		const availableOrganisations = lodash.spread(lodash.union)([lodash.clone(foodCollectionKey.organisations), Object.keys(defaultOrganisations)]);
 
-          ValidDropOffs(allOrganisations, destinationOrganisations, function(
-            allDropOffOrgsValid
-          ) {
-            if (!allDropOffOrgsValid) {
-              callback("Please select valid drop off organisations.");
-              return;
-            }
 
-            if (allOrganisations[collectionOrganisation].active == 0) {
-              callback("Collection organisation is no longer active.");
-              return;
-            }
+		if (!Helpers.allBelongTo(collectionOrganisation, availableOrganisations) || !Helpers.allBelongTo(destinationOrganisations, availableOrganisations)) {
+			throw "You are not authorised to use these organisations.";
+		}
 
-            if (
-              !allOrganisations[collectionOrganisation].type.includes(
-                "collections"
-              )
-            ) {
-              callback(
-                "The selected organisation is not a collection organisation."
-              );
-              return;
-            }
+		if (!allOrganisations[collectionOrganisation]) {
+		    throw "Collection organisation doesn't exist.";
+		}
 
-            if (destinationOrganisations.includes(collectionOrganisation)) {
-              callback(
-                "Cannot collect and drop off from the same organisation."
-              );
-              return;
-            }
+		const allDropOffOrgsValid = await ValidDropOffs(allOrganisations, destinationOrganisations);
 
-            FoodCollections.add(
-              member_id,
-              collectionOrganisation,
-              destinationOrganisations,
-              amount,
-              note,
-              1,
-              function(err) {
-                if (err) {
-                  console.log(err);
-                  callback("Something went wrong!");
-                  return;
-                }
+		if (!allDropOffOrgsValid) {
+		      throw "Please select valid drop off organisations.";
+		}
 
-                Settings.getAll(function(err, settings) {
-                  var shift = {
-                    member_id: member_id,
-                    duration: 1,
-                    working_group: settings.foodCollectionsGroup.group_id,
-                    note: "For food collection (automated)",
-                    approved: 1
-                  };
+		if (allOrganisations[collectionOrganisation].active == 0) {
+		      throw "Collection organisation is no longer active.";
+		}
 
-                  VolunteerHours.createShift(shift, function(err) {
-                    if (err) {
-                      callback(
-                        "Collection logged, but something went wrong logging your volunteer hours"
-                      );
-                      return;
-                    }
-                    callback(null);
-                    return;
-                  });
-                });
-              }
-            );
-          });
-        });
-      });
-    }
-  );
+		if (!allOrganisations[collectionOrganisation].type.includes("collections")) {
+		      throw "The selected organisation is not a collection organisation.";
+		}
+
+		if (destinationOrganisations.includes(collectionOrganisation)) {
+			throw "Cannot collect and drop off from the same organisation."
+		}
+
+		await FoodCollections.add(member_id, collectionOrganisation, destinationOrganisations, amount, note, 1);
+
+		const settings = await Settings.getAll();
+		const shift = {
+			member_id: member_id,
+			duration: 1,
+			working_group: settings.foodCollectionsGroup.data.group_id,
+			note: "For food collection (automated)",
+			approved: 1
+		};
+
+		await VolunteerHours.createShift(shift);
+		return true;
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
 };
 
 module.exports = LogFoodCollection;

@@ -1,83 +1,67 @@
 // /api/post/members/search
 
-var router = require("express").Router();
-var async = require("async");
-var lodash = require("lodash");
+const router = require("express").Router();
+const lodash = require("lodash");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const WorkingGroups = Models.WorkingGroups;
 
-var Members = Models.Members;
-var WorkingGroups = Models.WorkingGroups;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.post("/", Auth.isLoggedIn, async (req, res) => {
+	try {
+  		const term = req.body.term;
 
-router.post("/", Auth.isLoggedIn, function(req, res) {
-  var term = req.body.term;
-  if (!term) {
-    res.send({ status: "ok", results: [] });
-  } else {
-    Members.searchByName(term, function(err, members) {
-      var sanitizedMembers = [];
-      async.eachOf(
-        members,
-        function(member, i, callback) {
-          Members.sanitizeMember(member, req.user, function(
-            err,
-            sanitizedMember
-          ) {
-            if (sanitizedMember) {
-              sanitizedMembers.push(sanitizedMember);
-              callback();
-            } else {
-              callback();
-            }
-          });
-        },
-        function(err) {
-          res.send({
-            status: "ok",
-            results: sanitizedMembers
-          });
-        }
-      );
-    });
-  }
+		if (!term) {
+    			return res.send({ status: "ok", results: [] });
+ 		}
+
+    		const members = await Members.searchByName(term);
+
+		let sanitizedMembers = [];
+
+		for await  (const member of members) {
+			const sanitizedMember = await Members.sanitizeMember(member, req.user);
+			if(sanitizedMember) {
+				sanitizedMembers.push(sanitizedMember);
+			}
+		}
+
+          	res.send({ status: "ok", results: sanitizedMembers });
+  	} catch (error) {
+		res.send({ status: "fail", results: [] });
+	}
 });
 
-router.post("/simple", Auth.isLoggedIn, function(req, res) {
-  var term = req.body.term;
-  if (!term) {
-    res.send({ status: "ok", results: [] });
-  } else {
-    Members.searchByName(term, function(err, members) {
-      if (err) {
-        res.send({ status: "fail", results: [] });
-      } else {
-        var formattedMembers = [];
-        async.each(
-          members,
-          function(member, callback) {
-            Members.sanitizeMember(member, req.user, function(
-              err,
-              sanitizedMember
-            ) {
-              sanitizedMember.id = member.member_id;
-              sanitizedMember.membership_expires =
-                sanitizedMember.current_exp_membership;
-              formattedMembers.push(sanitizedMember);
-              callback();
-            });
-          },
-          function(err) {
-            res.send({ status: "ok", results: formattedMembers });
-            
-          }
-        );
-      }
-    });
-  }
+router.post("/simple", Auth.isLoggedIn, async (req, res) => {
+	try {
+		const term = req.body.term;
+
+		if (!term) {
+    			return res.send({ status: "ok", results: [] });
+		}
+
+		const members = await Members.searchByName(term);
+
+		var sanitizedMembers = [];
+
+		for await (const member of members) {
+			const sanitizedMember = await Members.sanitizeMember(member, req.user);
+			if(sanitizedMember) {
+				sanitizedMember.id = member.member_id;
+				sanitizedMember.membership_expires = sanitizedMember.current_exp_membership;
+				sanitizedMembers.push(sanitizedMember);
+			}
+
+		}
+
+          	res.send({ status: "ok", results: sanitizedMembers });
+  	} catch (error) {
+		res.send({ status: "fail", results: [] });
+	}
 });
 
 module.exports = router;

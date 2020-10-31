@@ -1,17 +1,14 @@
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-  var GetId = function(callback) {
-    var id = Helpers.generateBase64Id(10);
-    StockCategories.findAll({ where: { item_id: id } }).nodeify(function(
-      err,
-      result
-    ) {
-      if (result.length > 0) {
-        GetId(callback);
-      } else if (result.length == 0) {
-        callback(id);
-      }
-    });
-  };
+module.exports = (StockCategories) => {
+  const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  const GetId = async () => {
+    const id = Helpers.generateBase64Id(10);
+    const result = await StockCategories.findAll({ where: { item_id: id } });
+
+    if (result.length > 0) {
+      GetId();
+    } else if (result.length == 0) {
+      return id;
+    }
+  }
   return GetId;
-};
+}

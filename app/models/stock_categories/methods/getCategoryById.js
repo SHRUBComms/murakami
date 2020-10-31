@@ -1,5 +1,5 @@
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(item_id, callback) {
-    StockCategories.findOne({ where: { item_id: item_id } }).nodeify(callback);
+module.exports = (StockCategories) => {
+  return async (item_id) => {
+    return StockCategories.findOne({ where: { item_id: item_id } });
   };
 };

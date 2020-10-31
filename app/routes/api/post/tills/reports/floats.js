@@ -1,130 +1,90 @@
 // /api/post/tills/reports/floats
 
-var router = require("express").Router();
-
-var async = require("async");
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var Users = Models.Users;
-var TillActivity = Models.TillActivity;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const Users = Models.Users;
+const TillActivity = Models.TillActivity;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "viewReports"),
-  function(req, res) {
-    var response = {
-      status: "fail",
-      msg: "Something went wrong!",
-      activity: {}
-    };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
+  try {
+    const till_id = req.body.till_id;
+    const datePeriod = req.body.datePeriod || "today";
 
-    var till_id = req.body.till_id;
-    var datePeriod = req.body.datePeriod || "today";
+    const startDateRaw = req.body.startDate || null;
+    const endDateRaw = req.body.endDate || null;
 
-    var startDate = req.body.startDate || null;
-    var endDate = req.body.endDate || null;
-
-    if (till_id) {
-      Tills.getById(till_id, function(err, till) {
-        if (till) {
-          Helpers.plainEnglishDateRangeToDates(
-            datePeriod,
-            startDate,
-            endDate,
-            function(startDate, endDate) {
-              TillActivity.getAllActivityBetweenTwoDatesByTillId(
-                till_id,
-                startDate,
-                endDate,
-                function(err, activity) {
-                  if (activity.length > 0) {
-                    Users.getAll(req.user, function(err, users, usersObj) {
-                      var formattedActivity = [];
-                      async.each(
-                        activity,
-                        function(action, callback) {
-                          var formattedAction = {};
-                          formattedAction.timestamp = moment(
-                            action.timestamp
-                          ).format("L hh:mm A");
-
-                          if (action.opening == 1) {
-                            formattedAction.action = "Opening";
-
-                            formattedAction.summary =
-                              "Counted Float: £" +
-                              action.counted_float.toFixed(2);
-
-                            formattedAction.discrepancy = "-";
-                          } else {
-                            formattedAction.action = "Closing";
-
-                            formattedAction.summary =
-                              "Counted Float: £" +
-                              action.counted_float.toFixed(2);
-                            formattedAction.summary += "<br />";
-                            formattedAction.summary +=
-                              "Expected Float: £" +
-                              action.expected_float.toFixed(2);
-
-                            let discrepancy = (
-                              action.counted_float - action.expected_float
-                            ).toFixed(2);
-
-                            if (discrepancy >= 0) {
-                              formattedAction.discrepancy = "£" + discrepancy;
-                            } else {
-                              formattedAction.discrepancy =
-                                "-£" + Math.abs(discrepancy).toFixed(2);
-                            }
-                          }
-
-                          if (action.note) {
-                            formattedAction.note = action.note;
-                          } else {
-                            formattedAction.note = "-";
-                          }
-
-                          if (usersObj[action.user_id]) {
-                            formattedAction.user =
-                              usersObj[action.user_id].name;
-                          } else {
-                            formattedAction.user = "Unknown User";
-                          }
-                          formattedActivity.push(formattedAction);
-                          callback();
-                        },
-                        function() {
-                          res.send(formattedActivity);
-                        }
-                      );
-                    });
-                  } else {
-                    res.send([]);
-                  }
-                }
-              );
-            }
-          );
-        } else {
-          response.msg = "No valid till selected.";
-          res.send(response);
-        }
-      });
-    } else {
-      response.msg = "No till selected.";
-      res.send(response);
+    if (!till_id) {
+      throw "No till specified";
     }
+
+    const till = await Tills.getById(till_id);
+
+    if (!till) {
+      throw "Till not found";
+    }
+    
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
+    const activity = await TillActivity.getAllActivityBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
+    const { usersObj } = await Users.getAll(req.user);
+    
+    let formattedActivity = [];
+
+    for await (const action of activity) {
+      let formattedAction = {};
+
+      formattedAction.timestamp = moment(action.timestamp).format("L hh:mm A");
+
+      if (action.opening == 1) {
+        formattedAction.action = "Opening";
+
+        formattedAction.summary = "Counted Float: £" + action.counted_float.toFixed(2);
+
+        formattedAction.discrepancy = "-";
+      } else {
+        formattedAction.action = "Closing";
+        formattedAction.summary = "Counted Float: £" +
+        action.counted_float.toFixed(2);
+        formattedAction.summary += "<br />";
+        formattedAction.summary += "Expected Float: £" + action.expected_float.toFixed(2);
+
+        let discrepancy = (action.counted_float - action.expected_float).toFixed(2);
+
+        if (discrepancy >= 0) {
+          formattedAction.discrepancy = "£" + discrepancy;
+        } else {
+          formattedAction.discrepancy = "-£" + Math.abs(discrepancy).toFixed(2);
+        }
+      }
+
+      if (action.note) {
+        formattedAction.note = action.note;
+      } else {
+        formattedAction.note = "-";
+      }
+
+      if (usersObj[action.user_id]) {
+        formattedAction.user =
+          usersObj[action.user_id].name;
+      } else {
+        formattedAction.user = "Unknown User";
+      }
+
+      formattedActivity.push(formattedAction);
+    }
+
+    res.send(formattedActivity);
+  } catch (error) {
+    res.send([]);
   }
-);
+});
 
 module.exports = router;

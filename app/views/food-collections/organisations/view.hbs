@@ -12,9 +12,9 @@
       </div>
       <div class="col-sm-5 mx-auto">
         {{#if organisation.active}}
-          <a class="btn btn-danger btn-block" href="{{public_address}}/api/get/food-collections/organisations/mark-as-inactive/{{organisation.organisation_id}}">Mark As Inactive</a>
+          <a class="btn btn-danger btn-block" href="{{public_address}}/api/get/food-collections/organisations/change-active-status/{{organisation.organisation_id}}?newStatus=inactive">Mark As Inactive</a>
         {{else}}
-          <a class="btn btn-success btn-block" href="{{public_address}}/api/get/food-collections/organisations/mark-as-active/{{organisation.organisation_id}}">Mark As Active</a>
+          <a class="btn btn-success btn-block" href="{{public_address}}/api/get/food-collections/organisations/change-active-status/{{organisation.organisation_id}}?newStatus=active">Mark As Active</a>
         {{/if}}
       </div>
     </div>

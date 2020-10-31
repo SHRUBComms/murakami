@@ -1,140 +1,65 @@
 // /api/get/tills/smp-callback
 
-var router = require("express").Router();
-var async = require("async");
-var request = require("request");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var Carbon = Models.Carbon;
-var Transactions = Models.Transactions;
+const Models = require(rootDir + "/app/models/sequelize");
+const Carbon = Models.Carbon;
+const Transactions = Models.Transactions;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "processTransaction"),
-  function(req, res) {
-    var redirectUri =
-      process.env.PUBLIC_ADDRESS +
-      "/till/transaction/" +
-      req.query.till_id +
-      "/?" +
-      "sumupCallback=true" +
-      "&murakamiStatus=" +
-      req.query.murakamiStatus +
-      "&transactionSummary=" +
-      req.query.transactionSummary +
-      "&carbonSummary=" +
-      req.query.carbonSummary +
-      "&smp-status=" +
-      req.query["smp-status"] +
-      "&smp-failure-cause=" +
-      req.query["smp-failure-cause"];
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
+  let murakamiTransaction;
 
-    var verificationErrorUri =
-      process.env.PUBLIC_ADDRESS +
-      "/till/transaction/" +
-      req.query.till_id +
-      "/?" +
-      "sumupCallback=true" +
-      "&murakamiStatus=" +
-      req.query.murakamiStatus +
-      "&transactionSummary=" +
-      req.query.transactionSummary +
-      "&carbonSummary=" +
-      req.query.carbonSummary +
-      "&smp-status=failed" +
-      "&smp-failure-cause=Could not verify card payment.";
+  let redirectUri = `${process.env.PUBLIC_ADDRESS}/till/transaction/${req.query.till_id}/?sumupCallback=true&murakamiStatus=${req.query.murakamiStatus}&transactionSummary=${req.query.transactionSummary}&carbonSummary=${req.query.carbonSummary}&smp-status=${req.query["smp-status"]}&smp-failure-cause=${req.query["smp-failure-cause"]}`;
+  const verificationErrorUri = `${process.env.PUBLIC_ADDRESS}/till/transaction/${req.query.till_id}/?sumupCallback=true&murakamiStatus=${req.query.murakamiStatus}&transactionSummary=${req.query.transactionSummary}&carbonSummary=${req.query.carbonSummary}&smp-status=failed&smp-failure-cause=Could not verify card payment.`;
 
-    request.post(
-      "https://api.sumup.com/token",
-      {
-        json: {
-          grant_type: "password",
-          client_id: process.env.SUMUP_CLIENT_ID,
-          client_secret: process.env.SUMUP_CLIENT_SECRET,
-          username: process.env.SUMUP_USERNAME,
-          password: process.env.SUMUP_PASSWORD
-        }
-      },
-      (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-          request.get(
-            "https://api.sumup.com/v0.1/me/transactions?transaction_code=" +
-              req.query["smp-tx-code"],
-            {
-              headers: {
-                authorization: "Bearer " + body.access_token
-              }
-            },
-            (error, response, body) => {
-              if (!body.error_code) {
-                body = JSON.parse(body);
+  try {
 
-                Transactions.getById(req.query["foreign-tx-id"], function(
-                  err,
-                  murakamiTransaction
-                ) {
-                  if (!err && murakamiTransaction) {
-                    if (murakamiTransaction.summary.paymentMethod == "card") {
-                      if (
-                        body.amount == murakamiTransaction.summary.totals.money
-                      ) {
-                        if (body.status == "SUCCESSFUL") {
-                          var updatedSummary = murakamiTransaction.summary;
-                          updatedSummary.sumupId = body.transaction_code;
-                          Transactions.update(
-                            { summary: updatedSummary },
-                            {
-                              where: {
-                                transaction_id:
-                                  murakamiTransaction.transaction_id
-                              }
-                            }
-                          ).nodeify(function(err) {
-                            redirectUri +=
-                              "&murakamiTransactionId=" +
-                              murakamiTransaction.transaction_id;
-                            res.redirect(redirectUri);
-                          });
-                        } else {
-                          Transactions.removeTransaction(
-                            murakamiTransaction.transaction_id,
-                            function(err) {
-                              Carbon.removeTransaction(
-                                murakamiTransaction.transaction_id,
-                                function(err) {
-                                  res.redirect(redirectUri);
-                                }
-                              );
-                            }
-                          );
-                        }
-                      } else {
-                        res.redirect(verificationErrorUri);
-                      }
-                    } else {
-                      res.redirect(verificationErrorUri);
-                    }
-                  } else {
-                    res.redirect(verificationErrorUri);
-                  }
-                });
-              } else {
-                res.redirect(verificationErrorUri);
-              }
-            }
-          );
-        } else {
-          res.redirect(verificationErrorUri);
-        }
-      }
-    );
+    const accessToken = await Helpers.SumUpAuth();
+
+    if(!accessToken) {
+      throw "Could not access SumUp";
+    }
+    const sumupTransaction = await Helpers.SumUpGetTransaction(req.query["smp-tx-code"], accessToken);
+    if(!sumupTransaction) {
+      throw "SumUp transaction not found";
+    }
+    
+    murakamiTransaction = await Transactions.getById(req.query["foreign-tx-id"]);
+    if (!murakamiTransaction) {
+      throw "Murakami transaction not found";
+    }
+    
+    if (murakamiTransaction.summary.paymentMethod != "card") {
+      throw "Invalid Murakami transaction";
+    }
+    
+    if (sumupTransaction.amount != murakamiTransaction.summary.totals.money) {
+      throw "SumUp records do not match Murakami";
+    }
+    
+    if (sumupTransaction.status != "SUCCESSFUL") {
+      throw "SumUp transactionf failed at point of payment";
+    }
+    
+    let updatedSummary = murakamiTransaction.summary;
+    updatedSummary.sumupId = sumupTransaction.transaction_code;
+    await Transactions.update({ summary: updatedSummary }, { where: { transaction_id: murakamiTransaction.transaction_id }});
+                        
+    redirectUri += `&murakamiTransactionId=${murakamiTransaction.transaction_id}`;
+    res.redirect(redirectUri);
+
+  } catch (error) {
+    if(murakamiTransaction) {
+      await Transactions.removeTransaction(murakamiTransaction.transaction_id);
+      await Carbon.removeTransaction(murakamiTransaction.transaction_id);
+    }
+    res.redirect(verificationErrorUri);
   }
-);
+});
 
 module.exports = router;

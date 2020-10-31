@@ -1,107 +1,61 @@
 // /api/post/tills/reports/transactions
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var async = require("async");
-var moment = require("moment");
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var Transactions = Models.Transactions;
-var Members = Models.Members;
-var StockCategories = Models.StockCategories;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const Transactions = Models.Transactions;
+const Members = Models.Members;
+const StockCategories = Models.StockCategories;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "viewReports"),
-  function(req, res) {
-    var response = {
-      status: "fail",
-      msg: "Something went wrong!",
-      summary: {}
-    };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
+  
 
-    var till_id = req.body.till_id;
-    var datePeriod = req.body.datePeriod || "today";
+  try {
 
-    var startDate = req.body.startDate || null;
-    var endDate = req.body.endDate || null;
+    const till_id = req.body.till_id;
+    const datePeriod = req.body.datePeriod || "today";
 
-    if (till_id) {
-      Tills.getById(till_id, function(err, till) {
-        if (till) {
-          Helpers.plainEnglishDateRangeToDates(
-            datePeriod,
-            startDate,
-            endDate,
-            function(startDate, endDate) {
-              Transactions.getAllBetweenTwoDatesByTillId(
-                till_id,
-                startDate,
-                endDate,
-                function(err, transactions) {
-                  if (transactions.length > 0) {
-                    Members.getAll(function(err, members, membersObj) {
-                      StockCategories.getCategories("tree", function(
-                        err,
-                        categories
-                      ) {
-                        var flatCategories = Helpers.flatten(categories);
+    const startDateRaw = req.body.startDate || null;
+    const endDateRaw = req.body.endDate || null;
 
-                        var flatCategoriesAsObj = {};
-                        Transactions.formatTransactions(
-                          transactions,
-                          membersObj,
-                          flatCategories,
-                          till_id,
-                          function(formattedTransactions) {
-                            async.eachOf(
-                              formattedTransactions,
-                              function(transaction, index, callback) {
-                                if (
-                                  transaction.paymentFailed ||
-                                  transaction.isRefund
-                                ) {
-                                  formattedTransactions[index] = {};
-                                }
-                                callback();
-                              },
-                              function() {
-                                res.send(
-                                  formattedTransactions.filter(
-                                    value => Object.keys(value).length !== 0
-                                  )
-                                );
-                              }
-                            );
-                          }
-                        );
-                      });
-                    });
-                  } else {
-                    res.send([]);
-                  }
-                }
-              );
-            }
-          );
-        } else {
-          response.msg = "No valid till selected.";
-          res.send(response);
-        }
-      });
-    } else {
-      response.msg = "No till selected.";
-      res.send(response);
+    if (!till_id) {
+      throw "No till specified";
     }
-  }
-);
 
+    const till = await Tills.getById(till_id);
+
+    if (!till) {
+      throw "Till not found";
+    }
+    
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
+    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
+    
+    const { membersObj } = await Members.getAll();
+    const categories = await StockCategories.getCategories("treeKv");
+    const formattedTransactions = await Transactions.formatTransactions(transactions, membersObj, categories, till_id);
+
+    let sanitizedFormattedTransactions = [];
+
+    for await (const transaction of formattedTransactions) {
+      if (!transaction.paymentFailed && !transaction.isRefund) {
+        sanitizedFormattedTransactions.push(transaction);
+      }
+    }
+
+    res.send(sanitizedFormattedTransactions);
+  } catch (error) {
+    console.log(error);
+    res.send([]);
+  }
+});
 module.exports = router;

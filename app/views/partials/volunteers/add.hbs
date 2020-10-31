@@ -19,14 +19,14 @@
       <input type="text" class="form-control m-50" placeholder="Phone Number" name="volInfo[emergencyContactPhoneNo]"{{#if volInfo.emergencyContactPhoneNo}} value="{{volInfo.emergencyContactPhoneNo}}"{{/if}} required />
       <span class="flex-shrink-1 text-danger mx-2">*</span>
     </div>
-    {{#unless updatingVolunteer}}
+    {{!-- {{#unless updatingVolunteer}} --}}
       <p class="mt-3">We aim to make SHRUB as inclusive as possible. Do you have any disabilities, health needs or extra support needs that you would like us to be aware of?</p>
 
       <div class="form-check form-check-inline mt-1">
         <input class="form-check-input" type="checkbox" name="volInfo[medicalDisclosed]" required {{#if volInfo.medicalDisclosed}}checked{{/if}} >
         <label class="form-check-label">Additional support needs have been disclosed, if any <span class="text-danger">*</span></label>
       </div>
-    {{/unless}}
+    {{!-- {{/unless}} --}}
 
   </div>
 </div>
@@ -159,7 +159,7 @@
         <div class="row-fluid">
           <select class="selectpicker show-tick form-control" name=volInfo[survey][skills] data-style="btn-info" data-size="auto" data-live-search="true" multiple>
 
-              {{#each skills}}
+              {{#each staticContent.skills}}
 
                 {{#if this}}
                   <option value="{{@key}}"{{#if (lookupArray ../volInfo.survey.skills @key)}} selected{{/if}}>{{@key}}</option>
@@ -183,7 +183,7 @@
 
         <select class="selectpicker show-tick form-control" title="Select one or more communication methods" name="volInfo[survey][preferredCommMethods]" data-style="btn-info" data-size="auto" multiple>
 
-            {{#each contactMethods}}
+            {{#each staticContent.contactMethods}}
 
                 {{#if this}}
                   <option value="{{@key}}"{{#if (lookupArray ../volInfo.survey.preferredCommMethods @key)}} selected{{/if}}>{{@key}}</option>
@@ -256,7 +256,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-md-10 mx-auto">
-            {{{volunteerAgreement.markup}}}
+            {{{staticContent.volunteerAgreement.markup}}}
           </div>
         </div>
       </div>

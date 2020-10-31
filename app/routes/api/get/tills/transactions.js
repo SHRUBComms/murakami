@@ -1,66 +1,52 @@
 // /api/get/tills/transactions
 
-var router = require("express").Router();
-var async = require("async");
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var StockCategories = Models.StockCategories;
-var TillActivity = Models.TillActivity;
-var Transactions = Models.Transactions;
-var Members = Models.Members;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const TillActivity = Models.TillActivity;
+const StockCategories = Models.StockCategories;
+const Transactions = Models.Transactions;
+const Members = Models.Members;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/:till_id", Auth.isLoggedIn, function(req, res) {
-  Tills.getById(req.params.till_id, function(err, till) {
-    if (till) {
-      TillActivity.getByTillId(req.params.till_id, function(status) {
-        if (status.opening == 1 || req.query.startDate) {
-          Transactions.getAllBetweenTwoDatesByTillId(
-            req.params.till_id,
-            req.query.startDate || status.timestamp,
-            req.query.endDate || new Date(),
-            function(err, transactions) {
-              if (transactions.length > 0) {
-                Members.getAll(function(err, members, membersObj) {
-                  StockCategories.getCategoriesByTillId(
-                    req.params.till_id,
-                    "tree",
-                    function(err, categories) {
-                      var flatCategories = Helpers.flatten(categories);
+router.get("/:till_id", Auth.isLoggedIn, async (req, res) => {
+  try {
+    const till = await Tills.getById(req.params.till_id);
 
-                      var flatCategoriesAsObj = {};
-                      Transactions.formatTransactions(
-                        transactions,
-                        membersObj,
-                        flatCategories,
-                        req.params.till_id,
-                        function(formattedTransactions) {
-                          res.send(formattedTransactions);
-                        }
-                      );
-                    }
-                  );
-                });
-              } else {
-                res.send([]);
-              }
-            }
-          );
-        } else {
-          res.send([]);
-        }
-      });
-    } else {
-      res.send([]);
+    if(!till) {
+      throw "Till not found"
     }
-  });
+
+    if(till.disabled == 1) {
+      throw "Till is disabled";
+    }
+
+    const status = await TillActivity.getByTillId(req.params.till_id);
+
+    if(!req.query.startDate && status.opening == 0) {
+      throw "Enter start date";
+    }
+
+    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(req.params.till_id, req.query.startDate || status.timestamp, req.query.endDate || new Date());
+    
+    if (transactions.length == 0) {
+      throw "No transactions found";
+    }
+    
+    const { membersObj } = await  Members.getAll();
+    const categories = await StockCategories.getCategoriesByTillId(req.params.till_id, "treeKv");
+
+    const formattedTransactions = await Transactions.formatTransactions(transactions, membersObj, categories, req.params.till_id);
+    res.send(formattedTransactions);
+  } catch (error) {
+    res.send([]);
+  }
 });
 
 module.exports = router;

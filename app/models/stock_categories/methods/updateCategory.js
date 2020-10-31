@@ -1,6 +1,6 @@
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(category, callback) {
-    StockCategories.update(
+module.exports = (StockCategories) => {
+  return async (category) => {
+    return StockCategories.update(
       {
         carbon_id: category.carbon_id,
         name: category.name,
@@ -13,6 +13,6 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
         stockInfo: category.stockInfo || {}
       },
       { where: { item_id: category.item_id } }
-    ).nodeify(callback);
+    )
   };
 };

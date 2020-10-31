@@ -1,143 +1,91 @@
 // /working-groups/manage
 
-var router = require("express").Router();
-var h2p = require("html2plaintext");
+const router = require("express").Router();
+const h2p = require("html2plaintext");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var WorkingGroups = Models.WorkingGroups;
+const Models = require(rootDir + "/app/models/sequelize");
+const WorkingGroups = Models.WorkingGroups;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
+const validateWorkingGroup = require(rootDir + "/app/controllers/working-groups/validateWorkingGroup");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("workingGroups", "view"),
-  function(req, res) {
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "view"), async (req, res) => {
     if (req.user.working_groups.length > 0) {
-      var group = req.user.working_groups[0];
-
-      res.redirect(
-        process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + group
-      );
+      const group = req.user.working_groups[0];
+      res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + group);
     } else {
       res.redirect(process.env.PUBLIC_ADDRESS + "/");
     }
   }
 );
 
-router.get(
-  "/:group_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("workingGroups", "view"),
-  function(req, res) {
-    if (
-      req.user.permissions.workingGroups.view == true ||
-      (req.user.permissions.workingGroups.view == "commonWorkingGroup" &&
-        req.user.working_groups.includes(req.params.group_id))
-    ) {
-      var canUpdate;
-
-      if (
-        req.user.permissions.workingGroups.update == true ||
-        (req.user.permissions.workingGroups.update == "commonWorkingGroup" &&
-          req.user.working_groups.includes(req.params.group_id))
-      ) {
-        canUpdate = true;
-      }
-
-      WorkingGroups.getAll(function(err, working_groups) {
-        if (working_groups[req.params.group_id]) {
-          res.render("working-groups/manage", {
-            title: "Working Group Settings",
-            workingGroupsActive: true,
-            group: working_groups[req.params.group_id],
-            canUpdate: canUpdate
-          });
-        } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/error");
-        }
-      });
-    } else {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/");
+router.get("/:group_id", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "view"), async (req, res) => {
+  try {
+    if (!(req.user.permissions.workingGroups.view == true || (req.user.permissions.workingGroups.view == "commonWorkingGroup" && req.user.working_groups.includes(req.params.group_id)))) {
+      throw "You don't have permission to view this working group";
     }
-  }
-);
 
-router.post(
-  "/:group_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("workingGroups", "update"),
-  function(req, res) {
-    if (
-      req.user.permissions.workingGroups.update == true ||
-      (req.user.permissions.workingGroups.update == "commonWorkingGroup" &&
-        req.user.working_groups.includes(req.params.group_id))
-    ) {
-      WorkingGroups.getById(req.params.group_id, function(err, group) {
-        if (group) {
-          var group_id = req.params.group_id;
-          var name = req.body.name.trim();
-          var prefix = req.body.prefix.trim() || null;
-          var parent = req.body.parent || null;
-
-          req.checkBody("name", "Please enter a group name").notEmpty();
-
-          if (prefix) {
-            req.checkBody("prefix", "Please enter a group name").notEmpty();
-          }
-
-          var errors = req.validationErrors();
-
-          group.name = name;
-
-          if (req.user.permissions.workingGroups.update == true) {
-            group.prefix = prefix;
-
-            if (
-              req.user.allWorkingGroupsObj[parent] &&
-              !req.user.allWorkingGroupsObj[group_id].children
-            ) {
-              group.parent = parent;
-            } else {
-              group.parent = null;
-            }
-          }
-          if (h2p(req.body.welcomeMessage)) {
-            group.welcomeMessage = req.body.welcomeMessage.replace(
-              /\r?\n|\r/g,
-              ""
-            );
-          } else {
-            group.welcomeMessage = null;
-          }
-
-          if (!errors) {
-            WorkingGroups.updateGroup(group, function(err) {
-              req.flash("success_msg", "Group successfully updated!");
-              res.redirect(
-                process.env.PUBLIC_ADDRESS +
-                  "/working-groups/manage/" +
-                  group_id
-              );
-            });
-          } else {
-            res.render("working-groups/manage", {
-              errors: errors,
-              title: "Working Group Settings",
-              workingGroupsActive: true,
-              group: group
-            });
-          }
-        } else {
-          res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage");
-        }
-      });
-    } else {
-      res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/");
+    let canUpdate = false;
+    if (req.user.permissions.workingGroups.update == true || (req.user.permissions.workingGroups.update == "commonWorkingGroup" && req.user.working_groups.includes(req.params.group_id))) {
+      canUpdate = true;
     }
+
+    if (!req.user.allWorkingGroupsObj[req.params.group_id]) {
+      throw "Working group not found";
+    }
+    
+    res.render("working-groups/manage", {
+      title: "Working Group Settings",
+      workingGroupsActive: true,
+      group: req.user.allWorkingGroupsObj[req.params.group_id],
+      canUpdate: canUpdate
+    });
+  } catch (error) {
+    res.redirect(process.env.PUBLIC_ADDRESS + "/");
+  }  
+});
+
+router.post("/:group_id", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "update"), async (req, res) => {
+  try {
+    if (!(req.user.permissions.workingGroups.update == true || (req.user.permissions.workingGroups.update == "commonWorkingGroup" && req.user.working_groups.includes(req.params.group_id)))) {
+      throw "You don't have permission to update this working group";
+    }
+
+    const group = req.user.allWorkingGroups[req.params.group_id];
+    
+    if (!group) {
+      throw "Working group not found";
+    }
+    
+    let sanitizedGroup = {
+      group_id: req.params.group_id,
+      name: req.body.name,
+      prefix: req.body.prefix,
+      parent: req.body.parent,
+      welcomeMessage: req.body.welcomeMessage
+    }
+
+    await validateWorkingGroup(req.user, sanitizedGroup);
+    
+    if (h2p(sanitizedGroup.welcomeMessage)) {
+      sanitizedGroup.welcomeMessage = sanitizedGroup.welcomeMessage.replace(/\r?\n|\r/g, "");
+    } else {
+      group.welcomeMessage = null;
+    }
+    
+    await WorkingGroups.updateGroup(group);
+    req.flash("success_msg", "Group successfully updated!");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + req.params.group_id);
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    } 
+
+    req.flash("error_msg", error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + req.params.group_id);
   }
-);
+});
 
 module.exports = router;

@@ -1,6 +1,6 @@
 // /food-collections
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/log", require("./log"));
 router.use("/export", require("./export"));

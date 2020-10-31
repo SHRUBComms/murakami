@@ -1,7 +1,7 @@
-module.exports = function(Transactions, sequelize, DataTypes) {
-  return function(callback) {
-    Transactions.findAll({
+module.exports = (Transactions) => {
+  return async () => {
+    return Transactions.findAll({
       order: [["date", "ASC"]]
-    }).nodeify(callback);
+    });
   };
 };

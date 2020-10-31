@@ -1,115 +1,87 @@
 // /carbon-accounting/raw-csv-export
 
-var router = require("express").Router();
-var async = require("async");
-var lodash = require("lodash");
-var ExportToCsv = require("export-to-csv").ExportToCsv;
-var moment = require("moment");
+const router = require("express").Router();
+const lodash = require("lodash");
+const ExportToCsv = require("export-to-csv").ExportToCsv;
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Carbon = Models.Carbon;
-var CarbonCategories = Models.CarbonCategories;
-var Users = Models.Users;
+const Models = require(rootDir + "/app/models/sequelize");
+const Carbon = Models.Carbon;
+const CarbonCategories = Models.CarbonCategories;
+const Users = Models.Users;
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("carbonAccounting", "export"),
-  function(req, res) {
-    var data = [];
-    Users.getAll(req.user, function(err, user, allUsersObj) {
-      CarbonCategories.getAll(function(err, categories) {
-        Carbon.getAll(function(err, carbon) {
-          async.each(
-            carbon,
-            function(transaction, callback) {
-              var formattedTransaction = {};
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "export"), async (req, res) => {
+  try {
+    let formattedCarbon = [];
+    const { usersObj } = await Users.getAll(req.user);
+    const carbonCategories = await CarbonCategories.getAll();
+    const carbon = await Carbon.getAll();
 
-              formattedTransaction["Transaction ID"] =
-                transaction.transaction_id;
+    for await (const transaction of carbon) {
+      let formattedTransaction = {};
+      
+      formattedTransaction["Transaction ID"] = transaction.transaction_id;
+      formattedTransaction.Timestamp = transaction.trans_date;
+      formattedTransaction["Working Group"] = req.user.allWorkingGroupsObj[transaction.group_id].name;
 
-              formattedTransaction.Timestamp = transaction.trans_date;
+      if (usersObj[transaction.user_id]) {
+        formattedTransaction.User = `${usersObj[transaction.user_id].first_name} ${usersObj[transaction.user_id].last_name}`;
+      } else {
+        formattedTransaction.User = "Unknown User";
+      }
 
-              formattedTransaction["Working Group"] =
-                req.user.allWorkingGroupsObj[transaction.group_id].name;
+      if (transaction.member_id) {
+        formattedTransaction.Member = lodash.startCase(transaction.member_id);
+      } else {
+        formattedTransaction.Member = null;
+      }
 
-              if (allUsersObj[transaction.user_id]) {
-                formattedTransaction.User =
-                  allUsersObj[transaction.user_id].first_name +
-                  " " +
-                  allUsersObj[transaction.user_id].last_name;
-              } else {
-                formattedTransaction.User = "Unknown User";
-              }
+      if (transaction.fx_transaction_id) {
+        formattedTransaction["Till Transaction ID"] = transaction.fx_transaction_id;
+      } else {
+        formattedTransaction["Till Transaction ID"] = "";
+      }
+      
+      formattedTransaction["Disposal Method"] = lodash.startCase(transaction.method);
 
-              if (transaction.member_id) {
-                formattedTransaction.Member = lodash.startCase(
-                  transaction.member_id
-                );
-              } else {
-                formattedTransaction.Member = null;
-              }
+      for await (const carbonCategoryId of Object.keys(carbonCategories)) {
+        const carbonCategory = carbonCategories[carbonCategoryId];
+        formattedTransaction[carbonCategory.name] = transaction.trans_object[carbonCategoryId] || 0;
+      }
 
-              if (transaction.fx_transaction_id) {
-                formattedTransaction["Till Transaction ID"] =
-                  transaction.fx_transaction_id;
-              } else {
-                formattedTransaction["Till Transaction ID"] = null;
-              }
+      formattedCarbon.push(formattedTransaction);
 
-              formattedTransaction["Disposal Method"] = lodash.startCase(
-                transaction.method
-              );
+    }
 
-              async.each(
-                categories,
-                function(category, callback) {
-                  formattedTransaction[category.name] =
-                    transaction.trans_object[category.carbon_id] || 0;
-                  callback();
-                },
-                function() {
-                  data.push(formattedTransaction);
-                  callback();
-                }
-              );
-            },
-            function() {
-              data = lodash.sortBy(data, "Timestamp");
+    formattedCarbon = lodash.sortBy(formattedCarbon, "Timestamp");
+    
+    const options = {
+      fieldSeparator: ",",
+      quoteStrings: '"',
+      decimalSeparator: ".",
+      showLabels: true,
+      showTitle: true,
+      title: "Raw Carbon Accounting Data " + moment().format("YYYY-MM-DD"),
+      useTextFile: false,
+      useBom: true,
+      useKeysAsHeaders: true
+    };
 
-              var options = {
-                fieldSeparator: ",",
-                quoteStrings: '"',
-                decimalSeparator: ".",
-                showLabels: true,
-                showTitle: true,
-                title:
-                  "Raw Carbon Accounting Data " + moment().format("YYYY-MM-DD"),
-                useTextFile: false,
-                useBom: true,
-                useKeysAsHeaders: true
-                // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
-              };
+    const csvExporter = new ExportToCsv(options);
 
-              var csvExporter = new ExportToCsv(options);
-
-              res.setHeader(
-                "Content-disposition",
-                "attachment; filename=" + options.title + ".csv"
-              );
-              res.set("Content-Type", "text/csv");
-              res.status(200).send(csvExporter.generateCsv(data, true));
-            }
-          );
-        });
-      });
-    });
-  }
-);
+    res.setHeader("Content-disposition", "attachment; filename=" + options.title + ".csv");
+    res.set("Content-Type", "text/csv");
+    res.status(200).send(csvExporter.generateCsv(formattedCarbon, true));
+  } catch (error) {
+    console.log(error);
+    req.flash("error_msg", "Something went wrong! Please try again");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/carbon-accounting/export");
+  }  
+});
 
 module.exports = router;

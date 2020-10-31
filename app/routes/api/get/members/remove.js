@@ -1,51 +1,30 @@
 // /api/get/members/remove
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Members = Models.Members;
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "revokeMembership"), async (req, res) => {
+	try {
+		const member = await Members.getById(req.params.member_id, req.user);
+		if (!req.user.permissions.members.revokeMembership) {
+		}
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("members", "revokeMembership"),
-  function(req, res) {
-    var member_id = req.params.member_id;
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (
-        req.user.permissions.members.revokeMembership == true ||
-        (req.user.permissions.members.revokeMembership ==
-          "commonWorkingGroup" &&
-          Helpers.hasOneInCommon(
-            req.user.working_groups,
-            member.working_groups
-          ))
-      ) {
-        Members.updateStatus(member_id, 0, function(err) {
-          if (err) {
-            req.flash("error_msg", "Something went wrong!");
-          } else {
-            req.flash("success_msg", "Membership revoked!");
-          }
-          res.redirect(
-            process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
-          );
-        });
-      } else {
-        req.flash(
-          "error_msg",
-          "You don't have permission to revoke membership!"
-        );
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
-      }
-    });
-  }
-);
+		if(req.user.permissions.members.revokeMembership == "commonWorkingGroup" && !Helpers.hasOneInCommon(req.user.working_groups, member.working_groups)) {
+		}
+
+		await Members.updateStatus(member_id, 0);
+		req.flash("success_msg", "Membership revoked!");
+	} catch (error) {
+	        req.flash("error_msg", "You don't have permission to revoke membership!");
+        	res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+	}
+});
 
 module.exports = router;

@@ -7,11 +7,17 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
 				WHERE volunteers.member_id = ?`;
 		try {
 			const volunteer = await sequelize.query(query, { replacements: [member_id] })
-			if (volunteer[0][0]) {
-				Volunteers.sanitizeVolunteer([volInfo[0][0]], user, (volInfoClean) => {
-					return volInfoClean[0];
-				})
+			if (!volunteer[0][0]) {
+				return null;
 			}
+
+			const sanitizedVolunteer = await Volunteers.sanitizeVolunteer([volunteer[0][0]], user);
+
+			if(!sanitizedVolunteer) {
+				return null;
+			}
+
+			return sanitizedVolunteer[0];
 		} catch(error) {
 			throw error;
 		}

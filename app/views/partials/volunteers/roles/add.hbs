@@ -1,20 +1,20 @@
 <div class="card p-4">
   <div class="card-body">
 
-    <input type="text" class="form-control mb-2" placeholder="Role Title" name="role_title"{{#if role.title}} value="{{role.title}}"{{/if}} maxlength="50" required>
+    <input type="text" class="form-control mb-2" placeholder="Role Title" name="role[title]"{{#if role.title}} value="{{role.title}}"{{/if}} maxlength="50" required>
 
-    <textarea class="form-control mb-2" placeholder="Short Description" name="short_description" maxlength="500" required>{{#if role.short_description}}{{role.short_description}}{{/if}}</textarea>
+    <textarea class="form-control mb-2" placeholder="Short Description" name="role[short_description]" maxlength="500" required>{{#if role.short_description}}{{role.short_description}}{{/if}}</textarea>
 
-    <textarea class="form-control mb-2" placeholder="Experience Required" name="experience_required" maxlength="500" required>{{#if role.experience_required}}{{role.experience_required}}{{/if}}</textarea>
+    <textarea class="form-control mb-2" placeholder="Experience Required" name="role[experience_required]" maxlength="500" required>{{#if role.experience_required}}{{role.experience_required}}{{/if}}</textarea>
 
-    <textarea class="form-control mb-2" placeholder="Experience Gained" name="experience_gained" maxlength="500" required>{{#if role.experience_gained}}{{role.experience_gained}}{{/if}}</textarea>
+    <textarea class="form-control mb-2" placeholder="Experience Gained" name="role[experience_gained]" maxlength="500" required>{{#if role.experience_gained}}{{role.experience_gained}}{{/if}}</textarea>
 
     <div class="form-inline mt-3">
       <label class="form-inline ml-1 mr-2">Required Hours (per week)</label>
-      <input type="number" name="hours_per_week" class="form-control form-inline" max=15 min=1 step=0.5 value="{{#if role.hours_per_week}}{{role.hours_per_week}}{{else}}0{{/if}}" required />
+      <input type="number" name="role[hours_per_week]" class="form-control form-inline" max=15 min=1 step=0.5 value="{{#if role.hours_per_week}}{{role.hours_per_week}}{{else}}0{{/if}}" required />
     </div>
 
-    <select class="form-control mt-3" name="commitment_length">
+    <select class="form-control mt-3" name="role[commitment_length]">
       <option disabled selected>Commitment length</option>
       {{#each commitmentLengths}}
 
@@ -49,7 +49,7 @@
 
     </div>
 
-    <select class="selectpicker show-tick form-control mt-3" name="locations" title="Select one or more locations" data-style="btn-info" data-size="auto" data-header="Select one or more locations" data-live-search="true" multiple required>
+    <select class="selectpicker show-tick form-control mt-3" name="role[locations]" title="Select one or more locations" data-style="btn-info" data-size="auto" data-header="Select one or more locations" data-live-search="true" multiple required>
 
       {{#each locations}}
 
@@ -65,7 +65,7 @@
 
     </select>
 
-    <select class="selectpicker show-tick form-control mt-3" name="activities" title="Select one or more types of activity" data-style="btn-info" data-size="auto" data-header="Select one or more locations" data-live-search="true" multiple required>
+    <select class="selectpicker show-tick form-control mt-3" name="role[activities]" title="Select one or more types of activity" data-style="btn-info" data-size="auto" data-header="Select one or more locations" data-live-search="true" multiple required>
 
       {{#each activities}}
 

@@ -1,53 +1,40 @@
 // /till/manage
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var TillActivity = Models.TillActivity;
-var CarbonCategories = Models.CarbonCategories;
-var StockCategories = Models.StockCategories;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const TillActivity = Models.TillActivity;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "viewTill"),
-  function(req, res) {
-    Tills.getAll(function(err, tills) {
-      TillActivity.getAll(function(err, activity) {
-        var allowedTills = [];
-        async.each(
-          tills,
-          function(till, callback) {
-            if (
-              req.user.permissions.tills.viewTill == true ||
-              (req.user.permissions.tills.viewTill == "commonWorkingGroup" &&
-                req.user.working_groups.includes(till.group_id))
-            ) {
-              allowedTills.push(till);
-              callback();
-            } else {
-              callback();
-            }
-          },
-          function() {
-            res.render("till/manage", {
-              title: "Manage Tills",
-              tillsActive: true,
-              tills: allowedTills,
-              activity: activity
-            });
-          }
-        );
-      });
-    });
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async (req, res) => {
+	try {
+		const { tills } = await Tills.getAll();
+		const activity = await TillActivity.getAll();
+
+		let allowedTills = [];
+
+		for await (const till of tills) {
+			if (req.user.permissions.tills.viewTill == true || (req.user.permissions.tills.viewTill == "commonWorkingGroup" && req.user.working_groups.includes(till.group_id))) {
+				allowedTills.push(till);
+			}
+		}
+
+		res.render("till/manage", {
+			title: "Manage Tills",
+			tillsActive: true,
+			tills: allowedTills,
+			activity: activity
+		});
+
+	} catch (error) {
+		console.log(error);
+		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+	}
+});
 
 module.exports = router;

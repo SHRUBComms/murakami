@@ -1,6 +1,6 @@
 // /api/post/volunteers/food-collections
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/get-by-member-id", require("./get-by-member-id"));
 router.use("/update", require("./update"));

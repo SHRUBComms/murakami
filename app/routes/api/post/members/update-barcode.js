@@ -1,50 +1,51 @@
 // /api/post/members/update-barcode
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Members = Models.Members;
-var WorkingGroups = Models.WorkingGroups;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.post("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "view"), async (req, res) => {
+  try {
+    let barcode = req.body.barcode;
 
-router.post("/:member_id", Auth.isLoggedIn, function(req, res) {
-  var barcode = req.body.barcode;
-  var response = { status: "fail" };
-
-  Members.getById(req.params.member_id, req.user, function(err, member) {
-    if (!err && member) {
-      if (barcode) {
-        barcode = barcode.trim();
-        if (!isNaN(barcode)) {
-          Members.updateBarcode(member.member_id, barcode, function(err) {
-            if (!err) {
-              response.status = "ok";
-              response.msg = "Barcode successfully assigned!";
-              res.send(response);
-            } else {
-              response.msg =
-                "This barcode is already in use! Please try another.";
-              res.send(response);
-            }
-          });
-        } else {
-          response.msg = "Please enter a valid barcode!";
-          res.send(response);
-        }
-      } else {
-        response.msg = "Please enter a barcode.";
-        res.send(response);
-      }
-    } else {
-      response.msg = "Member not found!";
-      res.send(response);
+    const member = await Members.getById(req.params.member_id, req.user);
+    
+    if(!member) {
+      throw "Member not found";
     }
-  });
+
+    if (!barcode) {
+      throw "Please enter a barcode";
+    }
+    
+    barcode = Number(barcode.trim());
+    
+    if (!Number.isInteger(barcode)) {
+      throw "Please enter a valid barcode";
+    }
+
+    const barcodeInUse = await Members.findOne({ where: { barcode: barcode } });
+
+    if(barcodeInUse) {
+      throw "This barcode is already in use! Please try another";
+    }
+
+    await Members.updateBarcode(member.member_id, barcode);
+
+    res.send({ status: "ok", msg: "Barcode successfully assigned!" }); 
+  } catch (error) {
+    console.log(error);
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    res.send({ status: "fail", msg: error });
+  }
 });
 
 module.exports = router;

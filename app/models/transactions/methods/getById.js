@@ -1,8 +1,8 @@
-module.exports = function(Transactions, sequelize, DataTypes) {
-  return function(transaction_id, callback) {
-    Transactions.findOne({
+module.exports = (Transactions) => {
+  return async (transaction_id) => {
+    return Transactions.findOne({
       where: { transaction_id: transaction_id },
       raw: true
-    }).nodeify(callback);
+    })
   };
 };

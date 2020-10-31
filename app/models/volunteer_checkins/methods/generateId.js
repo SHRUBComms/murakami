@@ -1,17 +1,13 @@
-module.exports = function(VolunteerCheckIns, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-  var GetId = function(callback) {
-    var id = Helpers.generateBase64Id(25);
-    VolunteerCheckIns.findAll({ where: { checkin_id: id } }).nodeify(function(
-      err,
-      result
-    ) {
-      if (result.length > 0) {
-        GetId(callback);
-      } else if (result.length == 0) {
-        callback(id);
-      }
-    });
+module.exports = (VolunteerCheckIns) => {
+  const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  const GetId = async () => {
+    const id = Helpers.generateBase64Id(25);
+    const result = await VolunteerCheckIns.findAll({ where: { checkin_id: id } });
+    if (result.length > 0) {
+      GetId();
+    } else if (result.length == 0) {
+      return id;
+    }
   };
   return GetId;
 };

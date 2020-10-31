@@ -1,8 +1,7 @@
 // /api/get/food-collections/organisations
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-router.use("/mark-as-active", require("./mark-as-active"));
-router.use("/mark-as-inactive", require("./mark-as-inactive"));
+router.use("/change-active-status", require("./change-active-status"));
 
 module.exports = router;

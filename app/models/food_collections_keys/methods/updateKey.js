@@ -1,6 +1,6 @@
-module.exports = function(FoodCollectionsKeys, sequelize, DataTypes) {
-  return function(foodCollectionKey, callback) {
-    FoodCollectionsKeys.update(
+module.exports = (FoodCollectionsKeys, sequelize, DataTypes) => {
+  return async (foodCollectionKey) => {
+    return FoodCollectionsKeys.update(
       {
         key: foodCollectionKey.key,
         member_id: foodCollectionKey.member_id,
@@ -9,6 +9,6 @@ module.exports = function(FoodCollectionsKeys, sequelize, DataTypes) {
         active: foodCollectionKey.active
       },
       { where: { key: foodCollectionKey.key } }
-    ).nodeify(callback);
+    )
   };
 };

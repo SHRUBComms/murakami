@@ -1,13 +1,18 @@
-module.exports = function(Members, sequelize, DataTypes) {
-  return function(info, callback) {
-    var query =
-      "SELECT * FROM members WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND email = ?";
-    var inserts = ["%" + info.name + "%", info.email];
+module.exports = (Members, sequelize) => {
+  return async (info) => {
+    try {
+      const query = "SELECT * FROM members WHERE (CONCAT(first_name, ' ', last_name) LIKE ?) AND email = ?";
+      const inserts = ["%" + info.name + "%", info.email];
 
-    sequelize
-      .query(query, { replacements: inserts })
-      .nodeify(function(err, members) {
-        callback(err, members[0]);
-      });
-  };
-};
+      const results = await sequelize.query(query, { replacements: inserts });
+
+      if(!results[0]) {
+        throw "No results";
+      }
+
+      return results[0];
+    } catch (error) {
+      return [];
+    }
+  }
+}

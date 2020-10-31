@@ -1,39 +1,23 @@
-var async = require("async");
-var Helpers = require(process.env.CWD + "/app/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/helper-functions/root");
 
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(till_id, format, callback) {
-    StockCategories.findAll({
+module.exports = (StockCategories, sequelize, DataTypes) => {
+  return async (till_id, format) => {
+    const query = {
       raw: true,
-      where: {
-        [DataTypes.Op.or]: [{ till_id: till_id }, { till_id: null }],
-        active: 1
-      },
+      where: { [DataTypes.Op.or]: [{ till_id: till_id }, { till_id: null }], active: 1 },
       order: [["name", "ASC"]]
-    }).nodeify(function(err, categories) {
-      if (err) {
-        callback([]);
-      } else {
-        if (format == "tree") {
-          StockCategories.treeify(categories, function(tree) {
-            callback(err, tree);
-          });
-        } else if (format == "kv") {
-          var categoriesObj = {};
-          async.each(
-            categories,
-            function(category, callback) {
-              categoriesObj[category.item_id] = category;
-              callback();
-            },
-            function() {
-              callback(err, categoriesObj);
-            }
-          );
-        } else {
-          callback(err, categories);
-        }
-      }
-    });
-  };
-};
+    };
+
+    const categories = await StockCategories.findAll(query);
+    if (format == "tree") {
+      const tree = await StockCategories.treeify(categories);
+      return tree;
+    } else if (format == "kv") {
+      return categories.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
+    } else if(format == "treeKv") {  
+      const tree = await StockCategories.treeify(categories);
+      const flat = await Helpers.flatten(tree);
+      return flat.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
+    }
+  }
+}

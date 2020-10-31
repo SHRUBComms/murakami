@@ -1,12 +1,5 @@
-module.exports = function(Reports, sequelize, DataTypes) {
-  return function(callback) {
-    Reports.findAll({
-    	order: [
-		["date","asc"]
-	]
-    })
-    .nodeify(function(err, reports){
-      callback(err, reports);
-    });
+module.exports = (Reports) => {
+  return async () => {
+    return Reports.findAll({ order: [["date","asc"]] });
   };
 };

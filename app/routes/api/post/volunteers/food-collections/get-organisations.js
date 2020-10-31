@@ -1,35 +1,21 @@
-// /api/post/volunteers/food-collections/get-by-member-id
+// /api/post/volunteers/food-collections/get-organisations
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "manageFoodCollectionLink"),
-  function(req, res) {
-    FoodCollectionsOrganisations.getAll(function(err, organisations) {
-      if (!err && organisations) {
-        res.send({
-          status: "ok",
-          organisations: organisations
-        });
-      } else {
-        res.send({
-          status: "fail",
-          msg: "Something went wrong!"
-        });
-      }
-    });
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "manageFoodCollectionLink"), async (req, res) => {
+  try {
+    const organisations = await FoodCollectionsOrganisations.getAll();
+    res.send({ status: "ok", organisations: organisations });
+  } catch (error) {
+    res.send({ status: "fail", msg: "Something went wrong! Please try again" });
   }
-);
+});
 
 module.exports = router;

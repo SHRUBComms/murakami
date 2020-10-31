@@ -1,10 +1,5 @@
-module.exports = function(Carbon, sequelize, DataTypes) {
-  return function(member_id, callback) {
-    Carbon.findAll({ where: { member_id: member_id } }).nodeify(function(
-      err,
-      carbon
-    ) {
-      callback(null, carbon);
-    });
-  };
-};
+module.exports = (Carbon, sequelize, DataTypes) => {
+  	return async (member_id) => {
+    		return Carbon.findAll({ where: { member_id: member_id } });
+    	}
+}

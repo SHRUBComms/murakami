@@ -1,13 +1,9 @@
 // /working-groups
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
-
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), function(req, res) {
-  res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage");
+router.get("/", (req, res) => {
+	res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/roles/manage");
 });
 
 router.use("/add", require("./add"));

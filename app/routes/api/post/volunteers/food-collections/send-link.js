@@ -1,86 +1,57 @@
 // /api/post/volunteers/send-food-collection-link
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail/root");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const Volunteers = Models.Volunteers;
+const FoodCollectionsKeys = Models.FoodCollectionsKeys;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Auth = require(rootDir + "/app/configs/auth");
+const Mail = require(rootDir + "/app/configs/mail/root");
 
-var Members = Models.Members;
-var FoodCollectionsKeys = Models.FoodCollectionsKeys;
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "manageFoodCollectionsLink"), async (req, res) => {
+  try {
+    const member = await Members.getById(req.body.member_id, { permissions: { members: { name: true, contactDetails: true } } });
+    if (!member) {
+      throw "Member not found";
+    }
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
+    const volunteer = Volunteers.getVolunteerById(member.member_id, req.user);
 
-  function(req, res) {
-    var response = {};
-    response.status = "fail";
-    var member_id = req.body.member_id;
+    if(!volunteer) {
+      throw "Member is not a volunteer";
+    }
 
-    Members.getById(
-      member_id,
-      { permissions: { members: { name: true, contactDetails: true } } },
-      function(err, volunteer) {
-        if (!err && volunteer) {
-          FoodCollectionsKeys.getByMemberId(volunteer.member_id, function(
-            err,
-            foodCollectionKey
-          ) {
-            if(!err && foodCollectionKey){
-              if(foodCollectionKey.active == 1){
-                var link =
-                  process.env.PUBLIC_ADDRESS +
-                  "/food-collections/log/" +
-                  foodCollectionKey.key;
-                Mail.sendGeneral(
-                  volunteer.first_name +
-                    " " +
-                    volunteer.last_name +
-                    "<" +
-                    volunteer.email +
-                    ">",
-                  "Logging Food Collections",
-                  "<p>Hey " +
-                    volunteer.first_name +
-                    ",</p>" +
-                    "<p>Please use the link below to log your food collections!</p>" +
-                    "<a href='" +
-                    link +
-                    "'>" +
-                    link +
-                    "</a>" +
-                    "<p><small>Please note that this is an automated email.</small></p>",
-                  function(err) {
-                    if (!err) {
-                      response.status = "ok";
-                      response.msg = "Link successfully sent to volunteer!";
-                    } else {
-                      response.msg = "Something went wrong!";
-                    }
-                    res.send(response);
-                  }
-                );
-              } else {
-                response.msg = "Key is disabled!";
-                res.send(response);
-              }
-            } else {
-              response.msg = "Food logging key doesn't exist!";
-              res.send(response);
-            }
+    const foodCollectionKey = await FoodCollectionsKeys.getByMemberId(member.member_id);
+    
+    if(!foodCollectionKey){
+      throw "Volunteer doesn't have a food collection key";
+    }
+            
+    if(foodCollectionKey.active == 0){
+      throw "Key is disabled";
+    }
+    
+    const foodCollectionLink = `${process.env.PUBLIC_ADDRESS}/food-collections/log/${foodCollectionKey.key}`;
+    const recipient = `${member.first_name} ${member.last_name} <${member.email}>` 
+    const message = `<p>Hey ${volunteer.first_name},</p>
+                    <p>Please use the link below to log your food collections!</p>
+                    <a href="${foodCollectionLink}">${foodCollectionLink}</a>
+                    <p><small>Please note that this is an automated email.</small></p>`;
 
-          });
-        } else {
-          response.msg = "Volunteer does not exist.";
-          res.send(response);
-        }
-      }
-    );
+    await Mail.sendGeneral(recipient, "Logging Food Collections", message);
+
+    res.send({ status: "ok", msg: "Link successfully sent to volunteer!" });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    res.send({ status: "fail", msg: error });
   }
-);
+});
 
 module.exports = router;

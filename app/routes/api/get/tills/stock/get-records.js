@@ -1,57 +1,46 @@
 // /api/get/tills/stock/get-records
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const StockRecords = Models.StockRecords;
+const StockCategories = Models.StockCategories;
+const Users = Models.Users;
 
-var StockRecords = Models.StockRecords;
-var StockCategories = Models.StockCategories;
-var Users = Models.Users;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.get("/:item_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewStock"), async (req, res) => {
+  try { 
 
-router.get(
-  "/:item_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "viewStock"),
-  function(req, res) {
-    StockCategories.getCategoryById(req.params.item_id, function(
-      err,
-      category
-    ) {
-      if (!err && category) {
-        StockRecords.getRecords(
-          req.params.item_id,
-          req.query.condition,
-          function(err, records) {
-            if (!err && records) {
-              if (records.length > 0) {
-                Users.getAll(req.user, function(err, users, usersObj) {
-                  StockRecords.formatRecords(
-                    records,
-                    usersObj,
-                    null,
-                    null,
-                    function(formattedRecords) {
-                      res.send(formattedRecords);
-                    }
-                  );
-                });
-              } else {
-                res.send([]);
-              }
-            } else {
-              res.send([]);
-            }
-          }
-        );
-      } else {
-        res.send([]);
-      }
-    });
+    const category = await StockCategories.getCategoryById(req.params.item_id);
+
+    if(!category) {
+      throw "Category not found";
+    }
+
+    if(!req.query.condition) {
+      throw "Enter a condition";
+    }
+
+    const records = await StockRecords.getRecords(req.params.item_id, req.query.condition);
+    
+    if (!records) {
+      throw "No records found";
+    }
+    
+    if (records.length == 0) {
+      throw "No records found"
+    }
+    
+    const { usersObj } = await Users.getAll(req.user);
+    const formattedRecords = await StockRecords.formatRecords(records, usersObj, null, null);
+
+    res.send(formattedRecords);
+  } catch (error) {
+    console.log(error);
+    res.send([]);
   }
-);
-
+});
 module.exports = router;

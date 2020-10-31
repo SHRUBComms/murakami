@@ -1,47 +1,30 @@
 // /api/post/members/report
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var async = require("async");
+const rootDir = process.env.CWD;
 
-var rootDir = process.env.CWD;
+const Models = require(rootDir + "/app/models/sequelize");
+const WorkingGroups = Models.WorkingGroups;
+const Reports = Models.Reports;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var WorkingGroups = Models.WorkingGroups;
-var Reports = Models.Reports;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.post("/", Auth.verifyByKey("membershipReport"), async (req, res) => {
+  try {
+    const { allWorkingGroupsObj } = await WorkingGroups.getAll();
+    let summary = {};
 
-router.post("/", Auth.verifyByKey("membershipReport"), function(req, res) {
-  WorkingGroups.getAll(function(
-    err,
-    allWorkingGroupsObj,
-    allWorkingGroupsRaw,
-    allWorkingGroupsArray
-  ) {
-    var response = {
-      status: "fail",
-      msg: "Something went wrong!",
-      summary: {},
-      workingGroups: allWorkingGroupsObj
-    };
+    const reports = await Reports.getAll();
+    
+    for await (const report of reports) {
+      summary[report.date] = report;
+    }
 
-    Reports.getAll(function(err, reports) {
-    	try {
-		if(err) throw err;
-		async.forEach(reports, function(report, callback) {
-		      response.summary[report.date] = report;
-		      callback();
-		}, function() {
-        		response.status = "ok";
-			delete response.msg;
-			res.send(response);
-		});
-	} catch(error) {
-		res.send(response);
-	}
-    });
-  });
+    res.send({ status: "ok", summary: summary, workingGroups: allWorkingGroupsObj });
+  } catch (error) {
+    res.send({ status: "fail", summary: {}, workingGroups: {} });
+  }
 });
 
 module.exports = router;

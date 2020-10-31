@@ -1,16 +1,14 @@
-module.exports = function(FoodCollectionsOrganisations, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-  var GetId = function(callback) {
-    var id = Helpers.generateBase64Id(15);
-    FoodCollectionsOrganisations.findAll({
-      where: { organisation_id: id }
-    }).nodeify(function(err, result) {
-      if (result.length > 0) {
-        GetId(callback);
-      } else if (result.length == 0) {
-        callback(id);
-      }
-    });
-  };
-  return GetId;
-};
+module.exports = (FoodCollectionsOrganisations, sequelize, DataTypes) => {
+	const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  	const GetId = async () => {
+    		const id = Helpers.generateBase64Id(15);
+    		const result = await FoodCollectionsOrganisations.findAll({ where: { organisation_id: id } });
+      		if (result.length > 0) {
+        		GetId();
+      		} else if (result.length == 0) {
+        		return id
+      		}
+    	}
+
+  	return GetId;
+}

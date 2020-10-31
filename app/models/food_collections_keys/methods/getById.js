@@ -1,7 +1,5 @@
-module.exports = function(FoodCollectionsKeys, sequelize, DataTypes) {
-  return function(key, callback) {
-    FoodCollectionsKeys.findOne({ where: { key: key }, raw: true }).nodeify(
-      callback
-    );
-  };
-};
+module.exports = (FoodCollectionsKeys, sequelize, DataTypes) => {
+	return async (key) => {
+    		return FoodCollectionsKeys.findOne({ where: { key: key }, raw: true });
+  	}
+}

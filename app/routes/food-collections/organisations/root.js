@@ -1,11 +1,9 @@
 // /food-collections/organisations
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-router.get("/", function(req, res) {
-  res.redirect(
-    process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage"
-  );
+router.get("/", (req, res) => {
+	res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage");
 });
 
 router.use("/manage", require("./manage"));

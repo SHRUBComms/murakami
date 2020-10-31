@@ -89,8 +89,6 @@ router.post("/:user_id", Auth.isLoggedIn, Auth.canAccessPage("users", "update"),
 			updatedUser.notification_preferences = user.notification_preferences;
 		}
 
-		console.log("Here");
-
 		await Users.updateUser(updatedUser);
 
 		req.flash("success_msg", "User updated!");

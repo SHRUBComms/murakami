@@ -13,7 +13,7 @@
 
           <option disabled selected>Select a parent working group...</option>
 
-          <option value='none' {{#unless parent}}selected{{/unless}}>No Parent</option>
+          <option value='' {{#unless parent}}selected{{/unless}}>No Parent</option>
 
 
           {{#ifCond user.permissions.workingGroups.add '==' true}}

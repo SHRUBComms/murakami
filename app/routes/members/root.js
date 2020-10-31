@@ -1,20 +1,14 @@
 // /members
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin", "volunteer", "staff"]),
-  function(req, res) {
-    res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer", "staff"]), (req, res) => {
+	res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
+});
 
 router.use("/add", require("./add"));
 router.use("/manage", require("./manage"));

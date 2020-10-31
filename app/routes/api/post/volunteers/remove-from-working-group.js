@@ -1,106 +1,70 @@
 // /api/post/volunteers/remove-from-working-group
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const Volunteers = Models.Volunteers;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Members = Models.Members;
-var Volunteers = Models.Volunteers;
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "update"), async (req, res) => {
+  try {
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "update"),
-  function(req, res) {
-    var response = { msg: "Something went wrong!", status: "fail" };
-
-    if (req.body.member_id && req.body.group_id) {
-      var member_id = req.body.member_id.trim();
-      var group_id = req.body.group_id.trim().toUpperCase();
-
-      Volunteers.getVolunteerById(member_id, req.user, function(
-        err,
-        volunteer
-      ) {
-        if (volunteer) {
-          if (volunteer.canUpdate) {
-            var rolesToRemove = [];
-
-            if (volunteer.old_working_groups.includes(group_id)) {
-              volunteer.old_working_groups.splice(
-                volunteer.old_working_groups.indexOf(group_id),
-                1
-              );
-            }
-
-            Members.updateWorkingGroups(
-              member_id,
-              volunteer.old_working_groups,
-              function(err) {
-                if (!err) {
-                  async.eachOf(
-                    volunteer.roles,
-                    function(role, index, callback) {
-                      if (req.user.allVolunteerRoles[role]) {
-                        role = req.user.allVolunteerRoles[role];
-                        if (role.group_id == group_id || (group_id == "MY-VOLUNTEERS" && req.user.working_groups.includes(role.group_id))) {
-                          rolesToRemove.push(role.role_id);
-                        }
-                      }
-                      callback();
-                    },
-                    function() {
-                      async.each(
-                        rolesToRemove,
-                        function(role_id, callback) {
-                          volunteer.roles.splice(
-                            volunteer.roles.indexOf(role_id)
-                          );
-                          callback();
-                        },
-                        function() {
-                          Volunteers.updateRoles(
-                            member_id,
-                            volunteer.roles,
-                            function(err) {
-                              if (!err) {
-                                response.status = "ok";
-                                response.msg = "Volunteer removed.";
-                                res.send(response);
-                              } else {
-                                res.send(response);
-                              }
-                            }
-                          );
-                        }
-                      );
-                    }
-                  );
-                } else {
-                  res.send(response);
-                }
-              }
-            );
-          } else {
-            response.msg =
-              "You don't have permission to remove this volunteer.";
-            res.send(response);
-          }
-        } else {
-          response.msg = "Volunteer does not exist.";
-          res.send(response);
-        }
-      });
-    } else {
-      res.send(response);
+    if (!req.body.member_id) {
+      throw "Please specify a member";
     }
+
+    if(!req.body.group_id) {
+      throw "Please specify a working group";
+    }
+
+    const member_id = req.body.member_id.trim();
+    const group_id = req.body.group_id.trim().toUpperCase();
+
+    let volunteer = await Volunteers.getVolunteerById(member_id, req.user);
+    
+    if (!volunteer) {
+      throw "Member is not a volunteer";
+    }
+    
+    if (!volunteer.canUpdate) {
+      throw "You don't have permission to remove this volunteer";
+    }
+    
+    let rolesToRemove = [];
+
+    if (volunteer.old_working_groups.includes(group_id)) {
+      volunteer.old_working_groups.splice(volunteer.old_working_groups.indexOf(group_id), 1);
+    }
+
+    await Members.updateWorkingGroups(member_id, volunteer.old_working_groups);
+
+    for await (let role of volunteer.roles) {
+    
+      if (req.user.allVolunteerRoles[role]) {
+        role = req.user.allVolunteerRoles[role];
+        if (role.group_id == group_id || (group_id == "MY-VOLUNTEERS" && req.user.working_groups.includes(role.group_id))) {
+          rolesToRemove.push(role.role_id);
+        }
+      }
+    }
+    
+    for await (const role_id of rolesToRemove) {
+      volunteer.roles.splice(volunteer.roles.indexOf(role_id));
+    }
+    
+    await Volunteers.updateRoles(member_id, volunteer.roles);
+    
+    res.send({ status: "ok", msg: "Volunteer removed" });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Plese try again";
+    }
+    res.send({ status: "fail", msg: error });
   }
-);
+});
 
 module.exports = router;

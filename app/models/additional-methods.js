@@ -1,72 +1,83 @@
-module.exports = function(Models) {
-  Models.Volunteers.getSignUpInfo = function(callback) {
-    Models.VolunteerRoles.getAll(function(
-      err,
-      roles,
-      rolesGroupedByGroup,
-      rolesGroupedById
-    ) {
-      Models.Settings.getAll(function(err, settings) {
-        callback(
-          settings.activities,
-          settings.contactMethods,
-          roles,
-          rolesGroupedByGroup,
-          rolesGroupedById,
-          settings.volunteerAgreement,
-          settings.ourVision,
-          settings.saferSpacesPolicy,
-          settings.membershipBenefits,
-          settings.privacyNotice
-        );
-      });
-    });
-  };
+module.exports = (Models) => {
+	Models.Volunteers.getSignUpInfo = async () => {
+    		const { roles, rolesObj, rolesByGroup } = await Models.VolunteerRoles.getAll();
+    const settings = await Models.Settings.getAll();
+        	return {
+			        activities: settings.activities.data,
+          		contactMethods: settings.contactMethods.data,
+          		roles,
+          		rolesByGroup,
+          		rolesObj,
+          		volunteerAgreement: settings.volunteerAgreement.data,
+          		ourVision: settings.ourVision.data,
+          		saferSpacesPolicy: settings.saferSpacesPolicy.data,
+          		membershipBenefits: settings.membershipBenefits.data,
+            privacyNotice: settings.privacyNotice.data,
+            skills: settings.activities.data,
+            contactMethods: settings.contactMethods.data
+		}
+	},
+	Models.Members.getSignUpInfo = async () => {
+    		const settings = await Models.Settings.getAll();
+      		return {
+			      ourVision: settings.ourVision.data,
+        		saferSpacesPolicy: settings.saferSpacesPolicy.data,
+        		membershipBenefits: settings.membershipBenefits.data,
+        		privacyNotice: settings.privacyNotice.data
+		}
+	},
+	Models.VolunteerRoles.getRoleSignUpInfo = async () => {
+    		const settings = await Models.Settings.getAll();
+      		return {
+			      locations: settings.locations.data,
+        		activities: settings.activities.data,
+        		commitmentLengths: settings.commitmentLengths.data
+      		}
+    	},
 
-  Models.Members.getSignUpInfo = function(callback) {
-    Models.Settings.getAll(function(err, settings) {
-      callback(
-        settings.ourVision,
-        settings.saferSpacesPolicy,
-        settings.membershipBenefits,
-        settings.privacyNotice
-      );
-    });
-  };
+  	Models.Members.redact = async (member_id) => {
+    		await Models.Members.update({
+			first_name: "[redacted]",
+        		last_name: "[redacted]",
+        		email: "[redacted]",
+        		phone_no: "[redacted]",
+        		address: "[redacted]",
+        		working_groups: [],
+        		is_member: 0
+      		},
+      		{ where: { member_id: member_id } });
 
-  Models.VolunteerRoles.getRoleSignUpInfo = function(callback) {
-    Models.Settings.getAll(function(err, settings) {
-      callback(
-        settings.locations,
-        settings.activities,
-        settings.commitmentLengths
-      );
-    });
-  };
 
-  Models.Members.redact = function(member_id, callback) {
-    Models.Members.update(
-      {
-        first_name: "[redacted]",
-        last_name: "[redacted]",
-        email: "[redacted]",
-        phone_no: "[redacted]",
-        address: "[redacted]",
-        working_groups: [],
-        is_member: 0
-      },
-      { where: { member_id: member_id } }
-    ).nodeify(function(err) {
-      if (!err) {
-        Models.Volunteers.update(
-          { roles: [] },
-          { where: { member_id: member_id } }
-        ).nodeify(callback);
-      } else {
-        callback(err);
-      }
-    });
-  };
+        	return Models.Volunteers.update({ roles: [] }, { where: { member_id: member_id } })
+	},
+	Models.Tills.getOpenTill = async (till_id) => {
 
-  return Models;
-};
+		try {
+			let till = await Models.Tills.getById(till_id);
+
+			if (!till) {
+				throw "Till not found";
+			}
+
+			if (till.disabled == 1) {
+				throw "Till is disabled";
+			}
+
+			const status = await Models.TillActivity.getByTillId(till_id);
+
+			if (status.opening != "1") {
+				throw "Till is closed";
+			}
+
+			till.status = 1;
+			till.openingTimestamp = status.timestamp || new Date();
+			till.openingFloat = status.counted_float || 0;
+
+			return till;
+
+		} catch(error) {
+			throw error;
+		}
+	}
+  	return Models;
+}

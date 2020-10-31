@@ -1,46 +1,43 @@
 // /api/post/volunteers/roles/quick-add
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const VolunteerRoles = Models.VolunteerRoles;
 
-var VolunteerRoles = Models.VolunteerRoles;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteerRoles", "quickAdd"),
-  function(req, res) {
-    var working_group = req.body.working_group;
-    var title = req.body.title;
-    var working_groups;
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteerRoles", "quickAdd"), async (req, res) => {
+  try {
+    const working_group = req.body.working_group;
+    const title = req.body.title;
+  
+    let validWorkingGroups;
     if (req.user.permissions.volunteerRoles.quickAdd == true) {
-      working_groups = req.user.allWorkingGroupsFlat;
-    } else if (
-      req.user.permissions.volunteerRoles.quickAdd == "commonWorkingGroup"
-    ) {
-      working_groups = req.user.working_groups;
+      validWorkingGroups = req.user.allWorkingGroupsFlat;
+    } else if (req.user.permissions.volunteerRoles.quickAdd == "commonWorkingGroup") {
+      validWorkingGroups = req.user.working_groups;
     }
 
-    if (working_groups.includes(working_group) && title) {
-      VolunteerRoles.quickAddRole(working_group, title, function(err, role) {
-        if (!err && role) {
-          res.send({ status: "ok", role: role });
-        } else {
-          res.send({ status: "fail", msg: "Something went wrong!" });
-        }
-      });
-    } else {
-      res.send({
-        status: "fail",
-        msg: "Please enter a title and a valid working group."
-      });
+    if (!validWorkingGroups.includes(working_group)){
+      throw "Please enter a valid working group";
+    } 
+
+    if(!title) {
+      throw "Please enter a role title";
     }
+    
+    const role = await VolunteerRoles.quickAddRole(working_group, title);
+    res.send({ status: "ok", role: role });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+    
+    res.send({ status: "fail", msg: error });
   }
-);
+});
 
 module.exports = router;

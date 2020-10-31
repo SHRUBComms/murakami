@@ -1,169 +1,116 @@
 // /carbon-accounting/log
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
+const async = require("async");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Carbon = Models.Carbon;
-var CarbonCategories = Models.CarbonCategories;
-var WorkingGroups = Models.WorkingGroups;
+const Models = require(rootDir + "/app/models/sequelize");
+const Carbon = Models.Carbon;
+const CarbonCategories = Models.CarbonCategories;
+const WorkingGroups = Models.WorkingGroups;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("carbonAccounting", "log"),
-  function(req, res) {
-    WorkingGroups.getAll(function(err, working_groups) {
-      CarbonCategories.getAll(function(err, carbonCategories) {
-        carbonCategories = Object.values(carbonCategories);
-        var tillMode = false;
-        var till_id = req.query.till_id || null;
-        if (till_id) {
-          tillMode = true;
-        }
-        res.render("carbon-accounting/log", {
-          tillMode: tillMode,
-          till: {
-            till_id: till_id,
-            group_id: req.user.working_groups[0],
-            status: 1
-          },
-          carbonActive: true,
-          title: "Log Outgoing Weight",
-          carbonCategories: carbonCategories,
-          working_groups: working_groups
-        });
-      });
-    });
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "log"), async (req, res) => {
+	try {
+		const carbonCategories = await CarbonCategories.getAll();
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("carbonAccounting", "log"),
-  function(req, res) {
-    var message = {
-      status: "fail",
-      msg: null
-    };
+		const tillMode = (req.query.till_id) ? true : false;
+		res.render("carbon-accounting/log", {
+			tillMode: tillMode,
+			till: {
+				till_id: req.query.till_id,
+				group_id: req.user.working_groups[0],
+				status: 1
+			},
+			carbonActive: true,
+			title: "Log Outgoing Weight",
+			carbonCategories: Object.values(carbonCategories),
+			working_groups: req.user.all_working_groups
+		});
 
-    var transaction = req.body.transaction;
-    var formattedTransaction = {};
-    formattedTransaction.member_id = "anon";
-    formattedTransaction.user_id = req.user.id;
-    formattedTransaction.trans_object = {};
-    formattedTransaction.amount = 0;
+	} catch (error) {
+		res.redirect(process.env.PUBLIC_ADDRESS + "/");
+	}
+});
 
-    if (
-      req.user.permissions.carbonAccounting.log == true ||
-      (req.user.permissions.carbonAccounting.log == "commonWorkingGroup" &&
-        req.user.working_groups.includes(req.body.working_group))
-    ) {
-      formattedTransaction.group_id = req.body.working_group;
-    }
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "log"), async (req, res) => {
 
-    formattedTransaction.method = req.body.method;
+	try {
+		const transaction = req.body.transaction;
+		let formattedTransaction = {};
+		formattedTransaction.member_id = "anon";
+		formattedTransaction.user_id = req.user.id;
+		formattedTransaction.trans_object = {};
+		formattedTransaction.amount = 0;
 
-    var validMethods = [
-      "recycled",
-      "generated",
-      "landfilled",
-      "incinerated",
-      "composted",
-      "reused",
-      "stored",
-      "other"
-    ];
+		if (req.user.permissions.carbonAccounting.log == true || (req.user.permissions.carbonAccounting.log == "commonWorkingGroup" && req.user.working_groups.includes(req.body.working_group))) {
+			formattedTransaction.group_id = req.body.working_group;
+		}
 
-    WorkingGroups.getAll(function(err, working_groups) {
-      if (working_groups[formattedTransaction.group_id]) {
-        if (validMethods.indexOf(formattedTransaction.method) !== -1) {
-          CarbonCategories.getAll(function(err, carbonCategoriesRaw) {
-            carbonCategories = {};
-            async.each(
-              carbonCategoriesRaw,
-              function(category, callback) {
-                carbonCategories[category.carbon_id] = category.factors;
-                callback();
-              },
-              function() {
-                for (let i = 0; i < transaction.length; i++) {
-                  if (
-                    !isNaN(parseFloat(transaction[i].weight)) &&
-                    transaction[i].weight > 0 &&
-                    carbonCategories[transaction[i].id]
-                  ) {
-                    if (
-                      formattedTransaction.trans_object[transaction[i].id] ==
-                      null
-                    ) {
-                      formattedTransaction.trans_object[transaction[i].id] =
-                        transaction[i].weight;
-                    } else {
-                      formattedTransaction.trans_object[transaction[i].id] =
-                        +transaction[i].weight +
-                        +formattedTransaction.trans_object[transaction[i].id];
-                    }
-                  }
-                }
-              }
-            );
+		formattedTransaction.method = req.body.method;
 
-            Object.keys(formattedTransaction.trans_object).forEach(function(
-              key
-            ) {
-              formattedTransaction.amount += +formattedTransaction.trans_object[
-                key
-              ];
-            });
+		const validDisposalMethods = [
+			"recycled",
+			"generated",
+			"landfilled",
+			"incinerated",
+			"composted",
+			"reused",
+			"stored",
+			"other"
+		];
 
-            if (formattedTransaction.amount > 0) {
-              Carbon.add(formattedTransaction, function(err) {
-                if (err) {
-                  message.status = "fail";
-                  message.msg = "Something went wrong!";
-                  res.send(message);
-                } else {
-                  totalCarbon = 0;
+		if (!req.user.allWorkingGroups[formattedTransaction.group_id]) {
+			throw "Please select a valid working group";
+		}
 
-                  Helpers.calculateCarbon(
-                    [formattedTransaction],
-                    carbonCategoriesRaw,
-                    function(totalCarbon) {
-                      message.status = "ok";
-                      message.msg =
-                        "Weight logged! " +
-                        Math.abs(totalCarbon * 1e-3).toFixed(2) +
-                        "kg of carbon saved";
-                      res.send(message);
-                    }
-                  );
-                }
-              });
-            } else {
-              message.status = "fail";
-              message.msg = "Please enter a total weight greater than 0";
-              res.send(message);
-            }
-          });
-        } else {
-          message.status = "fail";
-          message.msg = "Please select a valid method.";
-          res.send(message);
-        }
-      } else {
-        message.status = "fail";
-        message.msg = "Please select a valid working group.";
-        res.send(message);
-      }
-    });
-  }
-);
+		if (!validDisposalMethods.includes(formattedTransaction.method)) {
+			throw "Please select a valid disposal method";
+		}
+
+		const carbonCategories = await CarbonCategories.getAll();
+
+		for await (const entry of transaction) {
+			if (isNaN(parseFloat(entry.weight))) {
+				throw "Please make sure all entered weights are numbers";
+			}
+
+			if(entry.weight <= 0) {
+				throw "Please make sure all entered weight are greater than 0";
+			}
+
+			if(!carbonCategories[entry.id]) {
+				throw "Invalid category";
+			}
+
+			if (!formattedTransaction.trans_object[entry.id]) {
+			      formattedTransaction.trans_object[entry.id] = entry.weight;
+			} else {
+			      formattedTransaction.trans_object[entry.id] = +entry.weight + +formattedTransaction.trans_object[entry.id];
+			}
+			formattedTransaction.amount += +formattedTransaction.trans_object[entry.id];
+		}
+
+
+		if (formattedTransaction.amount == 0) {
+			throw "Total weight must be greater than 0";
+		}
+
+		await Carbon.add(formattedTransaction);
+
+		const totalCarbon = await Helpers.calculateCarbon([formattedTransaction], carbonCategories);
+
+		res.send({ status: "ok", msg: `Weight logged! ${Math.abs(totalCarbon * 1e-3).toFixed(2)}kg of carbon saved` });
+	} catch (error) {
+		console.log(error);
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+		res.send({ status: "fail", msg: error });
+	}
+});
 
 module.exports = router;

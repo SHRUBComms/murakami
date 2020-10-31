@@ -1,122 +1,90 @@
 // /food-collections/organisations/update
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var FoodCollections = Models.FoodCollections;
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Models = require(rootDir + "/app/models/sequelize");
+const FoodCollections = Models.FoodCollections;
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-var Helpers = require(rootDir + "/app/helper-functions/root");
-var Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get(
-  "/:organisation_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("foodCollections", "updateOrganisations"),
-  function(req, res) {
-    FoodCollectionsOrganisations.getById(req.params.organisation_id, function(
-      err,
-      organisation
-    ) {
-      if (organisation) {
-        res.render("food-collections/organisations/update", {
-          title: "Update Food Collection Organisation",
-          foodCollectionsActive: true,
-          organisation: organisation
-        });
-      } else {
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage"
-        );
-      }
-    });
-  }
-);
+router.get("/:organisation_id", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "updateOrganisations"), async (req, res) => {
+	try {
+    		const organisation = await FoodCollectionsOrganisations.getById(req.params.organisation_id);
 
-router.post(
-  "/:organisation_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("foodCollections", "updateOrganisations"),
-  function(req, res) {
-    FoodCollectionsOrganisations.getById(req.params.organisation_id, function(
-      err,
-      organisationFound
-    ) {
-      if (organisationFound) {
-        var organisation = req.body.organisation;
-        var formattedOrganisation = {
-          organisation_id: req.params.organisation_id
-        };
-        if (organisation.name) {
-          formattedOrganisation.name = organisation.name;
+		if (!organisation) {
+			throw "Organisation not found!"
+		}
 
-          if (organisation.default) {
-            formattedOrganisation.default = true;
-          }
+		res.render("food-collections/organisations/update", {
+          		title: "Update Food Collection Organisation",
+          		foodCollectionsActive: true,
+          		organisation: organisation
+        	});
 
-          var validTypes = ["drop-offs", "collections"];
+      	} catch (error) {
+        	res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage");
+      	}
+});
 
-          if (!Array.isArray(organisation.type)) {
-            organisation.type = [organisation.type];
-          }
+router.post("/:organisation_id", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "updateOrganisations"), async (req, res) => {
+	try {
+		const organisationFound = await FoodCollectionsOrganisations.getById(req.params.organisation_id);
+		if (!organisationFound) {
+			throw "Organisation not found!"
+		}
 
-          if (Helpers.allBelongTo(organisation.type, validTypes)) {
-            formattedOrganisation.type = organisation.type;
-          } else {
-            formattedOrganisation.type = [];
-          }
+		const organisation = req.body.organisation;
 
-          if (formattedOrganisation.type.length > 0) {
-            FoodCollectionsOrganisations.updateOrganisation(
-              formattedOrganisation,
-              function(err) {
-                if (!err) {
-                  req.flash(
-                    "success_msg",
-                    "Organisation successfully updated!"
-                  );
-                  res.redirect(
-                    process.env.PUBLIC_ADDRESS +
-                      "/food-collections/organisations/view/" +
-                      req.params.organisation_id
-                  );
-                } else {
-                  res.render("food-collections/organisations/update", {
-                    errors: [{ msg: "Something went wrong!" }],
-                    title: "Update Food Collection Organisations",
-                    foodCollectionsActive: true,
-                    organisation: organisationFound
-                  });
-                }
-              }
-            );
-          } else {
-            res.render("food-collections/organisations/update", {
-              errors: [{ msg: "Please select this organisations type!" }],
-              title: "View Food Collection Organisations",
-              foodCollectionsActive: true,
-              organisation: organisationFound
-            });
-          }
-        } else {
-          res.render("food-collections/organisations/update", {
-            errors: [{ msg: "Please enter a name!" }],
-            title: "View Food Collection Organisations",
-            foodCollectionsActive: true,
-            organisation: organisationFound
-          });
-        }
-      } else {
-        req.flash("error_msg", "Organisation doesn't exist!");
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage"
-        );
-      }
-    });
-  }
-);
+		let formattedOrganisation = {
+		  organisation_id: req.params.organisation_id
+		};
 
+		if (organisation.name) {
+			formattedOrganisation.name = organisation.name;
+		} else {
+			formattedOrganisation.name = organisationFound.name;
+		}
+
+		if (organisation.default) {
+			formattedOrganisation.default = true;
+		} else {
+			formattedOrganisation.default = false;
+		}
+
+		const validTypes = ["drop-offs", "collections"];
+
+		if (!Array.isArray(organisation.type)) {
+			organisation.type = [organisation.type];
+		}
+
+		if (Helpers.allBelongTo(organisation.type, validTypes)) {
+			formattedOrganisation.type = organisation.type;
+		} else {
+			formattedOrganisation.type = [];
+		}
+
+		if (organisation.type.length > 0) {
+			formattedOrganisation.type = organisation.type;
+		} else {
+			formattedOrganisation.type = organisationFound.type;
+		}
+
+		await FoodCollectionsOrganisations.updateOrganisation(formattedOrganisation);
+
+		req.flash("success_msg", "Organisation successfully updated!");
+		res.redirect(process.env.PUBLIC_ADDRESS +"/food-collections/organisations/view/" + req.params.organisation_id);
+	} catch (error) {
+
+		if(typeof error == "string") {
+			error = "Something went wrong! Please try again"
+		}
+
+		req.flash("error_msg", error);
+		res.redirect(process.env.PUBLIC_ADDRESS +"/food-collections/organisations/update/" + req.params.organisation_id);
+	}
+});
 module.exports = router;

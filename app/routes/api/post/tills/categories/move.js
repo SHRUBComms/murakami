@@ -1,92 +1,70 @@
 // /api/post/tills/categories/move
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var StockCategories = Models.StockCategories;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const StockCategories = Models.StockCategories;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "updateCategories"),
-  function(req, res) {
-    var response = { status: "fail", msg: "something went wrong!" };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"), async (req, res) => {
+  try {
+    const till_id = req.body.till_id;
+    const item_id = req.body.item_id;
+    const newParent = req.body.newParent;
 
-    var till_id = req.body.till_id;
-    var item_id = req.body.item_id;
-    var newParent = req.body.newParent;
-
-    if (till_id) {
-      Tills.getById(till_id, function(err, till) {
-        if (till) {
-          if (till.disabled == 0) {
-            if (
-              req.user.permissions.tills.updateCategories == true ||
-              (req.user.permissions.tills.updateCategories ==
-                "commonWorkingGroup" &&
-                req.user.working_groups.includes(till.group_id))
-            ) {
-              if (item_id) {
-                StockCategories.getCategoriesByTillId(till_id, "kv", function(
-                  err,
-                  categories
-                ) {
-                  if (categories[item_id]) {
-                    if (categories[newParent]) {
-                      if (newParent != item_id) {
-                        StockCategories.moveCategory(
-                          item_id,
-                          newParent,
-                          function(err) {
-                            if (err) {
-                              res.send(response);
-                            } else {
-                              response.status = "ok";
-                              response.msg = "Category moved!";
-                              res.send(response);
-                            }
-                          }
-                        );
-                      } else {
-                        response.msg = "Category cannot be it's own parent.";
-                        res.send(response);
-                      }
-                    } else {
-                      response.msg = "Select a valid parent.";
-                      res.send(response);
-                    }
-                  } else {
-                    response.msg = "Select a valid category";
-                    res.send(response);
-                  }
-                });
-              } else {
-                response.msg = "Please select a category!";
-                res.send(response);
-              }
-            } else {
-              response.msg = "You don't have permission to do that!";
-              res.send(response);
-            }
-          } else {
-            response.msg = "Till is disabled!";
-            res.send(response);
-          }
-        } else {
-          response.msg = "Select a valid till!";
-          res.send(response);
-        }
-      });
-    } else {
-      response.msg = "Please enter a category";
-      res.send(response);
+    if(!till_id) {
+      throw "Please specify a till";
     }
-  }
-);
+    
+    if(!item_id) {
+      throw "Please specify a category to move";
+    }
 
+    if(!newParent) {
+      throw "Please specify a category to move to";
+    }
+
+    if(newParent == item_id) {
+      throw "Category can't be it's on parent";
+    }
+
+    const till = await Tills.getById(till_id);
+
+    if(!till) {
+      throw "Till not found";
+    }
+
+    if(till.disabled == 1) {
+      throw "Till is disabled";
+    }
+
+    if (!(req.user.permissions.tills.updateCategories == true || (req.user.permissions.tills.updateCategories == "commonWorkingGroup" && req.user.working_groups.includes(till.group_id)))) {
+      throw "You don't have permission to move categories on this till";
+    }
+
+    const categories = await StockCategories.getCategoriesByTillId(till_id, "kv");
+    
+    if (!categories[item_id]) {
+      throw "Please specify a valid category to move";
+    }
+
+    if(!categories[newParent]) {
+      throw "Please specify a valud category to move to";
+    }
+    
+    await StockCategories.moveCategory(item_id, newParent);
+    res.send({ status: "ok", msg: "Category moved!" });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    res.send({ status: "fail", msg: error });
+  }
+});
+  
 module.exports = router;

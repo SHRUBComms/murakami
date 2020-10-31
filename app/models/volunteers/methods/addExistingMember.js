@@ -1,20 +1,24 @@
-module.exports = function(Volunteers, sequelize, DataTypes) {
-  return function(member_id, volInfo, callback) {
-    Volunteers.create({
+module.exports = (Volunteers) => {
+  return async (member_id, volunteer) => {
+    return Volunteers.create({
       member_id: member_id,
-      emergencyContactRelation: volInfo.emergencyContactRelation,
-      emergencyContactName: volInfo.emergencyContactName,
-      emergencyContactPhoneNo: volInfo.emergencyContactPhoneNo,
-      roles: volInfo.roles,
-      assignedCoordinators: volInfo.assignedCoordinators,
-      survey: volInfo.survey,
-      availability: volInfo.availability,
+      emergencyContactRelation: volunteer.emergencyContactRelation,
+      emergencyContactName: volunteer.emergencyContactName,
+      emergencyContactPhoneNo: volunteer.emergencyContactPhoneNo,
+      roles: volunteer.roles,
+      assignedCoordinators: volunteer.assignedCoordinators,
+      survey: {
+        goals: volunteer.survey.goals || "",
+        interests: volunteer.survey.interests || "",
+        additionalNotes: volunteer.survey.additionalNotes || "",
+        skills: volunteer.survey.skills || [],
+        contactMethods: volunteer.survey.contactMethods || []
+      },
+      availability: volunteer.availability,
       gdpr: {
-        email: volInfo.gdpr.email,
-        phone: volInfo.gdpr.phone
+        email: volunteer.gdpr.email ? true : false,
+        phone: volunteer.gdpr.phone ? true : false
       }
-    }).nodeify(function(err) {
-      callback(err);
     });
-  };
-};
+  }
+}

@@ -1,50 +1,39 @@
 // /api/get/members/restore
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Members = Models.Members;
+const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "revokeMembership"), async (req, res) => {
+  try {
+    const member = await Members.getById(req.params.member_id, req.user);
+    if(!member) {
+      throw "Member not found";
+    }
+    
+    if (!(req.user.permissions.members.revokeMembership == true || (req.user.permissions.members.revokeMembership == "commonWorkingGroup" && Helpers.hasOneInCommon(req.user.working_groups, member.working_groups)))) {
+      throw "You are not permitted to restore this membership";
+    }
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("members", "revokeMembership"),
-  function(req, res) {
-    var member_id = req.params.member_id;
-    Members.getById(member_id, req.user, function(err, member) {
-      if (
-        req.user.permissions.members.revokeMembership == true ||
-        (req.user.permissions.members.revokeMembership ==
-          "commonWorkingGroup" &&
-          Helpers.hasOneInCommon(
-            req.user.working_groups,
-            member.working_groups
-          ))
-      ) {
-        Members.updateStatus(member_id, 1, function(err) {
-          if (err) {
-            req.flash("error_msg", "Something went wrong!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
-            );
-          } else {
-            req.flash(
-              "success_msg",
-              "Marked as current member - if membership has expired, member will be marked as not a member at 9.30am!"
-            );
-            res.redirect(
-              process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
-            );
-          }
-        });
-      }
-    });
+    await Members.updateStatus(req.params.member_id, 1);
+    
+    req.flash("success_msg", "Marked as current member - if membership has expired, member will be marked tomorrow morning");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    req.flash("error_msg", error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
   }
-);
+});
 
 module.exports = router;
+

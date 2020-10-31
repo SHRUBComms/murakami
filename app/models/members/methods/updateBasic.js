@@ -1,6 +1,6 @@
-module.exports = function(Members, sequelize, DataTypes) {
-  return function(member, callback) {
-    Members.update(
+module.exports = (Members) => {
+  return async (member) => {
+    return Members.update(
       {
         first_name: member.first_name,
         last_name: member.last_name,
@@ -14,8 +14,6 @@ module.exports = function(Members, sequelize, DataTypes) {
         current_exp_membership: member.current_exp_membership
       },
       { where: { member_id: member.member_id } }
-    ).nodeify(function(err) {
-      callback(err);
-    });
-  };
-};
+    );
+  }
+}

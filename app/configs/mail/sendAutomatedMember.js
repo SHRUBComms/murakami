@@ -51,7 +51,7 @@ module.exports = (Mail, nodemailer, htmlToText, sanitizeHtml, cleaner) => {
                     		template.markup += "<hr />" + footer;
                   	}
 
-			for await (const variableName of dynamicVariablesAvailable) {
+			for await (const variableName of Object.keys(dynamicVariablesAvailable)) {
 				const regex = new RegExp("\\|" + variableName + "\\|", "g");
 				if (member[variableName]) {
 					template.markup = template.markup.replace(regex, member[variableName]);

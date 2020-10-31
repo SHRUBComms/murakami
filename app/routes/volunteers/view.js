@@ -1,72 +1,50 @@
 // /volunteers/view
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Users = Models.Users;
+const Members = Models.Members;
+const Volunteers = Models.Volunteers;
+const VolunteerRoles = Models.VolunteerRoles;
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-var Users = Models.Users;
-var Members = Models.Members;
-var Volunteers = Models.Volunteers;
-var VolunteerRoles = Models.VolunteerRoles;
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "view"), async (req, res) => {
+	try {
+		const member = await Members.getById(req.params.member_id, req.user);
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "view"),
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (!err && member) {
-        Volunteers.getVolunteerById(req.params.member_id, req.user, function(
-          err,
-          volInfo
-        ) {
-          if (volInfo) {
-            Users.getCoordinators(
-              { permissions: { users: { name: true } } },
-              function(err, coordinators, coordinatorsObj) {
-                VolunteerRoles.getAll(function(
-                  err,
-                  roles,
-                  rolesGroupedByGroup,
-                  rolesGroupedById
-                ) {
-                  FoodCollectionsOrganisations.getAll(function(
-                    err,
-                    allOrganisations
-                  ) {
-                    res.render("volunteers/view", {
-                      title: "View Volunteer",
-                      volunteersActive: true,
-                      member: member,
-                      volInfo: volInfo,
-                      coordinators: coordinatorsObj,
-                      roles: rolesGroupedById,
-                      allOrganisations: allOrganisations
-                    });
-                  });
-                });
-              }
-            );
-          } else {
-            req.flash(
-              "error_msg",
-              "You don't have permission to view this volunteer!"
-            );
-            res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-          }
-        });
-      } else {
-        req.flash("error_msg", "Volunteer doesn't exist!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
-      }
-    });
-  }
-);
+		if (!member) {
+			throw "Member not found";
+		}
+
+		const volunteer = await Volunteers.getVolunteerById(req.params.member_id, req.user);
+
+		if (!volunteer) {
+			throw "Member not a volunteer"
+		}
+
+		const { coordinatorsObj } = await Users.getCoordinators({ permissions: { users: { name: true } } });
+		const { rolesObj } = await VolunteerRoles.getAll();
+		const organisations = await FoodCollectionsOrganisations.getAll();
+
+		res.render("volunteers/view", {
+			      title: "View Volunteer",
+			      volunteersActive: true,
+			      member: member,
+			      volInfo: volunteer,
+			      coordinators: coordinatorsObj,
+			      roles: rolesObj,
+			      allOrganisations: organisations
+		});
+	} catch (error) {
+        	req.flash("error_msg", "Volunteer doesn't exist!");
+        	res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
+	}
+});
 
 module.exports = router;

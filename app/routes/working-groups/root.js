@@ -1,15 +1,12 @@
 // /working-groups
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var WorkingGroups = Models.WorkingGroups;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get("/", Auth.isLoggedIn, function(req, res) {
+router.get("/", Auth.isLoggedIn, (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage");
 });
 

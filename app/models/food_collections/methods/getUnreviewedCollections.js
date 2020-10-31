@@ -1,10 +1,5 @@
-module.exports = function(FoodCollections, sequelize, DataTypes) {
-  return function(callback) {
-    FoodCollections.findAll({ where: { approved: null } }).nodeify(function(
-      err,
-      collections
-    ) {
-      callback(err, collections);
-    });
-  };
-};
+module.exports = (FoodCollections, sequelize, DataTypes) => {
+  	return async () => {
+    		return FoodCollections.findAll({ where: { approved: null } });
+	}
+}

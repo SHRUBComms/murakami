@@ -1,15 +1,13 @@
-module.exports = function(WorkingGroups, sequelize, DataTypes) {
-  return function(group, callback) {
-    WorkingGroups.generateIntId(group.parent, function(id) {
-      WorkingGroups.create({
+module.exports = (WorkingGroups, sequelize, DataTypes) => {
+  return async (group) => {
+    const id = await WorkingGroups.generateId(group.parent);
+    await WorkingGroups.create({
         group_id: id,
         prefix: group.prefix,
         name: group.name,
         parent: group.parent,
         welcomeMessage: group.welcomeMessage
-      }).nodeify(function(err) {
-        callback(err, id);
       });
-    });
+    return id;
   };
 };

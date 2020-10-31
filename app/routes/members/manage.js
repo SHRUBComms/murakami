@@ -1,61 +1,44 @@
 // /members/manage
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Members = Models.Members;
-var Volunteers = Models.Volunteers;
-var WorkingGroups = Models.WorkingGroups;
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const Volunteers = Models.Volunteers;
+const WorkingGroups = Models.WorkingGroups;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.canAccessPage("members", "view"), function(req, res) {
-  Members.getTotals(function(err, total) {
-    Volunteers.getByGroupId(
-        null,
-        {
-          permissions: {
-            members: { name: true, membershipDates: true },
-            volunteers: { roles: true }
-          }
-        },
-        function(err, volunteers) {
+router.get("/", Auth.canAccessPage("members", "view"), async (req, res) => {
+	try {
+		const total = await Members.getTotals();
+		const volunteers = await Volunteers.getByGroupId(null, { permissions: { members: { name: true, membershipDates: true }, volunteers: { roles: true } } });
+
 		total[0].volunteers = Object.keys(volunteers).length
 
-		Members.getAll(function(err, members) {
-		      var sanitizedMembers = [];
-		      async.eachOf(
-			members,
-			function(member, i, callback) {
-			  Members.sanitizeMember(member, req.user, function(
-			    err,
-			    sanitizedMember
-			  ) {
-			    if (sanitizedMember) {
-			      sanitizedMembers.push(sanitizedMember);
-			    }
-			    callback();
-			  });
-			},
-			function(err) {
-			  res.render("members/manage", {
-			    title: "Manage Members",
-			    members: sanitizedMembers,
-			    membersActive: true,
-			    total: total[0]
-			  });
+		const { membersArray } = await Members.getAll();
+
+		let sanitizedMembers = [];
+
+		for await (const member of membersArray) {
+			const sanitizedMember = await Members.sanitizeMember(member, req.user);
+			if(sanitizedMember) {
+				sanitizedMembers.push(sanitizedMember);
 			}
-		      );
+		}
 
-
-
-	     })
-
-    });
-  });
+		res.render("members/manage", {
+			title: "Manage Members",
+			members: sanitizedMembers,
+			membersActive: true,
+			total: total[0]
+		});
+	} catch (error) {
+		console.log(error);
+		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+	}
 });
 
 module.exports = router;

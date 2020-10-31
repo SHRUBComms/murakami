@@ -8,7 +8,11 @@ module.exports = function(Members, sequelize, DataTypes) {
 
 	    	try {
 			const member = await sequelize.query(query, { replacements: inserts });
-		 	return member[0]
+		 	if(member[0] = []) {
+				return null;
+			} else {
+				return member[0];
+			}
 	    	} catch(error) {
 			throw error;
 	    	}

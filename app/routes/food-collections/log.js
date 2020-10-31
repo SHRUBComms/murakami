@@ -1,156 +1,105 @@
 // /food-collections/log
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var FoodCollections = Models.FoodCollections;
-var FoodCollectionsKeys = Models.FoodCollectionsKeys;
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
-var Members = Models.Members;
-var VolunteerHours = Models.VolunteerHours;
-var Settings = Models.Settings;
+const Models = require(rootDir + "/app/models/sequelize");
+const FoodCollections = Models.FoodCollections;
+const FoodCollectionsKeys = Models.FoodCollectionsKeys;
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Members = Models.Members;
+const VolunteerHours = Models.VolunteerHours;
+const Settings = Models.Settings;
 
-var LogFoodCollection = require(rootDir +
-  "/app/controllers/food-collections/log");
+const LogFoodCollection = require(rootDir + "/app/controllers/food-collections/log");
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("foodCollections", "log"),
-  function(req, res) {
-    FoodCollectionsOrganisations.getAll(function(err, allOrganisations) {
-      Members.getAll(function(err, members) {
-        res.render("food-collections/log", {
-          title: "Log Food Collection",
-          foodCollectionsActive: true,
-          allOrganisations: allOrganisations,
-          members: members
-        });
-      });
-    });
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "log"), async (req, res) => {
 
-router.get("/:key", Auth.isNotLoggedIn, function(req, res) {
-  FoodCollectionsKeys.getById(req.params.key, function(err, foodCollectionKey) {
-    if (!err && foodCollectionKey) {
-      if (foodCollectionKey.active == 1) {
-        Members.getById(
-          foodCollectionKey.member_id,
-          { permissions: { members: { name: true } } },
-          function(err, member) {
-            if (!err && member) {
-              FoodCollectionsOrganisations.getAll(function(
-                err,
-                allOrganisations
-              ) {
-                res.render("food-collections/log", {
-                  title: "Log Food Collection",
-                  foodCollectionsActive: true,
-                  foodCollectionKey: foodCollectionKey,
-                  allOrganisations: allOrganisations,
-                  member: member
-                });
-              });
-            } else {
-              res.render("error", {
-                title: "Invalid Link",
-                specificError: {
-                  title: "Invalid Link",
-                  message:
-                    "Your link isn't valid! Please get in touch with your co-ordinator."
-                }
-              });
-            }
-          }
-        );
-      } else {
-        res.render("error", {
-          title: "Invalid Link",
-          specificError: {
-            title: "Invalid Link",
-            message:
-              "Your link has been disabled! Please get in touch with your co-ordinator."
-          }
-        });
-      }
-    } else {
-      res.render("error", {
-        title: "Invalid Link",
-        specificError: {
-          title: "Invalid Link",
-          message:
-            "Your link isn't valid! Please get in touch with your co-ordinator."
-        }
-      });
-    }
-  });
+	try {
+		const allOrganisations = await FoodCollectionsOrganisations.getAll();
+		const { membersObj } = await Members.getAll();
+		res.render("food-collections/log", {
+			title: "Log Food Collection",
+			foodCollectionsActive: true,
+			allOrganisations: allOrganisations,
+			members: membersObj
+		});
+	} catch (error) {
+		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+	}
 });
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("foodCollections", "log"),
-  function(req, res) {
-    LogFoodCollection(req, res, null, function(err) {
-      if (!err) {
-        req.flash("success_msg", "Collection & shift successfully logged!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/log");
-      } else {
-        req.flash("error_msg", err);
-        res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/log");
-      }
-    });
-  }
-);
+router.get("/:key", Auth.isNotLoggedIn, async (req, res) => {
+	try {
+		const foodCollectionKey = await FoodCollectionsKeys.getById(req.params.key);
 
-router.post("/:key", Auth.isNotLoggedIn, function(req, res) {
-  FoodCollectionsKeys.getById(req.params.key, function(err, foodCollectionKey) {
-    if (!err && foodCollectionKey) {
-      if (foodCollectionKey.active == 1) {
-        LogFoodCollection(req, res, foodCollectionKey, function(err) {
-          if (!err) {
-            req.flash("success_msg", "Collection & shift successfully logged!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/food-collections/log/" +
-                req.params.key
-            );
-          } else {
-            req.flash("error_msg", err);
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/food-collections/log/" +
-                req.params.key
-            );
-          }
-        });
-      } else {
-        res.render("error", {
-          title: "Invalid Link",
-          specificError: {
-            title: "Invalid Link",
-            message:
-              "Your link has been disabled! Please get in touch with your co-ordinator."
-          }
-        });
-      }
-    } else {
-      res.render("error", {
-        title: "Invalid Link",
-        specificError: {
-          title: "Invalid Link",
-          message:
-            "Your link isn't valid! Please get in touch with your co-ordinator."
-        }
-      });
-    }
-  });
+		if (!foodCollectionKey) {
+			throw "Your link isn't valid! Please get in touch with your co-ordinator";
+		}
+
+		if (foodCollectionKey.active == 0) {
+			throw "Your link has been disabled! Please get in touch with your co-ordinator.";
+		}
+
+		const member = await Members.getById(foodCollectionKey.member_id, { permissions: { members: { name: true } } });
+
+		if(!member) {
+			throw "Your link isn't valid! Please get in touch with your co-ordinator";
+		}
+
+		const allOrganisations = await FoodCollectionsOrganisations.getAll();
+
+		res.render("food-collections/log", {
+			title: "Log Food Collection",
+			foodCollectionsActive: true,
+			foodCollectionKey: foodCollectionKey,
+			allOrganisations: allOrganisations,
+			member: member
+		});
+
+	} catch (error) {
+
+		console.log(error);
+
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+
+		res.render("error", {
+			title: "Error",
+			specificError: { message: error }
+		})
+	}
+});
+
+router.post("/:key", Auth.isNotLoggedIn, async (req, res) => {
+	try {
+		const foodCollectionKey = await FoodCollectionsKeys.getById(req.params.key);
+
+		if (!foodCollectionKey) {
+			throw "Your link isn't valid! Please get in touch with your co-ordinator";
+		}
+
+		if (foodCollectionKey.active == 0) {
+			throw "Your link has been disabled! Please get in touch with your co-ordinator.";
+		}
+
+		await LogFoodCollection(req, res, foodCollectionKey);
+
+		req.flash("success_msg", "Collection & shift successfully logged!");
+		res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/log/" + req.params.key);
+	} catch (error) {
+
+		if(typeof error != "string") {
+			error = "Something went wrong! Please try again";
+		}
+
+            	req.flash("error_msg", error);
+            	res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/log/" + req.params.key);
+	}
 });
 
 module.exports = router;

@@ -1,26 +1,26 @@
 // /api/get/members/balance
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Members = Models.Members;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.get("/:member_id", Auth.canAccessPage("members", "balance"), async (req, res) => {
+	try {
+		const member = await Members.getById(req.params.member_id, req.user);
+		if (!member) {
+			throw "Member not found";
+		}
 
-router.get("/:member_id", Auth.canAccessPage("members", "balance"), function(
-  req,
-  res
-) {
-  Members.getById(req.params.member_id, req.user, function(err, member) {
-    if (err || !member) {
-      res.send({ balance: 0 });
-    } else {
-      res.send({ balance: member.balance || 0 });
-    }
-  });
+		res.send({ balance: member.balance || 0 });
+
+	} catch (error) {
+      		res.send({ balance: 0 });
+	}
 });
 
 module.exports = router;

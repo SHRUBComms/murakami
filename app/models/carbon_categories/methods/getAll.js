@@ -1,22 +1,10 @@
-var async = require("async");
-
-module.exports = function(CarbonCategories, sequelize, DataTypes) {
-  return function(callback) {
-    CarbonCategories.findAll({ order: [["name", "ASC"]] }).nodeify(function(
-      err,
-      categories
-    ) {
-      categoriesObj = {};
-      async.each(
-        categories,
-        function(category, callback) {
-          categoriesObj[category.carbon_id] = category;
-          callback();
-        },
-        function() {
-          callback(err, categoriesObj);
-        }
-      );
-    });
-  };
-};
+module.exports = (CarbonCategories, sequelize, DataTypes) => {
+	return async () => {
+		try {
+    			const categories = await CarbonCategories.findAll({ order: [["name", "ASC"]] });
+			return categories.reduce((obj, item) => Object.assign(obj, { [item.carbon_id]: item }), {});
+		} catch (error) {
+			throw error;
+		}
+	}
+}

@@ -1,31 +1,24 @@
 // /api/get/members/sign-up-info
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Members = Models.Members;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
-  Members.getSignUpInfo(function(
-    ourVision,
-    saferSpacesPolicy,
-    membershipBenefits,
-    privacyNotice
-  ) {
-    res.send({
-      signUpInfo: {
-        ourVision: ourVision,
-        privacyNotice: privacyNotice,
-        membershipBenefits: membershipBenefits,
-        saferSpacesPolicy: saferSpacesPolicy
-      }
-    });
-  });
+router.get("/", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
+	const { ourVision, saferSpacesPolicy, membershipBenefits, privacyNotice } = await Members.getSignUpInfo();
+    	res.send({
+      		signUpInfo: {
+        		ourVision: ourVision,
+        		privacyNotice: privacyNotice,
+        		membershipBenefits: membershipBenefits,
+        		saferSpacesPolicy: saferSpacesPolicy
+      		}
+    	});
 });
 
 module.exports = router;

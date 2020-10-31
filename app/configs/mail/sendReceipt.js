@@ -29,7 +29,7 @@ module.exports = (Mail, nodemailer, htmlToText, sanitizeHtml, cleaner) => {
 			const regex = new RegExp("\\|receipt\\|", "g");
 			markup = markup.replace(regex, receiptComponent);
 
-			const footer = GetFooter(recipient.member_id);
+			const footer = await GetFooter(recipient.member_id);
 			markup += "<hr />" + footer;
 
 			const message = {

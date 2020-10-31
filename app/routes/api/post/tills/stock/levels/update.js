@@ -1,197 +1,134 @@
 // /api/post/tills/stock/levels/update
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var TillActivity = Models.TillActivity;
-var CarbonCategories = Models.CarbonCategories;
-var StockCategories = Models.StockCategories;
-var StockRecords = Models.StockRecords;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const StockCategories = Models.StockCategories;
+const StockRecords = Models.StockRecords;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.post(
-  "/:till_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "manageStock"),
-  function(req, res) {
-    var response = {};
-    response.status = "fail";
-    response.msg = "";
+router.post("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "manageStock"), async (req, res) => {
+  try {
 
-    var summary = req.body.summary;
-    var note = req.body.note;
+    const summary = req.body.summary;
+    const note = req.body.note;
 
-    var sanitizedSummary = {};
+    let sanitizedSummary = {};
 
-    if (summary) {
-      Tills.getById(req.params.till_id, function(err, till) {
-        if (till) {
-          if (
-            req.user.permissions.tills.manageStock == true ||
-            (req.user.permissions.tills.manageStock == "commonWorkingGroup" &&
-              req.user.working_groups.includes(till.group_id))
-          ) {
-            TillActivity.getByTillId(till.till_id, function(status) {
-              till.status = status.opening;
-              StockCategories.getCategoriesByTillId(
-                req.params.till_id,
-                "kv",
-                function(err, categories) {
-                  var categoriesToUpdate = {};
-
-                  async.eachOf(
-                    summary,
-                    function(category, category_id, callback) {
-                      if (categories[category_id]) {
-                        if (categories[category_id].conditions.length > 0) {
-                          if (
-                            categories[category_id].active &&
-                            categories[category_id].stockControl &&
-                            categories[category_id].stockInfo
-                          ) {
-                            sanitizedSummary[category_id] = {};
-
-                            async.eachOf(
-                              category,
-                              function(subcategory, condition, callback) {
-                                if (
-                                  categories[category_id].conditions.includes(
-                                    condition
-                                  )
-                                ) {
-                                  var quantity = 0;
-                                  if (
-                                    Number.isInteger(
-                                      Number(subcategory.qtyModifier)
-                                    )
-                                  ) {
-                                    quantity = subcategory.qtyModifier;
-                                  } else {
-                                    quantity = 0;
-                                  }
-
-                                  if (quantity != 0) {
-                                    var oldQty = 0;
-                                    if (
-                                      categories[category_id].stockInfo[
-                                        condition
-                                      ]
-                                    ) {
-                                      oldQty =
-                                        categories[category_id].stockInfo[
-                                          condition
-                                        ].quantity;
-                                    }
-
-                                    sanitizedSummary[category_id][condition] = {
-                                      oldQty: oldQty,
-                                      qtyModifier: quantity,
-                                      newQty: Number(oldQty) + Number(quantity)
-                                    };
-                                    callback();
-                                  } else {
-                                    callback();
-                                  }
-                                } else {
-                                  callback();
-                                }
-                              },
-                              function() {
-                                callback();
-                              }
-                            );
-                          } else {
-                            callback();
-                          }
-                        } else {
-                          callback();
-                        }
-                      } else {
-                        callback();
-                      }
-                    },
-                    function() {
-                      async.eachOf(
-                        sanitizedSummary,
-                        function(category, category_id, callback) {
-                          var newStockInfo = categories[category_id].stockInfo;
-                          async.eachOf(
-                            category,
-                            function(subcategory, condition, callback) {
-                              if (subcategory.newQty >= 0) {
-                                newStockInfo[condition].quantity =
-                                  subcategory.newQty;
-                                StockCategories.updateQuantity(
-                                  category_id,
-                                  newStockInfo,
-                                  function(err) {
-                                    if (!err) {
-                                      var record = {
-                                        item_id: category_id,
-                                        condition: condition,
-                                        user_id: req.user.id,
-                                        till_id: till.till_id,
-                                        actionInfo: {
-                                          method: "manual",
-                                          summary: subcategory,
-                                          note: note || null
-                                        }
-                                      };
-
-                                      StockRecords.addRecord(record, function(
-                                        err
-                                      ) {
-                                        if (!err) {
-                                          callback();
-                                        } else {
-                                          throw new Error("Can't add record.");
-                                        }
-                                      });
-                                    } else {
-                                      callback();
-                                    }
-                                  }
-                                );
-                              } else {
-                                callback();
-                              }
-                            },
-                            function() {
-                              callback();
-                            }
-                          );
-                        },
-                        function() {
-                          response.status = "ok";
-                          response.msg = "Stock levels updated successfully!";
-                          res.send(response);
-                        }
-                      );
-                    }
-                  );
-                }
-              );
-            });
-          } else {
-            response.msg = "You don't have permission to update stock levels.";
-            res.send(response);
-          }
-        } else {
-          response.msg = "Can't find till.";
-          res.send(response);
-        }
-      });
-    } else {
-      response.msg = "Please enter a valid request.";
-      res.send(response);
+    if (!(req.user.permissions.tills.manageStock == true || (req.user.permissions.tills.manageStock == "commonWorkingGroup" && req.user.working_groups.includes(till.group_id)))) {
+      throw "You don't have permission to update stock levels on this till";
     }
+
+    if (!summary) {
+      throw "Please ";
+    }
+    
+    const till = await Tills.getById(req.params.till_id);
+    
+    if (!till) {
+      throw "Till not found";
+    }
+
+    if(till.disabled == 1) {
+      throw "Till is disabled";
+    }
+    
+    const categories = await StockCategories.getCategoriesByTillId(req.params.till_id, "kv");
+    
+    for await (const categoryId of Object.keys(summary)) {
+      const category = categories[categoryId];
+
+      if(!category) {
+        continue;
+      }
+
+      if (category.conditions.length == 0) {
+        continue;
+      }
+
+      if(!category.active) {
+        continue;
+      }
+
+      if(!category.stockControl) {
+        continue;
+      }
+
+      if(!category.stockInfo) {
+        continue;
+      }
+
+      sanitizedSummary[categoryId] = {};
+
+      for await (const condition of Object.keys(summary[categoryId])) {
+        
+        if(!category.conditions.includes(condition)) {
+          continue;
+        }
+
+        const subcategory = summary[categoryId][condition];
+        
+        let quantity = 0;
+        if (Number.isInteger(Number(subcategory.qtyModifier))) {
+          quantity = subcategory.qtyModifier;
+        } else {
+          quantity = 0;
+        }
+
+        if (quantity != 0) {
+          let oldQty = 0;
+          if (categories[categoryId].stockInfo[condition]) {
+            oldQty = categories[categoryId].stockInfo[condition].quantity;
+          }
+
+          sanitizedSummary[categoryId][condition] = { oldQty: oldQty, qtyModifier: quantity, newQty: Number(oldQty) + Number(quantity) };
+        }
+      }
+    }
+
+    for await (const categoryId of Object.keys(sanitizedSummary)) {
+      let newStockInfo = categories[categoryId].stockInfo;
+      for await (const condition of Object.keys(sanitizedSummary[categoryId])) {
+        const subcategory = sanitizedSummary[categoryId][condition];
+        
+        if(subcategory.newQty == 0) {
+          continue;
+        }
+
+        newStockInfo[condition].quantity = subcategory.newQty;
+        await StockCategories.updateQuantity(categoryId, newStockInfo);
+
+
+        const record = {
+          item_id: categoryId,
+          condition: condition,
+          user_id: req.user.id,
+          till_id: till.till_id,
+          actionInfo: {
+            method: "manual",
+            summary: subcategory,
+            note: note || null
+          }
+        };
+
+        await StockRecords.addRecord(record);
+      }
+    }
+
+    res.send({ status: "ok", msg: "Stock levels updated successfully!" });
+  } catch (error) {
+    console.log(error);
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";  
+    }
+
+    res.send({ status: "fail", msg: error });
   }
-);
+});
+
 
 module.exports = router;

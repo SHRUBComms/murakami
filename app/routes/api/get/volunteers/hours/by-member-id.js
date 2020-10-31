@@ -1,72 +1,57 @@
 // /api/get/volunteers/hours/by-member-id
 
-var router = require("express").Router();
-var moment = require("moment");
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const moment = require("moment");
+const async = require("async");
 
-var Models = require(rootDir + "/app/models/sequelize");
+const rootDir = process.env.CWD;
 
-var Volunteers = Models.Volunteers;
-var VolunteerHours = Models.VolunteerHours;
+const Models = require(rootDir + "/app/models/sequelize");
+const Volunteers = Models.Volunteers;
+const VolunteerHours = Models.VolunteerHours;
+const Tills = Models.Tills;
+const Members = Models.Members;
 
-var Tills = Models.Tills;
-var Members = Models.Members;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "shiftHistory"), async (req, res) => {
+	try {
+    		const volunteer = await Volunteers.getVolunteerById(req.params.member_id, req.user);
+     	 	if (!volunteer) {
+			throw "Volunteer not found";
+		}
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "shiftHistory"),
-  function(req, res) {
-    Volunteers.getVolunteerById(req.params.member_id, req.user, function(
-      err,
-      volunteer
-    ) {
-      if (volunteer) {
-        if (volunteer.shiftHistory == true) {
-          VolunteerHours.getByMemberId(req.params.member_id, function(
-            err,
-            shifts
-          ) {
-            if (!err && shifts) {
-              var formattedShifts = [];
-              async.each(
-                shifts,
-                function(shift, callback) {
-                  var formattedShift = {};
-                  formattedShift.date = moment(shift.date).format("L");
-                  formattedShift.working_group =
-                    req.user.allWorkingGroupsObj[shift.working_group].name ||
-                    "Unknown";
-                  formattedShift.duration = shift.duration_as_decimal;
-                  if (shift.note && shift.note != "null") {
-                    formattedShift.note = shift.note;
-                  } else {
-                    formattedShift.note = "-";
-                  }
+        	if (volunteer.shiftHistory == false) {
+			throw "Not permitted";
+		}
 
-                  formattedShifts.push(formattedShift);
-                  callback();
-                },
-                function() {
-                  res.send(formattedShifts);
-                }
-              );
-            } else {
-              res.send([]);
-            }
-          });
-        } else {
-          res.send([]);
-        }
-      } else {
-        res.send([]);
-      }
-    });
-  }
-);
+		const shifts = await VolunteerHours.getByMemberId(req.params.member_id);
+
+		if (shifts.length == 0) {
+			throw "No shifts on record";
+		}
+
+		let formattedShifts = [];
+
+		for await (const shift of shifts) {
+                	let formattedShift = {};
+                  	formattedShift.date = moment(shift.date).format("L");
+                  	formattedShift.working_group = req.user.allWorkingGroupsObj[shift.working_group].name || "Unknown";
+                  	formattedShift.duration = shift.duration_as_decimal;
+                  	if (shift.note && shift.note != "null") {
+                    		formattedShift.note = shift.note;
+                  	} else {
+                    		formattedShift.note = "-";
+                  	}
+
+                  	formattedShifts.push(formattedShift);
+		}
+
+		res.send(formattedShifts);
+	} catch (error) {
+		res.send([]);
+	}
+});
 
 module.exports = router;

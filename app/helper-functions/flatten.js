@@ -1,12 +1,12 @@
-var flatten = function(array) {
-  var result = [];
-  array.forEach(function(a) {
+const flatten = async (array) => {
+	let result = [];
+  for await (const a of array) {
     result.push(a);
     if (Array.isArray(a.children)) {
-      result = result.concat(flatten(a.children));
+      result = result.concat(await flatten(a.children));
     }
-  });
-  return result;
-};
+	}
+	return result;
+}
 
 module.exports = flatten;

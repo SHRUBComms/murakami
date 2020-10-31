@@ -1,367 +1,189 @@
 // /members/add
 
-var router = require("express").Router();
-var Mailchimp = require("mailchimp-api-v3");
-var md5 = require("md5");
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Members = Models.Members;
-var WorkingGroups = Models.WorkingGroups;
-var AccessTokens = Models.AccessTokens;
-var Tills = Models.Tills;
-var Transactions = Models.Transactions;
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const WorkingGroups = Models.WorkingGroups;
+const AccessTokens = Models.AccessTokens;
+const Tills = Models.Tills;
+const Transactions = Models.Transactions;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Mail = require(rootDir + "/app/configs/mail/root");
+const validateMember = require(rootDir + "/app/controllers/members/validateMember");
 
-router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), function(
-  req,
-  res
-) {
-  var tillMode;
-  var till_id = req.query.till_id || null;
-  if (till_id) {
-    tillMode = true;
-  }
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (req, res) => {
+    try {
+        let tillMode;
+        const till_id = req.query.till_id || null;
+        if (till_id) {
+            tillMode = true;
+        }
 
-  Tills.getById(till_id, function(err, till) {
-    if (till) {
-      if (till.disabled == 1) {
-        till = null;
-      }
-      till.status = 1;
+        let till = await Tills.getById(till_id);
+        if (till) {
+            till.status = 1;
+            if (till.disabled == 1) {
+                till = null;
+            }
+        }
+        const {
+            ourVision,
+            saferSpacesPolicy,
+            membershipBenefits,
+            privacyNotice
+        } = await Members.getSignUpInfo();
+
+        res.render("members/add", {
+            tillMode: res.locals.tillMode || tillMode,
+            title: "Add Member",
+            membersActive: true,
+            addMemberActive: true,
+            staticContent: {
+                ourVision: ourVision,
+                saferSpacesPolicy: saferSpacesPolicy,
+                membershipBenefitsInfo: membershipBenefits,
+                privacyNotice: privacyNotice
+            },
+            murakamiMsg: req.query.murakamiMsg || null,
+            murakamiStatus: req.query.murakamiStatus || null,
+
+            till_id: till_id,
+            till: till
+        });
+    } catch (error) {
+        res.redirect(process.env.PUBLIC_ADDRESS + "/error");
     }
-    Members.getSignUpInfo(function(
-      ourVision,
-      saferSpacesPolicy,
-      membershipBenefitsInfo,
-      privacyNotice
-    ) {
-      res.render("members/add", {
-        tillMode: res.locals.tillMode || tillMode,
-        title: "Add Member",
-        membersActive: true,
-        addMemberActive: true,
-
-        ourVision: ourVision,
-        saferSpacesPolicy: saferSpacesPolicy,
-        membershipBenefitsInfo: membershipBenefitsInfo,
-        privacyNotice: privacyNotice,
-
-        murakamiMsg: req.query.murakamiMsg || null,
-        murakamiStatus: req.query.murakamiStatus || null,
-
-        till_id: till_id,
-
-        till: till
-      });
-    });
-  });
 });
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("members", "add"),
-  function(req, res) {
-    Tills.getById(req.query.till_id, function(err, till) {
-      if (till) {
-        if (till.disabled == 1) {
-          till = null;
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (req, res) => {
+    let till = null;
+    let till_id = req.query.till_id || null;
+    const {
+        ourVision,
+        saferSpacesPolicy,
+        membershipBenefits,
+        privacyNotice
+    } = await Members.getSignUpInfo();
+
+    try {
+        till = await Tills.getById(req.query.till_id);
+        if (till) {
+            if (till.disabled == 1) {
+                till = null;
+            }
         }
-      }
-      if (req.user.permissions.members.addSpecialMembers == true || till) {
-        Members.getSignUpInfo(function(
-          ourVision,
-          saferSpacesPolicy,
-          membershipBenefitsInfo,
-          privacyNotice
-        ) {
-          var first_name = req.body.first_name.trim();
-          var last_name = req.body.last_name.trim();
-          var email = req.body.email.trim();
-          var phone_no = req.body.phone_no.trim();
-          var address = req.body.address.trim();
-          var membership_type = req.body.membership_type;
 
-          if (!membership_type && till) {
-            membership_type = "unpaid";
-          }
+        if (!(req.user.permissions.members.addSpecialMembers == true || till)) {
+            throw "You are not permitted to add a member";
+        }
 
-          var shrubExplained = req.body.shrubExplained;
-          var safeSpace = req.body.safeSpace;
-          var membershipBenefits = req.body.membershipBenefits;
-          var contactConsent = req.body.contactConsent;
-          var gdprConsent = req.body.gdprConsent;
+        const memberValid = await validateMember(req.params, req.body);
 
-          var generalNewsletterConsent = req.body.generalNewsletterConsent;
+        const emailInUse = await Members.getByEmail(req.body.email);
+        if (emailInUse) {
+            throw "Email address is already in use!";
+        }
 
-          var till_id = req.query.till_id;
+        if (!req.body.membership_type && till) {
+            req.body.membership_type = "unpaid";
+        }
 
-          // Validation
-          req.checkBody("dob", "Please enter a date of birth").notEmpty();
+        const generalNewsletterConsent = req.body.generalNewsletterConsent;
 
-          req.checkBody("first_name", "Please enter a first name").notEmpty();
-          req
-            .checkBody(
-              "first_name",
-              "Please enter a shorter first name (<= 20 characters)"
-            )
-            .isLength({ max: 20 });
+        till_id = req.query.till_id;
 
-          req.checkBody("last_name", "Please enter a last name").notEmpty();
-          req
-            .checkBody(
-              "last_name",
-              "Please enter a shorter last name (<= 30 characters)"
-            )
-            .isLength({ max: 30 });
+        const earliest_membership_date = new Date();
+        const current_init_membership = earliest_membership_date;
+        let current_exp_membership;
 
-          req.checkBody("email", "Please enter an email address").notEmpty();
-          req
-            .checkBody(
-              "email",
-              "Please enter a shorter email address (<= 89 characters)"
-            )
-            .isLength({ max: 89 });
-          req
-            .checkBody("email", "Please enter a valid email address")
-            .isEmail();
-
-          req.checkBody("address", "Please enter an address").notEmpty();
-
-          req
-            .checkBody(
-              "shrubExplained",
-              "Please confirm that you have explained SHRUB's vision"
-            )
-            .notEmpty();
-          req
-            .checkBody(
-              "safeSpace",
-              "Please confirm that you have explained our Safer Spaces policy"
-            )
-            .notEmpty();
-
-          req
-            .checkBody(
-              "membershipBenefits",
-              "Please confirm you have explained membership benefits"
-            )
-            .notEmpty();
-
-          req
-            .checkBody(
-              "contactConsent",
-              "Please confirm the prospective member has consented to being contacted by email"
-            )
-            .notEmpty();
-          req
-            .checkBody(
-              "gdprConsent",
-              "Please confirm the prospective member has agreed to our privacy policy"
-            )
-            .notEmpty();
-
-          if (phone_no) {
-            req
-              .checkBody(
-                "phone_no",
-                "Please enter a shorter phone number (<= 30)"
-              )
-              .isLength({ max: 30 });
-          }
-
-          var dob = new Date(req.body.dob);
-          var today = new Date();
-
-          var over16 = (today - dob) / (1000 * 3600 * 24 * 365) >= 16;
-
-          var earliest_membership_date = today;
-          var current_init_membership = today;
-          var current_exp_membership = today;
-
-          var errors = req.validationErrors();
-
-          if (membership_type != "unpaid") {
+        if (req.body.membership_type != "unpaid") {
             if (!till) {
-              if (req.user.permissions.members.addSpecialMembers) {
-                if (
-                  ["lifetime", "staff", "trustee"].includes(membership_type)
-                ) {
-                  current_exp_membership = moment("9999-01-01").toDate();
-                } else {
-                  if (!errors) {
-                    errors = [];
-                  }
-                  errors.push({
-                    param: "membership_type",
-                    msg: "Please select a valid membership type.",
-                    value: req.body.membership_type
-                  });
-                }
-              } else {
-                membership_type = "unpaid";
-              }
-            }
-          }
-
-          if (!errors && !over16) {
-            if (!errors) {
-              errors = [];
-            }
-            errors.push({
-              param: "dob",
-              msg: "Must be over 16 to be a member",
-              value: req.body.dob
-            });
-          }
-
-          if (errors[0]) {
-            res.render("members/add", {
-              errors: errors,
-              membersActive: true,
-              title: "Add Member",
-              first_name: first_name,
-              last_name: last_name,
-              email: email,
-              phone_no: phone_no,
-              address: address,
-              shrubExplained: shrubExplained,
-              safeSpace: safeSpace,
-              membershipBenefits: membershipBenefitsInfo,
-              contactConsent: contactConsent,
-              privacyNotice: privacyNotice,
-              gdprConsent: gdprConsent,
-              dob: dob,
-              till: {
-                till_id: till_id
-              }
-            });
-          } else {
-            var newMember = {
-              member_id: null,
-              first_name: first_name,
-              last_name: last_name,
-              email: email,
-              phone_no: phone_no,
-              address: address,
-              free: 0,
-              membership_type: membership_type,
-              earliest_membership_date: earliest_membership_date,
-              current_init_membership: current_init_membership,
-              current_exp_membership: current_exp_membership
-            };
-
-            Members.add(newMember, function(err, member_id) {
-              if (err) {
-                res.render("members/add", {
-                  errors: [
-                    {
-                      msg: "Something went wrong, please try again!"
+                if (req.user.permissions.members.addSpecialMembers) {
+                    if (["lifetime", "staff", "trustee"].includes(req.body.membership_type)) {
+                        current_exp_membership = moment("9999-01-01").toDate();
+                    } else {
+                        throw "Please select a valid membership type";
                     }
-                  ],
-                  membersActive: true,
-                  title: "Add Member",
-                  first_name: first_name,
-                  last_name: last_name,
-                  email: email,
-                  phone_no: phone_no,
-                  address: address,
-                  shrubExplained: shrubExplained,
-                  safeSpace: safeSpace,
-                  membershipBenefits: membershipBenefitsInfo,
-                  contactConsent: contactConsent,
-                  privacyNotice: privacyNotice,
-                  gdprConsent: gdprConsent,
-                  dob: dob,
-                  till: {
-                    till_id: till_id
-                  }
-                });
-              } else {
-                var subscribeBody = {
-                  email_address: email,
-                  status: "subscribed",
-
-                  merge_fields: {
-                    FNAME: first_name,
-                    LNAME: last_name
-                  }
-                };
-                if (generalNewsletterConsent == "on") {
-                  var shrubMailchimp = new Mailchimp(
-                    process.env.SHRUB_MAILCHIMP_SECRET_API_KEY
-                  );
-                  shrubMailchimp.put(
-                    "/lists/" +
-                      process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                      "/members/" +
-                      md5(email),
-                    subscribeBody,
-                    function(err, response) {
-                      subscribeBody.marketing_permissions = [
-                        {
-                          marketing_permission_id:
-                            response.marketing_permissions[0]
-                              .marketing_permission_id,
-                          text: response.marketing_permissions[0].text,
-                          enabled: true
-                        }
-                      ];
-
-                      shrubMailchimp.put(
-                        "/lists/" +
-                          process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID +
-                          "/members/" +
-                          md5(email),
-                        subscribeBody,
-                        function(err, response) {}
-                      );
-                    }
-                  );
-                }
-
-                Mail.sendAutomatedMember(
-                  "welcome-paid-member",
-                  member_id,
-                  {},
-                  function(err) {}
-                );
-
-                if (!till) {
-                  req.flash("success_msg", "New member added!");
-
-                  res.redirect(
-                    process.env.PUBLIC_ADDRESS + "/members/view/" + member_id
-                  );
                 } else {
-                  res.redirect(
-                    process.env.PUBLIC_ADDRESS +
-                      "/till/transaction/" +
-                      req.query.till_id +
-                      "?member_id=" +
-                      member_id +
-                      "&murakamiMsg=" +
-                      encodeURIComponent(
-                        "Member successfully added - please select and pay for a membership to complete registration"
-                      ) +
-                      "&murakamiStatus=ok"
-                  );
+                    req.body.membership_type = "unpaid";
                 }
-              }
-            });
-          }
+            }
+        }
+
+        const sanitizedMember = {
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            phone_no: req.body.phone_no,
+            address: req.body.address,
+            free: 0,
+            membership_type: req.body.membership_type,
+            earliest_membership_date: earliest_membership_date,
+            current_init_membership: current_init_membership,
+            current_exp_membership: current_exp_membership || new Date()
+        };
+
+        const memberId = await Members.add(sanitizedMember);
+
+        if (req.body.generalNewsletterConsent == "on") {
+            await MailchimpAPI.subscribeToNewsletter(process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID, process.env.SHRUB_MAILCHIMP_SECRET_API_KEY, member);
+        }
+
+        await Mail.sendAutomatedMember("welcome-paid-member", memberId, {});
+
+        if (!till) {
+            req.flash("success_msg", "New member added!");
+            res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + memberId);
+
+        } else {
+            res.redirect(process.env.PUBLIC_ADDRESS + "/till/transaction/" + req.query.till_id + "?member_id=" + memberId + "&murakamiMsg=" +
+                encodeURIComponent(
+                    "Member successfully added - please select and pay for a membership to complete registration"
+                ) + "&murakamiStatus=ok"
+            );
+        }
+
+    } catch (error) {
+        console.log(error);
+        if (typeof error != "string") {
+            error = "Something went wrong! Please try again";
+        }
+
+        res.render("members/add", {
+            errors: [{
+                msg: error
+            }],
+            membersActive: true,
+            title: "Add Member",
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            phone_no: req.body.phone_no,
+            address: req.body.address,
+
+            staticContent: {
+                ourVision: ourVision,
+                saferSpacesPolicy: saferSpacesPolicy,
+                membershipBenefitsInfo: membershipBenefits,
+                privacyNotice: privacyNotice
+            },
+            shrubExplained: req.body.shrubExplained,
+            safeSpace: req.body.safeSpace,
+            membershipBenefits: req.body.membershipBenefits,
+            contactConsent: req.body.contactConsent,
+            privacyNotice: req.body.privacyNotice,
+            gdprConsent: req.body.gdprConsent,
+            dob: req.body.dob,
+            till_id: till_id,
+            till: till
         });
-      } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/");
-      }
-    });
-  }
-);
+    }
+});
 
 module.exports = router;

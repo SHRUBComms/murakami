@@ -1,187 +1,120 @@
 // /members/update
 
-var router = require("express").Router();
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Members = Models.Members;
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.get(
-  "/:member_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("members", "update"),
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (err || !member) {
-        req.flash("error_msg", "Member not found!");
-        res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
-      } else {
-        if (
-          req.user.permissions.members.view == true ||
-          (req.user.permissions.members.view == "commonWorkingGroup" &&
-            Helpers.hasOneInCommon(
-              member.working_groups,
-              req.user.working_groups
-            ))
-        ) {
-          res.render("members/update", {
-            title: "Update Member",
-            membersActive: true,
-            member: member
-          });
-        } else {
-          req.flash(
-            "error_msg",
-            "You don't have permission to update this member!"
-          );
-          res.redirect(
-            process.env.PUBLIC_ADDRESS + "/members/view/" + member.member_id
-          );
-        }
+const Validators = require(rootDir + "/app/controllers/validators");
+const validateMember = require(rootDir + "/app/controllers/members/validateMember");
+
+router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "update"), async (req, res) => {
+  try {
+    const member = await Members.getById(req.params.member_id, req.user);
+    if(!member) {
+      throw "Member not found";
+    }
+    
+    if (!(req.user.permissions.members.view == true || (req.user.permissions.members.view == "commonWorkingGroup" && Helpers.hasOneInCommon(member.working_groups, req.user.working_groups)))) {
+      throw "You don't have permission to update this member!";
+    }
+    
+    res.render("members/update", {
+      title: "Update Member",
+      membersActive: true,
+      member: member
+    });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again"
+    }
+    req.flash("error_msg", error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id);
+  }  
+});
+
+router.post("/:member_id", Auth.canAccessPage("members", "update"), async (req, res) => {
+  let updatedMember = { member_id: req.params.member_id };
+  try {
+    let member = await Members.getById(req.params.member_id, req.user);
+    if (!member) {
+      throw "Member not found";
+    }
+
+    if(!member.canUpdate) {
+      throw "You don't have permission to update this member"
+    }
+    
+    updatedMember = req.body.member;
+    updatedMember.member_id = req.params.member_id;
+    
+    await validateMember(req.user, updatedMember);
+
+
+    if(["staff", "admin"].includes(req.user.class)) {  
+      if (!(updatedMember.free == "free" || ["lifetime", "staff", "trustee", "none"].includes(updatedMember.membership_type))) {
+        throw "Please select a valid membership type";
       }
+
+      if (updatedMember.membership_type == "none") {
+        updatedMember.membership_type = null;
+      } else {
+        updatedMember.current_exp_membership = "9999-01-01";
+      }
+ 
+      if (!moment(updatedMember.current_exp_membership).isValid()) {
+        throw "Please enter a valid membership expiration date"
+      }
+
+      if (moment(updatedMember.current_exp_membership).isAfter(moment())) {
+        updatedMember.is_member = 1;
+      } else {
+        updatedMember.is_member = 0;
+      }
+
+      if (updatedMember.free == "free" || ["lifetime", "staff", "trustee"].includes(updatedMember.membership_type)) {
+        updatedMember.free = 1;
+      } else {
+        updatedMember.free = 0;
+      }
+
+      await Validators.number({ name: "tokens", indefiniteArticle: "a number of", value: updatedMember.balance }, { required: true, min: 0, max: 1000 });
+
+    } else {
+      // If not an admin or staff member, keep existing membership details
+      updatedMember.email = member.email;
+      updatedMember.phone_no = member.phone_no;
+      updatedMember.address = member.address;
+      updatedMember.balance = member.balance;
+      updatedMember.membership_type = member.membership_type;
+      updatedMember.free = member.free;
+    }
+    
+    await Members.updateBasic(updatedMember);
+  
+    req.flash("success_msg", "Member updated successfully!");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + updatedMember.member_id);
+  } catch (error) {
+    
+    console.log(error);
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again"
+    }
+    
+    res.render("members/update", {
+      errors: [{ msg: error }],
+      title: "Update Member",
+      membersActive: true,
+      member: updatedMember
     });
   }
-);
-
-router.post(
-  "/:member_id",
-  Auth.canAccessPage("members", "update"),
-
-  function(req, res) {
-    Members.getById(req.params.member_id, req.user, function(err, member) {
-      if (!err && member && member.canUpdate) {
-        var updatedMember = req.body.member;
-        updatedMember.member_id = member.member_id;
-        updatedMember.is_member = member.is_member ? 1 : 0;
-        if (["admin", "staff"].includes(req.user.class)) {
-          if (updatedMember.balance % 1 != 0 || updatedMember.balance < 0) {
-            updatedMember.balance = member.balance;
-          }
-
-          if (
-            !["lifetime", "staff", "trustee", "none"].includes(
-              updatedMember.membership_type
-            )
-          ) {
-            updatedMember.membership_type = member.membership_type;
-          } else {
-            if (updatedMember.membership_type == "none") {
-              updatedMember.membership_type = null;
-            } else {
-              updatedMember.current_exp_membership = "01/01/9999";
-            }
-          }
-
-          if (!moment(updatedMember.current_exp_membership).isValid()) {
-            updatedMember.current_exp_membership = moment(
-              member.current_exp_membership
-            ).toDate();
-          }
-
-          if (moment(updatedMember.current_exp_membership).isAfter(moment())) {
-            updatedMember.is_member = 1;
-          } else {
-            updatedMember.is_member = 0;
-          }
-
-          if (
-            updatedMember.free == "free" ||
-            ["lifetime", "staff", "trustee"].includes(
-              updatedMember.membership_type
-            )
-          ) {
-            updatedMember.free = 1;
-          } else {
-            updatedMember.free = 0;
-          }
-
-          req
-            .checkBody("member[email]", "Please enter an email address")
-            .notEmpty();
-          req
-            .checkBody(
-              "member[email]",
-              "Please enter a shorter email address (<= 89 characters)"
-            )
-            .isLength({ max: 89 });
-          req
-            .checkBody("member[email]", "Please enter a valid email address")
-            .isEmail();
-
-          req
-            .checkBody("member[address]", "Please enter an address")
-            .notEmpty();
-        } else {
-          updatedMember.email = member.email;
-          updatedMember.phone_no = member.phone_no;
-          updatedMember.address = member.address;
-          updatedMember.balance = member.balance;
-          updatedMember.membership_type = member.membership_type;
-          updatedMember.free = member.free;
-        }
-
-        req
-          .checkBody("member[first_name]", "Please enter a first name")
-          .notEmpty();
-        req
-          .checkBody(
-            "member[first_name]",
-            "Please enter a shorter first name (<= 20 characters)"
-          )
-          .isLength({ max: 20 });
-
-        req
-          .checkBody("member[last_name]", "Please enter a last name")
-          .notEmpty();
-        req
-          .checkBody(
-            "member[last_name]",
-            "Please enter a shorter last name (<= 30 characters)"
-          )
-          .isLength({ max: 30 });
-
-        var errors = req.validationErrors();
-
-        if (!errors) {
-          Members.updateBasic(updatedMember, function(err) {
-            if (!err) {
-              req.flash("success_msg", "Member updated successfully!");
-              res.redirect(
-                process.env.PUBLIC_ADDRESS +
-                  "/members/view/" +
-                  updatedMember.member_id
-              );
-            } else {
-              res.render("members/update", {
-                errors: [{ msg: "Something went wrong, please try again!" }],
-                title: "Update Member",
-                membersActive: true,
-                member: updatedMember
-              });
-            }
-          });
-        } else {
-          res.render("members/update", {
-            errors: errors,
-            title: "Update Member",
-            membersActive: true,
-            member: updatedMember
-          });
-        }
-      } else {
-        req.flash("error_msg", "Something went wrong, please try again!");
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/members/view/" + req.params.member_id
-        );
-      }
-    });
-  }
-);
+});
 
 module.exports = router;

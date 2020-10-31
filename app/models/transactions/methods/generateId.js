@@ -1,17 +1,13 @@
-module.exports = function(Transactions, sequelize, DataTypes) {
-  var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-  var GetId = function(callback) {
-    var id = Helpers.generateIntId(8);
-    Transactions.findAll({ where: { transaction_id: id } }).nodeify(function(
-      err,
-      result
-    ) {
-      if (result.length > 0) {
-        GetId(callback);
-      } else if (result.length == 0) {
-        callback(id);
-      }
-    });
-  };
+module.exports = (Transactions) => {
+  const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  const GetId = async () => {
+    const id = Helpers.generateIntId(8);
+    const result = await Transactions.findAll({ where: { transaction_id: id } });
+    if (result.length > 0) {
+      GetId();
+    } else if (result.length == 0) {
+      return id;
+    }
+  }
   return GetId;
-};
+}

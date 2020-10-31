@@ -1,20 +1,14 @@
-module.exports = function(VolunteerRoles, sequelize, DataTypes) {
-  return function(working_group, title, callback) {
-    VolunteerRoles.generateId(function(role_id) {
-      VolunteerRoles.create({
-        role_id: role_id,
-        group_id: working_group,
-        details: { title: title },
-        availability: {},
-        dateCreated: new Date(),
-        public: 0
-      }).nodeify(function(err) {
-        callback(err, {
-          role_id: role_id,
-          group_id: working_group,
-          details: { title: title }
-        });
-      });
-    });
+module.exports = (VolunteerRoles) => {
+  return async (working_group, title) => {
+    const roleId = await VolunteerRoles.generateId();
+    await VolunteerRoles.create({
+      role_id: roleId,
+      group_id: working_group,
+      details: { title: title },
+      availability: {},
+      dateCreated: new Date(),
+      public: 0
+    })
+    return { role_id: roleId, group_id: working_group, details: { title: title } };
   };
 };

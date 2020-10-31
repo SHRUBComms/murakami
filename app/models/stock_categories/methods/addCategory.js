@@ -1,7 +1,8 @@
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(category, callback) {
-    StockCategories.generateId(function(id) {
-      StockCategories.create({
+module.exports = (StockCategories) => {
+  return async (category) => {
+    const id = await StockCategories.generateId();
+    
+    await StockCategories.create({
         item_id: category.id || id,
         till_id: category.till_id,
         group_id: category.group_id,
@@ -15,9 +16,8 @@ module.exports = function(StockCategories, sequelize, DataTypes) {
         stockControl: category.stockControl,
         stockInfo: category.stockInfo || {},
         parent: category.parent
-      }).nodeify(function(err) {
-        callback(err, id);
-      });
     });
+    
+    return id;
   };
 };

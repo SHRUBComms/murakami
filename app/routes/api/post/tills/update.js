@@ -1,44 +1,41 @@
 // /api/post/tills/update
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.post("/", Auth.isLoggedIn, function(req, res) {
-  var response = { status: "fail", msg: "something went wrong!" };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateSettings"), async (req, res) => {
+  try {
+    const till = req.body.till;
 
-  var till = req.body.till;
+    if (!till.name) {
+      throw "Please enter till name";
+    }
+    
+    const tillExists = await Tills.getById(till.till_id);
+    
+    if (!tillExists) {
+      throw "Till not found";
+    }
+    
+    if (tillExists.disabled == 1) {
+      throw "Till is disabled"
+    }
+    
+    await Tills.updateTill(till);
 
-  if (till.name) {
-    Tills.getById(till.till_id, function(err, tillExists) {
-      if (tillExists) {
-        if (tillExists.disabled == 0) {
-          Tills.updateTill(till, function(err) {
-            if (err) {
-              res.send(response);
-            } else {
-              response.status = "ok";
-              response.msg = "Till updated!";
-              res.send(response);
-            }
-          });
-        } else {
-          response.msg = "Till is disabled.";
-          res.send(response);
-        }
-      } else {
-        response.msg = "Select a valid till.";
-        res.send(response);
-      }
-    });
-  } else {
-    response.msg = "Please enter a name.";
-    res.send(response);
-  }
+    res.send({ status: "ok", msg: "Till updated!" });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+
+    res.send({ status: "fail", msg: error });
+  }  
 });
 
 module.exports = router;

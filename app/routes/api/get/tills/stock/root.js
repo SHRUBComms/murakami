@@ -1,6 +1,6 @@
 // /api/get/tills/stock
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/get-records", require("./get-records"));
 

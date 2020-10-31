@@ -1,124 +1,99 @@
 // /settings/email-templates
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var lodash = require("lodash");
+const rootDir = process.env.CWD;
 
-var rootDir = process.env.CWD;
+const Models = require(rootDir + "/app/models/sequelize");
+const MailTemplates = Models.MailTemplates;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var MailTemplates = Models.MailTemplates;
-var WorkingGroups = Models.WorkingGroups;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("settings", "emailTemplates"), (req, res) => {
+  res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/footer");
+});
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("settings", "emailTemplates"),
-  function(req, res) {
-    res.redirect(
-      process.env.PUBLIC_ADDRESS + "/settings/email-templates/footer"
-    );
-  }
-);
+router.get("/:mail_id", Auth.isLoggedIn, Auth.canAccessPage("settings", "emailTemplates"), async (req, res) => {
+  try {
+    const { templatesObj } = await MailTemplates.getAll();
+    const group = req.user.allWorkingGroupsObj["WG-100"];
+    
+    if (!templatesObj[req.params.mail_id]) {
+      throw "Mail template not found";
+    }
 
-router.get(
-  "/:mail_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("settings", "emailTemplates"),
-  function(req, res) {
-    MailTemplates.getAll(function(err, templatesArray, templates) {
-      WorkingGroups.getById("WG-100", function(err, group) {
-        if (!err && templates[req.params.mail_id]) {
-          var dynamicVariablesAvailable = require(rootDir +
-            "/app/configs/mail/dynamicVariables.config");
+    const dynamicVariablesAvailable = require(rootDir + "/app/configs/mail/dynamicVariables.config");
 
-          res.render("settings/email-templates", {
-            title: "Email Templates",
-            settingsActive: true,
-            templates: templates,
-            template: templates[req.params.mail_id],
-            group: group,
-            dynamicVariablesAvailable: dynamicVariablesAvailable,
-            categories: [
-              {
-                id: "common",
-                plain: "Common (Members & Non-members)"
-              },
-              {
-                id: "members",
-                plain: "All Members (Paid Members & Volunteers)"
-              },
-              {
-                id: "paid-members",
-                plain: "Paid Members Only"
-              },
-              {
-                id: "volunteers",
-                plain: "Volunteers Only"
-              },
-              {
-                id: "footers",
-                plain: "Footers"
-              }
-            ]
-          });
-        } else {
-          res.redirect(
-            process.env.PUBLIC_ADDRESS + "/settings/email-templates/"
-          );
+    res.render("settings/email-templates", {
+      title: "Email Templates",
+      settingsActive: true,
+      templates: templatesObj,
+      template: templatesObj[req.params.mail_id],
+      group: group,
+      dynamicVariablesAvailable: dynamicVariablesAvailable,
+      categories: [
+        {
+          id: "common",
+          plain: "Common (Members & Non-members)"
+        },
+        {
+          id: "members",
+          plain: "All Members (Paid Members & Volunteers)"
+        },
+        {
+          id: "paid-members",
+          plain: "Paid Members Only"
+        },
+        {
+          id: "volunteers",
+          plain: "Volunteers Only"
+        },
+        {
+          id: "footers",
+          plain: "Footers"
         }
-      });
+      ]
     });
+  } catch (error) {
+    console.log(error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/");
   }
-);
+});
 
-router.post(
-  "/:mail_id",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("settings", "emailTemplates"),
-  function(req, res) {
-    MailTemplates.getById(req.params.mail_id, function(err, templateExists) {
-      if (templateExists) {
-        var subject = req.body.subject;
-        var markup = req.body.markup.trim();
-        var active = req.body.templateActive;
+router.post("/:mail_id", Auth.isLoggedIn, Auth.canAccessPage("settings", "emailTemplates"), async (req, res) => {
+  try {
+    const templateExists = await MailTemplates.getById(req.params.mail_id);
+    if (!templateExists) {
+      throw "Template not found";
+    }
+    
+    const subject = req.body.subject;
+    const markup = req.body.markup.trim();
+    let active = req.body.templateActive;
 
-        if (active == "on") {
-          active = 1;
-        } else {
-          active = 0;
-        }
+    if (active == "on") {
+      active = 1;
+    } else {
+      active = 0;
+    }
 
-        var template = {
-          id: req.params.mail_id,
-          subject: subject,
-          markup: markup,
-          active: active
-        };
+    const template = {
+      id: req.params.mail_id,
+      subject: subject,
+      markup: markup,
+      active: active
+    };
 
-        MailTemplates.updateTemplate(template, function(err) {
-          if (err) {
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/settings/email-templates/" +
-                req.params.mail_id
-            );
-          } else {
-            req.flash("success_msg", "Template successfully updated!");
-            res.redirect(
-              process.env.PUBLIC_ADDRESS +
-                "/settings/email-templates/" +
-                req.params.mail_id
-            );
-          }
-        });
-      } else {
-        res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates");
-      }
-    });
+    await MailTemplates.updateTemplate(template);
+    req.flash("success_msg", "Template successfully updated!");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/" + req.params.mail_id);
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+    req.flash("error_msg", error);
+    res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/" + req.params.mail_id);
   }
-);
+});
 
 module.exports = router;

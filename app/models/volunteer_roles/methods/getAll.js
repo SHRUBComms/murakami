@@ -21,7 +21,9 @@ module.exports = (VolunteerRoles, sequelize, DataTypes) => {
 
             		rolesGroupedById[role.role_id] = role;
 
-			return { rolesArray: roles, rolesObj: rolesGroupedById, rolesByGroup: rolesGroupedByGroup }
 		}
+
+		return { rolesArray: roles, rolesObj: rolesGroupedById, rolesByGroup: rolesGroupedByGroup }
+
   	}
 }

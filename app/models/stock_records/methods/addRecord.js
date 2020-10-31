@@ -1,7 +1,7 @@
-module.exports = function(StockRecords, sequelize, DataTypes) {
-  return function(record, callback) {
-    StockRecords.generateId(function(id) {
-      StockRecords.create({
+module.exports = (StockRecords, sequelize, DataTypes) => {
+  return async (record) => {
+    const id = await StockRecords.generateId();
+    await StockRecords.create({
         action_id: id,
         item_id: record.item_id,
         till_id: record.till_id,
@@ -9,9 +9,7 @@ module.exports = function(StockRecords, sequelize, DataTypes) {
         user_id: record.user_id,
         timestamp: new Date(),
         actionInfo: record.actionInfo
-      }).nodeify(function(err) {
-        callback(err, id);
-      });
     });
-  };
+    return id;
+  }
 };

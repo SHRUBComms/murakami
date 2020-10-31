@@ -1,52 +1,38 @@
 // /api/post/volunteers/food-collections/get-by-member-id
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
+const Models = require(rootDir + "/app/models/sequelize");
+const Members = Models.Members;
+const FoodCollectionsKeys = Models.FoodCollectionsKeys;
+const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-var Members = Models.Members;
-var FoodCollectionsKeys = Models.FoodCollectionsKeys;
-var FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "manageFoodCollectionLink"), async (req, res) => {
+  try {
+    const member = await Members.getById(req.params.member_id, req.user);
+    if (!member) {
+      throw "Member not found";
+    }
+    
+    const foodCollectionKey = await FoodCollectionsKeys.getByMemberId(req.params.member_id);
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("volunteers", "manageFoodCollectionLink"),
-  function(req, res) {
-    var member_id = req.body.member_id;
-    Members.getById(member_id, req.user, function(err, member) {
-      if (!err && member) {
-        FoodCollectionsKeys.getByMemberId(member_id, function(
-          err,
-          foodCollectionKey
-        ) {
-          FoodCollectionsOrganisations.getAll(function(err, organisations) {
-            if (!err && foodCollectionKey) {
-              res.send({
-                status: "ok",
-                foodCollectionKey: foodCollectionKey,
-                organisations: organisations
-              });
-            } else {
-              res.send({
-                status: "ok",
-                msg: "Food collection key not found!",
-                organisations: organisations,
-                foodCollectionKey: { organisations: [] }
-              });
-            }
-          });
-        });
-      } else {
-        res.send({ status: "fail", msg: "Member not found!" });
-      }
-    });
+    if (!foodCollectionKey) {
+      throw "Food collection key not found";
+    }
+
+    const organisations = await FoodCollectionsOrganisations.getAll();
+
+    res.send({ status: "ok", foodCollectionKey: foodCollectionKey, organisations: organisations });
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+    res.send({ status: "fail",msg: error });
   }
-);
+});
 
 module.exports = router;

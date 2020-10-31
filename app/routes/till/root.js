@@ -1,20 +1,12 @@
 // /till
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var TillActivity = Models.TillActivity;
-var Transactions = Models.Transactions;
-var StockCategories = Models.StockCategories;
-var WorkingGroups = Models.WorkingGroups;
+const Auth = require(rootDir + "/app/configs/auth");
 
-var Auth = require(rootDir + "/app/configs/auth");
-
-router.get("/", Auth.isLoggedIn, function(req, res) {
+router.get("/", Auth.isLoggedIn, (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/till/select");
 });
 
@@ -25,7 +17,6 @@ router.use("/dashboard", require("./dashboard"));
 router.use("/manage", require("./manage"));
 router.use("/close", require("./close"));
 router.use("/add", require("./add"));
-router.use("/view", require("./view"));
 router.use("/select", require("./select"));
 router.use("/reports", require("./reports"));
 router.use("/refunds", require("./refunds/root"));

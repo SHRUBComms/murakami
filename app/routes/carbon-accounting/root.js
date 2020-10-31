@@ -1,12 +1,12 @@
 // /carbon-accounting
 
-var router = require("express").Router();
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 
-router.get("/", Auth.isLoggedIn, function(req, res) {
+router.get("/", Auth.isLoggedIn, (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/carbon-accounting/log");
 });
 

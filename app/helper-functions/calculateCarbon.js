@@ -1,32 +1,12 @@
-var async = require("async");
+module.exports = async (carbon, carbonCategories) => {
+	let totalCarbon = 0;
+	for await (const transaction of carbon) {
+		for await (const carbon_id of Object.keys(transaction.trans_object)) {
+			if(carbonCategories[carbon_id]) {
+				totalCarbon += Math.abs(transaction.trans_object[carbon_id] * carbonCategories[carbon_id].factors[transaction.method]);
+			}
+		}
+	}
 
-module.exports = function(carbon, carbonCategories, callback) {
-  var totalCarbon = 0;
-  async.each(
-    carbon,
-    function(transaction, callback) {
-      transaction.trans_object = transaction.trans_object;
-      async.eachOf(
-        transaction.trans_object,
-        function(savedInCarbonCategory, carbon_id, callback) {
-          if (carbonCategories[carbon_id]) {
-            totalCarbon += Math.abs(
-              savedInCarbonCategory *
-                carbonCategories[carbon_id].factors[transaction.method]
-            );
-
-            callback();
-          } else {
-            callback();
-          }
-        },
-        function() {
-          callback();
-        }
-      );
-    },
-    function() {
-      callback(totalCarbon);
-    }
-  );
-};
+	return totalCarbon;
+}

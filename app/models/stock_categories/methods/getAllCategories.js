@@ -1,19 +1,10 @@
-var async = require("async");
-
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(callback) {
-    StockCategories.findAll({}).nodeify(function(err, categories) {
-      var categoriesObj = {};
-      async.each(
-        categories,
-        function(category, callback) {
-          categoriesObj[category.item_id] = category;
-          callback();
-        },
-        function() {
-          callback(err, categoriesObj);
-        }
-      );
-    });
-  };
-};
+module.exports = (StockCategories, sequelize, DataTypes) => {
+	return async () => {
+		try {
+    			const categories = await StockCategories.findAll({});
+    			return categories.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
+		} catch (error) {
+			throw error;
+		}
+	}
+}

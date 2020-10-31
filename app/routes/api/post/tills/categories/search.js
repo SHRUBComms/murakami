@@ -1,48 +1,37 @@
 // /api/post/tills/categories/search
 
-var router = require("express").Router();
-var async = require("async");
+const router = require("express").Router();
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var StockCategories = Models.StockCategories;
+const Models = require(rootDir + "/app/models/sequelize");
+const StockCategories = Models.StockCategories;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post("/", Auth.isLoggedIn, function(req, res) {
-  var response = {};
-  response.status = "fail";
-  response.results = [];
-
-  var term = req.body.term;
-  var till_id = req.body.till_id;
-  StockCategories.getCategoriesByTillId(till_id, "tree", function(
-    err,
-    categories
-  ) {
-    if (err || !categories) {
-      res.send(response);
-    } else {
-      categories = Helpers.flatten(categories);
-      var results = [];
-      async.each(
-        categories,
-        function(category, callback) {
-          if (category.name.toLowerCase().search(term.toLowerCase()) != -1) {
-            results.push(category);
-          }
-          callback();
-        },
-        function() {
-          response.status = "ok";
-          response.results = results.slice(0, 3);
-          res.send(response);
-        }
-      );
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async (req, res) => {
+  try {
+    const term = req.body.term;
+    const till_id = req.body.till_id;
+    const categories = await StockCategories.getCategoriesByTillId(till_id, "tree");
+    if (!categories) {
+      throw "No categories found";
     }
-  });
+    
+    const flatCategories = Helpers.flatten(categories);
+    let results = [];
+
+    for await (const category of flatCategories) {
+      if (category.name.toLowerCase().search(term.toLowerCase()) != -1) {
+        results.push(category);
+      }
+    }
+    
+    res.send({ status: "ok", results: results.slice(0, 3) });
+  } catch (error) {
+    res.send({ status: "fail", results: []});
+  }
 });
 
 module.exports = router;

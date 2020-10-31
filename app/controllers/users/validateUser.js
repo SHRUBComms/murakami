@@ -37,15 +37,11 @@ const validateUser = async (loggedInUser, submittedForm) => {
 
 		await Validators.string({ name: "first name", indefiniteArticle: "a", value: submittedForm.first_name }, { required: true, minLength: 0, maxLength: 21});
 		await Validators.string({ name: "last name", indefiniteArticle: "a", value: submittedForm.last_name }, { required: true, minLength: 0, maxLength: 31});
-		await Validators.string({ name: "email address", indefiniteArticle: "an", value: submittedForm.email }, { required: true, minLength: 4, maxLength: 90});
+		await Validators.email({ value: submittedForm.email }, { required: true });
 		await Validators.string({ name: "username", indefiniteArticle: "a", value: submittedForm.username }, { required: true, minLength: 0, maxLength: 21});
 
 		if(!submittedForm.username.match(/^[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*$/)) {
 			throw "Please enter a valid username"
-		}
-
-		if(!submittedForm.email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/)) {
-			throw "Please enter a valid email address"
 		}
 
 		return true;

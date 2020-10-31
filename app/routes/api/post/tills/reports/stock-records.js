@@ -1,103 +1,50 @@
 // /api/post/tills/reports/stock-records
 
-var router = require("express").Router();
-
-var async = require("async");
-var moment = require("moment");
+const router = require("express").Router();
+const moment = require("moment");
 moment.locale("en-gb");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var Tills = Models.Tills;
-var Transactions = Models.Transactions;
-var Users = Models.Users;
-var StockCategories = Models.StockCategories;
-var StockRecords = Models.StockRecords;
+const Models = require(rootDir + "/app/models/sequelize");
+const Tills = Models.Tills;
+const Users = Models.Users;
+const StockCategories = Models.StockCategories;
+const StockRecords = Models.StockRecords;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("tills", "viewReports"),
-  function(req, res) {
-    var response = {
-      status: "fail",
-      msg: "Something went wrong!",
-      summary: {}
-    };
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
+  try {
 
-    var till_id = req.body.till_id;
-    var datePeriod = req.body.datePeriod || "today";
+    const till_id = req.body.till_id;
+    const datePeriod = req.body.datePeriod || "today";
 
-    var startDate = req.body.startDate || null;
-    var endDate = req.body.endDate || null;
+    const startDateRaw = req.body.startDate || null;
+    const endDateRaw = req.body.endDate || null;
 
-    if (till_id) {
-      Tills.getById(till_id, function(err, till) {
-        if (till) {
-          Helpers.plainEnglishDateRangeToDates(
-            datePeriod,
-            startDate,
-            endDate,
-            function(startDate, endDate) {
-              StockRecords.getAllBetweenTwoDatesByTillId(
-                till_id,
-                startDate,
-                endDate,
-                function(err, records) {
-                  if (!err && records) {
-                    if (records.length > 0) {
-                      Users.getAll(req.user, function(err, users, usersObj) {
-                        StockCategories.getCategories("tree", function(
-                          err,
-                          categories
-                        ) {
-                          var flatCategories = Helpers.flatten(categories);
-
-                          var flatCategoriesAsObj = {};
-                          async.each(
-                            flatCategories,
-                            function(category, callback) {
-                              flatCategoriesAsObj[category.item_id] = category;
-                              callback();
-                            },
-                            function() {
-                              StockRecords.formatRecords(
-                                records,
-                                usersObj,
-                                flatCategoriesAsObj,
-                                req.user.allWorkingGroupsObj,
-                                function(formattedRecords) {
-                                  res.send(formattedRecords);
-                                }
-                              );
-                            }
-                          );
-                        });
-                      });
-                    } else {
-                      res.send([]);
-                    }
-                  } else {
-                    res.send([]);
-                  }
-                }
-              );
-            }
-          );
-        } else {
-          response.msg = "No valid till selected.";
-          res.send(response);
-        }
-      });
-    } else {
-      response.msg = "No till selected.";
-      res.send(response);
+    if (!till_id) {
+      throw "No till specified";
     }
+
+    const till = await Tills.getById(till_id);
+
+    if (!till) {
+      throw "Till not found";
+    }
+    
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
+    
+    const records = await StockRecords.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
+    const { usersObj } = await Users.getAll(req.user);
+    
+    const categories = await StockCategories.getCategories("treeKv");
+    const formattedRecords = await StockRecords.formatRecords(records, usersObj, categories, req.user.allWorkingGroupsObj);
+    res.send(formattedRecords);
+  } catch (error) {
+    res.send([]);
   }
-);
+});
 
 module.exports = router;

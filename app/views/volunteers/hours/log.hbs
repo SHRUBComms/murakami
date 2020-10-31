@@ -183,7 +183,7 @@
                 <div class="row">
                   <div class="col-sm-12 col-md-10 mx-auto">
                     <div class="form-group">
-                      <input type="text" class="form-control" name="member_id" id="member_id" placeholder="Membership ID" value="{{member_id}}" />
+                      <input type="text" class="form-control" name="shift[member_id]" id="member_id" placeholder="Membership ID" value="{{member_id}}" />
                     </div>
                   </div>
                 </div>
@@ -191,7 +191,7 @@
                 <div class="row">
                   <div class="col-sm-12 col-md-10 mx-auto mb-1">
                     <div class="form-group">
-                      <select class="form-control" name="working_group">
+                      <select class="form-control" name="shift[working_group]">
                         <option value="">Select a working group...</option>
                         {{#each working_groups}}
                           <option value="{{group_id}}">{{name}}</option>
@@ -204,7 +204,7 @@
                       <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
                         <div class="form-inline">
                           <label class="form-label mr-2">Hours</label>
-                          <input type="number" class="form-control" id="duration" name="duration" min="0.25" max="1000" step="0.25" value="0" />
+                          <input type="number" class="form-control" id="duration" name="shift[duration]" min="0.25" max="1000" step="0.25" value="0" />
                         </div>
                       </div>
                     </div>
@@ -214,7 +214,7 @@
                 <div class="row mb-3 mt-3">
                   <div class="col-sm-12 col-md-10 col-lg-8 mx-auto mb-1">
                     <div class="mx-auto">
-                      <textarea class="form-control" name="note" maxlength="200" placeholder="Note (optional)"></textarea>
+                      <textarea class="form-control" name="shift[note]" maxlength="200" placeholder="Note (optional)"></textarea>
                     </div>
                   </div>
                 </div>

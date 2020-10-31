@@ -9,68 +9,49 @@ var Models = require(rootDir + "/app/models/sequelize");
 var WorkingGroups = Models.WorkingGroups;
 
 var Auth = require(rootDir + "/app/configs/auth");
+const validateWorkingGroup= require(rootDir + "/app/controllers/working-groups/validateWorkingGroup");
+router.get("/", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "add"), (req, res) => {
+  res.render("working-groups/add", {
+    title: "Add Working Group",
+    workingGroupsActive: true
+  });
+});
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("workingGroups", "add"),
-  function(req, res) {
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "add"), async (req, res) => {
+  let sanitizedGroup = {};
+  try {
+    sanitizedGroup = {
+      name: req.body.name,
+      prefix: req.body.prefix,
+      parent: req.body.parent || null,
+      welcomeMessage: req.body.welcomeMessage
+    }
+
+    await validateWorkingGroup(req.user, sanitizedGroup);
+    
+    if (h2p(sanitizedGroup.welcomeMessage)) {
+      sanitizedGroup.welcomeMessage = sanitizedGroup.welcomeMessage.replace(/\r?\n|\r/g, "");
+    } else {
+      sanitizedGroup.welcomeMessage = null;
+    }
+
+    const group_id = await WorkingGroups.addWorkingGroup(sanitizedGroup);
+    req.flash("success_msg", "Working group added successfully!");
+    res.redirect(process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + group_id);
+  } catch (error) {
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
+    
     res.render("working-groups/add", {
       title: "Add Working Group",
-      workingGroupsActive: true
+      workingGroupsActive: true,
+      errors: [{ msg: error }],
+      name: sanitizedGroup.name,
+      prefix: sanitizedGroup.prefix,
+      welcomeMessage: sanitizedGroup.welcomeMessage
     });
   }
-);
-
-router.post(
-  "/",
-  Auth.isLoggedIn,
-  Auth.canAccessPage("workingGroups", "add"),
-  function(req, res) {
-    var group = {
-      prefix: req.body.prefix,
-      name: req.body.name,
-
-      welcomeMessage: req.body.welcomeMessage || null
-    };
-
-    if (
-      req.user.permissions.workingGroups.view == true ||
-      (req.user.permissions.workingGroups.view == "commonWorkingGroup" &&
-        req.user.working_groups.includes(req.body.parent))
-    ) {
-      group.parent = req.body.parent || null;
-    }
-
-    if (h2p(group.welcomeMessage) == null) {
-      group.welcomeMessage = null;
-    }
-
-    if (
-      !req.user.allWorkingGroupsObj[group.parent] ||
-      req.user.allWorkingGroupsObj[group.parent].parent
-    ) {
-      group.parent = null;
-    }
-
-    WorkingGroups.addWorkingGroup(group, function(err, group_id) {
-      if (err) {
-        res.render("working-groups/add", {
-          title: "Add Working Group",
-          workingGroupsActive: true,
-          errors: [{ msg: "Something went wrong!" }],
-          name: group.name,
-          prefix: group.prefix,
-          welcomeMessage: group.welcomeMessage
-        });
-      } else {
-        req.flash("success_msg", "Working group added successfully!");
-        res.redirect(
-          process.env.PUBLIC_ADDRESS + "/working-groups/manage/" + group_id
-        );
-      }
-    });
-  }
-);
+});
 
 module.exports = router;

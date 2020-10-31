@@ -1,10 +1,8 @@
-module.exports = function(DataPermissions, sequelize, DataTypes) {
-  return function(userClass, permissions, callback) {
-    DataPermissions.update(
+module.exports = (DataPermissions, sequelize, DataTypes) => {
+  return async (userClass, permissions) => {
+    return DataPermissions.update(
       { permissions: permissions },
       { where: { class: userClass } }
-    ).nodeify(function(err) {
-      callback(err);
-    });
-  };
-};
+    );
+  }
+}

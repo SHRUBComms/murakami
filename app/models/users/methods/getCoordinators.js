@@ -1,27 +1,22 @@
-var async = require("async");
+const rootDir = process.env.CWD;
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
-module.exports = function(Users, sequelize, DataTypes) {
-  return function(user, callback) {
-    Users.findAll({
-      where: {
-        class: {
-          [DataTypes.Op.or]: ["staff", "admin", "volunteer"]
-        }
-      }
-    }).nodeify(function(err, coordinators) {
-      var kv = {};
-      var flat = [];
-      async.each(
-        coordinators,
-        function(coordinator, callback) {
-          kv[coordinator.id] = coordinator;
-          flat.push(coordinator.id);
-          callback();
-        },
-        function() {
-          callback(err, coordinators, kv, flat);
-        }
-      );
-    });
-  };
-};
+module.exports = (Users, sequelize, DataTypes) => {
+	return async (user) => {
+		try {
+			const coordinators = await Users.findAll({
+				where: {
+					class: { [DataTypes.Op.or]: ["staff", "admin", "volunteer"] }
+				}
+			});
+
+			const coordinatorsObj = coordinators.reduce((obj, item) => Object.assign(obj, { [item.id]: item }), {});
+
+			const coordinatorIds = Helpers.flattenToIds(coordinators, "id");
+
+			return { coordinators, coordinatorsObj, coordinatorIds}
+		} catch (error) {
+			throw error;
+		}
+	}
+}
