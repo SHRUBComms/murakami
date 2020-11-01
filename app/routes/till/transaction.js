@@ -16,8 +16,8 @@ const Members = Models.Members;
 const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/helper-functions/root");
 
 router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
@@ -228,7 +228,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       sanitizedTransaction.push(sanitizedItem);
     }
 
-    var formattedTransaction = {
+    let formattedTransaction = {
       till_id: till_id,
       user_id: req.user.id,
       member_id: member_id || "anon",

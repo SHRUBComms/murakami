@@ -1,6 +1,6 @@
 // /api/post/volunteers/roles
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/quick-add", require("./quick-add"));
 

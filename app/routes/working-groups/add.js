@@ -1,15 +1,16 @@
 // /working-groups/add
 
-var router = require("express").Router();
-var h2p = require("html2plaintext");
+const router = require("express").Router();
+const h2p = require("html2plaintext");
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = require(rootDir + "/app/models/sequelize");
-var WorkingGroups = Models.WorkingGroups;
+const Models = require(rootDir + "/app/models/sequelize");
+const WorkingGroups = Models.WorkingGroups;
 
-var Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/configs/auth");
 const validateWorkingGroup= require(rootDir + "/app/controllers/working-groups/validateWorkingGroup");
+
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "add"), (req, res) => {
   res.render("working-groups/add", {
     title: "Add Working Group",

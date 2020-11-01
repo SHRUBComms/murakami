@@ -1,6 +1,6 @@
 // /api/post
 
-var router = require("express").Router();
+const router = require("express").Router();
 
 router.use("/members", require("./members/root"));
 router.use("/tills", require("./tills/root"));
