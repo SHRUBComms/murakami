@@ -12,8 +12,8 @@ const VolunteerHours = Models.VolunteerHours;
 const Reports = Models.Reports;
 
 const automatedReports = new CronJob({
-  // 9am, first of the month.
-  cronTime: "0 33 16 1 * *",
+  // 2am, first of the month.
+  cronTime: "0 0 2 1 * *",
   onTick: async () => {
     try {
       

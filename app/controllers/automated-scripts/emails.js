@@ -10,7 +10,7 @@ const Members = Models.Members;
 const Mail = require(rootDir + "/app/controllers/mail/root");
 
 const automatedMails = new CronJob({
-  cronTime: "0 56 17 * * *",
+  cronTime: "0 0 10 * * *",
   onTick: async () => {
     try {
      

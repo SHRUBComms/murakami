@@ -1,10 +1,9 @@
 # Murakami
 
-A lightweight, open-source membership management system for [Shrub](https://shrubcoop.org)!
+A lightweight, open-source membership management system for [SHRUB](https://shrubcoop.org)!
 
-> Version 2.1
+> Version 2.2
 
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![DeepScan grade](https://deepscan.io/api/teams/2524/projects/3660/branches/32113/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=2524&pid=3660&bid=32113)
 
 Murakami is straight-to-the-point. It allows an organisation to _easily_ manage its members and volunteers, integrating seemlessly with a bespoke POS system.
