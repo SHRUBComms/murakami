@@ -10,8 +10,8 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Users = Models.Users;
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 const validateUser = require(rootDir + "/app/controllers/users/validateUser");
 const sanitizeNotificationPreferences = require(rootDir + "/app/controllers/users/sanitizeNotificationPreferences");
 

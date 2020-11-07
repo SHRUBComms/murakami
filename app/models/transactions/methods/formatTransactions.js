@@ -67,7 +67,7 @@ module.exports = () => {
             		formattedTransaction.paymentMethod = transaction.summary.paymentMethod || "";
 
             		if (formattedTransaction.paymentMethod) {
-              			formattedTransaction.totals.money += " (" + formattedTransaction.paymentMethod.toProperCase() + ")";
+              			formattedTransaction.totals.money += " (" + lodash.startCase(lodash.toLower(formattedTransaction.paymentMethod)) + ")";
             		}
 
             		if (!isNaN(transaction.summary.totals.money)) {

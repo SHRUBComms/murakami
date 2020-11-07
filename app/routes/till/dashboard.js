@@ -10,8 +10,8 @@ const TillActivity = Models.TillActivity;
 const CarbonCategories = Models.CarbonCategories;
 const StockCategories = Models.StockCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async (req, res) => {
 	try {

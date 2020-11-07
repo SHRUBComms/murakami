@@ -11,7 +11,7 @@ const Members = Models.Members;
 const Users = Models.Users;
 const Volunteers = Models.Volunteers;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 const validateMember = require(rootDir + "/app/controllers/members/validateMember");
 const validateVolunteer = require(rootDir + "/app/controllers/volunteers/validateVolunteer");
 const MailchimpAPI = require(rootDir + "/app/controllers/mailchimp");

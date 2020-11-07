@@ -1,7 +1,7 @@
 // Load environment variables
 require("dotenv").config();
 
-const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
 // Import resources
 const express = require("express");
@@ -17,7 +17,6 @@ const session = require("cookie-session");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
 const back = require("express-back");
-const validator = require("express-validator");
 
 if (process.env.NODE_ENV != "development") {
     process.on("uncaughtException", (error) => {
@@ -36,21 +35,10 @@ app.engine(
         partialsDir: path.join(__dirname, "app/views/partials"),
         defaultLayout: "layout",
         extname: ".hbs",
-        helpers: require("./app/configs/hbs_helpers.js").helpers
+        helpers: require("./app/controllers/hbs-helpers.js").helpers
     })
 );
 app.set("view engine", "hbs");
-
-// Overwrite default date formatter (broken in current version of node)
-Date.prototype.toLocaleDateString = function () {
-    return `${this.getDate()}/${this.getMonth() + 1}/${this.getFullYear()}`;
-};
-
-String.prototype.toProperCase = function () {
-    return this.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-};
 
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
@@ -59,7 +47,7 @@ const port = process.env.PORT || 3000;
 path = process.env.PUBLIC_PATH || "";
 
 // Define public (static) directory
-app.use(path, express.static("app/public"));
+app.use(path, express.static("app/static"));
 
 // CORS
 app.use(cors());
@@ -74,8 +62,6 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(cookieParser());
-// Express Validator
-app.use(validator(require("./app/configs/express-validators")));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -159,9 +145,9 @@ app.use(async (req, res, next) => {
 });
 
 // Automated processes
-const automatedMails = require("./app/automated-scripts/emails");
-const automatedReports = require("./app/automated-scripts/reports");
-const cleanFailedTransactions = require("./app/automated-scripts/clean-failed-transactions");
+const automatedMails = require("./app/controllers/automated-scripts/emails");
+const automatedReports = require("./app/controllers/automated-scripts/reports");
+const cleanFailedTransactions = require("./app/controllers/automated-scripts/clean-failed-transactions");
 if (process.env.NODE_ENV == "production") {
     automatedMails.start();
     automatedReports.start();

@@ -9,7 +9,7 @@ const FoodCollections = Models.FoodCollections;
 const Members = Models.Members;
 const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:organisation_id", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "viewOrganisations"), async (req, res) => {
 	try {

@@ -11,8 +11,8 @@ const Volunteers = Models.Volunteers;
 const VolunteerRoles = Models.VolunteerRoles;
 const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "view"), async (req, res) => {
 	try {

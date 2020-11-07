@@ -1,7 +1,7 @@
 const async = require("async");
 const lodash = require("lodash");
 
-const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
 module.exports = (Users, sequelize, DataTypes) => {
 	return async (users, loggedInUserObj) => {

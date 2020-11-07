@@ -7,7 +7,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const MailTemplates = Models.MailTemplates;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("settings", "emailTemplates"), (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/settings/email-templates/footer");
@@ -22,7 +22,7 @@ router.get("/:mail_id", Auth.isLoggedIn, Auth.canAccessPage("settings", "emailTe
       throw "Mail template not found";
     }
 
-    const dynamicVariablesAvailable = require(rootDir + "/app/configs/mail/dynamicVariables.config");
+    const dynamicVariablesAvailable = require(rootDir + "/app/controllers/mail/dynamicVariables.config");
 
     res.render("settings/email-templates", {
       title: "Email Templates",

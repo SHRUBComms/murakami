@@ -7,8 +7,8 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const Settings = Models.Settings;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("settings", "staticContent"), async (req, res) => {
   const staticContent = await Settings.getStaticContent();

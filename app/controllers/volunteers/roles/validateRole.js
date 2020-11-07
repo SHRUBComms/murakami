@@ -3,7 +3,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const Users = Models.Users;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 const Validators = require(rootDir + "/app/controllers/validators");
 
 const validateRole = async (loggedInUser, submittedForm, validSelections) => {

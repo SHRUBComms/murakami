@@ -10,7 +10,7 @@ const Members = Models.Members;
 const VolunteerHours = Models.VolunteerHours;
 const Settings = Models.Settings;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 const ValidDropOffs = require("./valid-drop-offs");
 

@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const WorkingGroups = Models.WorkingGroups;
 const Reports = Models.Reports;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/", Auth.verifyByKey("membershipReport"), async (req, res) => {
   try {

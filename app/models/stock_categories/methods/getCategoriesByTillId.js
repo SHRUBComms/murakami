@@ -1,4 +1,4 @@
-const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
 module.exports = (StockCategories, sequelize, DataTypes) => {
   return async (till_id, format) => {

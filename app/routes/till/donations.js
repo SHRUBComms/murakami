@@ -9,8 +9,8 @@ const Tills = Models.Tills;
 const Transactions = Models.Transactions;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 
 router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "processDonations"), async (req, res) => {
   try {

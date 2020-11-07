@@ -1,14 +1,14 @@
-module.exports = function(selectedOptions, validOptions) {
+module.exports = (selectedOptions, validOptions) => {
   if (Array.isArray(selectedOptions) && Array.isArray(validOptions)) {
     try {
-      var valid = true;
-      for (i = 0; i < selectedOptions.length; i++) {
+      let valid = true;
+      for (let i = 0; i < selectedOptions.length; i++) {
         if (!validOptions[validOptions.indexOf(selectedOptions[i])]) {
           valid = false;
         }
       }
       return valid;
-    } catch (err) {
+    } catch (error) {
       return false;
     }
   } else if (!Array.isArray(selectedOptions) && Array.isArray(validOptions)) {

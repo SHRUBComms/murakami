@@ -11,7 +11,7 @@ const Members = Models.Members;
 const Users = Models.Users;
 const Volunteers = Models.Volunteers;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 const validateVolunteer = require(rootDir + "/app/controllers/volunteers/validateVolunteer");
 
 router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "add"), async (req, res) => {

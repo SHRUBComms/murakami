@@ -13,8 +13,8 @@ const Transactions = Models.Transactions;
 const Members = Models.Members;
 const StockCategories = Models.StockCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   

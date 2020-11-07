@@ -9,7 +9,7 @@ const Members = Models.Members;
 const Volunteers = Models.Volunteers;
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.canAccessPage("members", "view"), async (req, res) => {
 	try {

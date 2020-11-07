@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Volunteers = Models.Volunteers;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/", Auth.canAccessPage("volunteers", "add"), async (req, res) => {
   try {

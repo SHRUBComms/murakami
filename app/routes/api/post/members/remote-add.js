@@ -10,7 +10,7 @@ var Models = require(rootDir + "/app/models/sequelize");
 var Members = Models.Members;
 var Transactions = Models.Transactions;
 
-var Auth = require(rootDir + "/app/configs/auth");
+var Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/", Auth.verifyByKey("membershipSignUp"), function(req, res) {
   var membershipCost = 1.0;

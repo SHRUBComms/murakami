@@ -14,8 +14,8 @@ const Members = Models.Members;
 const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
-const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/:transaction_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {

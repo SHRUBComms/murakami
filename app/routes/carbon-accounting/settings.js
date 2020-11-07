@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "settings"), async (req, res) => {
     	const carbonCategories = await CarbonCategories.getAll();

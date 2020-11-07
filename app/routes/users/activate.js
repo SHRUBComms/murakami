@@ -10,9 +10,9 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Users = Models.Users;
 const AccessTokens = Models.AccessTokens;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Mail = require(rootDir + "/app/configs/mail/root");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Mail = require(rootDir + "/app/controllers/mail/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:user_id", Auth.isLoggedIn, Auth.canAccessPage("users", "deactivate"), async (req, res) => {
 	let activationToken;

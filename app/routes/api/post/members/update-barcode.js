@@ -7,7 +7,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "view"), async (req, res) => {
   try {

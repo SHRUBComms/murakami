@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const VolunteerHours = Models.VolunteerHours;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("volunteerHours", "export"), async (req, res) => {
     	try {

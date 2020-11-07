@@ -8,7 +8,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 const validateWorkingGroup = require(rootDir + "/app/controllers/working-groups/validateWorkingGroup");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("workingGroups", "view"), async (req, res) => {

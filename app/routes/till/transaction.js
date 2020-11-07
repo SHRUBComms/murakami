@@ -16,8 +16,8 @@ const Members = Models.Members;
 const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
@@ -139,7 +139,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
         }
       }
       
-      if (item.quantity >= 1 && Number.isInteger(item.quantity)) {
+      if (item.quantity > 1 && !isNaN(item.quantity)) {
         quantity = parseInt(item.quantity);
       }
 
@@ -305,7 +305,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     formattedTransaction.summary.totals = totals;
     formattedTransaction.summary.paymentMethod = paymentMethod;
 
-    if (formattedTransaction.summary.totals.money <= 1 && paymentMethod == "card") {
+    if (formattedTransaction.summary.totals.money < 1 && paymentMethod == "card") {
       validTransaction = false;
       whyTransactionFailed = "To pay by card, please spend at least £1.00";
     }
@@ -429,22 +429,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     response.carbonSummary = Math.abs((carbonSaved * 1e-3).toFixed(2)) + "kg of carbon saved";
 
     if (paymentMethod == "card") {
-      const sumupCallbackUri = `${process.env.PUBLIC_ADDRESS}/api/get/tills/smp-callback/
-        ?murakamiStatus=${response.status}
-        &transactionSummary=${response.transactionSummary}
-        &carbonSummary=${response.carbonSummary}
-        &till_id=${till.till_id}`;
-      let sumupSummon = `sumupmerchant://pay/1.0
-        ?affiliate-key=${process.env.SUMUP_AFFILIATE_KEY}
-        &app-id=${process.env.SUMUP_APP_ID}
-        &title=${req.user.allWorkingGroupsObj[till.group_id].name} purchase
-        &total= ${totals.money}
-        &amount=${totals.money}
-        &currency=GBP
-        &foreign-tx-id=${transactionId}
-        &skipSuccessScreen=${process.env.DISABLE_SUMUP_RECEIPTS}
-        &callback= ${encodeURIComponent(sumupCallbackUri)}`;
 
+      const sumupCallbackUri = `${process.env.PUBLIC_ADDRESS}/api/get/tills/smp-callback/?murakamiStatus=${response.status}&transactionSummary=${response.transactionSummary}&carbonSummary=${response.carbonSummary}&till_id=${till.till_id}`;
+
+      let sumupSummon = `sumupmerchant://pay/1.0?affiliate-key=${process.env.SUMUP_AFFILIATE_KEY}&app-id=${process.env.SUMUP_APP_ID}&title=${req.user.allWorkingGroupsObj[till.group_id].name} purchase&total= ${totals.money}&amount=${totals.money}&currency=GBP&foreign-tx-id=${transactionId}&skipSuccessScreen=${process.env.DISABLE_SUMUP_RECEIPTS}&callback=${encodeURIComponent(sumupCallbackUri)}`;
+ 
       if (member) {
         if (member.email) {
           sumupSummon += "&receipt-email=" + member.email;
@@ -464,7 +453,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       res.send(response);
     }
   } catch (error) {
+    
     console.log(error);
+    if(typeof error != "string") {
+      error = "Something went wrong! Please try again";
+    }
     res.send({ status: "fail", msg: error });
   }
 });

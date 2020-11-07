@@ -1,14 +1,11 @@
 // Custom handlebar helpers
 
-var moment = require("moment");
+const moment = require("moment");
 moment.locale("en-gb");
-var lodash = require("lodash");
-var async = require("async");
+const lodash = require("lodash");
 
-var Helpers = require(process.env.CWD + "/app/helper-functions/root");
-
-var register = function(Handlebars) {
-  var helpers = {
+let register = function(Handlebars) {
+  let helpers = {
     select: function(value, options) {
       return options
         .fn(this)
@@ -38,7 +35,7 @@ var register = function(Handlebars) {
       var validOptions = [true, "commonWorkingGroup"];
       var found = false;
       if (object) {
-        for (i = 0; i < values.length; i++) {
+        for (let i = 0; i < values.length; i++) {
           if (validOptions.includes(object[values[i]])) {
             found = true;
           }

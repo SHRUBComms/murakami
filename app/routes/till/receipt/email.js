@@ -14,9 +14,9 @@ const Members = Models.Members;
 const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
-const Mail = require(rootDir + "/app/configs/mail/root");
-const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
+const Mail = require(rootDir + "/app/controllers/mail/root");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
@@ -40,13 +40,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
     
     const member = await Members.getById(member_id, { permissions: { members: { name: true, contactDetails: true } } });
-    
-    if (!((!member_id && member) || (!member_id && !member && email))) {
+    if (member_id && !member || (!member_id && !member && email)) {
       throw "Please specifiy a member or an email";
     }
 
     email = email || member.email;
-    
     const till = await Tills.getOpenTill(transaction.till_id);
     
     const simpleCarbon = await Carbon.getByFxId(transaction.transaction_id);

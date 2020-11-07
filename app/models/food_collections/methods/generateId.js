@@ -1,5 +1,5 @@
 module.exports = (FoodCollections, sequelize, DataTypes) => {
-	const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+	const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
   	const GetId = async () => {
     		const id = Helpers.generateBase64Id(15);
     		const result = await FoodCollections.findAll({ where: { transaction_id: id } });

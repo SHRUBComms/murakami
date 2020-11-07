@@ -9,8 +9,8 @@ const Tills = Models.Tills;
 const TillActivity = Models.TillActivity;
 const StockCategories = Models.StockCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "manageStock"), (req, res) => {
     req.flash("error", "Please select a till.");

@@ -1,6 +1,6 @@
 const rootDir = process.env.CWD;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 const Validators = require(rootDir + "/app/controllers/validators");
 
 const validateRole = async (loggedInUser, submittedForm, validSelections) => {
@@ -21,9 +21,9 @@ const validateRole = async (loggedInUser, submittedForm, validSelections) => {
 
   let validWorkingGroups;
 
-  if (loggedInUser.permissions.volunteerRoles.add == true) {
+  if (loggedInUser.permissions.volunteers.add == true) {
       validWorkingGroups = loggedInUser.allWorkingGroupsFlat;
-  } else if (loggedInUser.permissions.volunteerRoles.add == "commonWorkingGroup") {
+  } else if (loggedInUser.permissions.volunteers.add == "commonWorkingGroup") {
       validWorkingGroups = loggedInUser.working_groups;
   }
 

@@ -7,7 +7,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "viewOrganisations"), async (req, res) => {
 	const organisations = await FoodCollectionsOrganisations.getAll();

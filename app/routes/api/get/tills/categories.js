@@ -7,7 +7,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const StockCategories = Models.StockCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:till_id", Auth.isLoggedIn, async (req, res) => {
   try {

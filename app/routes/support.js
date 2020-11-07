@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const TillActivity = Models.TillActivity;
 
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 
 router.get("/", async (req, res) => {
 	// Check if till is open

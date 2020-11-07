@@ -1,5 +1,5 @@
 module.exports = (PasswordReset, sequelize, DataTypes) => {
-	const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+	const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
   	const GetId = async () => {
     		const resetCode = Helpers.generateBase64Id(25);
     		const result = await PasswordReset.findAll({ where: { reset_code: resetCode } });

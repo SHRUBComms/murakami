@@ -1,5 +1,5 @@
 const rootDir = process.env.CWD;
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 module.exports = (Users, sequelize, DataTypes) => {
 	return async (user) => {

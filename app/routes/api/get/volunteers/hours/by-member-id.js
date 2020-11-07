@@ -13,7 +13,7 @@ const VolunteerHours = Models.VolunteerHours;
 const Tills = Models.Tills;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "shiftHistory"), async (req, res) => {
 	try {

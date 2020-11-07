@@ -11,8 +11,8 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const Transactions = Models.Transactions;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async (req, res) => {
   try {

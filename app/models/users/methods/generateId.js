@@ -1,5 +1,5 @@
 module.exports = (Users, sequelize, DataTypes) => {
-	const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+	const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
   	const GetId = async () => {
     		const id = Helpers.generateIntId(11);
     		const result = await Users.findAll({ where: { id: id } });

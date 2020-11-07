@@ -1,6 +1,6 @@
 const rootDir = process.env.CWD;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 const Validators = require(rootDir + "/app/controllers/validators");
 
 const sanitizeCategory = async (category, stockCategories, carbonCategories) => {

@@ -1,5 +1,5 @@
 module.exports = (AccessTokens, sequelize, DataTypes) => {
-	const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+	const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
   	const GetId = async () => {
     		const id = Helpers.generateBase64Id(25);
 	    	const result = await AccessTokens.findAll({ where: { token: id } });

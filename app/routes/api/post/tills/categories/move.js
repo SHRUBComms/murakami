@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const StockCategories = Models.StockCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"), async (req, res) => {
   try {

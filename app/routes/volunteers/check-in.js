@@ -11,7 +11,7 @@ const Volunteers = Models.Volunteers;
 const VolunteerCheckIns = Models.VolunteerCheckIns;
 const Settings = Models.Settings;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 let expectedQuestionnaire;
 

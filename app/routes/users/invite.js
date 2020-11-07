@@ -10,9 +10,9 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Users = Models.Users;
 const AccessTokens = Models.AccessTokens;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 const validateUser = require(rootDir + "/app/controllers/users/validateUser");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "add"), (req, res) => {

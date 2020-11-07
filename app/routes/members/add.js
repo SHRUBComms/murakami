@@ -8,14 +8,12 @@ const rootDir = process.env.CWD;
 
 const Models = require(rootDir + "/app/models/sequelize");
 const Members = Models.Members;
-const WorkingGroups = Models.WorkingGroups;
-const AccessTokens = Models.AccessTokens;
 const Tills = Models.Tills;
-const Transactions = Models.Transactions;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 const validateMember = require(rootDir + "/app/controllers/members/validateMember");
+const MailchimpAPI = require(rootDir + "/app/controllers/mailchimp");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (req, res) => {
     try {
@@ -83,7 +81,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (r
             throw "You are not permitted to add a member";
         }
 
-        const memberValid = await validateMember(req.params, req.body);
+        await validateMember(req.params, req.body);
 
         const emailInUse = await Members.getByEmail(req.body.email);
         if (emailInUse) {
@@ -93,8 +91,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (r
         if (!req.body.membership_type && till) {
             req.body.membership_type = "unpaid";
         }
-
-        const generalNewsletterConsent = req.body.generalNewsletterConsent;
 
         till_id = req.query.till_id;
 
@@ -116,6 +112,12 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (r
             }
         }
 
+        let contactPreferences = {};
+
+        if (req.body.behaviourChangeSurveyConsent == "on") {
+          contactPreferences.behaviourChangeSurvey = true;
+        }
+
         const sanitizedMember = {
             first_name: req.body.first_name,
             last_name: req.body.last_name,
@@ -126,13 +128,14 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (r
             membership_type: req.body.membership_type,
             earliest_membership_date: earliest_membership_date,
             current_init_membership: current_init_membership,
-            current_exp_membership: current_exp_membership || new Date()
+            current_exp_membership: current_exp_membership || new Date(),
+            contactPreferences: contactPreferences
         };
 
         const memberId = await Members.add(sanitizedMember);
 
         if (req.body.generalNewsletterConsent == "on") {
-            await MailchimpAPI.subscribeToNewsletter(process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID, process.env.SHRUB_MAILCHIMP_SECRET_API_KEY, member);
+            await MailchimpAPI.subscribeToNewsletter(process.env.SHRUB_MAILCHIMP_NEWSLETTER_LIST_ID, process.env.SHRUB_MAILCHIMP_SECRET_API_KEY, sanitizedMember);
         }
 
         await Mail.sendAutomatedMember("welcome-paid-member", memberId, {});
@@ -179,6 +182,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("members", "add"), async (r
             contactConsent: req.body.contactConsent,
             privacyNotice: req.body.privacyNotice,
             gdprConsent: req.body.gdprConsent,
+
+            generalNewsletterConsent: req.body.generalNewsletterConsent,
+            behaviourChangeSurveyConsent: req.body.behaviourChangeSurveyConsent,
+
             dob: req.body.dob,
             till_id: till_id,
             till: till

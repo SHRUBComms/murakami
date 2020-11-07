@@ -13,7 +13,7 @@ const Transactions = Models.Transactions;
 const StockCategories = Models.StockCategories;
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
   try {

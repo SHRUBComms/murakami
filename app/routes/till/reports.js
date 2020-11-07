@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const TillActivity = Models.TillActivity;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/");

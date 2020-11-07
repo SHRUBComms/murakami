@@ -8,8 +8,8 @@ const Models = require(rootDir + "/app/models/sequelize");
 const FoodCollections = Models.FoodCollections;
 const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
-const Auth = require(rootDir + "/app/configs/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "addOrganisations"), (req, res) => {
 	res.render("food-collections/organisations/add", {

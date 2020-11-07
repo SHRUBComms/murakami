@@ -9,7 +9,7 @@ const StockRecords = Models.StockRecords;
 const StockCategories = Models.StockCategories;
 const Users = Models.Users;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:item_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewStock"), async (req, res) => {
   try { 

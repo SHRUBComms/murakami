@@ -10,7 +10,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const Settings = Models.Settings;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.use("/issue", require("./issue"));
 

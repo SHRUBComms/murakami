@@ -10,7 +10,8 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-short",
       "renewal-notice-long",
       "member-id-remind",
-      "goodbye"
+      "goodbye",
+      "behaviour-survey"
     ]
   },
   last_name: {
@@ -24,7 +25,8 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-short",
       "renewal-notice-long",
       "member-id-remind",
-      "goodbye"
+      "goodbye",
+      "behaviour-survey"
     ]
   },
   fullname: {
@@ -38,7 +40,8 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-short",
       "renewal-notice-long",
       "member-id-remind",
-      "goodbye"
+      "goodbye",
+      "behaviour-survey"
     ]
   },
   membership_id: {
@@ -52,7 +55,8 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-long",
       "welcome-volunteer",
       "member-id-remind",
-      "goodbye"
+      "goodbye",
+      "behaviour-survey"
     ]
   },
   exp_date: {

@@ -7,7 +7,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const VolunteerRoles = Models.VolunteerRoles;
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.verifyByKey("publicVolunteerRoles"), async (req, res) => {
 	try {

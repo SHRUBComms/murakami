@@ -159,6 +159,30 @@
   </div>
 </div>
 
+
+<div class="card mb-4">
+  <div class="card-body">
+
+    <h4>Behaviour Change Survey</h4>
+
+    <small>Optionally opt-in to our behaviour change survey. You can unsubscribe at any time.</small>
+
+    <p class="pt-3 font-weight-bold">A short survey sent every 3 months</p>
+    <p class="mt-1">Help us to understand SHRUB's effect on your behaviour</p>
+    <div class="form-check form-check-inline mt-2">
+      <input class="form-check-input" type="checkbox" name="behaviourChangeSurveyConsent" {{#if behaviourChangeSurveyConsent}}checked{{/if}}>
+      <label class="form-check-label">
+        {{#if user}}
+          Consent given to subscribe to the behaviour change survey
+        {{else}}
+          I agree to subscribe to the behaviour change survey
+        {{/if}}
+      </label>
+    </div>
+
+  </div>
+</div>
+
 <div class="card mb-4">
   <div class="card-body">
     <h3 class="mb-2">Data Protection</h3>

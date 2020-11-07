@@ -2,7 +2,7 @@
 
 var async = require("async");
 
-var Helpers = require(process.env.CWD + "/app/helper-functions/root");
+var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
 module.exports = function(sequelize, DataTypes) {
   var Settings = sequelize.define(

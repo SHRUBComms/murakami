@@ -9,7 +9,7 @@ const Tills = Models.Tills;
 const TillActivity = Models.TillActivity;
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 const validateFloat = require(rootDir + "/app/controllers/tills/activity/validateFloat");
 
 router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "open"), async (req, res) => {

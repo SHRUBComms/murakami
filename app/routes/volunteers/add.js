@@ -11,8 +11,8 @@ const Members = Models.Members;
 const Users = Models.Users;
 const Volunteers = Models.Volunteers;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 
 const validateMember = require(rootDir + "/app/controllers/members/validateMember");
 const validateVolunteer = require(rootDir + "/app/controllers/volunteers/validateVolunteer");
@@ -81,6 +81,13 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "add"), async
         throw "Email address is already in use!";
     }
 
+
+    let contactPreferences = {};
+
+    if (req.body.behaviourChangeSurveyConsent == "on") {
+      contactPreferences.behaviourChangeSurvey = true;
+    }
+
     const sanitizedMember = {
       first_name: req.body.first_name,
       last_name: req.body.last_name,
@@ -91,7 +98,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "add"), async
       membership_type: req.body.membership_type,
       earliest_membership_date: new Date(),
       current_init_membership: new Date(),
-      current_exp_membership: moment().add(3, "months").toDate()
+      current_exp_membership: moment().add(3, "months").toDate(),
+      contactPreferences: contactPreferences
     };
 
     volunteer.gdpr = volunteer.gdpr || {};
@@ -151,6 +159,9 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "add"), async
       safeSpace: req.body.safeSpace,
       membershipBenefits: req.body.membershipBenefits,
       gdprConsent: req.body.gdprConsent,
+
+      generalNewsletterConsent: req.body.generalNewsletterConsent,
+      behaviourChangeSurveyConsent: req.body.behaviourChangeSurveyConsent,
 
       staticContent: {
         volunteerAgreement: volunteerAgreement,

@@ -12,12 +12,12 @@ const Transactions = Models.Transactions;
 const Members = Models.Members;
 const StockCategories = Models.StockCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 const refundPeriod = 14;
 
-router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processRefunds"), async (req, res) => {
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
     const till_id = req.body.tillId;
     const transaction_id = req.body.transactionId;
@@ -87,9 +87,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processRefunds"),
 
     if(action == "lookup") {
       const { membersObj } = await Members.getAll();
-      const categories = await StockCategories.getCategoriesByTillId(till_id, "tree");
-      const flatCategories = Helpers.flatten(categories);
-      const formattedTransactions = await Transactions.formatTransactions([transaction], membersObj, flatCategories, till_id);
+      const categories = await StockCategories.getCategoriesByTillId(till_id, "treeKv");
+      const formattedTransactions = await Transactions.formatTransactions([transaction], membersObj, categories, till_id);
       res.send({ status: "ok", transaction: formattedTransactions[0] });
     } else {
       if (transaction.summary.sumupId) {
@@ -129,7 +128,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processRefunds"),
           throw "Please enter a valid refund amount";
         } 
 
-        if(Number(amount) < Number(tillBalance)) {
+        if(Number(amount) > Number(tillBalance)) {
           throw "Not enough money in till to issue refund!";
         }
         

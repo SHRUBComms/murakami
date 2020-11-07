@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt-nodejs");
-const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
 module.exports = (Users, sequelize, DataTypes) => {
 	return async (user) => {

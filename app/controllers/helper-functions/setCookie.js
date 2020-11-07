@@ -1,5 +1,5 @@
-module.exports = function(app, session) {
-  var now = new Date();
+module.exports = (app, session) => {
+  const now = new Date();
   if (process.env.NODE_ENV == "production") {
     app.use(
       session({

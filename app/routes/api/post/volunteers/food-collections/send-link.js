@@ -9,8 +9,8 @@ const Members = Models.Members;
 const Volunteers = Models.Volunteers;
 const FoodCollectionsKeys = Models.FoodCollectionsKeys;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "manageFoodCollectionsLink"), async (req, res) => {
   try {

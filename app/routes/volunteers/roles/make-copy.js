@@ -8,8 +8,8 @@ const Models = require(rootDir + "/app/models/sequelize");
 const WorkingGroups = Models.WorkingGroups;
 const VolunteerRoles = Models.VolunteerRoles;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:role_id", Auth.isLoggedIn, Auth.canAccessPage("volunteerRoles", "add"), async (req, res) => {
 	try {

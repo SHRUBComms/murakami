@@ -17,7 +17,7 @@ module.exports = (Transactions, sequelize, DataTypes) => {
 						totalTakings = Number(totalTakings) + Number(transaction.summary.totals.money);
 					} else {
 						totalTakings = Number(totalTakings) + Number(transaction.summary.totals.money);
-						totalRefunds = Number(totalTakings) + Number(transaction.summary.totals.money);
+						totalRefunds = Number(totalRefunds) + Number(transaction.summary.totals.money);
 					}
 				}
 			}

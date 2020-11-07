@@ -18,12 +18,11 @@ const Settings = Models.Settings;
 const FoodCollectionsKeys = Models.FoodCollectionsKeys;
 const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Mail = require(rootDir + "/app/configs/mail/root");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Mail = require(rootDir + "/app/controllers/mail/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "invite"), async (req, res) => {
-    
     let errors = [];
     if (req.query.callback != "true") {
         errors = [{
@@ -74,7 +73,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "invite"), as
         const defaultFoodCollectorRoleId = await Settings.getById("defaultFoodCollectorRole");
         roles.push(defaultFoodCollectorRoleId.data.role_id);
 
-        // Sanitize submitted food collection organosations
+        // Sanitize submitted food collection organisations
         const allFoodCollectionOrganisations = await FoodCollectionsOrganisations.getAll();
         if (Array.isArray(organisations)) {
             if (!Helpers.allBelongTo(organisations, Object.keys(allFoodCollectionOrganisations))) {
@@ -163,7 +162,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "invite"), as
             accessTokenDetails.first_name = first_name;
             accessTokenDetails.last_name = last_name;
 
-
+            
+            const expirationTimestamp = moment().add(7, "days").toDate();
             const token = await AccessTokens.createInvite(expirationTimestamp, accessTokenDetails);
 
             if (!token) {
@@ -171,7 +171,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "invite"), as
             }
 
             const inviteLink = process.env.PUBLIC_ADDRESS + "/volunteers/invite/" + token;
-            const expirationTimestamp = moment().add(7, "days").toDate();
 
             await Mail.sendGeneral(`${first_name} ${last_name} <${email}>`, "Volunteer Registration",
                 `<p>Hey ${first_name},</p>

@@ -13,7 +13,7 @@ const StockCategories = Models.StockCategories;
 const Transactions = Models.Transactions;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:till_id", Auth.isLoggedIn, async (req, res) => {
   try {

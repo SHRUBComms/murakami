@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 
 const Settings = Models.Settings;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/", async (req, res) => {
 	try {

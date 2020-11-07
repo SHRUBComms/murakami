@@ -11,7 +11,7 @@ module.exports = (Transactions) => {
           refundedTransactionId: transactionToRefund.transaction_id,
           bill: [{ value: Number(refundAmount).toFixed(2), item_id: "refund" }],
           totals: { money: refundAmount },
-          comment: `${Number(transactionToRefund.summary.totals.money).toFixed(2) == Number(refundAmount).toFixed(2) ? "Complete" : "Partial"} refund."`
+          comment: `${Number(transactionToRefund.summary.totals.money).toFixed(2) == Number(refundAmount).toFixed(2) ? "Complete" : "Partial"} refund`
         }
       };
    
@@ -25,7 +25,7 @@ module.exports = (Transactions) => {
         updatedSummary.comment += "<br />";
       }
       
-      updatedSummary.comment += `${Number(transactionToRefund.summary.totals.money).toFixed(2) == Number(refundAmount).toFixed(2) ? "Completely" : "Partially"} refunded.`;
+      updatedSummary.comment += `${Number(transactionToRefund.summary.totals.money).toFixed(2) == Number(refundAmount).toFixed(2) ? "Completely" : "Partially"} refunded`;
 
       updatedSummary.totals.money = Number(Number(transactionToRefund.summary.totals.money).toFixed(2) - Number(refundAmount).toFixed(2)).toFixed(2);
 

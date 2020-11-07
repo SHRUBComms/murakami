@@ -1,93 +1,53 @@
-var async = require("async");
-var lodash = require("lodash");
+const lodash = require("lodash");
 
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  var dbErr;
-  return function(
-    StockRecords,
-    user_id,
-    till_id,
-    categories,
-    quantities,
-    callback
-  ) {
-    async.eachOf(
-      quantities,
-      function(stockInfo, item_id) {
-        var newStockInfo = lodash.cloneDeep(categories[item_id].stockInfo);
-        if (stockInfo.quantity > 0) {
-          newStockInfo.quantity -= stockInfo.quantity;
-        }
-        async.eachOf(
-          stockInfo,
-          function(stockInfo, condition, callback) {
-            if (
-              stockInfo.quantity > 0 &&
-              categories[item_id].conditions.includes(condition)
-            ) {
-              if (newStockInfo[condition]) {
-                newStockInfo[condition].quantity -= stockInfo.quantity;
-              }
-            }
-            callback();
-          },
-          function() {
-            StockCategories.updateQuantity(item_id, newStockInfo, function(
-              err
-            ) {
-              if (err) {
-                dbErr = err;
-              }
-              async.eachOf(
-                newStockInfo,
-                function(stockInfo, condition, callback) {
-                  if (
-                    Number(stockInfo.quantity) -
-                    Number(categories[item_id].stockInfo[condition].quantity)
-                  ) {
-                    var record = {
-                      item_id: item_id,
-                      condition: condition,
-                      user_id: user_id,
-                      till_id: till_id,
-                      actionInfo: {
-                        method: "transaction",
-                        summary: {
-                          newQty: Number(stockInfo.quantity),
-                          oldQty: Number(
-                            categories[item_id].stockInfo[condition].quantity
-                          ),
-                          qtyModifier:
-                            Number(stockInfo.quantity) -
-                            Number(
-                              categories[item_id].stockInfo[condition].quantity
-                            )
-                        },
-                        note: null
-                      }
-                    };
+module.exports = (StockCategories) => {
+  return async (StockRecords, user_id, till_id, categories, quantities) => {
 
-                    StockRecords.addRecord(record, function(err) {
-                      if (err) {
-                        dbErr = err;
-                      }
-                      callback();
-                    });
-                  } else {
-                    callback();
-                  }
-                },
-                function() {
-                  callback();
-                }
-              );
-            });
-          }
-        );
-      },
-      function() {
-        callback(dbErr);
+    for await (const itemId of Object.keys(quantities)) {
+      let stockInfo = quantities[itemId];
+      let newStockInfo = lodash.cloneDeep(categories[itemId].stockInfo);
+      
+      if (stockInfo.quantity > 0) {
+        newStockInfo.quantity -= stockInfo.quantity;
       }
-    );
-  };
-};
+
+      for await (const condition of Object.keys(stockInfo)) {
+        if (stockInfo[condition].quantity > 0 && categories[itemId].conditions.includes(condition)) {
+          console.log(condition);
+          if (newStockInfo[condition]) {
+            newStockInfo[condition].quantity -= stockInfo[condition].quantity;
+          }
+        }
+      }
+
+      await StockCategories.updateQuantity(itemId, newStockInfo);
+
+      for await (const condition of Object.keys(newStockInfo)) {
+        const stockInfo = newStockInfo[condition];
+
+        console.log(stockInfo.quantity, categories[itemId].stockInfo[condition].quantity);
+
+        if (Number(stockInfo.quantity) - Number(categories[itemId].stockInfo[condition].quantity)) {
+          const record = {
+            item_id: itemId,
+            condition: condition,
+            user_id: user_id,
+            till_id: till_id,
+            actionInfo: {
+              method: "transaction",
+              summary: {
+                newQty: Number(stockInfo.quantity),
+                oldQty: Number(categories[itemId].stockInfo[condition].quantity),
+                qtyModifier: Number(stockInfo.quantity) - Number(categories[itemId].stockInfo[condition].quantity)
+              },
+              note: null
+            }
+          };
+
+          await StockRecords.addRecord(record);
+        }
+      }
+    }
+    return;
+  }
+}

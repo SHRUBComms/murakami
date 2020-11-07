@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Members = Models.Members;
 const WorkingGroups = Models.WorkingGroups;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:member_id", Auth.canAccessPage("members", "view"), async (req, res) => {
 	try {

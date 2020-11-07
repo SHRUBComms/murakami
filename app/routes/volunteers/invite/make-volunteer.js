@@ -15,9 +15,9 @@ var Volunteers = Models.Volunteers;
 var VolunteerRoles = Models.VolunteerRoles;
 var AccessTokens = Models.AccessTokens;
 
-var Auth = require(rootDir + "/app/configs/auth");
-var Mail = require(rootDir + "/app/configs/mail/root");
-var Helpers = require(rootDir + "/app/helper-functions/root");
+var Auth = require(rootDir + "/app/controllers/auth");
+var Mail = require(rootDir + "/app/controllers/mail/root");
+var Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get(
   "/:token",

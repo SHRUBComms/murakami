@@ -3,7 +3,7 @@ moment.locale("en-gb");
 
 const rootDir = process.env.CWD;
 
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 module.exports = (Volunteers, sequelize, DataTypes) => {
 	return async (group_id, user) => {

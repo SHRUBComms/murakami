@@ -11,7 +11,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Users = Models.Users;
 const PasswordReset = Models.PasswordReset;
 const Settings = Models.Settings;
-const Mail = require(rootDir + "/app/configs/mail/root");
+const Mail = require(rootDir + "/app/controllers/mail/root");
 
 router.get("/", async (req, res) => {
 

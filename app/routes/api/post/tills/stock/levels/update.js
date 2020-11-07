@@ -9,7 +9,7 @@ const Tills = Models.Tills;
 const StockCategories = Models.StockCategories;
 const StockRecords = Models.StockRecords;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.post("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "manageStock"), async (req, res) => {
   try {

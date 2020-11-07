@@ -1002,7 +1002,7 @@ function updateReceipt(transaction_id){
 				'action': 'lookup'
       },
       success: function(response){
-
+        console.log(response);
 				// Create transaction dialog.
 				var lookupSuccessMessage = document.getElementById("receiptSummary");
 				lookupSuccessMessage.innerHTML = "";

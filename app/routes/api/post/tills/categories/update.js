@@ -8,7 +8,7 @@ const Tills = Models.Tills;
 const StockCategories = Models.StockCategories;
 const CarbonCategories = Models.CarbonCategories;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 const validateCategory = require(rootDir + "/app/controllers/tills/categories/validateCategory");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"), async (req, res) => {

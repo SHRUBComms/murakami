@@ -11,7 +11,7 @@ const FoodCollections = Models.FoodCollections;
 const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "export"), async (req, res) => {
     	let startDate, endDate;

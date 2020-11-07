@@ -11,7 +11,7 @@ const Transactions = Models.Transactions;
 const StockCategories = Models.StockCategories;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "transactionHistory"), async (req, res) => {
 	try {

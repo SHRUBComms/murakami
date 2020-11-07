@@ -4,7 +4,7 @@ const router = require("express").Router();
 
 const rootDir = process.env.CWD;
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, (req, res) => {
   res.redirect(process.env.PUBLIC_ADDRESS + "/carbon-accounting/log");

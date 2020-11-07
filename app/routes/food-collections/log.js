@@ -14,7 +14,7 @@ const Settings = Models.Settings;
 
 const LogFoodCollection = require(rootDir + "/app/controllers/food-collections/log");
 
-const Auth = require(rootDir + "/app/configs/auth");
+const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "log"), async (req, res) => {
 

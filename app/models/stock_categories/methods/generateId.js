@@ -1,5 +1,5 @@
 module.exports = (StockCategories) => {
-  const Helpers = require(process.env.CWD + "/app/helper-functions/root");
+  const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
   const GetId = async () => {
     const id = Helpers.generateBase64Id(10);
     const result = await StockCategories.findAll({ where: { item_id: id } });

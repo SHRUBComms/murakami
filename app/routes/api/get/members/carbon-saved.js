@@ -9,8 +9,8 @@ const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
 const Members = Models.Members;
 
-const Auth = require(rootDir + "/app/configs/auth");
-const Helpers = require(rootDir + "/app/helper-functions/root");
+const Auth = require(rootDir + "/app/controllers/auth");
+const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "carbonSaved"), async (req, res) => {
 	try {
