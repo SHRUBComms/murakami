@@ -40,11 +40,13 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
     
     const member = await Members.getById(member_id, { permissions: { members: { name: true, contactDetails: true } } });
-    if (member_id && !member || (!member_id && !member && email)) {
+    
+
+    email = email || member.email;
+    if (!email) {
       throw "Please specifiy a member or an email";
     }
 
-    email = email || member.email;
     const till = await Tills.getOpenTill(transaction.till_id);
     
     const simpleCarbon = await Carbon.getByFxId(transaction.transaction_id);
