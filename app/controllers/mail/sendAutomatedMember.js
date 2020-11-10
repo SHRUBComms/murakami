@@ -70,7 +70,6 @@ module.exports = (Mail, nodemailer, htmlToText, sanitizeHtml, cleaner) => {
 			transporter.use("compile", htmlToText());
 			return transporter.sendMail(message);
 
-
 		} catch (error) {
 			throw error;
 		}

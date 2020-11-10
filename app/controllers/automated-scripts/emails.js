@@ -10,10 +10,10 @@ const Members = Models.Members;
 const Mail = require(rootDir + "/app/controllers/mail/root");
 
 const automatedMails = new CronJob({
-  cronTime: "0 0 10 * * *",
+  cronTime: "0 0 9 * * *",
   onTick: async () => {
     try {
-     
+      console.log(`\n---\n AUTOMATED EMAIL CRON ${moment().format("L hh:mm A")}\n---\n`);
       let memberMails = {};
       
       const { membersArray } = await Members.getAll();
@@ -42,8 +42,8 @@ const automatedMails = new CronJob({
 
             // Behaviour change survey
             if(member.contactPreferences) {
-              if(member.contactPreferences.behaviourChangeSurvey) {
-                if(moment(member.current_init_membership).add(3, "months").isSame(moment())) {
+              if(member.contactPreferences.behaviourChangeSurvey == true) {
+                if(moment(member.current_init_membership).add(3, "months").format("YYYY-MM-DD") == today) {
                   try {
                     memberMails[member.member_id].push("behaviour-survey");
                   } catch (error) {
@@ -61,10 +61,13 @@ const automatedMails = new CronJob({
                 memberMails[member.member_id] = ["goodbye"];
               }
 
-              //await Members.updateStatus(member.member_id, 0);
+              console.log("EXPIRES TODAY", member.member_id, member.current_exp_membership);
+              await Members.updateStatus(member.member_id, 0);
             } else if (moment(member.current_exp_membership).isBefore(today)) {
               // Membership already expired - revoke membership silently
-              //await Members.updateStatus(member.member_id, 0);
+
+              console.log("EXPIRED BEFORE TODAY", member.member_id, member.current_exp_membership);
+              await Members.updateStatus(member.member_id, 0);
             } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment(today).add(1, "months").format("YYYY-MM-DD")) {
               // Membership due to expire in one months time
               try {
@@ -72,9 +75,13 @@ const automatedMails = new CronJob({
               } catch (error) {
                 memberMails[member.member_id] = ["renewal-notice-long"];
               }
+
+              console.log("EXPIRES ONE MONTH", member.member_id, member.current_exp_membership);
             } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment(today).add(1, "week").format("YYYY-MM-DD")) {
               // Membership due to expire in one weeks times
-              try {
+              
+              console.log("EXPIRES ONE WEEK", member.member_id, member.current_exp_membership);
+	      try {
                 memberMails[member.member_id].push("renewal-notice-short");
               } catch (error) {
                 memberMails[member.member_id] = ["renewal-notice-short"];
@@ -83,7 +90,8 @@ const automatedMails = new CronJob({
           } else {
             if (moment(member.current_exp_membership).add(5, "years").add(6, "months").format("YYYY-MM-DD") == moment(today).format("YYYY-MM-DD")) {
               // Membership has been inactive for 5 and a half years
-              //await Members.redact(member.member_id);
+              console.log("REDACT", member.member_id, member.current_exp_membership);
+	      //await Members.redact(member.member_id);
             }
           }
         } catch (error) {
@@ -95,12 +103,15 @@ const automatedMails = new CronJob({
         const membersMail = memberMails[member_id];
         for await (const mail of membersMail) {
           try {
-            await Mail.sendAutomatedMember(mail, member_id, {});
+            console.log("SENDING EMAIL:", mail, member_id);
+	    await Mail.sendAutomatedMember(mail, member_id, {});
           } catch (error) {
-            console.log(error);
+            console.log("MAIL ERROR:", error);
           }  
         }
       }
+
+      console.log("\n\n ---.---.---.--- \n\n");
     } catch (error) {
       console.error(error);
     }

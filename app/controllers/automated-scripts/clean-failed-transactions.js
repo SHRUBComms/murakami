@@ -13,68 +13,71 @@ const failedTransactions = new CronJob({
   // 2am everyday.
   cronTime: "0 0 2 * * *",
   onTick: async () => {
+
+    console.log(`\n---\n CLEAN UP FAILED CARD TRANSACTIONS ${moment().format("L hh:mm A")}\n---\n`);
     let fxTransactions = {}; // SumUp transactions by ID.
-    
-    const transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day"), moment().subtract(1, "days").endOf("day"));
+    try {  
+	    const transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day").toDate(), moment().subtract(1, "days").endOf("day").toDate());
 
-    if(transactions.length == 0) {
-      return;
-    }
+	    if(transactions.length == 0) {
+	      return;
+	    }
 
-    const accessToken = await Helpers.SumUpAuth();
+	    const accessToken = await Helpers.SumUpAuth();
 
-    if(!accessToken) {
-      throw "Something went wrong contacting SumUp"; 
-    }
+	    if(!accessToken) {
+		throw "Something went wrong contacting SumUp"; 
+	    }
 
-    for await (const transaction of transactions) {
+	    for await (const transaction of transactions) {
+	      if (!transaction.summary.paymentMethod != "card") {
+		continue;
+	      }
 
-      if (!transaction.summary.paymentMethod != "card") {
-        continue;
-      }
+	      if(transaction.summary.sumupId) {
+		continue;
+	      }
 
-      if(transaction.summary.sumupId) {
-        continue;
-      }
+	      const startTimestamp = moment(transaction.date).subtract(10, "minutes");
+	      const endTimestamp = moment(transaction.date).add(10, "minutes");
 
-      const startTimestamp = moment(transaction.date).subtract(10, "minutes");
-      const endTimestamp = moment(transaction.date).add(10, "minutes");
+	      const sumupTransactions = await Helpers.SumUpGetTransactionsBetweenTwoDates(startTimestamp, endTimestamp, accessToken);
+	      if(sumupTransactions.error_code) {
+		continue;
+	      }
 
-      const sumupTransactions = await Helpers.SumUpGetTransactionsBetweenTwoDates(startTimestamp, endTimestamp, accessToken);
+	      for await (const fxTransaction of sumupTransactions.items) {
+		if(fxTransaction.status != "SUCCESSFUL") {
+		  continue;
+		}
 
-      if(sumupTransactions.error_code) {
-        continue;
-      }
+		if(fxTransaction.amount != transaction.summary.totals.money) {
+		  continue;
+		}
 
-      for await (const fxTransaction of sumupTransactions.items) {
-        if(fxTransaction.status != "SUCCESSFUL") {
-          continue;
-        }
+		if(fxTransactions[fxTransaction.transaction_code]) {
+		  continue;
+		}
 
-        if(fxTransaction.amount != transaction.summary.totals.money) {
-          continue;
-        }
+		const fxInUse = await Transactions.findOne({ where: { summary: { sumupId: fxTransaction.transaction_code } } });
 
-        if(fxTransactions[fxTransaction.transaction_code]) {
-          continue;
-        }
-
-        const fxInUse = await Transactions.findOne({ where: { summary: { sumupId: fxTransaction.transaction_code } } });
-
-        if(fxInUse) {
-          continue;
-        }
+		if(fxInUse) {
+		  continue;
+		}
 
 
-        let updatedSummary = transaction.summary;
-        updatedSummary.sumupId = fxTransaction.transaction_code;
-        await Transactions.update({ summary: updatedSummary }, { where: { transaction_id: transaction.transaction_id } });
-        
-        fxTransactions[fxTransaction.transaction_code] = true;
-        await timeout(500);
-      }
-    }
-
+		let updatedSummary = transaction.summary;
+		updatedSummary.sumupId = fxTransaction.transaction_code;
+		await Transactions.update({ summary: updatedSummary }, { where: { transaction_id: transaction.transaction_id } });
+		console.log("TRANSACTION FOUND", fxTransaction.transaction_code, transaction.transaction_id);
+		fxTransactions[fxTransaction.transaction_code] = true;
+		await timeout(500);
+	      }
+	    }
+		console.log("---.---.---.---");
+	} catch (error) {
+		console.error(error);
+	}
   },
   start: false,
   timeZone: "Europe/London"

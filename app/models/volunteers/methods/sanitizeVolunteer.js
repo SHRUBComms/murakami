@@ -126,8 +126,6 @@ module.exports = () => {
 
                         volunteer.dateCreated = moment(volunteer.dateCreated);
 
-                        console.log(volunteer.roles);
-
                         for await (const role of volunteer.roles) {
                             if (user.allVolunteerRoles) {
                                 if (user.allVolunteerRoles[role]) {

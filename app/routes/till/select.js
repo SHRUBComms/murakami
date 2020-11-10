@@ -22,7 +22,7 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction
     
     if (allowedTills.length == 0) {
       throw "No tills available.";
-    } else if (allowedTills.length == 1) {
+    } else if (allowedTills.length > 1) {
       res.render("till/root", {
         tillMode: true,
         title: "Select A Till",

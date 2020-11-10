@@ -13,11 +13,10 @@ const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.canAccessPage("members", "view"), async (req, res) => {
 	try {
-		const total = await Members.getTotals();
-		const volunteers = await Volunteers.getByGroupId(null, { permissions: { members: { name: true, membershipDates: true }, volunteers: { roles: true } } });
+		let total = await Members.getTotals();
+		const { volunteers } = await Volunteers.getByGroupId(null, { permissions: { members: { name: true, membershipDates: true }, volunteers: { roles: true } } });
 
-		total[0].volunteers = Object.keys(volunteers).length
-
+		total[0].volunteers = volunteers.length
 		const { membersArray } = await Members.getAll();
 
 		let sanitizedMembers = [];

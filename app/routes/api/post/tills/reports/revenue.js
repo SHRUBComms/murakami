@@ -153,8 +153,7 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
     let sortedSummary = {}
     
     Object.keys(response.summary).sort().forEach((key) => { sortedSummary[key] = response.summary[key] });
-    
-    res.send({ status: "ok", summary: sortedSummary });
+    res.send({ status: "ok", summary: sortedSummary, workingGroups: allWorkingGroupsObj });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail", summary: {} });

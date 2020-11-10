@@ -8,7 +8,6 @@ const Validators = require(rootDir + "/app/controllers/validators");
 
 const validateRole = async (loggedInUser, submittedForm, validSelections) => {
     try {
-        console.log(submittedForm);
         let validWorkingGroups;
 
         if (loggedInUser.permissions.volunteerRoles.add == true) {
@@ -80,7 +79,7 @@ const validateRole = async (loggedInUser, submittedForm, validSelections) => {
             min: 0,
             max: 16
         });
-        await Validators.availability(submittedForm.availability);
+        await Validators.availability(submittedForm.availability, { require: true });
 
         return true;
 
