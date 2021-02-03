@@ -336,7 +336,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
     
     await StockCategories.bulkUpdateQuantities(StockRecords, req.user.id, till.till_id, categories, quantities);
-                                
+    
+    console.log(formattedTransaction); 
     const transactionId = await Transactions.addTransaction(formattedTransaction);
     
     let response = {

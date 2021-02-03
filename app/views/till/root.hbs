@@ -39,7 +39,7 @@
 	<script>
 
 		$('#tills').on('change', function () {
-		  var url = "{{public_address}}/till/transaction/" + $(this).val();
+		  var url = "{{public_address}}/till/open/" + $(this).val();
 		  window.location = url;
 		});
 

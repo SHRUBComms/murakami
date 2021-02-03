@@ -48,8 +48,6 @@ router.post("/", async (req, res) => {
 			throw "Please enter a username or email address";
 		}
 
-		await req.asyncValidationErrors();
-
 		const user = await Users.getByUsernameOrEmail(email);
 
 		if (!user) {
@@ -89,6 +87,8 @@ router.post("/", async (req, res) => {
 		req.flash("success_msg", "An email with recovery instructions has been sent!");
 		res.redirect(process.env.PUBLIC_ADDRESS + "/recover");
 	} catch (error) {
+
+		console.error(error);
 		if(typeof error != "string") {
 			error = "Something went wrong! Please try again";
 		}
@@ -106,7 +106,7 @@ router.get("/:resetToken", async (req, res) => {
 				reset_code: req.params.resetToken,
 				used: 0,
 				date_issued: {
-					[Models.Sequelize.Op.gte]: moment().subtract(60, "minutes").toDate()
+					[Models.Sequelize.Op.gte]: moment().subtract(24, "hours").toDate()
 				}
 			}
 		});

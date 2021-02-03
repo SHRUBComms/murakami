@@ -38,6 +38,7 @@ router.get("/", Auth.verifyByKey("carbonSavings"), async (req, res) => {
     res.send(totalCarbon.toFixed(3));
   
   } catch (error) {
+    console.log(error);
     const totalCarbon = 0;
     res.send(totalCarbon.toFixed(3));
   }

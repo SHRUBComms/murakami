@@ -26,6 +26,10 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction
     }
 
     const sumupTransaction = await Helpers.SumUpGetTransaction(req.query["smp-tx-code"], accessToken);
+   
+    console.log("SumUp transaction", sumupTransaction);
+	
+
     if(!sumupTransaction) {
       throw "SumUp transaction not found";
     }
@@ -61,10 +65,11 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction
     res.redirect(redirectUri);
 
   } catch (error) {
-    console.log(error);
+    console.log(new Date(), error);
     if(murakamiTransaction) {
-      await Transactions.removeTransaction(murakamiTransaction.transaction_id);
-      await Carbon.removeTransaction(murakamiTransaction.transaction_id);
+	console.log("Murakami transaction", murakamiTransaction);
+      //await Transactions.removeTransaction(murakamiTransaction.transaction_id);
+      //await Carbon.removeTransaction(murakamiTransaction.transaction_id);
     }
     res.redirect(verificationErrorUri);
   }
