@@ -23,39 +23,45 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "export"
     const carbon = await Carbon.getAll();
 
     for await (const transaction of carbon) {
-      let formattedTransaction = {};
-      
-      formattedTransaction["Transaction ID"] = transaction.transaction_id;
-      formattedTransaction.Timestamp = transaction.trans_date;
-      formattedTransaction["Working Group"] = req.user.allWorkingGroupsObj[transaction.group_id].name;
 
-      if (usersObj[transaction.user_id]) {
-        formattedTransaction.User = `${usersObj[transaction.user_id].first_name} ${usersObj[transaction.user_id].last_name}`;
-      } else {
-        formattedTransaction.User = "Unknown User";
-      }
+      if(transaction.trans_object) {
+	      let formattedTransaction = {};
+	      
+	      formattedTransaction["Transaction ID"] = transaction.transaction_id;
+	      formattedTransaction.Timestamp = transaction.trans_date;
+	      if(req.user.allWorkingGroupsObj[transaction.group_id]) {
+		formattedTransaction["Working Group"] = req.user.allWorkingGroupsObj[transaction.group_id].name;
+	      } else {
+		formattedTransaction["Working Group"] = "-";
+	      }
 
-      if (transaction.member_id) {
-        formattedTransaction.Member = lodash.startCase(transaction.member_id);
-      } else {
-        formattedTransaction.Member = null;
-      }
+	      if (usersObj[transaction.user_id]) {
+		formattedTransaction.User = `${usersObj[transaction.user_id].first_name} ${usersObj[transaction.user_id].last_name}`;
+	      } else {
+		formattedTransaction.User = "Unknown User";
+	      }
 
-      if (transaction.fx_transaction_id) {
-        formattedTransaction["Till Transaction ID"] = transaction.fx_transaction_id;
-      } else {
-        formattedTransaction["Till Transaction ID"] = "";
-      }
-      
-      formattedTransaction["Disposal Method"] = lodash.startCase(transaction.method);
+	      if (transaction.member_id) {
+		formattedTransaction.Member = lodash.startCase(transaction.member_id);
+	      } else {
+		formattedTransaction.Member = null;
+	      }
 
-      for await (const carbonCategoryId of Object.keys(carbonCategories)) {
-        const carbonCategory = carbonCategories[carbonCategoryId];
-        formattedTransaction[carbonCategory.name] = transaction.trans_object[carbonCategoryId] || 0;
-      }
+	      if (transaction.fx_transaction_id) {
+		formattedTransaction["Till Transaction ID"] = transaction.fx_transaction_id;
+	      } else {
+		formattedTransaction["Till Transaction ID"] = "";
+	      }
+	      
+	      formattedTransaction["Disposal Method"] = lodash.startCase(transaction.method);
 
-      formattedCarbon.push(formattedTransaction);
+	      for await (const carbonCategoryId of Object.keys(carbonCategories)) {
+		const carbonCategory = carbonCategories[carbonCategoryId];
+		formattedTransaction[carbonCategory.name] = transaction.trans_object[carbonCategoryId] || 0;
+	      }
 
+	      formattedCarbon.push(formattedTransaction);
+	}
     }
 
     formattedCarbon = lodash.sortBy(formattedCarbon, "Timestamp");

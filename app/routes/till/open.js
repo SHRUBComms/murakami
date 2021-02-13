@@ -51,7 +51,7 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "open"), as
 			error = "Something went wrong! Please try again";
 		}
 
-		req.flash("error_msg", error);
+		//req.flash("error_msg", error);
 		res.redirect(process.env.PUBLIC_ADDRESS + "/till/dashboard/" + req.params.till_id);
 	}
 });

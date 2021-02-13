@@ -104,7 +104,11 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "export"
         if (!(transaction.group_id == group_id || group_id == "all-working-groups")) {
           continue;
         }
-        
+       
+	if(!transaction.trans_object) {
+	  continue;
+	}
+ 
         for await (const carbonCategoryId of Object.keys(transaction.trans_object)) {
           let amount = transaction.trans_object[carbonCategoryId];
 
@@ -128,12 +132,19 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "export"
         }
       }
 
-      formattedData.totals.raw = (formattedData.totals.raw * unit.factor).toFixed(4);
-      formattedData.totals.saved = (formattedData.totals.saved * unit.factor).toFixed(4);
-
-      for await (let carbon of Object.keys(formattedData)) {
-        carbon.raw = (carbon.raw * unit.factor).toFixed(4);
-        carbon.saved = (carbon.saved * unit.factor).toFixed(4);
+      for await (const disposalMethod of Object.keys(formattedData)) {
+        if(formattedData[disposalMethod].raw) {
+	  formattedData[disposalMethod].raw = (formattedData[disposalMethod].raw * unit.factor).toFixed(4);
+          formattedData[disposalMethod].saved = (formattedData[disposalMethod].saved * unit.factor).toFixed(4);
+        } else {
+	    for await (const carbonId of Object.keys(formattedData[disposalMethod])) {
+	      if(formattedData[disposalMethod][carbonId]) {
+	        formattedData[disposalMethod][carbonId].raw = (formattedData[disposalMethod][carbonId].raw * unit.factor).toFixed(4);
+                formattedData[disposalMethod][carbonId].saved = (formattedData[disposalMethod][carbonId].saved * unit.factor).toFixed(4);
+	      }
+	    }
+	  
+	}
       }
     }
 

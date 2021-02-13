@@ -13,7 +13,6 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   let murakamiTransaction;
-  console.log(req.query);  
   let redirectUri = `${process.env.PUBLIC_ADDRESS}/till/transaction/${req.query.till_id}/?sumupCallback=true&murakamiStatus=${req.query.murakamiStatus}&transactionSummary=${req.query.transactionSummary}&carbonSummary=${req.query.carbonSummary}&smp-status=${req.query["smp-status"]}&smp-failure-cause=${req.query["smp-failure-cause"]}`;
   const verificationErrorUri = `${process.env.PUBLIC_ADDRESS}/till/transaction/${req.query.till_id}/?sumupCallback=true&murakamiStatus=${req.query.murakamiStatus}&transactionSummary=${req.query.transactionSummary}&carbonSummary=${req.query.carbonSummary}&smp-status=failed&smp-failure-cause=Could not verify card payment.`;
 
@@ -25,7 +24,8 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction
       throw "Could not access SumUp";
     }
 
-    const sumupTransaction = await Helpers.SumUpGetTransaction(req.query["smp-tx-code"], accessToken);
+    const sumupTransaction = await Helpers.SumUpGetTransaction(req.query["smp-tx-code"], accessToken);	
+
     if(!sumupTransaction) {
       throw "SumUp transaction not found";
     }
@@ -63,7 +63,6 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction
   } catch (error) {
     console.log(new Date(), error);
     if(murakamiTransaction) {
-      console.log("Remove transaction: ", murakamiTransaction);
       //await Transactions.removeTransaction(murakamiTransaction.transaction_id);
       //await Carbon.removeTransaction(murakamiTransaction.transaction_id);
     }
