@@ -19,7 +19,7 @@ const LogFoodCollection = async (req, res, foodCollectionKey) => {
 	try {
 		const member_id = req.body.member_id;
 		const collectionOrganisation = req.body.collectionOrganisation;
-		const destinationOrganisations = req.body.destinationOrganisations;
+		let destinationOrganisations = req.body.destinationOrganisations;
 		const amount = req.body.amount;
 		const note = req.body.note;
 

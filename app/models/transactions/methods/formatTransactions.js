@@ -8,7 +8,7 @@ module.exports = () => {
 		let formattedTransactions = [];
 
 		for await (const transaction of transactions) {
-			let formattedTransaction = {};
+      let formattedTransaction = {};
 
             		formattedTransaction.date = moment(transaction.date);
             		formattedTransaction.date = moment(formattedTransaction.date).format("D/M/YY hh:mm A");
@@ -50,10 +50,14 @@ module.exports = () => {
               			formattedTransaction.totals.cash = "0.00";
             		}
 
-            		formattedTransaction.totals.tokens = transaction.summary.totals.tokens || 0;
+                
+                if(transaction.summary.totals) {
+                  formattedTransaction.totals.tokens = transaction.summary.totals.tokens || 0;
+                } else {
+                  formattedTransaction.totals.tokens = 0;
+                }
 
             		formattedTransaction.totals.money = "";
-
 			if (transaction.summary.bill[0].item_id == "refund") {
               			formattedTransaction.totals.money = "-";
             		}

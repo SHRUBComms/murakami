@@ -61,10 +61,11 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction
     res.redirect(redirectUri);
 
   } catch (error) {
-    console.log(error);
+    console.log(new Date(), error);
     if(murakamiTransaction) {
-      await Transactions.removeTransaction(murakamiTransaction.transaction_id);
-      await Carbon.removeTransaction(murakamiTransaction.transaction_id);
+      console.log("Remove transaction: ", murakamiTransaction);
+      //await Transactions.removeTransaction(murakamiTransaction.transaction_id);
+      //await Carbon.removeTransaction(murakamiTransaction.transaction_id);
     }
     res.redirect(verificationErrorUri);
   }

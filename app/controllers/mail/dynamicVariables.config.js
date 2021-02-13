@@ -11,7 +11,8 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-long",
       "member-id-remind",
       "goodbye",
-      "behaviour-survey"
+      "behaviour-survey",
+      "renewal-link-request"
     ]
   },
   last_name: {
@@ -26,7 +27,8 @@ module.exports = dynamicVariablesAvailable = {
       "renewal-notice-long",
       "member-id-remind",
       "goodbye",
-      "behaviour-survey"
+      "behaviour-survey",
+      "renewal-link-request"
     ]
   },
   fullname: {
@@ -56,7 +58,8 @@ module.exports = dynamicVariablesAvailable = {
       "welcome-volunteer",
       "member-id-remind",
       "goodbye",
-      "behaviour-survey"
+      "behaviour-survey",
+      "renewal-link-request"
     ]
   },
   exp_date: {

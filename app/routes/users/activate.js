@@ -24,7 +24,7 @@ router.get("/:user_id", Auth.isLoggedIn, Auth.canAccessPage("users", "deactivate
 			throw "User not found!";
 		}
 
-		if(user.deactivated = 0) {
+		if(user.deactivated == 0) {
 			throw "User already activated";
 		}
 

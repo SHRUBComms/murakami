@@ -120,46 +120,46 @@
 		              {{#if member.gdpr.email}}
 		                <p>
 		              {{else}}
-		                {{#if volInfo.isAssignedCoordinator}}
+		                {{#ifCond volInfo.isAssignedCoordinator '||' (not member.volunteer_id) }}
 		                  <p>
 		                {{else}}
 		                  <p class="text-danger">
-		                {{/if}}
+		                {{/ifCond}}
 		              {{/if}}
 		              {{member.email}}
 		              {{#if member.gdpr.email}}
 		              </p>
 		              {{else}}
-		                {{#if volInfo.isAssignedCoordinator}}
+		                {{#ifCond volInfo.isAssignedCoordinator '||' (not member.volunteer_id) }}
 		                  </p>
 		                {{else}}
 		                  (ask for permission to use)</p>
-		                {{/if}}
+		                {{/ifCond}}
 		              {{/if}}
 		            {{/if}}
+
 
 		            {{#if member.phone_no}}
 		              {{#if member.gdpr.phone}}
 		                <p>
 		              {{else}}
-		                {{#if volInfo.isAssignedCoordinator}}
+		                {{#ifCond volInfo.isAssignedCoordinator '||' (not member.volunteer_id) }}
 		                  <p>
 		                {{else}}
 		                  <p class="text-danger">
-		                {{/if}}
+		                {{/ifCond}}
 		              {{/if}}
 		              {{member.phone_no}}
-		              {{#if member.gdpr.phone}}
+		              {{#if member.gdpr.email}}
 		              </p>
 		              {{else}}
-		                {{#if volInfo.isAssignedCoordinator}}
+		                {{#ifCond volInfo.isAssignedCoordinator '||' (not member.volunteer_id) }}
 		                  </p>
 		                {{else}}
 		                  (ask for permission to use)</p>
-		                {{/if}}
+		                {{/ifCond}}
 		              {{/if}}
 		            {{/if}}
-
 
 							</div>
 						</div>

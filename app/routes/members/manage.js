@@ -6,17 +6,11 @@ const rootDir = process.env.CWD;
 
 const Models = require(rootDir + "/app/models/sequelize");
 const Members = Models.Members;
-const Volunteers = Models.Volunteers;
-const WorkingGroups = Models.WorkingGroups;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.canAccessPage("members", "view"), async (req, res) => {
 	try {
-		let total = await Members.getTotals();
-		const { volunteers } = await Volunteers.getByGroupId(null, { permissions: { members: { name: true, membershipDates: true }, volunteers: { roles: true } } });
-
-		total[0].volunteers = volunteers.length
 		const { membersArray } = await Members.getAll();
 
 		let sanitizedMembers = [];
@@ -30,12 +24,11 @@ router.get("/", Auth.canAccessPage("members", "view"), async (req, res) => {
 
 		res.render("members/manage", {
 			title: "Manage Members",
-			members: sanitizedMembers,
+      members: sanitizedMembers,
+      totalMembers: sanitizedMembers.length,
 			membersActive: true,
-			total: total[0]
 		});
 	} catch (error) {
-		console.log(error);
 		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
 	}
 });

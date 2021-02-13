@@ -15,8 +15,8 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async (req, res) => {
 	try {
-		let till = await Tills.getById(req.params.till_id);
-		if (!till) {
+    let till = await Tills.getById(req.params.till_id);
+    if (!till) {
 			throw "Till not found";
 		}
 
