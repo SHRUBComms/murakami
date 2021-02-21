@@ -11,14 +11,14 @@ const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
 	const { ourVision, saferSpacesPolicy, membershipBenefits, privacyNotice } = await Members.getSignUpInfo();
-    	res.send({
-      		signUpInfo: {
-        		ourVision: ourVision,
-        		privacyNotice: privacyNotice,
-        		membershipBenefits: membershipBenefits,
-        		saferSpacesPolicy: saferSpacesPolicy
-      		}
-    	});
+  res.send({
+      signUpInfo: {
+        ourVision: ourVision,
+        privacyNotice: privacyNotice,
+        membershipBenefits: membershipBenefits,
+        saferSpacesPolicy: saferSpacesPolicy
+      }
+  });
 });
 
 module.exports = router;

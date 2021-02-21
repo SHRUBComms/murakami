@@ -66,7 +66,7 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
     membershipCost = Number(membershipCost).toFixed(2);
 
-    if(membershipLength == "full-year" && membershipCost < 1) {
+    if(membershipLength == "full-year" && membershipCost < 12) {
       throw "For a full year membership, please enter at least £12.00";
     } else if (membershipLength == "half-year" && membershipCost < 8) {
       throw "For a half year membership, please enter at least £8.00";
@@ -118,6 +118,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
   try {
     const SumUpTransactionId = req.body.SumUpTransactionId;
     const murakamiTransactionId = req.body.murakamiTransactionId;
+
     if(!SumUpTransactionId) {
       throw "Could not find SumUp transaction";
     }
@@ -193,7 +194,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Something went wrong!";
     }
 
-    await Members.update({ current_init_membership: today, current_exp_membership: newExpirationDate, is_member: 1}, { where: { member_id: murakamiTransaction.member_id } });
+    await Members.update({ current_init_membership: today, current_exp_membership: newExpirationDate, is_member: 1 }, { where: { member_id: murakamiTransaction.member_id } });
 
     // Update transaction summary
     let updatedSummary = murakamiTransaction.summary;
