@@ -66,7 +66,7 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
     membershipCost = Number(membershipCost).toFixed(2);
 
-    if(membershipLength == "full-year" && membershipCost < 1) {
+    if(membershipLength == "full-year" && membershipCost < 12) {
       throw "For a full year membership, please enter at least £12.00";
     } else if (membershipLength == "half-year" && membershipCost < 8) {
       throw "For a half year membership, please enter at least £8.00";

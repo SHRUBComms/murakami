@@ -34,7 +34,7 @@ router.get("/:member_id", Auth.verifyByKey("membershipSignUp"), async (req, res)
     if (carbon.length > 0) {
       const carbonCategories = await CarbonCategories.getAll();
       const totalCarbon = await Helpers.calculateCarbon(carbon, carbonCategories);
-      sanitizedMember.carbon_saved = (totalCarbon * 1e-3).toString(2);
+      sanitizedMember.carbon_saved = (totalCarbon / 1000).toFixed(2); // Convert grams to kg
     }
 
     res.status(200);
