@@ -118,6 +118,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
   try {
     const SumUpTransactionId = req.body.SumUpTransactionId;
     const murakamiTransactionId = req.body.murakamiTransactionId;
+
     if(!SumUpTransactionId) {
       throw "Could not find SumUp transaction";
     }
@@ -193,7 +194,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Something went wrong!";
     }
 
-    await Members.update({ current_init_membership: today, current_exp_membership: newExpirationDate, is_member: 1}, { where: { member_id: murakamiTransaction.member_id } });
+    await Members.update({ current_init_membership: today, current_exp_membership: newExpirationDate, is_member: 1 }, { where: { member_id: murakamiTransaction.member_id } });
 
     // Update transaction summary
     let updatedSummary = murakamiTransaction.summary;
