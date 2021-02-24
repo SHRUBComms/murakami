@@ -374,6 +374,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
         if (member.membership_type == "unpaid") {
           await Members.update({ membership_type: null }, { where: { member_id: member_id } });
         }
+      } else {
+        await Members.updateBalance(member_id, member.balance);
       }
 
       if (membershipBought == "MEM-FY") {
@@ -404,11 +406,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
 
     formattedTransaction.summary.totals.money = formattedTransaction.summary.totals.money || 0;
-
-    if (foundMember) {
-      await Members.updateBalance(member_id, member.balance);
-    }
-    
+  
     let simpleCarbon = [];
 
     for await (const groupId of Object.keys(carbonTransaction)) {
