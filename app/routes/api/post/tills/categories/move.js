@@ -53,11 +53,16 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"
     }
 
     if(!categories[newParent]) {
-      throw "Please specify a valud category to move to";
+      throw "Please specify a valid category to move to";
     }
     
     await StockCategories.moveCategory(item_id, newParent);
-    res.send({ status: "ok", msg: "Category moved!" });
+    let successMessage = "Category moved!";
+    if(categories[item_id].discount) {
+      successMessage = "Discount moved!";
+    }
+
+    res.send({ status: "ok", msg: successMessage });
   } catch (error) {
     if(typeof error != "string") {
       error = "Something went wrong! Please try again";

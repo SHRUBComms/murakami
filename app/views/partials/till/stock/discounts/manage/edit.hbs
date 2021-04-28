@@ -1,0 +1,82 @@
+<div class="modal" id="editDiscount" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Discount "<span id="edit_discount_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+
+            <input type="text" placeholder="Discount Name" id="editDiscountName" class="form-control mb-3" />
+
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Discount Amount: </span>
+              </span>
+              <input class="form-inline form-control" id="editDiscountValue" type="number" min="1" max="100" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">%</span>
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="editDiscountSubmit" onclick="updateDiscount()">Update Discount</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateDiscount(path) {
+
+    let discount = {};
+    discount.item_id = eval(path).item_id;
+    discount.till_id = "{{till.till_id}}"
+    discount.name = $("#editDiscountName").val();
+    discount.value = $("#editDiscountValue").val() || 0;
+
+    $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/tills/categories/discounts/update",
+      data: { discount: discount },
+      success: function(response) {
+        if (response.status == "ok") {
+          $("#editDiscount").modal("hide");
+
+          var parent = path.split("[")
+          parent.pop();
+          parent = parent.join("[");
+          $("#categorySearchResults").html("");
+          getCategories(parent);
+
+          alert(response.msg);
+
+        } else {
+          alert(response.msg);
+        }
+      }
+    });
+  }
+
+  function openEditDiscountDialog(path) {
+    category = eval(path);
+
+    $("#edit_discount_name").html(category.name);
+    $("#editDiscountName").val(category.name);
+    $("#editDiscountValue").val(category.value || 0);
+
+    $("#editDiscountSubmit").attr("onClick", "updateDiscount('" + path + "')");
+
+    $("#editDiscount").modal("show");
+  }
+</script>

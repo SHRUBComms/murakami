@@ -7,7 +7,7 @@ module.exports = (StockCategories) => {
         value: category.value,
         conditions: category.conditions || [],
         weight: category.weight || 0,
-        member_discount: category.member_discount || null,
+        member_discount: category.member_discount || 0,
         allowTokens: category.allowTokens,
         stockControl: category.stockControl,
         stockInfo: category.stockInfo || {}

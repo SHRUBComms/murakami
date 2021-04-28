@@ -2372,6 +2372,14 @@ table.dataTable thead td {
   vertical-align: middle;
 }
 
+.discount-options {
+  border-top: 5px solid #19ace6;
+}
+
+.discount-options:hover {
+  border-top: 5px solid #70d7ff;
+}
+
 .new-category-option {
   border-top-color: var(--green);
 }

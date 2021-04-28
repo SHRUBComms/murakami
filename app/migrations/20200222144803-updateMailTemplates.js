@@ -34,7 +34,6 @@ module.exports = {
       queryInterface.removeColumn("mail_templates", "category"),
       queryInterface.renameColumn(
         "mail_templates",
-
         "short_description",
         "mail_desc"
       )

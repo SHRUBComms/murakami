@@ -169,7 +169,6 @@
 		    	</div>
 		  	</div>
 
-
 				<div class="row">
 					<div class="col-md-8 mx-auto">
 						<textarea id="note" placeholder="Note (optional)" class="form-control"></textarea>
@@ -196,8 +195,6 @@
 </div>
 
 
-
-
 <div id="itemConditionModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -220,8 +217,6 @@
 
 							<div id="availableItemConditions"></div>
 
-
-
 						</div>
 					</div>
 				</div>
@@ -235,9 +230,6 @@
 
   </div>
 </div>
-
-
-
 
 
 <div id="membershipWarning" class="modal fade" role="dialog">
@@ -329,6 +321,7 @@ function addToTransaction(item){
 	sanitizedItem.id = item.item_id || item.id;
 	sanitizedItem.name = item.name;
 	sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
+  sanitizedItem.discount = item.discount ? true : false;
 	sanitizedItem.weight = item.weight || 0;
 	sanitizedItem.conditions = item.conditions;
 	sanitizedItem.condition = item.condition;
@@ -339,6 +332,12 @@ function addToTransaction(item){
 	sanitizedItem.allowTokens = item.allowTokens;
 	sanitizedItem.carbon_id = item.carbon_id;
 	sanitizedItem.member_discount = item.member_discount;
+
+  // Restrict one global discount per transaction
+  if(transaction.filter(function(existingItem) { return existingItem.discount == true; }).length > 0 && sanitizedItem.discount) {
+    sanitizedItem = null;
+    alert("You can only apply 1 whole transaction discount!");
+  }
 
 	if(item.value > 0){
 		sanitizedItem.value = item.value;
@@ -463,30 +462,33 @@ function updateTransactionList(){
 	$("#transaction-info").html("");
 	var tokens_total = 0;
 	var weight_total = 0;
+  var discounts = [];
 	var row, categoryColumn, quantityColumn, valueColumn, weightColumn, deleteColumn;
 
-	for(let i=0;i<transaction.length;i++){
-		var value = 0;
+	for(let i = 0; i < transaction.length; i++){
+		
+    var value = 0;
 		var note = "(";
 
 		if (transaction[i].condition){
 			note += _.startCase(transaction[i].condition)
 		}
 
-		if(member.name){
-			value = +transaction[i].value
-			tokens_total += +value;
-			if(transaction[i].member_discount > 0){
-				if(note.length > 0){
-					note += ", "
-				}
-				note += "<span class='fail'>-" + transaction[i].member_discount + "%</span>";
-			}
-		} else {
-			value = +transaction[i].value;
-			tokens_total += +transaction[i].value;
-		}
-
+    if(transaction[i].discount === false) {
+      if(member.name){
+        value = +transaction[i].value
+        tokens_total += +value;
+        if(transaction[i].member_discount > 0){
+          if(note.length > 0){
+            note += ", "
+          }
+          note += "<span class='fail'>-" + transaction[i].member_discount + "%</span>";
+        }
+      } else {
+        value = +transaction[i].value;
+        tokens_total += +transaction[i].value;
+      }
+    }
 
 		note += ")"
 
@@ -504,50 +506,57 @@ function updateTransactionList(){
 
 		quantityColumn = document.createElement("td");
 		quantityColumn.className = "align-middle"
-		if(transaction[i].action == null){
-				var quantityColumnInput = document.createElement("input");
+    
+    if(transaction[i].action == null && transaction[i].discount == false){
+      var quantityColumnInput = document.createElement("input");
 
-				let maxQuantity;
-				try {
-					maxQuantity = transaction[i].stockInfo[transaction[i].condition].quantity;
-				} catch(err){
-					maxQuantity = null;
-				}
+      let maxQuantity;
+      try {
+        maxQuantity = transaction[i].stockInfo[transaction[i].condition].quantity;
+      } catch(err){
+        maxQuantity = null;
+      }
 
-				quantityColumnInput.id = "quantity_" + i;
-				quantityColumnInput.type = "number";
-				quantityColumnInput.value = transaction[i].quantity;
-				quantityColumnInput.className = "form-control align-middle"
-				quantityColumnInput.setAttribute("step", 1)
-				quantityColumnInput.setAttribute("max", maxQuantity || 999);
-				quantityColumnInput.setAttribute("min", 1)
+      quantityColumnInput.id = "quantity_" + i;
+      quantityColumnInput.type = "number";
+      quantityColumnInput.value = transaction[i].quantity;
+      quantityColumnInput.className = "form-control align-middle"
+      quantityColumnInput.setAttribute("step", 1)
+      quantityColumnInput.setAttribute("max", maxQuantity || 999);
+      quantityColumnInput.setAttribute("min", 1)
 
-				quantityColumnInput.oninput = function(){
-					updateTransaction(i)
-				};
+      quantityColumnInput.oninput = function(){
+        updateTransaction(i)
+      };
 
-				quantityColumnInput.onblur = function(){
-					updateTransaction(i)
-				};
+      quantityColumnInput.onblur = function(){
+        updateTransaction(i)
+      };
 
-				quantityColumn.append(quantityColumnInput)
+      quantityColumn.append(quantityColumnInput)
 		} else {
-				quantityColumn.innerText = 1;
+			quantityColumn.innerText = "-";
 		}
 
 		valueColumn = document.createElement("td");
 		valueColumn.className = "align-middle"
 		valueColumn.id = "value_" + i;
-		valueColumn.oninput = function(){
+		
+    valueColumn.oninput = function(){
 			updateTransaction(i)
 		};
+    
 		valueColumn.onblur = function(){
 			updateTransaction(i)
 		};
 
-		valueColumn.textContent = transaction[i].value;
+    if(transaction[i].discount == true) {
+      valueColumn.innerHTML = "<span style='color: #1986e6;'>" + transaction[i].value + "% discount!</span>";
+    } else {
+		  valueColumn.textContent = transaction[i].value;
+    }
 
-		if(transaction[i].setValue == false){
+		if(transaction[i].setValue == false || transaction[i].discount == false){
 			valueColumn.contentEditable = true;
 		}
 
@@ -561,7 +570,7 @@ function updateTransactionList(){
 			updateTransaction(i)
 		};
 
-		if(transaction[i].carbon_id != ""){
+		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
 			weightColumn.contentEditable = true;
 			weightColumn.textContent = transaction[i].weight || 0;
 		} else {
@@ -600,33 +609,41 @@ function updateTransactionList(){
 }
 
 function updateButtons(){
-
 	tokens_total = 0;
 	weight_total = 0;
 	money_total = 0;
+  total_discount = 0;
+  contains_real_items = false;
 
-	for(let i=0;i<transaction.length;i++){
-		if(transaction[i].allowTokens == 1){
-			if(member.name){
-				tokens_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
-			} else {
-				tokens_total += +(transaction[i].value * transaction[i].quantity);
-			}
-
-		} else {
-			if(member.name){
-				money_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
-			} else {
-				money_total += +(transaction[i].value * transaction[i].quantity);
-			}
-		}
-		weight_total += +(transaction[i].weight * transaction[i].quantity);
+	for(let i=0; i < transaction.length; i++){
+    if(transaction[i].discount === true) {
+      total_discount = transaction[i].value;
+    } else {
+      contains_real_items = true;
+      if(transaction[i].allowTokens == 1){
+        if(member.name){
+          tokens_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
+        } else {
+          tokens_total += +(transaction[i].value * transaction[i].quantity);
+        }
+      } else {
+        if(member.name){
+          money_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
+        } else {
+          money_total += +(transaction[i].value * transaction[i].quantity);
+        }
+      }
+      weight_total += +(transaction[i].weight * transaction[i].quantity);
+    }
 	}
+
+  tokens_total -= tokens_total * (total_discount / 100);
+  money_total -= money_total * (total_discount / 100);
 
 	$("#value_total").html((tokens_total + money_total).toFixed(2));
 	$("#weight_total").html(weight_total.toFixed(0));
 
-	if(transaction.length > 0){
+	if(transaction.length > 0 && contains_real_items){
 		$("#tokens_total").text((+money_total + +tokens_total).toFixed(2));
 		$("#changeCalc").addClass("d-none");
 		if(money_total == 0 && tokens_total == 0){
@@ -761,7 +778,7 @@ function searchMember(callback){
 function updateSearchResults(callback){
 	member = {};
 	$("#searchResults").html("");
-	for(let i=0;i<results.length;i++){
+	for(let i=0; i<results.length; i++){
 
 		var memberMarkup = {}
 
@@ -1002,7 +1019,6 @@ function updateReceipt(transaction_id){
 				'action': 'lookup'
       },
       success: function(response){
-        console.log(response);
 				// Create transaction dialog.
 				var lookupSuccessMessage = document.getElementById("receiptSummary");
 				lookupSuccessMessage.innerHTML = "";
@@ -1145,9 +1161,6 @@ function updateResponse(outcome, transactionSummary, carbonSummary, member, tran
 			}
 
 		}
-
-
-
 
 		if(member.member_id) {
 			$.get("{{public_address}}/api/get/members/carbon-saved/" + member.member_id, function( response ) {

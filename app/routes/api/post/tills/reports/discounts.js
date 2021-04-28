@@ -1,4 +1,4 @@
-// /api/post/tills/reports/unit-sales
+// /api/post/tills/reports/discounts
 
 const router = require("express").Router();
 
@@ -40,7 +40,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
     
     let categories = await StockCategories.getCategories("treeKv");
-    let unitSales = {};
+    let discounts = {};
 
     for await (const category_id of Object.keys(categories)) {
       const category = categories[category_id];
@@ -54,6 +54,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         category.groupName = "-";
       }
     }
+
+    let discountedTransactions = [];
 
     for await (const transaction of transactions) {
       if(!transaction.summary.bill) {
@@ -84,60 +86,45 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         if (!categories[item.item_id]) {
           continue;
         }
-
-        // Ignore whole transaction discount items
-        if(item.discount) {
+        
+        if(!item.discount) {
           continue;
         }
-        
-        if (item.condition) {
-          categories[item.item_id + "_" + item.condition] = lodash.cloneDeep(categories[item.item_id]);
-          item.item_id += "_" + item.condition;
-          categories[item.item_id].absolute_name += " (" + lodash.startCase(item.condition) + ")";
-        }
 
-        if (!unitSales[item.item_id]) {
-          if (categories[item.item_id].group_id) {
-            categories[item.item_id].groupName = req.user.allWorkingGroupsObj[categories[item.item_id].group_id].name || "-";
-          }
-
-          unitSales[item.item_id] = {
+        if (!discounts[item.item_id]) {
+          discounts[item.item_id] = {
             salesInfo: {
-              totalSales: 0,
-              totalRevenue: 0,
-              boughtByMember: 0,
-              boughtByNonMember: 0,
-              memberRatio: 0
+              numberOfDiscountedTransactions: 0,
+              preDiscountRevenue: 0,
+              postDiscountRevenue: 0,
+              totalDiscountedRevenue: 0
             },
-            categoryInfo:
-              categories[
-                item.item_id
-              ]
+            transactions: [],
+            discountInfo: categories[item.item_id]
           };
 
-          unitSales[item.item_id].categoryInfo.name = categories[item.item_id].absolute_name || categories[item.item_id].name;
+          discounts[item.item_id].discountInfo.name = categories[item.item_id].absolute_name || categories[item.item_id].name;
         }
 
-        try {
-          unitSales[item.item_id].salesInfo.totalSales += +(parseInt(item.quantity) || 1);
-        } catch (error) {
-          unitSales[item.item_id].salesInfo.totalSales += +1;
+        // Add one to number of total transactions using this  discount
+        if(!discounts[item.item_id].transactions.includes(transaction.transaction_id)){
+          discounts[item.item_id].salesInfo.numberOfDiscountedTransactions = parseFloat(discounts[item.item_id].salesInfo.numberOfDiscountedTransactions) + 1;
+          discounts[item.item_id].transactions.push(transaction.transaction_id);
         }
 
-        unitSales[item.item_id].salesInfo.totalRevenue = parseFloat(parseFloat(unitSales[item.item_id].salesInfo.totalRevenue) + (parseFloat(item.value) || parseFloat(item.tokens) || 0)).toFixed(2);
-
-        if (transaction.member_id != "anon") {
-          unitSales[item.item_id].salesInfo.boughtByMember += +1;
-        }
-
-        unitSales[item.item_id].salesInfo.memberRatio = ((unitSales[item.item_id].salesInfo.boughtByMember / unitSales[item.item_id].salesInfo.totalSales) * 100 || 0).toFixed(2);
+        const discountedTransactionAmount = parseFloat(transaction.summary.totals.money) || 0;
+        const originalTransactionAmount = parseFloat(discountedTransactionAmount / ((100 - item.value) / 100)) || 0;
+        
+        discounts[item.item_id].salesInfo.preDiscountRevenue = parseFloat(parseFloat(discounts[item.item_id].salesInfo.preDiscountRevenue) + parseFloat(originalTransactionAmount)).toFixed(2);
+        discounts[item.item_id].salesInfo.postDiscountRevenue = parseFloat(parseFloat(discounts[item.item_id].salesInfo.postDiscountRevenue) + parseFloat(discountedTransactionAmount)).toFixed(2);
+        discounts[item.item_id].salesInfo.totalDiscountedRevenue = parseFloat(parseFloat(discounts[item.item_id].salesInfo.totalDiscountedRevenue) + (originalTransactionAmount - discountedTransactionAmount)).toFixed(2);
       } 
     }
 
-    res.send({ status: "ok", unitSales: lodash.values(unitSales)});
+    res.send({ status: "ok", discounts: lodash.values(discounts) });
   } catch (error) {
     console.log(error);
-    res.send({ status: "fail", unitSales: [] });
+    res.send({ status: "fail", discounts: [] });
   }
 });
 module.exports = router;

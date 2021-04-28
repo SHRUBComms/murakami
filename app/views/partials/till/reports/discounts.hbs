@@ -1,0 +1,24 @@
+<div class="row">
+  <div class="col-md-12">
+    <div id="discountsNote" class="alert alert-info d-none p-4" role="alert">
+      <span class="badge badge-pill badge-info mr-2">Info</span>Please note that the discount revenue figures <b>do not</b> include tokens.
+    </div>
+  </div>
+</div>
+
+<table id="discountsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{ "fileName": "{{till.name}} Discounts" }' data-sort-name="salesInfo.numberOfDiscountedTransactions" data-sort-order="desc">
+    <thead>
+
+        <tr>
+          <th scope="col" data-field="discountInfo.name" data-sortable="true">Discount Name</th>
+          <th data-field="salesInfo.numberOfDiscountedTransactions" data-sortable="true">Number of Discounted Transactions</th>
+          <th data-field="salesInfo.postDiscountRevenue" data-sortable="true">Post-discount Revenue (£)</th>
+          <th data-field="salesInfo.preDiscountRevenue" data-sortable="true">Pre-discount Revenue (£)</th>
+          <th data-field="salesInfo.totalDiscountedRevenue" data-sortable="true">Total Discounted (£)</th>
+        </tr>
+
+    </thead>
+
+  <tbody>
+  </tbody>
+</table>

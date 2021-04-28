@@ -40,6 +40,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"
     if (!categories[category.item_id]) {
       throw "Category not found";
     }
+    
+    if (categories[category.item_id].discount) {
+      throw "Not a category!";
+    }
 
     const carbonCategories = await CarbonCategories.getAll();
 

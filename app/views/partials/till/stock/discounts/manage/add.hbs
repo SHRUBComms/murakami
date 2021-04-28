@@ -1,0 +1,100 @@
+<div class="modal" id="addDiscountChild" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Discount Under "<span id="discount_parent_name"></span>"</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+
+            <input type="text" placeholder="Discount Name" id="addDiscountName" class="form-control mb-2" />
+
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text">Discount Amount: </span>
+              </span>
+              <input class="form-inline form-control" id="addDiscountValue" type="number" min="0" max="100" step="1" value="0" />
+              <span class="input-group-append">
+                <span class="input-group-text">%</span>
+              </span>
+            </div>
+
+         </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="addDiscountSubmit" onclick="addDiscount()">Add Discount</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function addDiscount(path) {
+
+    let discount = {};
+    discount.till_id = "{{till.till_id}}";
+    discount.item_id = "";
+    discount.parent = eval(path).item_id;
+    discount.name = $("#addDiscountName").val();
+    discount.group_id = $("#addDiscountGroupId").val();
+    discount.value = $("#addDiscountValue").val() || 0;
+
+    $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/tills/categories/discounts/add",
+      data: {
+        discount: discount
+      },
+      success: function(response) {
+
+        if (response.status == "ok") {
+
+          $("#addDiscount").modal("hide");
+
+          discount.item_id = response.newId;
+          if (!eval(path).children) {
+            eval(path + ".children=[]");
+          }
+
+          if (discount.parent) {
+            getCategories(path + ".children");
+          } else {
+            getCategories("categories.options");
+          }
+
+          alert(response.msg);
+
+        } else {
+          alert(response.msg);
+        }
+      }
+    });
+  }
+
+  function openAddDiscountDialog(path) {
+    var discount;
+    if (!eval(path).name) {
+      discount = eval(path.split("."));
+      discount.pop();
+      path = discount.join(".");
+      discount = eval(path);
+    } else {
+      discount = eval(path);
+    }
+
+    $("#addDiscountName").val("");
+    $("#addDiscountValue").val(0);
+
+    $("#discount_parent_name").html(discount.name || "root");
+    $("#addDiscountChild").modal("show");
+    $("#addDiscountSubmit").attr("onClick", "addDiscount('" + path + "')");
+  }
+</script>

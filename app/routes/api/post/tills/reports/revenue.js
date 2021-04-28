@@ -85,6 +85,16 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
         response.summary[monthKey].byGroup = {};
       }
 
+      // Get transaction global discount
+      let totalGlobalDiscount = 0;
+
+      for await (const item of transaction.summary.bill) {
+        if(item.discount) {
+          totalGlobalDiscount = item.value;
+        }
+      }
+
+      // Divy up item values to relevant working groups.
       let moneyBudget = transaction.summary.totals.money;
 
       for await (const item of transaction.summary.bill) {
@@ -108,6 +118,8 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
           }
 
           let itemValue = parseFloat((parseFloat(item.value) || parseFloat(item.tokens)) * (parseInt(item.quantity) || 1)) || 0;
+          itemValue -= itemValue * (totalGlobalDiscount / 100); // Apply whole transaction discount deduction to this item
+
           if (transaction.summary.totals.money > 0 && transaction.summary.totals.tokens > 0) {
             if (itemValue > moneyBudget) {
               itemValue = itemValue - Math.abs(moneyBudget - itemValue);

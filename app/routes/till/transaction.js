@@ -76,7 +76,6 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTra
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
-    console.log(new Date(), req.body.transaction);
     const till_id = req.body.till_id;
     const member_id = req.body.member_id;
     let paymentMethod = req.body.paymentMethod;
@@ -104,10 +103,14 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     let totalTokens = 0;
     let totalMoney = 0;
     let totalWeight = 0;
+
+    // Discounts
+    let discountInfo = {}; // Contains IDs of items that have a members' discount
+    let globalDiscount = 0; // Total *whole transaction* discount as a percentage
+
     let memberDiscountTokens = 0;
     let memberDiscountMoney = 0;
-    let discountInfo = {};
-
+    
     for await (const item of transaction) {
       const id = item.id;
       
@@ -120,112 +123,122 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       if(category.active != 1) {
         throw "Category disabled";
       }
-      
-      const weight = Number(item.weight);
-      let value = Number(item.value);
-      let quantity = 1;
-      let condition = null;
-
-      if(category.value) {
-        value = Number(category.value);
-      }
-
-      if (category.stockControl == 1 && category.conditions != null) {
-        if (category.conditions.length == 1) {
-          condition = category.conditions[0];
-        } else if (category.conditions.includes(item.condition)) {
-          condition = item.condition;
-        } else {
-          throw "No valid condition selected";
-        }
-      }
-      
-      if (item.quantity > 1 && !isNaN(item.quantity)) {
-        quantity = parseInt(item.quantity);
-      }
-
-      if (category.stockControl == 1) {
-        if (!quantities[id]) {
-          quantities[id] = { max: 0, quantity: 0 };
-        }
-
-        if (!quantities[id][condition]) {
-          quantities[id][condition] = { max: 0, quantity: 0 };
-        }
-        
-        if (!condition) {
-          if (category.stockInfo.quantity) {
-            quantities[id].max = category.stockInfo.quantity;
-          }
-
-          quantities[id].quantity += quantity;
-          if (quantities[id].quantity > quantities[id].max) {
-            quantityError = true;
-          }
-
-        } else {
-          if (category.stockInfo[condition]) {
-            if (category.stockInfo[condition].quantity) {
-              quantities[id][condition].max = category.stockInfo[condition].quantity;
-            }
-          }
-
-          quantities[id][condition].quantity += quantity;
-          if (quantities[id][condition].quantity > quantities[id][condition].max) {
-            quantityError = true;
-          }
-        }
-      }
-
-      if (category.action) {
-        if (category.action.substring(0, 3) == "MEM") {
-          membershipBought = category.action;
-        }
-      }
-
-      if (category.member_discount) {
-        discountInfo[id] = category.member_discount;
-      }
-
-      if (category.allowTokens == 1) {
-        totalTokens = Number(totalTokens) + Number(value * quantity);
-        if (category.member_discount) {
-          memberDiscountTokens += (category.member_discount / 100) * (value * quantity);
-        }
-      } else {
-        totalMoney = Number(totalMoney) + Number(value * quantity);
-        if (category.member_discount) {
-          memberDiscountMoney += (category.member_discount / 100) * (value * quantity) ;
-        }
-      }
-
-      if (category.carbon_id) {
-        item.carbon_id = category.carbon_id;
-      }
-
-      let group_id = category.group_id || till.group_id;
-
-      if (weight > 0 && carbonCategories[item.carbon_id]) {
-        if (!carbonTransaction[group_id]) {
-          carbonTransaction[group_id] = {};
-        }
-
-        if (carbonTransaction[group_id][item.carbon_id]) {
-          carbonTransaction[item.carbon_id] = Number(carbonTransaction[item.carbon_id]) + Number(weight * quantity);
-        } else {
-          carbonTransaction[group_id][item.carbon_id] = weight * quantity;
-        }
-        
-        totalWeight = Number(totalWeight) + Number(weight * quantity);
-      }
 
       let sanitizedItem = {};
-      sanitizedItem.item_id = category.item_id;
-      sanitizedItem.weight = weight;
-      sanitizedItem.value = value;
-      sanitizedItem.quantity = quantity;
-      sanitizedItem.condition = condition;
       
+      if(category.discount) {
+        globalDiscount = category.value;
+
+        sanitizedItem.item_id = category.item_id;
+        sanitizedItem.discount = true;
+        sanitizedItem.value = category.value;
+      } else {
+
+        const weight = Number(item.weight);
+        let value = Number(item.value);
+        let quantity = 1;
+        let condition = null;
+
+        if(category.value) {
+          value = Number(category.value);
+        }
+
+        if (category.stockControl == 1 && category.conditions != null) {
+          if (category.conditions.length == 1) {
+            condition = category.conditions[0];
+          } else if (category.conditions.includes(item.condition)) {
+            condition = item.condition;
+          } else {
+            throw "No valid condition selected";
+          }
+        }
+        
+        if (item.quantity > 1 && !isNaN(item.quantity)) {
+          quantity = parseInt(item.quantity);
+        }
+
+        if (category.stockControl == 1) {
+          if (!quantities[id]) {
+            quantities[id] = { max: 0, quantity: 0 };
+          }
+
+          if (!quantities[id][condition]) {
+            quantities[id][condition] = { max: 0, quantity: 0 };
+          }
+          
+          if (!condition) {
+            if (category.stockInfo.quantity) {
+              quantities[id].max = category.stockInfo.quantity;
+            }
+
+            quantities[id].quantity += quantity;
+            if (quantities[id].quantity > quantities[id].max) {
+              quantityError = true;
+            }
+
+          } else {
+            if (category.stockInfo[condition]) {
+              if (category.stockInfo[condition].quantity) {
+                quantities[id][condition].max = category.stockInfo[condition].quantity;
+              }
+            }
+
+            quantities[id][condition].quantity += quantity;
+            if (quantities[id][condition].quantity > quantities[id][condition].max) {
+              quantityError = true;
+            }
+          }
+        }
+
+        if (category.action) {
+          if (category.action.substring(0, 3) == "MEM") {
+            membershipBought = category.action;
+          }
+        }
+
+        if (category.member_discount) {
+          discountInfo[id] = category.member_discount;
+        }
+
+        if (category.allowTokens == 1) {
+          totalTokens = Number(totalTokens) + Number(value * quantity);
+          if (category.member_discount) {
+            memberDiscountTokens += (category.member_discount / 100) * (value * quantity);
+          }
+        } else {
+          totalMoney = Number(totalMoney) + Number(value * quantity);
+          if (category.member_discount) {
+            memberDiscountMoney += (category.member_discount / 100) * (value * quantity) ;
+          }
+        }
+
+        if (category.carbon_id) {
+          item.carbon_id = category.carbon_id;
+        }
+
+        let group_id = category.group_id || till.group_id;
+
+        if (weight > 0 && carbonCategories[item.carbon_id]) {
+          if (!carbonTransaction[group_id]) {
+            carbonTransaction[group_id] = {};
+          }
+
+          if (carbonTransaction[group_id][item.carbon_id]) {
+            carbonTransaction[item.carbon_id] = Number(carbonTransaction[item.carbon_id]) + Number(weight * quantity);
+          } else {
+            carbonTransaction[group_id][item.carbon_id] = weight * quantity;
+          }
+          
+          totalWeight = Number(totalWeight) + Number(weight * quantity);
+        }
+        
+        sanitizedItem.item_id = category.item_id;
+        sanitizedItem.weight = weight;
+        sanitizedItem.value = value;
+        sanitizedItem.quantity = quantity;
+        sanitizedItem.condition = condition;
+      }
+
       sanitizedTransaction.push(sanitizedItem);
     }
 
@@ -257,10 +270,13 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
                               
     let totals = {};
-
+    
     if (foundMember && (member.is_member == 1 || membershipBought)) {
       totalMoney = totalMoney - memberDiscountMoney;
       totalTokens = totalTokens - memberDiscountTokens;
+      
+      totalMoney -= totalMoney * (globalDiscount / 100);
+      totalTokens -= totalTokens * (globalDiscount / 100);
 
       formattedTransaction.summary.discount_info = discountInfo;
 
@@ -295,7 +311,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
         paymentMethod = null;
       }
     } else {
+
       totals.money = (Number(totalTokens) + Number(totalMoney)).toFixed(2);
+      totals.money -= totals.money * (globalDiscount / 100); // Apply whole transaction discount
+
       formattedTransaction.summary.totals = totals;
 
       if (totals.money == 0) {
@@ -316,7 +335,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       whyTransactionFailed = `A member must be selected to purchase a membership. To add a member, please go to the <a href="${process.env.PUBLIC_ADDRESS}/members/add?till_id=${till.till_id}">add member page</a>.`;
     }
 
-    if (formattedTransaction.summary.bill.length == 0) {
+    // Transaction must contain at least one "real" item (i.e. not a discount)
+    if (formattedTransaction.summary.bill.filter(function(item) { return !item.discount; }).length == 0) {
       validTransaction = false;
       whyTransactionFailed = "There must be at least one item in the transaction.";
     }
@@ -337,7 +357,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     
     await StockCategories.bulkUpdateQuantities(StockRecords, req.user.id, till.till_id, categories, quantities);
     
-    console.log(formattedTransaction); 
     const transactionId = await Transactions.addTransaction(formattedTransaction);
     
     let response = {

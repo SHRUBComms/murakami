@@ -22,6 +22,7 @@
       <option value="floats">Till Reconciliation (Opening/Closing Floats)</option>
       <option value="unit-sales">Sales</option>
 			<option value="stock-records">Stock Records</option>
+			<option value="discounts">Discounts</option>
     </select>
   </div>
 
@@ -80,6 +81,8 @@
 		{{>till/reports/unit-sales}}
 
 		{{>till/reports/stock-records}}
+		
+    {{>till/reports/discounts}}
 
 	</div>
 
@@ -91,6 +94,7 @@ var transacationsTable = $("#transactionsTable");
 var floatsTable = $("#floatsTable");
 var unitSalesTable = $("#unitSalesTable");
 var stockRecordsTable = $("#stockRecordsTable");
+var discountsTable = $("#discountsTable");
 
 let searchParams = new URLSearchParams(window.location.search)
 
@@ -212,7 +216,26 @@ function getReport(){
 						stockRecordsTable.bootstrapTable('load', response)
 					}
 				})
-		}
+		} else if(reportType == "discounts") {
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/discounts",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(response){
+            $("#discountsTable").removeClass("d-none")
+						$("#discountsToolbar").removeClass("d-none");
+						$("#discountsNote").removeClass("d-none");
+						discountsTable.bootstrapTable('load', response.discounts)
+					}
+				}
+      );
+    }
 
 	}
 }
@@ -234,10 +257,13 @@ function resetAllReports() {
 	$("#stockRecordsTable").addClass("d-none");
 	$("#stockRecordsToolbar").addClass("d-none");
 
+	$("#discountsTable").addClass("d-none");
+	$("#discountsToolbar").addClass("d-none");
+	$("#discountsNote").addClass("d-none");
 }
 
 $("document").ready(function(){
-	tableIds = ["transactions", "floats", "unitSales", "stockRecords"]
+	tableIds = ["transactions", "floats", "unitSales", "stockRecords", "discounts"]
 
 	$(".bootstrap-table > div.fixed-table-toolbar").each(function(i){
 		$(this).attr("id", tableIds[i] + "Toolbar");

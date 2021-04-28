@@ -15,6 +15,11 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.STRING(25),
         allowNull: true
       },
+      discount: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
       carbon_id: {
         type: DataTypes.STRING(6),
         allowNull: true

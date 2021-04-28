@@ -39,7 +39,7 @@ Validators.number = async (input, options) => {
     }
 
     if(input.value > options.max) {
-      throw `Please enter ${input.indefiniteArticle} ${input.name} less than ${options.min}`;
+      throw `Please enter ${input.indefiniteArticle} ${input.name} less than ${options.max}`;
     }
 
   }

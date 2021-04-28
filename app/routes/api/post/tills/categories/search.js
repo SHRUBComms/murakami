@@ -19,9 +19,9 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
       throw "No categories found";
     }
     
-    const flatCategories = Helpers.flatten(categories);
+    const flatCategories = await Helpers.flatten(categories);
     let results = [];
-
+    
     for await (const category of flatCategories) {
       if (category.name.toLowerCase().search(term.toLowerCase()) != -1) {
         results.push(category);

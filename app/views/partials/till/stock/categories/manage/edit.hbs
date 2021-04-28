@@ -147,70 +147,73 @@
   function openEditCategoryDialog(path) {
     category = eval(path);
 
-    $("#category_name").html(category.name);
-    $("#editCategoryName").val(category.name);
-    $("#editCategoryCarbonId").val(category.carbon_id);
+    if(!category.discount) {
 
-    if (category.value > 0) {
-      $("#editCategoryFixedPriceCheck").prop("checked", true);
-      $(".valueInput").removeClass("d-none");
-    } else {
-      $("#editCategoryFixedPriceCheck").prop("checked", false);
-      $(".valueInput").addClass("d-none");
-    }
+      $("#category_name").html(category.name);
+      $("#editCategoryName").val(category.name);
+      $("#editCategoryCarbonId").val(category.carbon_id);
 
-    if (category.carbon_id) {
-      $("#editCategoryFixedWeightCheckWrapper").removeClass("d-none");
-      if (category.weight > 0) {
-        $("#editCategoryFixedWeightCheck").prop("checked", true)
-        $("#editCategoryFixedWeight").removeClass("d-none");
+      if (category.value > 0) {
+        $("#editCategoryFixedPriceCheck").prop("checked", true);
+        $(".valueInput").removeClass("d-none");
       } else {
-        $("#editCategoryFixedWeightCheck").prop("checked", false)
-        $("#editCategoryFixedWeight").addClass("d-none");
+        $("#editCategoryFixedPriceCheck").prop("checked", false);
+        $(".valueInput").addClass("d-none");
       }
 
+      if (category.carbon_id) {
+        $("#editCategoryFixedWeightCheckWrapper").removeClass("d-none");
+        if (category.weight > 0) {
+          $("#editCategoryFixedWeightCheck").prop("checked", true)
+          $("#editCategoryFixedWeight").removeClass("d-none");
+        } else {
+          $("#editCategoryFixedWeightCheck").prop("checked", false)
+          $("#editCategoryFixedWeight").addClass("d-none");
+        }
+
+      } else {
+        $("#editCategoryFixedWeightCheckWrapper").addClass("d-none");
+      }
+
+      if (category.allowTokens) {
+        $("#editCategoryAllowTokens").prop("checked", true);
+      } else {
+        $("#editCategoryAllowTokens").prop("checked", false);
+      }
+
+      $("#editCategoryValue").val(category.value || null);
+
+      $("#editCategoryMemberDiscount").val(category.member_discount || 0);
+
+      $("#editCategoryFixedWeight").val(category.weight || 0);
+
+      $("#editCategoryAvailableConditions").val(category.conditions || []);
+
+      if (category.stockControl == 1) {
+        $("#editCategoryAvailableConditions").removeClass("d-none");
+        $("#editCategoryStockControlCheck").prop("checked", true);
+        $("#editCategoryAvailableConditions").val(category.conditions);
+      } else {
+        $("#editCategoryAvailableConditions").addClass("d-none");
+        $("#editCategoryStockControlCheck").prop("checked", false);
+        $("#editCategoryAvailableConditions").val([]);
+      }
+
+      $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
+
+      if (category.needsCondition) {
+        $("#editCategoryNeedsCondition").prop("checked", true);
+      } else {
+        $("#editCategoryNeedsCondition").prop("checked", false);
+      }
+
+      toggleFixedPrice("edit");
+      toggleFixedWeight("edit");
+      toggleStockControl("edit");
+
+      $("#editCategory").modal("show");
     } else {
-      $("#editCategoryFixedWeightCheckWrapper").addClass("d-none");
+      openEditDiscountDialog(path);
     }
-
-    if (category.allowTokens) {
-      $("#editCategoryAllowTokens").prop("checked", true);
-    } else {
-      $("#editCategoryAllowTokens").prop("checked", false);
-    }
-
-    $("#editCategoryValue").val(category.value || null);
-
-    $("#editCategoryMemberDiscount").val(category.member_discount || 0);
-
-    $("#editCategoryFixedWeight").val(category.weight || 0);
-
-    $("#editCategoryAvailableConditions").val(category.conditions || []);
-
-
-    if (category.stockControl == 1) {
-      $("#editCategoryAvailableConditions").removeClass("d-none");
-      $("#editCategoryStockControlCheck").prop("checked", true);
-      $("#editCategoryAvailableConditions").val(category.conditions);
-    } else {
-      $("#editCategoryAvailableConditions").addClass("d-none");
-      $("#editCategoryStockControlCheck").prop("checked", false);
-      $("#editCategoryAvailableConditions").val([]);
-    }
-
-
-    $("#editCategorySubmit").attr("onClick", "updateCategory('" + path + "')");
-
-    if (category.needsCondition) {
-      $("#editCategoryNeedsCondition").prop("checked", true);
-    } else {
-      $("#editCategoryNeedsCondition").prop("checked", false);
-    }
-
-    toggleFixedPrice("edit");
-    toggleFixedWeight("edit");
-    toggleStockControl("edit");
-
-    $("#editCategory").modal("show");
   }
 </script>

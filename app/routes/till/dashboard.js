@@ -27,7 +27,7 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill")
 		const status = await TillActivity.getByTillId(till.till_id);
 		till.status = status.opening;
 
-		const categories = await StockCategories.getCategoriesByTillId(req.params.till_id, "tree");
+    const categories = await StockCategories.getCategoriesByTillId(req.params.till_id, "tree");
 
 		const till_id = req.query.till_id || null;
 		let tillMode = false;

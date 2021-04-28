@@ -1,53 +1,51 @@
-
-
 <div class="col-md-12 mx-auto" id="options"></div>
 
 {{#ifCond mode '==' 'update-categories'}}
 
-{{>till/stock/categories/manage/add}}
+  {{>till/stock/categories/manage/add}}
+  {{>till/stock/discounts/manage/add}}
 
-{{>till/stock/categories/manage/edit}}
+  {{>till/stock/categories/manage/edit}}
+  {{>till/stock/discounts/manage/edit}}
 
-{{>till/stock/categories/manage/move}}
+  {{>till/stock/categories/manage/move}}
 
-{{>till/stock/categories/manage/remove}}
+  {{>till/stock/categories/manage/remove}}
 
-<style>
-.custom-menu {
-    padding: 0;
-    list-style: none;
-    display: none;
-    z-index: 1000;
-    position: absolute;
-    overflow: hidden;
-    border: 1px solid #CCC;
-    white-space: nowrap;
-    font-family: sans-serif;
-    background: #FFF;
-    color: #333;
-    border-radius: 5px;
-}
+  <style>
+  .custom-menu {
+      padding: 0;
+      list-style: none;
+      display: none;
+      z-index: 1000;
+      position: absolute;
+      overflow: hidden;
+      border: 1px solid #CCC;
+      white-space: nowrap;
+      font-family: sans-serif;
+      background: #FFF;
+      color: #333;
+      border-radius: 5px;
+  }
 
-.custom-menu li {
-    margin-left: 0;
-    padding: 8px 12px;
-    cursor: pointer;
-}
+  .custom-menu li {
+      margin-left: 0;
+      padding: 8px 12px;
+      cursor: pointer;
+  }
 
-.custom-menu li:hover {
-    background-color: #DEF;
-}
-</style>
-
-
+  .custom-menu li:hover {
+      background-color: #DEF;
+  }
+  </style>
 
 {{/ifCond}}
 
 <script>
 
-var categories = {}
-categories.options = {{{json categories}}}
-categories.parent = null
+var categories = {};
+categories.options = {{{json categories}}};
+categories.parent = null;
 
 var globalCategory;
 
@@ -70,50 +68,54 @@ function updateOptions(path) {
 
     option = options[i];
     if(option.active == 1){
-
-      if(option.stockControl == 1){
-    		if(!option.conditions || option.conditions.length == 0){
-    			if(!option.stockInfo.quantity){
-    				option.stockInfo.quantity = 0;
-    			}
-    		} else if(option.conditions.length == 1){
-    			if(!option.stockInfo[option.conditions[0]]){
-    				option.stockInfo[option.conditions[0]] = {quantity: 0};
-    			}
-    		} else {
-    			option.conditions.forEach(function(condition){
-    				if(!option.stockInfo[condition]){
-    					option.stockInfo[condition] = {qauntity: 0}
-    				}
-    			})
-    		}
-    	}
-
-      if (!option.value) {
-        option.value = 0;
-      }
-
-
+      
       if ((i + 1) % 3 == 1) {
         currentRow = document.createElement("div");
         currentRow.className = "row";
         document.getElementById("options").appendChild(currentRow);
       }
-
+      
       optionDOMObject = {
         parent: document.createElement("div"),
         text: document.createElement("p")
       };
-
+      
       optionDOMObject.parent.id = path + "[" + i + "]";
-      optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options itemBtn";
 
-      {{#ifCond mode '==' 'manage-stock'}}
-        if(!option.stockControl && (!option.children || option.children.length == 0)){
-          optionDOMObject.parent.className += " option-disabled"
+      if(!option.discount) {
+        if(option.stockControl == 1){
+          if(!option.conditions || option.conditions.length == 0){
+            if(!option.stockInfo.quantity){
+              option.stockInfo.quantity = 0;
+            }
+          } else if(option.conditions.length == 1){
+            if(!option.stockInfo[option.conditions[0]]){
+              option.stockInfo[option.conditions[0]] = {quantity: 0};
+            }
+          } else {
+            option.conditions.forEach(function(condition){
+              if(!option.stockInfo[condition]){
+                option.stockInfo[condition] = {qauntity: 0}
+              }
+            })
+          }
         }
 
-      {{/ifCond}}
+        if (!option.value) {
+          option.value = 0;
+        }
+
+        optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options itemBtn";
+        
+        {{#ifCond mode '==' 'manage-stock'}}
+          if(!option.stockControl && (!option.children || option.children.length == 0)){
+            optionDOMObject.parent.className += " option-disabled"
+          }
+        {{/ifCond}}
+
+      } else {
+        optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options discount-options itemBtn"; 
+      }
 
       if (option.children && option.children.length > 0) {
         optionDOMObject.parent.onclick = function() {
@@ -145,17 +147,19 @@ function updateOptions(path) {
       optionDOMObject.text.className = "text-center";
       optionDOMObject.text.innerHTML = option.name;
 
-
-      if(option.stockControl && option.stockInfo){
+      if(option.discount) {
         optionDOMObject.text.innerHTML += "<br />";
-        if(option.conditions.length > 0){
-          option.conditions.forEach(function(condition, index){
-            optionDOMObject.text.innerHTML += "<p class='text-muted' style='line-height: 1.5; font-size: 90%;'>" + _.startCase(condition) + " Qty.: " + (option.stockInfo[condition].quantity || 0) + "</p>";
-          })
+        optionDOMObject.text.innerHTML += "<p class='text-muted' style='line-height: 1.5; font-size: 90%;'>" + option.value + "% discount</p>";
+      } else {
+        if(option.stockControl && option.stockInfo){
+          optionDOMObject.text.innerHTML += "<br />";
+          if(option.conditions.length > 0){
+            option.conditions.forEach(function(condition, index){
+              optionDOMObject.text.innerHTML += "<p class='text-muted' style='line-height: 1.5; font-size: 90%;'>" + _.startCase(condition) + " Qty.: " + (option.stockInfo[condition].quantity || 0) + "</p>";
+            })
+          }
         }
-
       }
-
 
       optionDOMObject.parent.appendChild(optionDOMObject.text);
       currentRow.appendChild(optionDOMObject.parent);
@@ -179,21 +183,38 @@ function updateOptions(path) {
     row = document.createElement("div");
     row.className = "row";
 
-    var optionDOMObject = {
+    var addCategoryDOMObject = {
       parent: document.createElement("div"),
       text: document.createElement("p")
     };
 
-    optionDOMObject.parent.className = "col-sm-3 item-options new-category-option";
-    optionDOMObject.parent.onclick = function() {
-      openAddCategoryDialog(current)
+    var addDiscountDOMObject = {
+      parent: document.createElement("div"),
+      text: document.createElement("p")
     };
 
-    optionDOMObject.text.className = "text-center";
-    optionDOMObject.text.textContent = "New Category";
+    addCategoryDOMObject.parent.className = "col-sm-3 item-options new-category-option";
+    addDiscountDOMObject.parent.className = "col-sm-3 item-options new-category-option";
+    
+    addCategoryDOMObject.parent.onclick = function() {
+      openAddCategoryDialog(current);
+    };
+    
+    addDiscountDOMObject.parent.onclick = function() {
+      openAddDiscountDialog(current)
+    };
 
-    optionDOMObject.parent.appendChild(optionDOMObject.text);
-    row.appendChild(optionDOMObject.parent);
+    addCategoryDOMObject.text.className = "text-center";
+    addCategoryDOMObject.text.textContent = "New Category";
+
+    addDiscountDOMObject.text.className = "text-center";
+    addDiscountDOMObject.text.textContent = "New Discount";
+    
+    addCategoryDOMObject.parent.appendChild(addCategoryDOMObject.text);
+    addDiscountDOMObject.parent.appendChild(addDiscountDOMObject.text); 
+
+    row.appendChild(addCategoryDOMObject.parent);
+    row.appendChild(addDiscountDOMObject.parent);
     document.getElementById("options").appendChild(row);
 
 
@@ -227,7 +248,8 @@ function updateOptions(path) {
 {{#ifCond mode '==' 'update-categories'}}
 
   var contextMenuDOM = "<ul class='custom-menu'>" +
-                          "<li data-action='add'>Add Child</li>" +
+                          "<li data-action='add'>Add Child Category</li>" +
+                          "<li data-action='add-discount'>Add Child Discount</li>" +
                           "<li data-action='edit'>Edit</li>" +
                           "<li data-action='move'>Move</li>" +
                           "<li data-action='remove' class='text-danger'>Remove</li>" +
@@ -252,16 +274,15 @@ function updateOptions(path) {
       }
   });
 
-  // If the document is clicked somewhere
+  // If the document is clicked somewhere, hide the context menu
   $(document).bind("mousedown", function(e) {
     if ($(e.target).closest('.custom-menu').length === 0) {
       $(".custom-menu").hide(100);
     }
   });
 
-  // If the menu element is clicked
+  // When a menu element is clicked
   $(".custom-menu li").click(function() {
-    // This is the triggered action name
     switch ($(this).attr("data-action")) {
       case "edit":
         openEditCategoryDialog(globalCategory);
@@ -272,12 +293,15 @@ function updateOptions(path) {
       case "add":
         openAddCategoryDialog(globalCategory);
         break;
+      case "add-discount":
+        openAddDiscountDialog(globalCategory);
+        break;
       case "remove":
         if(confirm("Are you sure you want to remove this category?")){ removeCategory(globalCategory); }
         break;
     }
 
-    // Hide it AFTER the action was triggered
+    // Hide context menu after an action has been triggered
     $(".custom-menu").hide(100);
   });
 
