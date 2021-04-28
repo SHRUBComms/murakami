@@ -76,7 +76,6 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTra
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
-    console.log(new Date(), req.body.transaction);
     const till_id = req.body.till_id;
     const member_id = req.body.member_id;
     let paymentMethod = req.body.paymentMethod;
@@ -337,7 +336,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     
     await StockCategories.bulkUpdateQuantities(StockRecords, req.user.id, till.till_id, categories, quantities);
     
-    console.log(formattedTransaction); 
     const transactionId = await Transactions.addTransaction(formattedTransaction);
     
     let response = {

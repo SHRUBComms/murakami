@@ -99,6 +99,7 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
     res.send({ SumUp: { merchant_code: SumUpCheckout.merchant_code, id: SumUpCheckout.id }, murakami: { transaction_id: murakamiTransactionId, member_id: memberId }});
 
   } catch (error) {
+    console.log(error);
     if(typeof error != "string") {
       error = "Something went wrong!"
     }
