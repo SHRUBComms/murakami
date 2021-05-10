@@ -2358,6 +2358,7 @@ table.dataTable thead td {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  overflow-wrap: anywhere;
 }
 
 .option-disabled {

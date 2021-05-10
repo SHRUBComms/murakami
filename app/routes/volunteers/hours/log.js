@@ -32,15 +32,15 @@ router.get("/", async (req, res) => {
 
 		const { allWorkingGroupsObj } = await WorkingGroups.getAll();
 
-        	let tillMode = false;
+    let tillMode = false;
 		let till_id = req.query.till_id || null;
 
 		const member_id = req.query.member_id || null;
 
 		if (req.user) {
-        		if (till_id) {
-          			tillMode = true;
-        		}
+      if (till_id) {
+        tillMode = true;
+      }
 
 			res.render("volunteers/hours/log", {
 				tillMode: tillMode,
@@ -55,17 +55,15 @@ router.get("/", async (req, res) => {
 				captcha: Recaptcha.recaptcha.render(),
 				working_groups: allWorkingGroupsObj
 			});
-
 		} else {
-        		res.render("volunteers/hours/log", {
-          			title: "Log Volunteer Hours",
-          			logoutActive: true,
-          			member_id: member_id,
-          			captcha: Recaptcha.recaptcha.render(),
-          			working_groups: allWorkingGroupsObj,
-          			till: { till_id: till_id }
-        		});
-
+      res.render("volunteers/hours/log", {
+        title: "Log Volunteer Hours",
+        logoutActive: true,
+        member_id: member_id,
+        captcha: Recaptcha.recaptcha.render(),
+        working_groups: allWorkingGroupsObj,
+        till: { till_id: till_id }
+      });
 		}
 	} catch (error) {
 		res.redirect(process.env.PUBLIC_ADDRESS + "/");
@@ -75,16 +73,14 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
 	try {
 		let allowed = false;
-	    	if (!req.user) {
+	  if (!req.user) {
 			const recaptchaApproved = await Recaptcha.checkRecaptcha(req.body["g-recaptcha-response"]);
 
 			if(recaptchaApproved == false) {
 				throw "Please confirm that you're not a robot";
 			}
-
 			allowed = true;
-
-    		} else if (req.user && req.user.permissions.volunteerHours.log) {
+    } else if (req.user && req.user.permissions.volunteerHours.log) {
 			allowed = true;
 		}
 
@@ -93,7 +89,7 @@ router.post("/", async (req, res) => {
 		}
 
 		let shift = req.body.shift;
-                shift.note = sanitizeHtml(shift.note);
+    shift.note = sanitizeHtml(shift.note);
 
 		const member = await Members.getById(shift.member_id, { permissions: { members: { name: true } } });
 
@@ -107,7 +103,15 @@ router.post("/", async (req, res) => {
 
 		if(shift.duration < 0.25) {
 			throw "Please enter a duration greater than 15 minutes";
-		}
+    }
+
+    if(!shift.date) {
+      shift.date = new Date();
+    } else {
+      if(moment(shift.date).isAfter(moment())) {
+			  throw "Please enter a date in the past";
+      }
+    }
 
 		if(shift.note) {
 			if(shift.note.length > 200) {
@@ -127,7 +131,7 @@ router.post("/", async (req, res) => {
 
 		await VolunteerHours.createShift(shift);
 
-        	if (moment(member.current_exp_membership).isBefore(moment().add(3, "months"))) {
+    if (moment(member.current_exp_membership).isBefore(moment().add(3, "months"))) {
 			await Members.renew(member.member_id, "3_months");
 			await Members.updateFreeStatus(member.member_id, 1);
 			await Members.updateStatus(member.member_id, 1);

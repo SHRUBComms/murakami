@@ -1,4 +1,4 @@
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 
 {{#if user}}
 
@@ -79,10 +79,11 @@
       for(let i=0;i<results.length;i++){
 
       	var workingGroupSelectMarkup =  '<select id="working_group_select_' + results[i].member_id + '" class="form-control">'+
-      										'<option>Select a working group...</option>';
-        	working_groups.forEach(function(key){
-            workingGroupSelectMarkup += "<option value='" + allWorkingGroups[key].group_id + "'>" + allWorkingGroups[key].name + "</option>";
-          })
+      	  '<option>Select a working group...</option>';
+        
+        working_groups.forEach(function(key){
+          workingGroupSelectMarkup += "<option value='" + allWorkingGroups[key].group_id + "'>" + allWorkingGroups[key].name + "</option>";
+        })
 
 
 
@@ -91,10 +92,13 @@
         var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].member_id +  ")'>Log Hours</a>"
       	if(working_groups.length > 0){
   	      	var shiftLogger =   '<div class="row">' +
-            		      						'<div class="col-lg-8 mx-auto mb-4">' +
+            		      						'<div class="col-lg-6 mx-auto mb-4">' +
             		      							workingGroupSelectMarkup +
             		      						'</div>' +
-                                  '<div class="col-lg-4 mx-auto">' +
+                                  '<div class="col-lg-4 mx-auto mb-4">' +
+                                    '<input type="date" class="form-control" id="date_' + results[i].member_id + '" name="date" value="' + moment().format("YYYY-MM-DD") + '" max="'+ moment().format("YYYY-MM-DD") + '" />' +
+                                  '</div>' +
+                                  '<div class="col-lg-2 mx-auto mb-4">' +
                                     '<input type="number" class="form-control" id="duration_' + results[i].member_id + '" name="duration" min="0.25" max="1000" step="0.25" value="0" />' +
                                   '</div>' +
                                 '</div>'  +
@@ -135,7 +139,7 @@
   function logHours(member_id){
     var duration = $("#duration_" + member_id).val();
     var working_group = $("#working_group_select_" + member_id).val();
-
+    var date = $("#date_" + member_id).val();
      $.ajax({
         type: "POST",
         url: "{{public_address}}/volunteers/hours/log",
@@ -143,7 +147,9 @@
           shift: {
             member_id: member_id,
             duration: duration,
-            working_group: working_group
+            date: date,
+            working_group: working_group,
+            note: ""
           },
           recaptcha: {{#if user}}null{{else}}grecaptcha.getResponse();{{/if}}
         },
@@ -203,8 +209,14 @@
                     <div class="row">
                       <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
                         <div class="form-inline">
+                          <label class="form-label mr-2">Date</label>
+                          <input type="date" class="form-control" id="date" name="shift[date]" />
+                        </div>
+                      </div>
+                      <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
+                        <div class="form-inline">
                           <label class="form-label mr-2">Hours</label>
-                          <input type="number" class="form-control" id="duration" name="shift[duration]" min="0.25" max="1000" step="0.25" value="0" />
+                          <input type="number" style="width: 50%;" class="form-control" id="duration" name="shift[duration]" min="0.25" max="1000" step="0.25" value="0" />
                         </div>
                       </div>
                     </div>
@@ -242,4 +254,11 @@
         </div>
     </div>
 </div>
+<script>
+window.onload = function() {
+  var today = moment().format("YYYY-MM-DD");
+  $("#date").val(today);
+  $("#date").prop("max", today);
+}
+</script>
 {{/if}}

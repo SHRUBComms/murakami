@@ -18,9 +18,7 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   
-
   try {
-
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
 

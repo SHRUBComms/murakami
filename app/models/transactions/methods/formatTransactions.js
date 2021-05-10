@@ -156,6 +156,7 @@ module.exports = () => {
 
       formattedTransaction.bill = bill;
 
+      formattedTransaction.comment = transaction.summary.comment;
       formattedTransaction.transaction_id = transaction.transaction_id;
       formattedTransaction.sumup_id = transaction.summary.sumupId || null;
       formattedTransaction.paymentMethod = transaction.summary.paymentMethod;
