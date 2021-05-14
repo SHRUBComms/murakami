@@ -13,7 +13,8 @@ module.exports = (VolunteerRoles, sequelize, DataTypes) => {
         		details: role,
         		availability: availability,
         		dateCreated: new Date(),
-        		public: 0
+            dateUpdated: new Date(),
+            public: 0
       		});
 
 		return roleId;

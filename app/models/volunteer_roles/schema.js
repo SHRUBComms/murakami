@@ -36,6 +36,10 @@ module.exports = function(sequelize, DataTypes) {
         type: DataTypes.INTEGER(4),
         allowNull: false,
         defaultValue: "0"
+      },
+      dateUpdated: {
+        type: DataTypes.DATE,
+        allowNull: true
       }
     },
     {
