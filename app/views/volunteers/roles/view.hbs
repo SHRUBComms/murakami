@@ -97,6 +97,18 @@
               </p>
             </td>
           </tr>
+          
+          <tr class="p-2">
+            <td class="p-3">
+              <p><b>Date Updated</b></p>
+            </td>
+            <td class="p-3">
+              <p>
+                {{niceDate role.dateUpdated}}
+              </p>
+            </td>
+          </tr>
+
 
         </table>
       </div>
@@ -116,7 +128,7 @@
                 </p>
               </td>
               <td class="p-3">
-                <p>{{this}}</p>
+                <p style="white-space: pre-wrap;">{{this}}</p>
               </td>
             </tr>
           {{/each}}
