@@ -315,8 +315,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       totals.money = (Number(totalTokens) + Number(totalMoney)).toFixed(2);
       totals.money -= totals.money * (globalDiscount / 100); // Apply whole transaction discount
 
-      formattedTransaction.summary.totals = totals;
-
       if (totals.money == 0) {
         paymentMethod = null;
       }
@@ -451,7 +449,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
 
       const sumupCallbackUri = `${process.env.PUBLIC_ADDRESS}/api/get/tills/smp-callback/?murakamiStatus=${response.status}&transactionSummary=${response.transactionSummary}&carbonSummary=${response.carbonSummary}&till_id=${till.till_id}`;
 
-      let sumupSummon = `sumupmerchant://pay/1.0?affiliate-key=${process.env.SUMUP_AFFILIATE_KEY}&app-id=${process.env.SUMUP_APP_ID}&title=${req.user.allWorkingGroupsObj[till.group_id].name} purchase&total= ${totals.money}&amount=${totals.money}&currency=GBP&foreign-tx-id=${transactionId}&skipSuccessScreen=${process.env.DISABLE_SUMUP_RECEIPTS}&callback=${encodeURIComponent(sumupCallbackUri)}`;
+      let sumupSummon = `sumupmerchant://pay/1.0?affiliate-key=${process.env.SUMUP_AFFILIATE_KEY}&app-id=${process.env.SUMUP_APP_ID}&title=${req.user.allWorkingGroupsObj[till.group_id].name} purchase&total=${formattedTransaction.summary.totals.money}&amount=${formattedTransaction.summary.totals.money}&currency=GBP&foreign-tx-id=${transactionId}&skipSuccessScreen=${process.env.DISABLE_SUMUP_RECEIPTS}&callback=${encodeURIComponent(sumupCallbackUri)}`;
  
       if (member) {
         if (member.email) {
