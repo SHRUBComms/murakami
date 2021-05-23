@@ -297,11 +297,11 @@ var results = [];
 var member = {};
 
 
-//if (navigator.appVersion.includes("Android") || navigator.appVersion.includes("Apple")){
-    $("#cardOption").removeClass("d-none");
-//} else {
-//	$("#cardOption").addClass("d-none");
-//}
+if (navigator.appVersion.includes("Android") || navigator.appVersion.includes("Apple")){
+  $("#cardOption").removeClass("d-none");
+} else {
+	$("#cardOption").addClass("d-none");
+}
 
 var uri = window.location.toString();
 if (uri.indexOf("?") > 0) {
