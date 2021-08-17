@@ -52,8 +52,10 @@ module.exports = () => {
       
       if(transaction.summary.totals) {
         formattedTransaction.totals.tokens = transaction.summary.totals.tokens || 0;
+        formattedTransaction.totals.giftcard = transaction.summary.totals.giftcard || 0;
       } else {
         formattedTransaction.totals.tokens = 0;
+        formattedTransaction.totals.giftcard = 0;
       }
 
       formattedTransaction.totals.money = "";
@@ -65,6 +67,13 @@ module.exports = () => {
           formattedTransaction.totals.money += "£" + (Number(transaction.summary.totals.money).toFixed(2) || "0.00");
       } else {
           formattedTransaction.totals.money += "£0.00";
+      }
+      
+      if (transaction.summary.totals.giftcard > 0) {
+        formattedTransaction.totals.giftcard = "£" + (Number(transaction.summary.totals.giftcard).toFixed(2) || "0.00");
+        formattedTransaction.totals.giftcardPlain = Number(transaction.summary.totals.giftcard).toFixed(2) || null;
+      } else {
+        formattedTransaction.totals.giftcard = "£0.00";
       }
 
       formattedTransaction.paymentMethod = transaction.summary.paymentMethod || "";
@@ -78,7 +87,7 @@ module.exports = () => {
       } else {
           formattedTransaction.totals.moneyPlain = "0.00";
       }
-
+      
       formattedTransaction.billArray = [];
 
       let bill = "";
@@ -103,6 +112,9 @@ module.exports = () => {
         } else if(transaction.summary.bill[i].discount == true) {
           bill += categories[transaction.summary.bill[i].item_id].name + " (Discount): <span style='color: #1986e6;'>" + categories[transaction.summary.bill[i].item_id].value + "%</span>";
           formattedTransaction.billArray.push({ item: "Discount", value: Number(transaction.summary.bill[i].value).toFixed(2) });
+        } else if(transaction.summary.bill[i].item_id == "giftcard") {
+          bill += "Giftcard: <span style='color: #1986e6;'>£" + Number(transaction.summary.bill[i].value).toFixed(2) + " Balance</span>";
+          formattedTransaction.billArray.push({ item: "Giftcard", value: Number(transaction.summary.bill[i].value).toFixed(2) });
         } else {
           let value = transaction.summary.bill[i].tokens || transaction.summary.bill[i].value;
 

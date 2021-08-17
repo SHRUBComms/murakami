@@ -103,6 +103,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     let totalTokens = 0;
     let totalMoney = 0;
     let totalWeight = 0;
+    let giftcardValue = 0; 
+    let giftcardBalance = 0;
 
     // Discounts
     let discountInfo = {}; // Contains IDs of items that have a members' discount
@@ -114,129 +116,138 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     for await (const item of transaction) {
       const id = item.id;
       
-      if(!categories[id]) {
-        throw "Category not found"
-      }
-
-      let category = lodash.clone(categories[id]);
-
-      if(category.active != 1) {
-        throw "Category disabled";
-      }
-
       let sanitizedItem = {};
-      
-      if(category.discount) {
-        globalDiscount = category.value;
 
-        sanitizedItem.item_id = category.item_id;
-        sanitizedItem.discount = true;
-        sanitizedItem.value = category.value;
+      if(item.id == "giftcard") {
+        sanitizedItem.item_id = "giftcard";
+        sanitizedItem.weight = null;
+        sanitizedItem.value = Number(item.value);
+        sanitizedItem.quantity = 1;
+        sanitizedItem.dateGiftcardPurchased = item.dateGiftcardPurchased;
+        sanitizedItem.condition = null;
+        giftcardValue = sanitizedItem.value;
       } else {
-
-        const weight = Number(item.weight);
-        let value = Number(item.value);
-        let quantity = 1;
-        let condition = null;
-
-        if(category.value) {
-          value = Number(category.value);
+        if(!categories[id]) {
+          throw "Category not found"
         }
 
-        if (category.stockControl == 1 && category.conditions != null) {
-          if (category.conditions.length == 1) {
-            condition = category.conditions[0];
-          } else if (category.conditions.includes(item.condition)) {
-            condition = item.condition;
-          } else {
-            throw "No valid condition selected";
-          }
-        }
-        
-        if (item.quantity > 1 && !isNaN(item.quantity)) {
-          quantity = parseInt(item.quantity);
+        let category = lodash.clone(categories[id]);
+
+        if(category.active != 1) {
+          throw "Category disabled";
         }
 
-        if (category.stockControl == 1) {
-          if (!quantities[id]) {
-            quantities[id] = { max: 0, quantity: 0 };
+        if(category.discount) {
+          globalDiscount = category.value;
+          sanitizedItem.item_id = category.item_id;
+          sanitizedItem.discount = true;
+          sanitizedItem.value = category.value;
+        } else {
+
+          const weight = Number(item.weight);
+          let value = Number(item.value);
+          let quantity = 1;
+          let condition = null;
+
+          if(category.value) {
+            value = Number(category.value);
           }
 
-          if (!quantities[id][condition]) {
-            quantities[id][condition] = { max: 0, quantity: 0 };
+          if (category.stockControl == 1 && category.conditions != null) {
+            if (category.conditions.length == 1) {
+              condition = category.conditions[0];
+            } else if (category.conditions.includes(item.condition)) {
+              condition = item.condition;
+            } else {
+              throw "No valid condition selected";
+            }
           }
           
-          if (!condition) {
-            if (category.stockInfo.quantity) {
-              quantities[id].max = category.stockInfo.quantity;
+          if (item.quantity > 1 && !isNaN(item.quantity)) {
+            quantity = parseInt(item.quantity);
+          }
+
+          if (category.stockControl == 1) {
+            if (!quantities[id]) {
+              quantities[id] = { max: 0, quantity: 0 };
             }
 
-            quantities[id].quantity += quantity;
-            if (quantities[id].quantity > quantities[id].max) {
-              quantityError = true;
+            if (!quantities[id][condition]) {
+              quantities[id][condition] = { max: 0, quantity: 0 };
             }
+            
+            if (!condition) {
+              if (category.stockInfo.quantity) {
+                quantities[id].max = category.stockInfo.quantity;
+              }
 
-          } else {
-            if (category.stockInfo[condition]) {
-              if (category.stockInfo[condition].quantity) {
-                quantities[id][condition].max = category.stockInfo[condition].quantity;
+              quantities[id].quantity += quantity;
+              if (quantities[id].quantity > quantities[id].max) {
+                quantityError = true;
+              }
+
+            } else {
+              if (category.stockInfo[condition]) {
+                if (category.stockInfo[condition].quantity) {
+                  quantities[id][condition].max = category.stockInfo[condition].quantity;
+                }
+              }
+
+              quantities[id][condition].quantity += quantity;
+              if (quantities[id][condition].quantity > quantities[id][condition].max) {
+                quantityError = true;
               }
             }
+          }
 
-            quantities[id][condition].quantity += quantity;
-            if (quantities[id][condition].quantity > quantities[id][condition].max) {
-              quantityError = true;
+          if (category.action) {
+            if (category.action.substring(0, 3) == "MEM") {
+              membershipBought = category.action;
             }
           }
-        }
 
-        if (category.action) {
-          if (category.action.substring(0, 3) == "MEM") {
-            membershipBought = category.action;
-          }
-        }
-
-        if (category.member_discount) {
-          discountInfo[id] = category.member_discount;
-        }
-
-        if (category.allowTokens == 1) {
-          totalTokens = Number(totalTokens) + Number(value * quantity);
           if (category.member_discount) {
-            memberDiscountTokens += (category.member_discount / 100) * (value * quantity);
-          }
-        } else {
-          totalMoney = Number(totalMoney) + Number(value * quantity);
-          if (category.member_discount) {
-            memberDiscountMoney += (category.member_discount / 100) * (value * quantity) ;
-          }
-        }
-
-        if (category.carbon_id) {
-          item.carbon_id = category.carbon_id;
-        }
-
-        let group_id = category.group_id || till.group_id;
-
-        if (weight > 0 && carbonCategories[item.carbon_id]) {
-          if (!carbonTransaction[group_id]) {
-            carbonTransaction[group_id] = {};
+            discountInfo[id] = category.member_discount;
           }
 
-          if (carbonTransaction[group_id][item.carbon_id]) {
-            carbonTransaction[item.carbon_id] = Number(carbonTransaction[item.carbon_id]) + Number(weight * quantity);
+          if (category.allowTokens == 1) {
+            totalTokens = Number(totalTokens) + Number(value * quantity);
+            if (category.member_discount) {
+              memberDiscountTokens += (category.member_discount / 100) * (value * quantity);
+            }
           } else {
-            carbonTransaction[group_id][item.carbon_id] = weight * quantity;
+            totalMoney = Number(totalMoney) + Number(value * quantity);
+            if (category.member_discount) {
+              memberDiscountMoney += (category.member_discount / 100) * (value * quantity) ;
+            }
+          }
+
+          if (category.carbon_id) {
+            item.carbon_id = category.carbon_id;
+          }
+
+          let group_id = category.group_id || till.group_id;
+
+          if (weight > 0 && carbonCategories[item.carbon_id]) {
+            if (!carbonTransaction[group_id]) {
+              carbonTransaction[group_id] = {};
+            }
+
+            if (carbonTransaction[group_id][item.carbon_id]) {
+              carbonTransaction[item.carbon_id] = Number(carbonTransaction[item.carbon_id]) + Number(weight * quantity);
+            } else {
+              carbonTransaction[group_id][item.carbon_id] = weight * quantity;
+            }
+            
+            totalWeight = Number(totalWeight) + Number(weight * quantity);
           }
           
-          totalWeight = Number(totalWeight) + Number(weight * quantity);
+          sanitizedItem.item_id = category.item_id;
+          sanitizedItem.weight = weight;
+          sanitizedItem.value = value;
+          sanitizedItem.quantity = quantity;
+          sanitizedItem.condition = condition;
         }
-        
-        sanitizedItem.item_id = category.item_id;
-        sanitizedItem.weight = weight;
-        sanitizedItem.value = value;
-        sanitizedItem.quantity = quantity;
-        sanitizedItem.condition = condition;
       }
 
       sanitizedTransaction.push(sanitizedItem);
@@ -270,13 +281,40 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
                               
     let totals = {};
-    
+
+    console.log("1:", totalMoney, totalTokens);
+
+    if(giftcardValue > 0) {
+      giftcardBalance = giftcardValue;
+    }
+
     if (foundMember && (member.is_member == 1 || membershipBought)) {
       totalMoney = totalMoney - memberDiscountMoney;
       totalTokens = totalTokens - memberDiscountTokens;
       
       totalMoney -= totalMoney * (globalDiscount / 100);
+      if(totalMoney > giftcardValue) {
+        giftcardBalance = 0;
+      } else {
+        giftcardBalance -= totalMoney;
+      }
+      totalMoney = totalMoney > giftcardValue ? totalMoney - giftcardValue : 0;
+
+      console.log("2:", totalMoney, totalTokens);
+
       totalTokens -= totalTokens * (globalDiscount / 100);
+      if(totalTokens > giftcardValue) {
+        giftcardBalance = 0;
+      } else {
+        giftcardBalance -= totalTokens;
+      }
+      totalTokens = totalTokens > giftcardValue ? totalTokens - giftcardValue : 0;
+
+      console.log("3:", totalMoney, totalTokens);
+
+      if(giftcardValue > 0) {
+        totals.giftcard = giftcardValue - giftcardBalance;
+      }
 
       formattedTransaction.summary.discount_info = discountInfo;
 
@@ -312,14 +350,32 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       }
     } else {
 
+      console.log("2:", totalMoney, totalTokens);
+
       totals.money = (Number(totalTokens) + Number(totalMoney)).toFixed(2);
-      totals.money -= totals.money * (globalDiscount / 100); // Apply whole transaction discount
+      totals.money -= totals.money * (globalDiscount / 100); // Apply whole transaction discount 
+      
+      console.log("3:", totals.money, giftcardValue);
+      if(totals.money > giftcardValue) {
+        giftcardBalance = 0;
+      } else {
+        giftcardBalance -= totals.money;
+      }
+      
+      totals.money = totals.money > giftcardValue ? totals.money - giftcardValue : 0;
+
+      console.log("4:", totals.money);
+      
+      if(giftcardValue > 0) {
+        totals.giftcard = giftcardValue - giftcardBalance;
+      }
 
       if (totals.money == 0) {
         paymentMethod = null;
       }
     }
 
+    console.log(totals);
     formattedTransaction.summary.totals = totals;
     formattedTransaction.summary.paymentMethod = paymentMethod;
 
@@ -334,7 +390,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     }
 
     // Transaction must contain at least one "real" item (i.e. not a discount)
-    if (formattedTransaction.summary.bill.filter(function(item) { return !item.discount; }).length == 0) {
+    if (formattedTransaction.summary.bill.filter(function(item) { return !item.discount && !item.giftcard; }).length == 0 ) {
       validTransaction = false;
       whyTransactionFailed = "There must be at least one item in the transaction.";
     }
@@ -352,7 +408,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     if (!validTransaction) {
       throw whyTransactionFailed;
     }
-    
+
     await StockCategories.bulkUpdateQuantities(StockRecords, req.user.id, till.till_id, categories, quantities);
     
     const transactionId = await Transactions.addTransaction(formattedTransaction);
@@ -446,16 +502,13 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     response.carbonSummary = Math.abs((carbonSaved * 1e-3).toFixed(2)) + "kg of carbon saved";
 
     if (paymentMethod == "card") {
-
       const sumupCallbackUri = `${process.env.PUBLIC_ADDRESS}/api/get/tills/smp-callback/?murakamiStatus=${response.status}&transactionSummary=${response.transactionSummary}&carbonSummary=${response.carbonSummary}&till_id=${till.till_id}`;
-
       let sumupSummon = `sumupmerchant://pay/1.0?affiliate-key=${process.env.SUMUP_AFFILIATE_KEY}&app-id=${process.env.SUMUP_APP_ID}&title=${req.user.allWorkingGroupsObj[till.group_id].name} purchase&total=${formattedTransaction.summary.totals.money}&amount=${formattedTransaction.summary.totals.money}&currency=GBP&foreign-tx-id=${transactionId}&skipSuccessScreen=${process.env.DISABLE_SUMUP_RECEIPTS}&callback=${encodeURIComponent(sumupCallbackUri)}`;
- 
+
       if (member) {
         if (member.email) {
           sumupSummon += "&receipt-email=" + member.email;
         }
-
         if (member.phone_no) {
           sumupSummon += "&receipt-mobilephone=" + member.phone_no;
         }
