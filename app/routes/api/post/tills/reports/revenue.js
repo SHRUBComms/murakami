@@ -149,11 +149,12 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
       }
     }
     
-    let month = moment("2018-11-01");
-    const monthDifference = Math.floor(moment().diff(moment(month), "months"));
+    let earliestTransactionRecord = moment("2018-11-01");
+    
+    const monthDifference = Array.from(Array(Math.floor(moment().diff(moment(earliestTransactionRecord), "months"))).keys());
 
-    for (let i = 0; i < monthDifference; i++) {
-      const monthKey = moment(moment(month).add(1, "months")).startOf("month").format("YYYY-MM-DD");
+    for await (const i of monthDifference) {
+      const monthKey = moment(moment(earliestTransactionRecord).add(i, "months")).startOf("month").format("YYYY-MM-DD");
 
       if (response.summary[monthKey] === undefined) {
         response.summary[monthKey] = {};

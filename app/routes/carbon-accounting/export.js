@@ -66,6 +66,7 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting", "export"
         landfilled: {},
         composted: {},
         reused: {},
+        ["reuse-partners"]: {},
         stored: {},
         other: {},
         totals: {
