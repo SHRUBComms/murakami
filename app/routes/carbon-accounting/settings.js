@@ -41,6 +41,7 @@ router.post("/:carbon_id", Auth.isLoggedIn, Auth.canAccessPage("carbonAccounting
           	"incinerated",
           	"composted",
           	"reused",
+          	"reuse-partners",
           	"stored"
         ];
 

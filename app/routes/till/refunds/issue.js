@@ -58,9 +58,9 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     
     const { totalTakings, totalRefunds } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
     const tillBalance = Number(till.openingFloat) + (Number(totalTakings) - Number(totalRefunds));
-    
-    const transaction = await Transactions.getByMurakamiOrSumUpId(till_id, transaction_id);
 
+    const transaction = await Transactions.getByMurakamiOrSumUpId(till_id, transaction_id);
+    
     if (!transaction) {
       throw "Transaction not found. Please check that the transaction ID was entered correctly and try again";
     }
