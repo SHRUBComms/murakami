@@ -13,13 +13,15 @@ module.exports = (StockCategories, sequelize, DataTypes) => {
 		for (let i = 0; i < list.length; i += 1) {
 			node = list[i];
 			if (node.parent !== null) {
-				node.absolute_name = list[map[node.parent]].name + " > " + node.absolute_name;
+				try {
+					node.absolute_name = list[map[node.parent]].name + " > " + node.absolute_name;
 
-				if (list[map[node.parent]].parent) {
-					node.absolute_name = list[map[list[map[node.parent]].parent]].name + " > " + node.absolute_name;
-				}
+					if (list[map[node.parent]].parent) {
+						node.absolute_name = list[map[list[map[node.parent]].parent]].name + " > " + node.absolute_name;
+					}
 
-				list[map[node.parent]].children.push(node);
+					list[map[node.parent]].children.push(node);
+				} catch (err) {}
 			} else {
 				roots.push(node);
 			}

@@ -32,7 +32,12 @@ module.exports = (Transactions) => {
       await Transactions.update({ summary: updatedSummary }, { where: { transaction_id: transactionToRefund.transaction_id } });
       return null;
     } catch (error) {
-      throw "Something went wrong recording this refund in Murakami - plase contact support";
+      console.log("PROCESS REFUND ERROR", new Date(), error);
+      if(transactionToRefund.summary.paymentMethod == "card") {
+        throw "Card was successfully refunded, but something went wrong updating Murakami's records - please contact support";
+      } else {
+        throw "Something went wrong recording this refund in Murakami - please contact support";
+      }
     }
   }
 }
