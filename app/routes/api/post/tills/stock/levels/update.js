@@ -102,7 +102,6 @@ router.post("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "manageSto
         newStockInfo[condition].quantity = subcategory.newQty;
         await StockCategories.updateQuantity(categoryId, newStockInfo);
 
-
         const record = {
           item_id: categoryId,
           condition: condition,

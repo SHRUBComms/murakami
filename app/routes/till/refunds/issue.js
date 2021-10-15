@@ -26,6 +26,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
     const amount = req.body.amount;
     const response = { status: "fail", transaction: {} };
 
+    console.log("REFUND REQUEST", new Date(), req.body);
+
     if (!till_id) {
       throw "Please select a valid till";
     }
@@ -138,6 +140,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       }
     }
   } catch (error) {
+    console.log("CARD REFUND ERROR", new Date(), error);
     if(typeof error != "string") {
       error = "Something went wrong! Please try again";
     }
