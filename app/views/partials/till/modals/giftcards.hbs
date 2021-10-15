@@ -1,0 +1,191 @@
+<div id="addGiftcardModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+			<div class="modal-header">
+        <h5 class="modal-title">Add Giftcard</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+				<div class="row">
+
+					<div class="col-md-12">
+
+						<div class="p-4">
+
+							<p class="mb-1">Please enter the balance left on the giftcard and the date that the giftcard was purchased:</p>
+
+              <div class="row">
+                <div class="col-xs-12 col-md-8 col-md-offset-3 col-xs-offset-1 mx-auto">
+                  <br />
+                  <div class="input-group">
+                      <span class="input-group-prepend">
+                        <span class="input-group-text">Remaining Balance £</span>
+                      </span>
+                      <input class="form-inline form-control" id="giftcardBalanceInput" type="number" min=0.01 max=100 step=0.01 placeholder="0.00" />
+                  </div>
+                  <br />
+                  <div class="input-group">
+                      <span class="input-group-prepend">
+                        <span class="input-group-text">Year Purchased</span>
+                      </span>
+                      <select class="form-inline form-control" id="giftcardYearPurchased">
+                        <option disabled selected>Year</option>
+                      </select>
+                  </div>
+                  <br />
+                  <div class="input-group">
+                      <span class="input-group-prepend">
+                        <span class="input-group-text">Month Purchased</span>
+                      </span>
+                      <select class="form-inline form-control" id="giftcardMonthPurchased">
+                        <option disabled selected>Month</option>
+                      </select>
+                  </div>
+                  <br />
+                </div>
+              </div>
+						</div>
+					</div>
+				</div>
+
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="addGiftcardToTransaction" class="btn btn-success" data-dismiss="modal" disabled>Add Giftcard</button>
+        <button type="button" class="btn btn-danger" onclick="" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+var earliestGiftcardDate = new Date("2021-08-01");
+var currentDate = new Date();
+
+var earliestYear = earliestGiftcardDate.getFullYear();
+var currentYear = currentDate.getFullYear();
+var yearDifference = (currentYear - earliestYear) + 1;
+
+var yearSelect = document.getElementById("giftcardYearPurchased");
+var giftcardBalanceInput = document.getElementById("giftcardBalanceInput");
+var monthSelect = document.getElementById("giftcardMonthPurchased");
+var addGiftcardToTransactionButton = document.getElementById("addGiftcardToTransaction");
+
+window.onload = function() {
+  populateGiftcardYears();
+  validateGiftcardInputDetails();
+}
+
+var populateGiftcardMonths = function() {
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var monthDifference = 12;
+  var startMonth = 0;
+  
+  if(currentYear == earliestYear) {
+    monthDifference = (currentDate.getMonth() - earliestGiftcardDate.getMonth()) + 1;
+    startMonth = earliestGiftcardDate.getMonth();
+  } else if (yearSelect.value == currentYear) {
+    monthDifference = currentDate.getMonth() + 1;
+  }
+ 
+  monthSelect.innerHTML = "";
+
+  var defaultMonthOption = document.createElement("option");
+  defaultMonthOption.innerHTML = "Month";
+  defaultMonthOption.disabled = true;
+  monthSelect.appendChild(defaultMonthOption);
+
+  for(i = startMonth; i < (startMonth + monthDifference); i++) {
+    var month = document.createElement("option");
+    month.value = i;
+    month.innerHTML = months[i];
+    monthSelect.appendChild(month);
+  }
+}
+
+var populateGiftcardYears = function() {
+
+  for(i = 0; i < yearDifference; i++) {
+    var year = document.createElement("option");
+    year.value = earliestYear + i;
+    year.innerHTML = earliestYear + i;
+    yearSelect.appendChild(year);
+  }
+
+  if(!isNaN(yearSelect.value)) {
+    populateGiftcardMonths();
+  }
+}
+
+var validateGiftcardInputDetails = function() {
+  var monthEntered = !isNaN(monthSelect.value);
+  var yearEntered = !isNaN(yearSelect.value);
+  var balanceEntered = !isNaN(giftcardBalanceInput.value) && giftcardBalanceInput.value > 0 && giftcardBalanceInput.value <= 100;
+  
+  if(monthEntered && yearEntered && balanceEntered) {
+    addGiftcardToTransactionButton.disabled = false;
+    return true;
+  } else {
+    addGiftcardToTransactionButton.disabled = true;
+    return false;
+  }
+}
+
+var resetGiftcardFields = function() {
+  monthSelect.value = "Month";
+  yearSelect.value = "Year";
+  giftcardBalanceInput.value = null;
+  validateGiftcardInputDetails();
+}
+
+yearSelect.addEventListener('change', function (event) {
+  populateGiftcardMonths();
+  validateGiftcardInputDetails();
+});
+
+monthSelect.addEventListener('change', function (event) {
+  validateGiftcardInputDetails();
+});
+
+giftcardBalanceInput.addEventListener('input', function (event) {
+  validateGiftcardInputDetails();
+});
+
+addGiftcardToTransactionButton.addEventListener('click', function(event) {
+  if(validateGiftcardInputDetails()) {
+    var dateGiftcardPurchased = new Date(earliestGiftcardDate);
+    dateGiftcardPurchased.setMonth(monthSelect.value);
+    dateGiftcardPurchased.setFullYear(yearSelect.value);
+
+    var giftcardItem = {
+      id: "giftcard", 
+      name: "Giftcard Credit",
+      absoluteName: "Giftcard Credit",
+      discount: false,
+      giftcard: true,
+      dateGiftcardPurchased: dateGiftcardPurchased,
+      weight: 0,
+      value: giftcardBalanceInput.value,
+      conditions: [],
+      condition: "",
+      action: "",
+      quantity: 1,
+      stockControl: 0,
+      stockInfo: null,
+      allowTokens: false,
+      carbon_id: null,
+      member_discount: false
+    }
+
+    addToTransaction(giftcardItem);
+    resetGiftcardFields();
+    $("#addGiftcardModal").modal("hide");
+  }
+});
+
+</script>

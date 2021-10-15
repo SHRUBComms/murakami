@@ -97,6 +97,8 @@
 
 
 	<div class="col-12 col-md-6 col-lg-5 col-xl-5 mx-auto mt-4 mt-lg-0 mt-xl-0" id="transaction-list">
+    <div class="row">
+      <div class="col-12">
 				<table class="table table-light table-striped">
 				  <thead>
 				    <tr>
@@ -111,6 +113,11 @@
 
 				  </tbody>
 				</table>
+      </div>
+      <div class="col-12 mt-4">
+        <button class="btn btn-success" data-toggle="modal" data-target="#addGiftcardModal">Redeem Giftcard</button>
+      </div>
+    </div>
 	</div>
 </div>
 
@@ -135,7 +142,7 @@
       </div>
       <div class="modal-body">
 				<div class="row">
-          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
+          <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto mb-2">
 	      		<center>
 		      		<h4 class="transaction-total"></h4>
 		      		<p id="memberStatement"></p>
@@ -147,7 +154,6 @@
 		      		</div>
 							<small id="minimumCardTransaction" class="d-none">To pay with card, please spend a minimum of £1.00.</small>
 					</center>
-					<br />
 				</div>
 				</div>
 				<div class="row">
@@ -169,15 +175,32 @@
 		    	</div>
 		  	</div>
 
-				<div class="row">
+				<div class="row mb-4">
 					<div class="col-md-8 mx-auto">
 						<textarea id="note" placeholder="Note (optional)" class="form-control"></textarea>
 					</div>
 				</div>
+			
+        <div class="row mb-2">
+					<div class="col-xs-10 col-md-8 col-md-offset-2 col-xs-offset-1 d-none mx-auto" id="giftcardBalanceSummary">
+            <div class="alert alert-info px-4 py-3" role="alert">
+              <center>
+                <h6 class="mb-3">Giftcard Summary</h6>
+                
+                <div class="alert alert-light" style="color: #333;">
+                  <p>Current Balance: £<span id="currentGiftcardBalance">0.00</span></p>
+                </div>
+                <div class="alert alert-light" style="color: #333;">
+                  <p>New Balance: £<span id="newGiftcardBalance">0.00</span></p>
+                </div>
+              </center>
+            </div>
+		    	</div>
+		  	</div>
 
 				<div class="row">
 					<div class="conatiner mx-auto">
-						<div class="form-check form-check-inline mt-2">
+						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="checkbox" id="confirmTransaction">
 							<label class="form-check-label">Transaction details are correct</label>
 						</div>
@@ -231,6 +254,7 @@
   </div>
 </div>
 
+{{>till/modals/giftcards}}
 
 <div id="membershipWarning" class="modal fade" role="dialog">
   <div class="modal-dialog">
@@ -268,10 +292,6 @@
 
   </div>
 </div>
-
-
-
-
 
 {{#if diode_api_key}}
 	{{>till/electrical-safety}}
@@ -315,13 +335,14 @@ $('#isMemberCheck').on("click", function () {
 });
 
 
-function addToTransaction(item){
-
+function addToTransaction(item) {
 	var sanitizedItem = {};
 	sanitizedItem.id = item.item_id || item.id;
 	sanitizedItem.name = item.name;
 	sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
   sanitizedItem.discount = item.discount ? true : false;
+  sanitizedItem.dateGiftcardPurchased = item.dateGiftcardPurchased;
+  sanitizedItem.giftcard = item.giftcard ? true : false;
 	sanitizedItem.weight = item.weight || 0;
 	sanitizedItem.conditions = item.conditions;
 	sanitizedItem.condition = item.condition;
@@ -338,102 +359,111 @@ function addToTransaction(item){
     sanitizedItem = null;
     alert("You can only apply 1 whole transaction discount!");
   }
+  
+  // Restrict one giftcard per transaction
+  if(transaction.filter(function(existingItem) { return existingItem.giftcard == true; }).length > 0 && sanitizedItem.giftcard) {
+    sanitizedItem = null;
+    alert("You can only apply 1 giftcard per transaction!");
+  }
 
-	if(item.value > 0){
-		sanitizedItem.value = item.value;
-		sanitizedItem.setValue = true;
-	} else {
-		sanitizedItem.value = 0;
-		sanitizedItem.setValue = false;
-	}
+  if(sanitizedItem != null) {
+  
+    if(item.value > 0){
+      sanitizedItem.value = item.value;
+      sanitizedItem.setValue = true;
+    } else {
+      sanitizedItem.value = 0;
+      sanitizedItem.setValue = false;
+    }
 
-	if(Array.isArray(sanitizedItem.conditions)){
-		if(sanitizedItem.conditions.length == 1){
-			sanitizedItem.condition = sanitizedItem.conditions[0]
-		}
-	} else {
-		sanitizedItem.condition = null;
-	}
-
-
-	if("{{diode_api_key}}"){
-		if(sanitizedItem.carbon_id == "IT-101"){
-			$("#electricalSafetyModal").modal("show");
-			$("#removeUnsafe").attr("onclick", "removeFromTransaction(null)");
-		}
-	}
-
-	try {
-		if(sanitizedItem.action.substring(0,3) == "MEM" && !member.name){
-			$("#membershipWarning").modal("show");
-		}
-	} catch(err){}
-
-	if(!sanitizedItem.condition && Array.isArray(sanitizedItem.conditions)){
-		if(sanitizedItem.conditions.length == 1) {
-			sanitizedItem.condition = sanitizedItem.conditions[0];
-			itemToAdd = {};
-			transaction.push(sanitizedItem);
-		} else if(sanitizedItem.conditions.length > 0){
-			$('input[name="itemCondition"]:radio').prop('checked', false);
-			$("#addItemConditionToTrans").attr("onclick", "return false;");
-			$("#itemConditionName").text(sanitizedItem.name);
-			$("#availableItemConditions").html("");
-			sanitizedItem.conditions.forEach(function(condition, index){
-				var formWrapper = document.createElement("div");
-				formWrapper.className = "form-check";
-
-				var formLabel = document.createElement("label");
-				formLabel.className = "form-check-label";
-
-				var formInput = document.createElement("input");
-				formInput.type = "radio";
-				formInput.className = "form-check-input";
-				formInput.name = "itemCondition";
-				formInput.value = condition;
-
-				var labelText = document.createElement("span");
-				labelText.textContent = _.startCase(condition);
-
-				formLabel.appendChild(formInput);
-				formLabel.append(labelText)
-				formWrapper.appendChild(formLabel);
-
-				$("#availableItemConditions").append(formWrapper);
-
-			})
-
-			$('input[name="itemCondition"]:radio').change(function(){
+    if(Array.isArray(sanitizedItem.conditions)){
+      if(sanitizedItem.conditions.length == 1){
+        sanitizedItem.condition = sanitizedItem.conditions[0]
+      }
+    } else {
+      sanitizedItem.condition = null;
+    }
 
 
-				let condition = this.value;
+    if("{{diode_api_key}}"){
+      if(sanitizedItem.carbon_id == "IT-101"){
+        $("#electricalSafetyModal").modal("show");
+        $("#removeUnsafe").attr("onclick", "removeFromTransaction(null)");
+      }
+    }
+
+    try {
+      if(sanitizedItem.action.substring(0,3) == "MEM" && !member.name){
+        $("#membershipWarning").modal("show");
+      }
+    } catch(err){}
+
+    if(!sanitizedItem.condition && Array.isArray(sanitizedItem.conditions)){
+      if(sanitizedItem.conditions.length == 1) {
+        sanitizedItem.condition = sanitizedItem.conditions[0];
+        itemToAdd = {};
+        transaction.push(sanitizedItem);
+      } else if(sanitizedItem.conditions.length > 0){
+        $('input[name="itemCondition"]:radio').prop('checked', false);
+        $("#addItemConditionToTrans").attr("onclick", "return false;");
+        $("#itemConditionName").text(sanitizedItem.name);
+        $("#availableItemConditions").html("");
+        sanitizedItem.conditions.forEach(function(condition, index){
+          var formWrapper = document.createElement("div");
+          formWrapper.className = "form-check";
+
+          var formLabel = document.createElement("label");
+          formLabel.className = "form-check-label";
+
+          var formInput = document.createElement("input");
+          formInput.type = "radio";
+          formInput.className = "form-check-input";
+          formInput.name = "itemCondition";
+          formInput.value = condition;
+
+          var labelText = document.createElement("span");
+          labelText.textContent = _.startCase(condition);
+
+          formLabel.appendChild(formInput);
+          formLabel.append(labelText)
+          formWrapper.appendChild(formLabel);
+
+          $("#availableItemConditions").append(formWrapper);
+
+        })
+
+        $('input[name="itemCondition"]:radio').change(function(){
 
 
-				if(itemToAdd){
-					itemToAdd.condition = condition
-					document.getElementById("addItemConditionToTrans").onclick = function(){
-						addToTransaction(itemToAdd)
-					}
-				}
-			});
+          let condition = this.value;
 
-			$('#itemConditionModal').modal('show');
-			itemToAdd = sanitizedItem;
 
-		} else {
-			itemToAdd = {};
-			sanitizedItem.condition = ""
-			transaction.push(sanitizedItem);
-		}
+          if(itemToAdd){
+            itemToAdd.condition = condition
+            document.getElementById("addItemConditionToTrans").onclick = function(){
+              addToTransaction(itemToAdd)
+            }
+          }
+        });
 
-	} else {
+        $('#itemConditionModal').modal('show');
+        itemToAdd = sanitizedItem;
 
-		itemToAdd = {};
-		transaction.push(sanitizedItem);
+      } else {
+        itemToAdd = {};
+        sanitizedItem.condition = ""
+        transaction.push(sanitizedItem);
+      }
 
-	}
+    } else {
 
-	updateTransactionList();
+      itemToAdd = {};
+      transaction.push(sanitizedItem);
+
+    }
+
+    updateTransactionList();
+  }
 
 }
 
@@ -474,12 +504,12 @@ function updateTransactionList(){
 			note += _.startCase(transaction[i].condition)
 		}
 
-    if(transaction[i].discount === false) {
+    if(transaction[i].discount === false && transaction[i].giftcard === false) {
       if(member.name){
         value = +transaction[i].value
         tokens_total += +value;
         if(transaction[i].member_discount > 0){
-          if(note.length > 0){
+          if(note.length > 1){
             note += ", "
           }
           note += "<span class='fail'>-" + transaction[i].member_discount + "%</span>";
@@ -552,13 +582,19 @@ function updateTransactionList(){
 
     if(transaction[i].discount == true) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>" + transaction[i].value + "% discount!</span>";
+    } else if(transaction[i].giftcard == true) {
+      valueColumn.innerHTML = "<span style='color: #1986e6;'>£" + Number(transaction[i].value).toFixed(2) + " off!</span>";
     } else {
 		  valueColumn.textContent = transaction[i].value;
     }
-
+    
 		if(transaction[i].setValue == false || transaction[i].discount == false){
 			valueColumn.contentEditable = true;
 		}
+
+    if(transaction[i].giftcard == true) {
+      valueColumn.contentEditable = false;
+    }
 
 		weightColumn = document.createElement("td");
 		weightColumn.className = "align-middle"
@@ -576,6 +612,11 @@ function updateTransactionList(){
 		} else {
 			weightColumn.textContent = "-";
 		}
+
+    if(transaction[i].giftcard == true) {
+			weightColumn.contentEditable = false;
+			weightColumn.textContent = "-";
+    }
 
 		removeColumn = document.createElement("td");
 		removeColumn.className = "remove-item clickable align-middle"
@@ -612,41 +653,71 @@ function updateButtons(){
 	tokens_total = 0;
 	weight_total = 0;
 	money_total = 0;
+  value_total = 0;
   total_discount = 0;
+  giftcard_value = 0;
   contains_real_items = false;
 
 	for(let i=0; i < transaction.length; i++){
-    if(transaction[i].discount === true) {
+    if(transaction[i].discount == true) {
       total_discount = transaction[i].value;
+    } else if(transaction[i].giftcard == true) {
+      giftcard_value = transaction[i].value;
     } else {
       contains_real_items = true;
-      if(transaction[i].allowTokens == 1){
-        if(member.name){
-          tokens_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
-        } else {
-          tokens_total += +(transaction[i].value * transaction[i].quantity);
-        }
-      } else {
-        if(member.name){
-          money_total += +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
-        } else {
-          money_total += +(transaction[i].value * transaction[i].quantity);
-        }
+      var total_modifier = +(transaction[i].value * transaction[i].quantity);
+
+      if(member.name) {
+        total_modifier = +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
       }
+
+      if(transaction[i].allowTokens == 1){
+        tokens_total += +(total_modifier);
+      } else {
+        money_total += +(total_modifier);
+      }
+
       weight_total += +(transaction[i].weight * transaction[i].quantity);
     }
 	}
 
-  tokens_total -= tokens_total * (total_discount / 100);
-  money_total -= money_total * (total_discount / 100);
 
-	$("#value_total").html((tokens_total + money_total).toFixed(2));
+  giftcard_balance = giftcard_value;
+  
+  money_total -= money_total * (total_discount / 100);
+  if(money_total > giftcard_value) {
+    giftcard_balance = 0;
+  } else {
+    giftcard_balance -= money_total;
+  }
+  money_total = money_total > giftcard_value ? money_total - giftcard_value : 0;
+ 
+  tokens_total -= tokens_total * (total_discount / 100);
+  if(tokens_total > giftcard_balance) {
+    giftcard_balance = 0;
+  } else {
+    giftcard_balance -= tokens_total;
+  }
+  tokens_total = tokens_total > giftcard_value ? tokens_total - giftcard_value : 0; 
+  
+  $("#newGiftcardBalance").text(giftcard_balance.toFixed(2));
+
+  value_total = (tokens_total + money_total);
+
+	$("#tokens_total").html(value_total.toFixed(2));
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0 && contains_real_items){
-		$("#tokens_total").text((+money_total + +tokens_total).toFixed(2));
+		$("#tokens_total").text((value_total).toFixed(2));
 		$("#changeCalc").addClass("d-none");
-		if(money_total == 0 && tokens_total == 0){
+    $("#giftcardBalanceSummary").addClass("d-none");
+		
+    if(giftcard_value > 0) {
+      $("#giftcardBalanceSummary").removeClass("d-none");
+      $("#currentGiftcardBalance").text(Number(giftcard_value).toFixed(2));
+    }
+		
+    if(money_total == 0 && tokens_total == 0){
 			$("#selectPaymentMethod").addClass("d-none");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
 
@@ -654,7 +725,7 @@ function updateButtons(){
 			if(money_total == 0){
 				if(member.balance >= tokens_total){
 					$("#selectPaymentMethod").addClass("d-none");
-					if(tokens_total == 1){
+					if(Math.ceil(tokens_total) == 1){
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " token</b>")
 					} else {
 						$(".transaction-total").html("Pay <b>" + Math.ceil(tokens_total) + " tokens</b>")
@@ -690,7 +761,7 @@ function updateButtons(){
 			$("#selectPaymentMethod").removeClass("d-none");
 			global_money_total = tokens_total + money_total;
 		}
-
+  
 
 		$("#transaction_btns").removeClass("d-none");
 
@@ -1070,7 +1141,7 @@ function updateReceipt(transaction_id){
 					var moneyTotalRow = document.createElement("tr");
 					var moneyTotalNameCell = document.createElement("td");
 					var moneyTotalValueCell = document.createElement("td");
-					moneyTotalNameCell.innerHTML = "Money Total";
+					moneyTotalNameCell.innerHTML = "Money Spent";
 					moneyTotalValueCell.textContent = response.transaction.totals.money;
 					moneyTotalRow.appendChild(moneyTotalNameCell);
 					moneyTotalRow.appendChild(moneyTotalValueCell);
@@ -1079,10 +1150,19 @@ function updateReceipt(transaction_id){
 					var tokensTotalRow = document.createElement("tr");
 					var tokensTotalNameCell = document.createElement("td");
 					var tokensTotalValueCell = document.createElement("td");
-					tokensTotalNameCell.innerHTML = "Tokens Total";
+					tokensTotalNameCell.innerHTML = "Tokens Spent";
 					tokensTotalValueCell.textContent = response.transaction.totals.tokens;
 					tokensTotalRow.appendChild(tokensTotalNameCell);
 					tokensTotalRow.appendChild(tokensTotalValueCell);
+
+					// Giftcard Total
+					var giftcardTotalRow = document.createElement("tr");
+					var giftcardTotalNameCell = document.createElement("td");
+					var giftcardTotalValueCell = document.createElement("td");
+					giftcardTotalNameCell.innerHTML = "Giftcard Spent";
+					giftcardTotalValueCell.textContent = response.transaction.totals.giftcard;
+					giftcardTotalRow.appendChild(giftcardTotalNameCell);
+					giftcardTotalRow.appendChild(giftcardTotalValueCell);
 
 					// Append table children.
 					summaryTable.appendChild(transactionIdRow);
@@ -1091,6 +1171,7 @@ function updateReceipt(transaction_id){
 					summaryTable.appendChild(billRow)
 					summaryTable.appendChild(moneyTotalRow)
 					summaryTable.appendChild(tokensTotalRow)
+					summaryTable.appendChild(giftcardTotalRow)
 
 					// Append to parents.
 					lookupSuccessMessage.appendChild(summaryTable);

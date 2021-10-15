@@ -23,6 +23,8 @@
       <option value="unit-sales">Sales</option>
 			<option value="stock-records">Stock Records</option>
 			<option value="discounts">Discounts</option>
+			<option value="giftcard-sales">Giftcard Sales</option>
+			<option value="giftcard-redemptions">Giftcard Redemptions</option>
     </select>
   </div>
 
@@ -83,6 +85,10 @@
 		{{>till/reports/stock-records}}
 		
     {{>till/reports/discounts}}
+    
+    {{>till/reports/giftcard-sales}}
+    
+    {{>till/reports/giftcard-redemptions}}
 
 	</div>
 
@@ -95,6 +101,8 @@ var floatsTable = $("#floatsTable");
 var unitSalesTable = $("#unitSalesTable");
 var stockRecordsTable = $("#stockRecordsTable");
 var discountsTable = $("#discountsTable");
+var giftcardSalesTable = $("#giftcardSalesTable");
+var giftcardRedemptionsTable = $("#giftcardRedemptionsTable");
 
 let searchParams = new URLSearchParams(window.location.search)
 
@@ -235,7 +243,46 @@ function getReport(){
 					}
 				}
       );
+    } else if(reportType == "giftcard-sales") {
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/giftcard-sales",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(response){
+            $("#giftcardSalesTable").removeClass("d-none")
+						$("#giftcardSalesToolbar").removeClass("d-none");
+						giftcardSalesTable.bootstrapTable('load', response.giftcardSales)
+					}
+				}
+      );
+    } else if(reportType == "giftcard-redemptions") {
+			$.ajax(
+				{
+					type: "POST",
+					url: "{{public_address}}/api/post/tills/reports/giftcard-redemptions",
+					data: {
+						datePeriod: datePeriod,
+						startDate: startDate,
+						endDate: endDate,
+						till_id: "{{till.till_id}}"
+					},
+					success: function(response){
+            $("#giftcardRedemptionsTable").removeClass("d-none")
+						$("#giftcardRedemptionsToolbar").removeClass("d-none");
+						$("#giftcardRedemptionsNote").removeClass("d-none");
+						giftcardRedemptionsTable.bootstrapTable('load', response.giftcardRedemptions)
+					}
+				}
+      );
     }
+
+
 
 	}
 }
@@ -260,10 +307,17 @@ function resetAllReports() {
 	$("#discountsTable").addClass("d-none");
 	$("#discountsToolbar").addClass("d-none");
 	$("#discountsNote").addClass("d-none");
+	
+  $("#giftcardSalesTable").addClass("d-none");
+	$("#giftcardSalesToolbar").addClass("d-none");
+  
+  $("#giftcardRedemptionsTable").addClass("d-none");
+	$("#giftcardRedemptionsToolbar").addClass("d-none");
+	$("#giftcardRedemptionsNote").addClass("d-none");
 }
 
 $("document").ready(function(){
-	tableIds = ["transactions", "floats", "unitSales", "stockRecords", "discounts"]
+	tableIds = ["transactions", "floats", "unitSales", "stockRecords", "discounts", "giftcardSales", "giftcardRedemptions"]
 
 	$(".bootstrap-table > div.fixed-table-toolbar").each(function(i){
 		$(this).attr("id", tableIds[i] + "Toolbar");
