@@ -34,6 +34,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteerRoles", "add"), a
 
 	try {
 		role.availability = req.body.availability;
+	  role.working_group = req.body.working_group;
 
 		const roleValid = await validateRole(req.user, role, { locations, activities, commitmentLengths });
 

@@ -18,7 +18,7 @@ router.get("/", Auth.isLoggedIn, Auth.canAccessPage("volunteerRoles", "view"), a
 			volunteerRolesActive: true,
 			rolesGroupedByGroupId: rolesByGroup,
 			roles: rolesArray,
-			group_id: req.query.group_id || req.user.working_groups[0]
+			group_id: req.query.group_id
 		});
 	} catch (error) {
 		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
