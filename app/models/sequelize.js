@@ -1,4 +1,5 @@
-var Sequelize = require("sequelize");
+const Sequelize = require("sequelize");
+const bluebird = require("bluebird");
 
 if (process.env.NODE_ENV == "production") {
   process.env.DB_HOST = process.env.PROD_DB_HOST;
@@ -17,7 +18,7 @@ if (process.env.NODE_ENV == "production") {
   process.env.DB_PASS = process.env.DEV_DB_PASS;
 }
 
-var sequelize = new Sequelize(
+const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASS,
@@ -29,17 +30,18 @@ var sequelize = new Sequelize(
   }
 );
 
-sequelize.authenticate().nodeify(function(err) {
-  if (!err) {
+(async () => {
+  const dbError = await sequelize.authenticate();
+  if (!dbError) {
     console.log("Connected to database successfully!");
   } else {
     console.error("Unable to connect to the database:", err);
   }
-});
+})
 
-var rootDir = process.env.CWD;
+const rootDir = process.env.CWD;
 
-var Models = {
+const Models = {
   Sequelize: Sequelize,
   sequelize: sequelize,
   AccessTokens: require(rootDir + "/app/models/access_tokens/schema")(
