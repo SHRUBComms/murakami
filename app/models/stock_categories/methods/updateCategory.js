@@ -4,6 +4,7 @@ module.exports = (StockCategories) => {
       {
         carbon_id: category.carbon_id,
         name: category.name,
+        discount: category.discount,
         value: category.value,
         conditions: category.conditions || [],
         weight: category.weight || 0,

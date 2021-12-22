@@ -47,6 +47,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "updateCategories"
 
     let sanitizedCategory = {};
     sanitizedCategory.item_id = discount.item_id;
+    sanitizedCategory.discount = discount.discount_type;
     sanitizedCategory.name = discount.name;
     sanitizedCategory.till_id = discount.till_id;
     sanitizedCategory.carbon_id = null;

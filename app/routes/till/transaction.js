@@ -108,7 +108,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
 
     // Discounts
     let discountInfo = {}; // Contains IDs of items that have a members' discount
-    let globalDiscount = 0; // Total *whole transaction* discount as a percentage
+    let globalDiscountPercentage = 0; // Total *whole transaction* discount as a percentage
+    let globalDiscountAbsolute = 0; // Total *whole transaction* discount as an asbolute (fixed) value
 
     let memberDiscountTokens = 0;
     let memberDiscountMoney = 0;
@@ -137,10 +138,15 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
           throw "Category disabled";
         }
 
-        if(category.discount) {
-          globalDiscount = category.value;
+        if(category.discount == 1) {
+          globalDiscountPercentage = category.value;
           sanitizedItem.item_id = category.item_id;
-          sanitizedItem.discount = true;
+          sanitizedItem.discount = 1;
+          sanitizedItem.value = category.value;
+        } else if(category.discount == 2) {
+          globalDiscountAbsolute = category.value;
+          sanitizedItem.item_id = category.item_id;
+          sanitizedItem.discount = 2;
           sanitizedItem.value = category.value;
         } else {
 
@@ -282,8 +288,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
                               
     let totals = {};
 
-    console.log("1:", totalMoney, totalTokens);
-
     if(giftcardValue > 0) {
       giftcardBalance = giftcardValue;
     }
@@ -292,30 +296,45 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       totalMoney = totalMoney - memberDiscountMoney;
       totalTokens = totalTokens - memberDiscountTokens;
       
-      totalMoney -= totalMoney * (globalDiscount / 100);
+      totalMoney -= totalMoney * (globalDiscountPercentage / 100);
+      totalMoney -= globalDiscountAbsolute;
+
+      if(totalMoney < 0) {
+        totalMoney = 0;
+      }
+
       if(totalMoney > giftcardValue) {
         giftcardBalance = 0;
       } else {
         giftcardBalance -= totalMoney;
       }
+
       totalMoney = totalMoney > giftcardValue ? totalMoney - giftcardValue : 0;
 
-      console.log("2:", totalMoney, totalTokens);
+      totalTokens -= totalTokens * (globalDiscountPercentage / 100);
+      totalTokens -= globalDiscountAbsolute;
 
-      totalTokens -= totalTokens * (globalDiscount / 100);
       if(totalTokens > giftcardValue) {
         giftcardBalance = 0;
       } else {
-        giftcardBalance -= totalTokens;
+        if(giftcardValue > 0) {
+          giftcardBalance -= totalTokens;
+        }
       }
       totalTokens = totalTokens > giftcardValue ? totalTokens - giftcardValue : 0;
 
-      console.log("3:", totalMoney, totalTokens);
-
       if(giftcardValue > 0) {
-        totals.giftcard = giftcardValue - giftcardBalance;
+        totals.giftcard = giftcardValue;
       }
 
+      if(giftcardBalance > 0 && giftcardValue > 0 && (giftcardBalance < giftcardValue)) {
+        const automaticDonation = {
+          item_id: "donation",
+          value: giftcardBalance
+        }
+        formattedTransaction.summary.bill.push(automaticDonation);
+      }
+ 
       formattedTransaction.summary.discount_info = discountInfo;
 
       if (payWithTokens == true) {
@@ -350,24 +369,31 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       }
     } else {
 
-      console.log("2:", totalMoney, totalTokens);
-
       totals.money = (Number(totalTokens) + Number(totalMoney)).toFixed(2);
-      totals.money -= totals.money * (globalDiscount / 100); // Apply whole transaction discount 
+      totals.money -= totals.money * (globalDiscountPercentage / 100); // Apply whole transaction percentage discount 
+      totals.money -= globalDiscountAbsolute; // Apply whole transaction absolute (fixed) discount 
       
-      console.log("3:", totals.money, giftcardValue);
       if(totals.money > giftcardValue) {
         giftcardBalance = 0;
       } else {
-        giftcardBalance -= totals.money;
+        if(giftcardValue > 0) {
+          giftcardBalance -= totals.money;
+        }
       }
       
       totals.money = totals.money > giftcardValue ? totals.money - giftcardValue : 0;
-
-      console.log("4:", totals.money);
-      
+ 
       if(giftcardValue > 0) {
-        totals.giftcard = giftcardValue - giftcardBalance;
+        totals.giftcard = giftcardValue;
+      }
+
+      if(giftcardBalance > 0 && giftcardValue > 0 && (giftcardBalance < giftcardValue)) {
+
+        const automaticDonation = {
+          item_id: "donation",
+          value: giftcardBalance
+        }
+        formattedTransaction.summary.bill.push(automaticDonation);
       }
 
       if (totals.money == 0) {

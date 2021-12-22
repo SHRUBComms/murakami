@@ -45,6 +45,18 @@ Validators.number = async (input, options) => {
   }
 }
 
+Validators.enum = async(input, options) => {
+  if(options.required && !input.value) {
+    throw `Please enter ${input.indefiniteArticle} ${input.name}`;
+  }
+
+  if(input.value) {
+    if(!options.validValues.includes(input.value)) {
+      throw `Please enter a valid ${input.name}`;
+    }
+  }
+}
+
 Validators.email = async (input, options) => {
   if(options.required && !input.value) {
     throw "Please enter an email address";

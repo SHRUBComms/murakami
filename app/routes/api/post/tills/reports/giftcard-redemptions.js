@@ -67,7 +67,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
       const giftcardItem = transaction.summary.bill.find(function(item) { return item.item_id == "giftcard" });
 
       let spentOnMembership = false;
-      let spentOnDonation = false;
+      let spentOnDonation = 0;
       let spentOnSales = false;
 
       for await(const item of transaction.summary.bill) {
@@ -75,10 +75,12 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
           if((categories[item.item_id].action || "").substring(0, 3) == "MEM") {
             spentOnMembership = true;
           } else if(categories[item.item_id].action == "DONATION") {
-            spentOnDonation = true;
+            spentOnDonation += Number(item.value) || Number(item.tokens);
           } else {
             spentOnSales = true;
           }
+        } else if(item.item_id == "donation") {
+          spentOnDonation += Number(item.value) || Number(item.tokens);
         }
       }
 
@@ -88,8 +90,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         dateOfInitialSale: moment(new Date(giftcardItem.dateGiftcardPurchased)).format("MMMM YYYY"),
         dateOfRedemption: moment(transaction.date).format("L"),
         giftcardBalance: giftcardItem.value,
-        amountSpent: transaction.summary.totals.giftcard,
-        giftcardBalanceRemaining: giftcardItem.value - transaction.summary.totals.giftcard,
+        amountSpent: transaction.summary.totals.giftcard - (spentOnDonation || 0),
+        amountDonated: spentOnDonation || 0,
         purchaseType: {
           donation: spentOnDonation ? "Yes" : "No",
           sales: spentOnSales ? "Yes" : "No",

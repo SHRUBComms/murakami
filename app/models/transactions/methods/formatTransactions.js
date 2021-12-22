@@ -98,8 +98,13 @@ module.exports = () => {
 
       for (let i = 0; i < transaction.summary.bill.length; i++) {
         if (transaction.summary.bill[i].item_id == "donation") {
-          bill += "Donation: " + transaction.summary.bill[i].tokens;
-          formattedTransaction.billArray.push({ item: "Tokens added for donation", value: transaction.summary.bill[i].tokens });
+          if(transaction.summary.bill[i].tokens) {
+            bill += "Donation: " + transaction.summary.bill[i].tokens;
+            formattedTransaction.billArray.push({ item: "Tokens added for donation", value: transaction.summary.bill[i].tokens });
+          } else if (transaction.summary.bill[i].value) {
+            bill += "Donation: £" + Number(transaction.summary.bill[i].value).toFixed(2);
+            formattedTransaction.billArray.push({ item: "Donation", value: Number(transaction.summary.bill[i].value).toFixed(2) });
+          }
         } else if (transaction.summary.bill[i].item_id == "volunteering") {
           bill += "Tokens added for volunteering: " +transaction.summary.bill[i].tokens;
           formattedTransaction.billArray.push({ item: "Tokens added for volunteering", value: transaction.summary.bill[i].tokens });
@@ -109,9 +114,12 @@ module.exports = () => {
         } else if (transaction.summary.bill[i].item_id == "refund") {
           bill += "<b>Outgoing</b><br />" + "Refund: -" + Number(transaction.summary.bill[i].value).toFixed(2);
           formattedTransaction.billArray.push({ item: "Refund", value: Number(transaction.summary.bill[i].value).toFixed(2) });
-        } else if(transaction.summary.bill[i].discount == true) {
+        } else if(transaction.summary.bill[i].discount == 1) {
           bill += categories[transaction.summary.bill[i].item_id].name + " (Discount): <span style='color: #1986e6;'>" + categories[transaction.summary.bill[i].item_id].value + "%</span>";
-          formattedTransaction.billArray.push({ item: "Discount", value: Number(transaction.summary.bill[i].value).toFixed(2) });
+          formattedTransaction.billArray.push({ item: "Discount", value: Number(transaction.summary.bill[i].value).toFixed(2), discountType: 1 });
+        } else if(transaction.summary.bill[i].discount == 2) {
+          bill += categories[transaction.summary.bill[i].item_id].name + " (Discount): <span style='color: #1986e6;'>£" + Number(categories[transaction.summary.bill[i].item_id].value).toFixed(2) + "</span>";
+          formattedTransaction.billArray.push({ item: "Discount", value: Number(transaction.summary.bill[i].value).toFixed(2), discountType: 2 });
         } else if(transaction.summary.bill[i].item_id == "giftcard") {
           bill += "Giftcard: <span style='color: #1986e6;'>£" + Number(transaction.summary.bill[i].value).toFixed(2) + " Balance</span>";
           formattedTransaction.billArray.push({ item: "Giftcard", value: Number(transaction.summary.bill[i].value).toFixed(2) });

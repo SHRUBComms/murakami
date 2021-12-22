@@ -14,12 +14,19 @@
 
             <input type="text" placeholder="Discount Name" id="addDiscountName" class="form-control mb-2" />
 
+            <div class="input-group mb-2">
+              <select class="form-control" id="addDiscountType">
+                <option value="1">Percentage Discount</option>
+                <option value="2">Fixed Amount Discount</option>
+              </select>
+            </div>
+
             <div class="input-group mb-3">
               <span class="input-group-prepend">
-                <span class="input-group-text">Discount Amount: </span>
+                <span class="input-group-text" id="addDiscountValuePre">Discount Amount: </span>
               </span>
               <input class="form-inline form-control" id="addDiscountValue" type="number" min="0" max="100" step="1" value="0" />
-              <span class="input-group-append">
+              <span class="input-group-append" id="addDiscountValuePost">
                 <span class="input-group-text">%</span>
               </span>
             </div>
@@ -45,6 +52,7 @@
     discount.parent = eval(path).item_id;
     discount.name = $("#addDiscountName").val();
     discount.group_id = $("#addDiscountGroupId").val();
+    discount.discount_type = $("#addDiscountType").val();
     discount.value = $("#addDiscountValue").val() || 0;
 
     $.ajax({
@@ -78,6 +86,27 @@
       }
     });
   }
+
+  $("#addDiscountType").on("change", function() {
+    // Change discount amount input
+    if(this.value == 1) {
+      // Percentage discount
+      var discountAmountInput = $("#addDiscountValue");
+      discountAmountInput.prop("min", 0);
+      discountAmountInput.prop("max", 100);
+      discountAmountInput.prop("step", 1);
+      $("#addDiscountValuePre").text("Discount Amount");
+      $("#addDiscountValuePost").css("display", "flex");
+    } else {
+      // Fixed amount discount
+      var discountAmountInput = $("#addDiscountValue");
+      discountAmountInput.prop("min", 0.01);
+      discountAmountInput.prop("max", 100);
+      discountAmountInput.prop("step", 0.01);
+      $("#addDiscountValuePre").text("Discount Amount: £");
+      $("#addDiscountValuePost").css("display", "none");
+    }
+  })
 
   function openAddDiscountDialog(path) {
     var discount;

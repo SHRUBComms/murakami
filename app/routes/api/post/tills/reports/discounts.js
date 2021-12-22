@@ -84,8 +84,12 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         if (!categories[item.item_id]) {
           continue;
         }
-        
-        if(!item.discount) {
+
+        if(item.discount) {
+          if(![1,2].includes(item.discount)) {
+            continue;
+          }
+        } else {
           continue;
         }
 
@@ -104,14 +108,14 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
           discounts[item.item_id].discountInfo.name = categories[item.item_id].absolute_name || categories[item.item_id].name;
         }
 
-        // Add one to number of total transactions using this  discount
+        // Add one to number of total transactions using this discount
         if(!discounts[item.item_id].transactions.includes(transaction.transaction_id)){
           discounts[item.item_id].salesInfo.numberOfDiscountedTransactions = parseFloat(discounts[item.item_id].salesInfo.numberOfDiscountedTransactions) + 1;
           discounts[item.item_id].transactions.push(transaction.transaction_id);
         }
 
         const discountedTransactionAmount = parseFloat(transaction.summary.totals.money) || 0;
-        const originalTransactionAmount = parseFloat(discountedTransactionAmount / ((100 - item.value) / 100)) || 0;
+        const originalTransactionAmount = item.discount == 1 ? parseFloat(discountedTransactionAmount / ((100 - item.value) / 100)) || 0 : parseFloat(discountedTransactionAmount + item.value);
         
         discounts[item.item_id].salesInfo.preDiscountRevenue = parseFloat(parseFloat(discounts[item.item_id].salesInfo.preDiscountRevenue) + parseFloat(originalTransactionAmount)).toFixed(2);
         discounts[item.item_id].salesInfo.postDiscountRevenue = parseFloat(parseFloat(discounts[item.item_id].salesInfo.postDiscountRevenue) + parseFloat(discountedTransactionAmount)).toFixed(2);

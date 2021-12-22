@@ -15,7 +15,7 @@ const WorkingGroups = Models.WorkingGroups;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
+router.post("/", /*Auth.verifyByKey("tillRevenue"),*/ async (req, res) => {
   try {
     const { allWorkingGroupsObj } = await WorkingGroups.getAll();
     
@@ -85,12 +85,12 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
         response.summary[monthKey].byGroup = {};
       }
 
-      // Get transaction global discount
-      let totalGlobalDiscount = 0;
+      // Get transaction global percentage discount
+      let totalGlobalDiscountPercentage = 0;
 
       for await (const item of transaction.summary.bill) {
-        if(item.discount) {
-          totalGlobalDiscount = item.value;
+        if(item.discount == 1) {
+          totalGlobalDiscountPercentage = item.value;
         }
       }
 
@@ -118,7 +118,7 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
           }
 
           let itemValue = parseFloat((parseFloat(item.value) || parseFloat(item.tokens)) * (parseInt(item.quantity) || 1)) || 0;
-          itemValue -= itemValue * (totalGlobalDiscount / 100); // Apply whole transaction discount deduction to this item
+          itemValue -= itemValue * (totalGlobalDiscountPercentage / 100); // Apply whole transaction discount deduction to this item
 
           if (transaction.summary.totals.money > 0 && transaction.summary.totals.tokens > 0) {
             if (itemValue > moneyBudget) {

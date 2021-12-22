@@ -149,7 +149,7 @@ function updateOptions(path) {
 
       if(option.discount) {
         optionDOMObject.text.innerHTML += "<br />";
-        optionDOMObject.text.innerHTML += "<p class='text-muted' style='line-height: 1.5; font-size: 90%;'>" + option.value + "% discount</p>";
+        optionDOMObject.text.innerHTML += "<p class='text-muted' style='line-height: 1.5; font-size: 90%;'>" + (option.discount == 2 ? "£" : "") + option.value + (option.discount == 1 ? "%" : "") + " discount</p>";
       } else {
         if(option.stockControl && option.stockInfo){
           optionDOMObject.text.innerHTML += "<br />";

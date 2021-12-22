@@ -188,12 +188,18 @@
                 <h6 class="mb-3">Giftcard Summary</h6>
                 
                 <div class="alert alert-light" style="color: #333;">
-                  <p>Current Balance: £<span id="currentGiftcardBalance">0.00</span></p>
+                  <p>Giftcard Value: £<span id="currentGiftcardBalance">0.00</span></p>
                 </div>
                 <div class="alert alert-light" style="color: #333;">
-                  <p>New Balance: £<span id="newGiftcardBalance">0.00</span></p>
+                  <p>Unused Credit: £<span id="newGiftcardBalance">0.00</span></p>
                 </div>
               </center>
+              <div class="w-100 p-1">
+                <div class="d-flex">
+                  <div><p><b>Note:</b>&nbsp;</p></div>
+                  <div><p>Any unused giftcard credit will be written off as a donation</p></div>
+                </div>
+              </div>
             </div>
 		    	</div>
 		  	</div>
@@ -307,6 +313,7 @@ var tokens_total = 0;
 var weight_total = 0;
 var money_total = 0;
 var global_money_total = 0;
+var real_total_transaction_value = 0;
 
 var paymentMethod;
 
@@ -340,7 +347,7 @@ function addToTransaction(item) {
 	sanitizedItem.id = item.item_id || item.id;
 	sanitizedItem.name = item.name;
 	sanitizedItem.absoluteName = item.absolute_name || item.absoluteName;
-  sanitizedItem.discount = item.discount ? true : false;
+  sanitizedItem.discount = item.discount == "0" ? false : item.discount;
   sanitizedItem.dateGiftcardPurchased = item.dateGiftcardPurchased;
   sanitizedItem.giftcard = item.giftcard ? true : false;
 	sanitizedItem.weight = item.weight || 0;
@@ -355,7 +362,7 @@ function addToTransaction(item) {
 	sanitizedItem.member_discount = item.member_discount;
 
   // Restrict one global discount per transaction
-  if(transaction.filter(function(existingItem) { return existingItem.discount == true; }).length > 0 && sanitizedItem.discount) {
+  if(transaction.filter(function(existingItem) { return existingItem.discount != false; }).length > 0 && sanitizedItem.discount) {
     sanitizedItem = null;
     alert("You can only apply 1 whole transaction discount!");
   }
@@ -504,7 +511,7 @@ function updateTransactionList(){
 			note += _.startCase(transaction[i].condition)
 		}
 
-    if(transaction[i].discount === false && transaction[i].giftcard === false) {
+    if(transaction[i].discount != false && transaction[i].giftcard === false) {
       if(member.name){
         value = +transaction[i].value
         tokens_total += +value;
@@ -580,8 +587,10 @@ function updateTransactionList(){
 			updateTransaction(i)
 		};
 
-    if(transaction[i].discount == true) {
+    if(transaction[i].discount == 1) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>" + transaction[i].value + "% discount!</span>";
+    } else if(transaction[i].discount == 2) {
+      valueColumn.innerHTML = "<span style='color: #1986e6;'>£" + transaction[i].value + " discount!</span>";
     } else if(transaction[i].giftcard == true) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>£" + Number(transaction[i].value).toFixed(2) + " off!</span>";
     } else {
@@ -636,7 +645,16 @@ function updateTransactionList(){
 	}
 
 	if(transaction.length > 0){
+
 		$('<tr>',{
+		    html:"<td><b>SUBTOTAL:</b></td>" +
+		    "<td id='money_total'>" + real_total_transaction_value + "</td>" +
+		    "<td id='weight_total'>" + weight_total + "</td>" +
+		    "<td></td>" +
+				"<td></td>"
+		}).appendTo('#transaction-info');
+    
+    $('<tr>',{
 		    html:"<td><b>TOTAL:</b></td>" +
 		    "<td id='tokens_total'>" + tokens_total + "</td>" +
 		    "<td id='weight_total'>" + weight_total + "</td>" +
@@ -654,18 +672,23 @@ function updateButtons(){
 	weight_total = 0;
 	money_total = 0;
   value_total = 0;
-  total_discount = 0;
+  real_total_transaction_value = 0;
+  total_discount_percentage = 0;
+  total_discount_absolute = 0;
   giftcard_value = 0;
   contains_real_items = false;
 
 	for(let i=0; i < transaction.length; i++){
-    if(transaction[i].discount == true) {
-      total_discount = transaction[i].value;
+    if(transaction[i].discount == 1) {
+      total_discount_percentage = transaction[i].value;
+    } else if(transaction[i].discount == 2) {
+      total_discount_absolute = transaction[i].value;
     } else if(transaction[i].giftcard == true) {
       giftcard_value = transaction[i].value;
     } else {
       contains_real_items = true;
       var total_modifier = +(transaction[i].value * transaction[i].quantity);
+      real_total_transaction_value += total_modifier;
 
       if(member.name) {
         total_modifier = +((transaction[i].value * transaction[i].quantity) - ((transaction[i].value * transaction[i].quantity) * (transaction[i].member_discount/100)));
@@ -684,27 +707,45 @@ function updateButtons(){
 
   giftcard_balance = giftcard_value;
   
-  money_total -= money_total * (total_discount / 100);
+  money_total -= money_total * (total_discount_percentage / 100);
+  money_total -= total_discount_absolute;
+  
+  if(money_total < 0) {
+    money_total = 0;
+  }
+
   if(money_total > giftcard_value) {
     giftcard_balance = 0;
   } else {
-    giftcard_balance -= money_total;
+    if(giftcard_value > 0) {
+      giftcard_balance -= money_total;
+    }
   }
   money_total = money_total > giftcard_value ? money_total - giftcard_value : 0;
  
-  tokens_total -= tokens_total * (total_discount / 100);
+  tokens_total -= tokens_total * (total_discount_percentage / 100);
+  tokens_total -= total_discount_absolute;
+  
+  if(tokens_total < 0) {
+    tokens_total = 0;
+  }
+
   if(tokens_total > giftcard_balance) {
     giftcard_balance = 0;
   } else {
-    giftcard_balance -= tokens_total;
+    if(giftcard_value > 0) {
+      giftcard_balance -= tokens_total;
+    }
   }
+
   tokens_total = tokens_total > giftcard_value ? tokens_total - giftcard_value : 0; 
-  
+ 
   $("#newGiftcardBalance").text(giftcard_balance.toFixed(2));
 
   value_total = (tokens_total + money_total);
 
 	$("#tokens_total").html(value_total.toFixed(2));
+	$("#money_total").html(real_total_transaction_value.toFixed(2));
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0 && contains_real_items){
