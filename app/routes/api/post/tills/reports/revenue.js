@@ -15,7 +15,7 @@ const WorkingGroups = Models.WorkingGroups;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.post("/", /*Auth.verifyByKey("tillRevenue"),*/ async (req, res) => {
+router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
   try {
     const { allWorkingGroupsObj } = await WorkingGroups.getAll();
     

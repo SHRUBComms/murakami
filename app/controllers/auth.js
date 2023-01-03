@@ -52,7 +52,7 @@ Auth.isOfClass = (allowedClasses) => {
 Auth.verifyByKey = (resource) => {
     return async (req, res, next) => {
 
-        const validResources = ["carbonSavings", "publicVolunteerRoles", "tillRevenue", "membershipReport", "membershipSignUp"];
+        const validResources = ["carbonSavings", "carbonAccountingReport", "publicVolunteerRoles", "tillRevenue", "membershipReport", "membershipSignUp"];
 
         try {
             if (!validResources.includes(resource)) {
