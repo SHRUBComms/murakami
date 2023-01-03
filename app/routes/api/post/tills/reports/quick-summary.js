@@ -34,7 +34,6 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
     }
     
     const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-
     const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
 
     let summary = {
@@ -54,18 +53,19 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
     }
 
     for await(const transaction of transactions) {
-    
+    console.log(transaction.summary);
       if (["membership", "donation", "volunteering", "refund"].includes(transaction.summary.bill[0].item_id)) {
         summary.tokens.issued += Number(transaction.summary.totals.tokens);
       } else {
-        if (transaction.summary.totals.money > 0) {
+	if (transaction.summary.totals.money > 0) {
           summary.numberOfTransactions += 1;
-          summary.revenue.total += Number(transaction.summary.totals.money);
 
           if (transaction.summary.paymentMethod == "cash") {
             summary.revenue.breakdown.cash += Number(transaction.summary.totals.money);
+            summary.revenue.total += Number(transaction.summary.totals.money);
           } else if (transaction.summary.paymentMethod == "card" && transaction.summary.sumupId) {
             summary.revenue.breakdown.card += Number(transaction.summary.totals.money);
+            summary.revenue.total += Number(transaction.summary.totals.money);
           }
         }
 
@@ -73,7 +73,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
           summary.tokens.spent += Number(transaction.summary.totals.tokens);
         }
       }
-
+	
+    console.log("\n---------\n");
     }
 
     res.send({ status: "ok", summary: summary });
