@@ -19,10 +19,8 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {  
   try {
     const till_id = req.body.till_id;
-    const datePeriod = req.body.datePeriod || "today";
-
-    const startDateRaw = req.body.startDate || null;
-    const endDateRaw = req.body.endDate || null;
+    const startDateRaw = req.body.startDate;
+    const endDateRaw = req.body.endDate;
 
     if (!till_id) {
       throw "No till specified";
@@ -34,7 +32,7 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
       throw "Till not found";
     }
     
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates("month", startDateRaw, endDateRaw);
     const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
     
     const { membersObj } = await Members.getAll();
@@ -45,8 +43,6 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
 
     for await (const transaction of formattedTransactions) {
       if (!transaction.paymentFailed && !transaction.isRefund) {
-        // Add month key to each transaction to make it easier to sort data in spreadsheet frontend.
-        transaction.monthKey = moment(transaction.date).startOf("month").format("YYYY-MM-DD");
         sanitizedFormattedTransactions.push(transaction);
       }
     }

@@ -53,11 +53,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
     }
 
     for await(const transaction of transactions) {
-    console.log(transaction.summary);
       if (["membership", "donation", "volunteering", "refund"].includes(transaction.summary.bill[0].item_id)) {
         summary.tokens.issued += Number(transaction.summary.totals.tokens);
       } else {
-	if (transaction.summary.totals.money > 0) {
+	    if (transaction.summary.totals.money > 0) {
           summary.numberOfTransactions += 1;
 
           if (transaction.summary.paymentMethod == "cash") {
@@ -72,9 +71,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
         if (transaction.summary.totals.tokens > 0) {
           summary.tokens.spent += Number(transaction.summary.totals.tokens);
         }
-      }
-	
-    console.log("\n---------\n");
+      }	
     }
 
     res.send({ status: "ok", summary: summary });
