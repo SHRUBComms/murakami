@@ -21,6 +21,7 @@ router.use("/select", require("./select"));
 router.use("/reports", require("./reports"));
 router.use("/refunds", require("./refunds/root"));
 router.use("/receipt", require("./receipt/root"));
+router.use("/return-yoyo-cup", require("./return-yoyo-cup/root"));
 
 router.use("/stock", require("./stock/root"));
 

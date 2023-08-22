@@ -1,0 +1,234 @@
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="{{public_address}}/assets/js/till-balance.js"></script>
+
+<div id="transaction_info" class="row pl-3 mt-4 mb-4"></div>
+
+
+<div class="row m-4">
+    <div class="col-md-6 mx-auto">
+
+    <div class="row mb-4 w-100">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="mb-0">{{till.name}} <span class="text-success">&#9679;</span></h3>
+            <p id="tillBalanceWrapper" class="d-none text-muted">Till Balance: <b>£<span id="tillBalance"></span></b></p>
+          </div>
+        </div>
+    </div>
+    
+    <form action="{{ BASE_URL }}/till/return-yoyo-cup/{{till.till_id}}" method="POST">
+      <div class="row"> 
+        <input type="checkbox" id="memberToggle" data-toggle="toggle" data-on="Customer Is A Member" data-off="Customer Is Not A Member">
+      </div>
+
+      <div id="memberLookup" class="row mt-4 d-none">
+        <input name="member_id" id="member_id" type="hidden" value="" />
+
+        <div class="col-md-12 px-0">
+          <div class="form-group">
+            <input type="text" class="form-control" id="memberInput" oninput="searchMember()" value="" placeholder="Member's name">
+          </div>
+        </div>
+
+        <div class="row mt-4 mb-1 w-100">
+          <div class="col-md-12 mx-auto">
+            <div class="row" id="searchResults"></div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="row my-4" id="returnYoyoCupInput">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Number of cup(s) returned</span>
+          </div>
+          <input id="numberOfCupsInput" name="cups" type="number" oninput="updateReturnSummary()" value="1" min=1 max=50 step=1 class="form-control" placeholder="Enter the number of Yoyo cup(s) returned...">
+        </div>
+      </div>
+
+      <div class="row my-4">
+        <div id="returnSummary" class="alert alert-info p-4 w-100" role="alert">
+          <h4 class="mb-2">Yoyo Cup Return Summary</h4>
+          <p>Customer: <span id="memberSummary" class="font-weight-bold">non-member</span></p>
+          <p>Number of Cup(s): <span class="font-weight-bold"><span id="numberOfCups">1</span> @ £4.00 each</span></p>
+          <p class=" mt-2 font-weight-bold text-uppercase text-center">Total Due to Customer: <span id="totalDue">£4.00</span></p>
+        </div>
+      </div>
+
+
+      <div class="row my-4">
+        <div class="form-check form-check-inline mx-auto mb-2">
+          <input class="form-check-input" id="returnConfirmationCheckbox" onclick="updateReturnSummary();" type="checkbox"autocomplete="__away">
+          <label class="form-check-label"><p>By checking this box, I confirm that the customer has received <span id="totalDueConfirm">£4.00</span> in cash. <span class="text-danger">*</span></p></label>
+        </div>  
+
+        <button class="btn btn-block btn-lg btn-success" type="submit" disabled=true id="submitReturn">Record Yoyo Cup(s) Return</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+
+// Update page with latest till balance.
+getRunningBalance("{{public_address}}", "{{till.till_id}}");
+
+
+var results = [];
+var member = {};
+
+// Assume 1 cup
+var cups = 1;
+var amountDue = 4;
+
+function activateSubmitButton() {
+  console.log("Checking submit button");
+  try {
+    if(isNaN(cups)) {
+      throw "Invalid number of cups";
+    }
+    
+    if(cups < 1) {
+      throw "Invalid number of cups";
+    }
+
+    if(isNaN(amountDue)) {
+      throw "Invalid amount due";
+    }
+
+    if($("#returnConfirmationCheckbox").prop("checked") != true) {
+      throw "Confirmation checkbox not checked";
+    }
+
+    $("#submitReturn").prop("disabled", false)
+
+  } catch(error) {
+    console.log(error);
+    $("#submitReturn").prop("disabled", true)
+  }
+}
+
+function updateReturnSummary() {
+  if(member.name) {
+    $("#memberSummary").text(member.name); 
+    $("#memberSummary").html($("#memberSummary").html() + " <span><a href=\"{{ BASE_URL }}/members/view/" + member.member_id + "?till_id={{ till.till_id }}\" target=\"_blank\" class=\"font-weight-normal\">(view profile)</a></span>"); 
+  } else {
+    $("#memberSummary").text("non-member");  
+  }
+
+  cups = Math.floor(Number($("#numberOfCupsInput").val()));
+  $("#numberOfCupsInput").val(cups);
+  $("#numberOfCups").text(cups);
+
+  var amountDue = cups * 4;
+  var amountDueFormatted = "£" + amountDue.toFixed(2);
+  $("#totalDue").text(amountDueFormatted);
+  $("#totalDueConfirm").text(amountDueFormatted);
+
+  // Handle submit button.
+  activateSubmitButton();
+}
+
+function toggleIsMember(e) {
+  if(e.checked) {
+      $("#memberLookup").removeClass("d-none");
+      //searchMember(function(){});
+  } else {
+    member = {};
+    $("#searchResults").html("");
+    $("memberInput").val("");
+    //$("#memberStatement").html("");
+    $("#memberLookup").addClass("d-none");
+  }
+  updateReturnSummary();
+}
+
+$("#memberToggle").change(function() {
+  toggleIsMember(this);
+});
+
+function searchMember(){
+  $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/members/search/simple",
+      data: {
+          'term': $('#memberInput').val()
+      },
+      success: function(response){
+
+        if(response.status == "ok"){
+        	results = response.results;
+          	updateSearchResults();
+        }
+
+      }
+  });
+}
+
+function updateSearchResults(){
+	member = {};
+	$("#searchResults").html("");
+	for(let i=0;i<results.length;i++){
+		if(results[i].is_member){
+			$("#searchResults").html($("#searchResults").html() +
+				"<div class='col-md-12 mx-auto member-result'>" +
+					"<div class='card mb-4'>" +
+						"<div class='card-body'>" +
+							"<p class='mb-2'><b>" + results[i].name + "</b></p>" +
+							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
+							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
+							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
+						"</div>" +
+					"</div>" +
+				"</div>")
+		} else {
+			$("#searchResults").html($("#searchResults").html() +
+			"<div class='col-md-12 mx-auto member-result'>" +
+				"<div class='card mb-4'>" +
+					"<div class='card-body'>"  +
+						"<p class='mb-3'><b>" + results[i].name + "</b></p>" +
+						"<p class='mb-3'>Membership expired!<p>" +
+						"<a class='btn btn-primary mb-2' onclick='selectMember(" + i + ")'>Select Member</a>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
+		}
+	}
+}
+
+
+
+function selectMember(index){
+	member = results[index];
+  
+  $("#member_id").val(member.member_id);
+
+	if(member.is_member){
+		$("#searchResults").html(
+			"<div class='col-md-12 mb-2 mx-auto member-result'>" +
+				"<div class='card member-selected'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens</p>" +
+						"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
+  } else {
+		$("#searchResults").html(
+			"<div class='col-md-4 mb-4 mx-auto member-result'>" +
+				"<div class='card member-result member-selected-expired'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens (unavailable)</p>" +
+						"<p class='mb-2'>Membership expired!</p>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
+	}
+  
+  updateReturnSummary();
+
+}
+</script>

@@ -8,12 +8,15 @@ module.exports = (Transactions, sequelize, DataTypes) => {
 		});
 
 		let totalTakings = 0;
-		let totalRefunds = 0;
+    let totalRefunds = 0;
+    let totalReimbursements = 0;
 
 		for await (const transaction of transactions) {
 			if(!isNaN(transaction.summary.totals.money)) {
 				if (transaction.summary.paymentMethod == "cash") {
-					if (transaction.summary.bill[0].item_id != "refund") {
+          if(transaction.summary.bill[0].item_id == "yoyoCup") {
+						totalReimbursements = Number(totalReimbursements) + Number(transaction.summary.totals.money);
+          } else if (transaction.summary.bill[0].item_id != "refund") {
 						totalTakings = Number(totalTakings) + Number(transaction.summary.totals.money);
 					} else {
 						totalTakings = Number(totalTakings) + Number(transaction.summary.totals.money);
@@ -23,6 +26,6 @@ module.exports = (Transactions, sequelize, DataTypes) => {
 			}
 		}
 
-		return { totalTakings, totalRefunds };
+		return { totalTakings, totalRefunds, totalReimbursements };
 	}
 }

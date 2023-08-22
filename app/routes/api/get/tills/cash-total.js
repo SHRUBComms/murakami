@@ -18,8 +18,9 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "close"), a
       throw "You don't have permission";
     }
     
-    const { totalTakings, totalRefunds } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
-    const cashTotal = (Number(till.openingFloat) + (Number(totalTakings) || 0) - (Number(totalRefunds) || 0)).toFixed(2);
+    const { totalTakings, totalRefunds, totalReimbursements } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
+    
+    const cashTotal = ((Number(till.openingFloat) + (Number(totalTakings) || 0)) - (Number(totalRefunds) || 0) - (Number(totalReimbursements || 0))).toFixed(2);
     res.send({ status: "ok", cashTotal });
   } catch (error) {
     if(typeof error != "string") {
