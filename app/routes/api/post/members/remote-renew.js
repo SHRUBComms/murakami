@@ -26,7 +26,7 @@ router.post("/request-link", Auth.verifyByKey("membershipSignUp"), async (req, r
     if(!member) {
       throw "no-member";
     }
-    
+
     await Mail.sendAutomatedMember("renewal-link-request", member.member_id);
 
     res.status(200);
@@ -49,12 +49,15 @@ router.post("/request-link", Auth.verifyByKey("membershipSignUp"), async (req, r
 
 router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
   try {
+    console.log("Creating SumUp checkout...");
     const member_id = req.body.member_id;
     const membershipLength = req.body.membershipLength;
     let membershipCost = req.body.membershipCost;
     const membershipLengthPlain = (membershipLength == "full-year") ? "Full" : "Half";
     const membershipItemId = (membershipLength == "full-year") ? "v8H4GDSvQ5" : "pdN6RMaP6S";
     const transactionComment = `${membershipLengthPlain} year of membership, via website.`;
+
+    console.log(req.body);
 
     if(!["half-year", "full-year"].includes(membershipLength)) {
       throw "Please select a valid membership period";
@@ -78,11 +81,15 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
       throw "Couldn't find your membership";
     }
 
+    console.log("Member found!");
+
     const accessToken = await Helpers.SumUpAuth(); 
 
     if(!accessToken) {
       throw "Couldn't contact SumUp";
     }
+
+    console.log("Access token generated: " + accessToken);
 
     const murakamiTransaction = {
       till_id: "website",
@@ -98,15 +105,23 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
     const murakamiTransactionId = await Transactions.addTransaction(murakamiTransaction);
 
+    console.log("Local transaction recorded");
+
     const SumUpCheckout = await Helpers.SumUpCreateCheckout(murakamiTransactionId, membershipCost, transactionComment, accessToken);
+
+    console.log("Transaction processed on SumUp side");
 
     res.status(200);
     res.send({ SumUp: { merchant_code: SumUpCheckout.merchant_code, id: SumUpCheckout.id }, murakami: { transaction_id: murakamiTransactionId }});
 
   } catch (error) {
+    console.log(error);
+
     if(typeof error != "string") {
       error = "Something went wrong! Please try again";
-    } 
+    }
+
+ 
   
     res.status(400);
     res.send({ error });
@@ -116,8 +131,11 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
 router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
   try {
+    console.log("Verifying membership payment...");
     const SumUpTransactionId = req.body.SumUpTransactionId;
     const murakamiTransactionId = req.body.murakamiTransactionId;
+    
+    console.log(req.body);
 
     if(!SumUpTransactionId) {
       throw "Could not find SumUp transaction";
@@ -133,6 +151,8 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Something went wrong processing your payment";
     }
 
+    console.log("Local transaction found");
+
     if(murakamiTransaction.till_id != "website" || murakamiTransaction.user_id != "website") {
       throw "Something went wrong processing your payment";
     }
@@ -147,6 +167,8 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Could not connect to SumUp";
     }
     
+    console.log("Got access token: " + accessToken);
+
     // Fetch SumUp transaction by SumUp ID and Murakami ID - verify that they match
     const SumUpTransaction = await Helpers.SumUpGetTransaction(SumUpTransactionId, accessToken);
 
@@ -154,19 +176,27 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Something went wrong processing your payment";
     }
 
+    console.log("SumUp transaction found: " + SumUpTransactionId);
+
     if (SumUpTransaction.status != "SUCCESSFUL") {
       throw "Payment was not successful";
     }
+
+    console.log("SumUp transaction was successful");
 
     // Verify amounts match
     if(Number(SumUpTransaction.amount) != Number(murakamiTransaction.summary.totals.money)) {
       throw "Payment amount do not match";
     }
 
+    console.log("Payment amounts match between local and SumUp records");
+
     // Verify dates match
     if(moment(murakamiTransaction.date).format("L") != moment(SumUpTransaction.timestamp).format("L")) {
       throw "Transaction dates do not match";
     }
+
+    console.log("Transaction dates match");
 
     // Verify SumUp transaction ID isn't already in system
     const sumupIdAlreadyUsed = await Transactions.getBySumUpId(SumUpTransaction.transaction_code);
@@ -174,6 +204,8 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
     if(sumupIdAlreadyUsed) {
       throw "SumUp transaction is already in system";
     }
+
+    console.log("SumUp transaction ID is unique");
 
     // Get action from Murakami transaction item ID
     const categories = await StockCategories.getAllCategories();
@@ -184,6 +216,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Something went wrong processing your payment";
     }
 
+
     const today = new Date();
     let newExpirationDate;
     if(action == "MEM-FY") {
@@ -193,19 +226,29 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
     } else {
       throw "Something went wrong!";
     }
+    
+    console.log("Transaction contains a membership");
 
     await Members.update({ current_init_membership: today, current_exp_membership: newExpirationDate, is_member: 1 }, { where: { member_id: murakamiTransaction.member_id } });
+
+    console.log("Member details updated");
 
     // Update transaction summary
     let updatedSummary = murakamiTransaction.summary;
     updatedSummary.sumupId = SumUpTransaction.transaction_code;
     await Transactions.update({ summary: updatedSummary }, { where: { transaction_id: murakamiTransactionId }});
+    
+    console.log("Local transacton updated - foregin payment verified");
+
     Mail.sendAutomatedMember("paid-renewal", murakamiTransaction.member_id);
 
+    console.log("Confirmation email sent");
+    
     res.status(200);
     res.send();
 
   } catch (error) {
+    console.log(error);
     if(typeof error != "string") {
       error = "Something went wrong! Please try again";
     } 
