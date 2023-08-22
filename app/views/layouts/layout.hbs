@@ -74,6 +74,12 @@
                                           <a href="{{public_address}}/till/transaction/{{till.till_id}}" aria-expanded="true"><i class="ti-shopping-cart"></i><span>Transaction</span></a>
                                       </li>
                                     {{/ifCond}}
+                                    
+                                    {{#ifCond user.permissions.tills.processTransaction '==' true}}
+                                      <li {{#if returnYoyoCupActive}}class="active"{{/if}}>
+                                          <a href="{{public_address}}/till/return-yoyo-cup/{{till.till_id}}" aria-expanded="true"><i class="fa fa-coffee" style="margin-left: -2px; margin-right: 2px;"></i><span>Return Yoyo Cup</span></a>
+                                      </li>
+                                    {{/ifCond}}
 
                                     {{#ifCond user.permissions.tills.processRefunds '==' true}}
                                       <li {{#if refundsActive}}class="active"{{/if}}>

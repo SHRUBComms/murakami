@@ -47,7 +47,7 @@ const port = process.env.PORT || 3000;
 path = process.env.PUBLIC_PATH || "";
 
 // Define public (static) directory
-app.use(path, express.static("app/static"));
+app.use("/", express.static("app/static"));
 
 // CORS
 app.use(cors());

@@ -123,6 +123,9 @@ module.exports = () => {
         } else if(transaction.summary.bill[i].item_id == "giftcard") {
           bill += "Giftcard: <span style='color: #1986e6;'>£" + Number(transaction.summary.bill[i].value).toFixed(2) + " Balance</span>";
           formattedTransaction.billArray.push({ item: "Giftcard", value: Number(transaction.summary.bill[i].value).toFixed(2) });
+        } else if(transaction.summary.bill[i].item_id == "yoyoCup") { 
+            bill += "Yoyo Reusable Cup: <span style='color: red;'>-£" + Number(transaction.summary.bill[i].value).toFixed(2) + "</span>";
+            formattedTransaction.billArray.push({ item: "Yoyo Reusable Cup", value: Number(transaction.summary.bill[i].value).toFixed(2) });
         } else {
           let value = transaction.summary.bill[i].tokens || transaction.summary.bill[i].value;
 
@@ -187,6 +190,10 @@ module.exports = () => {
 
       if (transaction.summary.bill[0].item_id == "refund") {
         formattedTransaction.isRefund = true;
+      }
+
+      if (transaction.summary.bill[0].item_id == "yoyoCup") {
+        formattedTransaction.isYoyoCupReturn = true;
       }
 
       formattedTransactions.push(formattedTransaction);

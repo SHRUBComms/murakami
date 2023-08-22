@@ -32,8 +32,8 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
       throw "Till not found";
     }
     
-        const formattedStartDate = moment(startDateRaw).startOf("month").toDate();
-        const formattedEndDate = moment(endDateRaw).endOf("month").toDate();
+    const formattedStartDate = moment(startDateRaw).startOf("month").toDate();
+    const formattedEndDate = moment(endDateRaw).endOf("month").toDate();
 
     const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
     const { membersObj } = await Members.getAll();
@@ -46,6 +46,13 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
       if (!transaction.paymentFailed && !transaction.isRefund) {
         sanitizedFormattedTransactions.push(transaction);
       }
+      
+      if (transaction.isYoyoCupReturn) {
+        transaction.totals.moneyPlain = Number(-transaction?.totals?.moneyPlain).toFixed(2);
+        transaction.totals.cash = Number(-transaction?.totals?.cash).toFixed(2);
+        transaction.totals.card = Number(-transaction?.totals?.card).toFixed(2);
+      }
+
     }
 	console.log(formattedTransactions[0]);
     res.send(sanitizedFormattedTransactions);

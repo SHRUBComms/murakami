@@ -78,11 +78,25 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
       }
 
       let monthKey = moment(transaction.date).startOf("month").format("YYYY-MM-DD");
-
+      
       if (response.summary[monthKey] === undefined) {
         response.summary[monthKey] = {};
         response.summary[monthKey].revenue = lodash.cloneDeep(blankSummary);
         response.summary[monthKey].byGroup = {};
+      }
+
+      if(transaction.summary.bill[0].item_id == "yoyoCup") {
+        
+          response.summary[monthKey].revenue.total += -Number(transaction.summary.totals.cash);
+          response.summary[monthKey].revenue.breakdown.cash += -Number(transaction.summary.totals.cash);
+
+          if (!response.summary[monthKey].byGroup[group_id]) {
+            response.summary[monthKey].byGroup[group_id] = lodash.cloneDeep(blankSummary);
+          }
+
+          response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].total += -Number(transaction.summary.totals.cash);
+          response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].breakdown.cash += -Number(transaction.summary.totals.cash);
+          continue;
       }
 
       // Get transaction global percentage discount

@@ -24,9 +24,7 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "close"), a
 
 		const group = req.user.allWorkingGroups[till.group_id];
 
-		const { totalTakings, totalRefunds } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
-
-		console.log(totalTakings, totalRefunds);
+		const { totalTakings, totalRefunds, totalReimbursements } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
 
 		res.render("till/close", {
 			tillMode: true,
@@ -37,8 +35,9 @@ router.get("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "close"), a
 			working_group: group,
 			refunds_total: Number(totalRefunds).toFixed(2),
 			revenue_total: Number(totalTakings).toFixed(2),
-			opening_float: Number(till.openingFloat).toFixed(2),
-			expected_float: (Number(till.openingFloat) + (Number(totalTakings) - Number(totalRefunds))).toFixed(2)
+      reimbursements_total: Number(totalReimbursements).toFixed(2),
+      opening_float: Number(till.openingFloat).toFixed(2),
+			expected_float: ((Number(till.openingFloat) + (Number(totalTakings)) - Number(totalRefunds) - Number(totalReimbursements))).toFixed(2)
 		});
 	} catch (error) {
 		console.log(error);
@@ -50,9 +49,9 @@ router.post("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "close"), 
   	try {
 		await validateFloat(req.body);
 		const till = await Tills.getOpenTill(req.params.till_id);
-		const { totalTakings, totalRefunds } = await Transactions.getTotalCashTakingsSince(req.params.till_id, till.openingTimestamp);
+		const { totalTakings, totalRefunds, totalReimbursements } = await Transactions.getTotalCashTakingsSince(req.params.till_id, till.openingTimestamp);
 
-		const expected_float = Number(Number(till.openingFloat) + Number(totalTakings) - Number(totalRefunds));
+		const expected_float = Number(Number(till.openingFloat) + Number(totalTakings) - Number(totalRefunds) - Number(totalReimbursements));
 
 		await TillActivity.close(req.params.till_id, expected_float, req.body.counted_float, req.user.id, req.body.note);
 

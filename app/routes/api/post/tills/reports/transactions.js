@@ -48,6 +48,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
       if (!transaction.paymentFailed && !transaction.isRefund) {
         sanitizedFormattedTransactions.push(transaction);
       }
+      if (transaction.isYoyoCupReturn) {
+        transaction.totals.moneyPlain = Number(-transaction?.totals?.moneyPlain).toFixed(2);
+        transaction.totals.cash = Number(-transaction?.totals?.cash).toFixed(2);
+        transaction.totals.card = Number(-transaction?.totals?.card).toFixed(2);
+      }
     }
 
     res.send(sanitizedFormattedTransactions);
