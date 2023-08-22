@@ -192,6 +192,10 @@ module.exports = () => {
         formattedTransaction.isRefund = true;
       }
 
+      if (transaction.summary.bill[0].item_id == "yoyoCup") {
+        formattedTransaction.isYoyoCupReturn = true;
+      }
+
       formattedTransactions.push(formattedTransaction);
 		}
 
