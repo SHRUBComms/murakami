@@ -58,8 +58,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransactio
       throw "You don't have permission to process transactions on this till!";
     }
     
-    const { totalTakings, totalRefunds } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
-    const tillBalance = Number(till.openingFloat) + (Number(totalTakings) - Number(totalRefunds));
+    const { totalTakings, totalRefunds, totalReimbursements } = await Transactions.getTotalCashTakingsSince(till.till_id, till.openingTimestamp);
+    const tillBalance = Number(till.openingFloat) + (Number(totalTakings) - Number(totalRefunds) - Number(totalReimbursements));
 
     const transaction = await Transactions.getByMurakamiOrSumUpId(till_id, transaction_id);
     
