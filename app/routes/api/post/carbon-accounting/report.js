@@ -43,9 +43,12 @@ router.post("/", Auth.verifyByKey("carbonAccountingReport"), async (req, res) =>
     let month = 0;
     for await (const i of new Array(noOfMonths)) {
       const monthKey = moment(earliestDate).add(month, "months").format("YYYY-MM-DD");
-      carbonReport[monthKey] = { allWorkingGroups: formattedData, byWorkingGroup: {} };
+      // Create a deep copy of formattedData for allWorkingGroups.
+      carbonReport[monthKey] = { allWorkingGroups: JSON.parse(JSON.stringify(formattedData)), byWorkingGroup: {} };
+      
       for await (const workingGroup of Object.keys(allWorkingGroupsObj)) {
-        carbonReport[monthKey]["byWorkingGroup"][workingGroup] = formattedData;
+        // Create a deep copy of formattedData for each byWorkingGroup.
+        carbonReport[monthKey]["byWorkingGroup"][workingGroup] = JSON.parse(JSON.stringify(formattedData));
       }
       month += 1;
     }
@@ -60,17 +63,17 @@ router.post("/", Auth.verifyByKey("carbonAccountingReport"), async (req, res) =>
       const workingGroup = transaction.group_id;
 
       for await (const carbonCategoryId of Object.keys(transaction.trans_object)) {
-        let amount = transaction.trans_object[carbonCategoryId];
+        let amount = Number(transaction.trans_object[carbonCategoryId]);
 
         if(isNaN(amount)) {
           continue;
         }
 
-        amount = Number(amount);
         // Store raw weight
         const rawAmount = amount;
         // Store how much carbon saved, convert to kg.
-        const carbonSaved = +transaction.trans_object[carbonCategoryId] * +carbonCategories[carbonCategoryId].factors[transaction.method] * 1e-3;
+        const methodWeight = Number(carbonCategories[carbonCategoryId].factors[transaction.method])
+        const carbonSaved = amount * methodWeight * 1e-3;
 
         // Grand totals
         carbonReport[monthKey]["allWorkingGroups"][transaction.method].raw += +rawAmount;
