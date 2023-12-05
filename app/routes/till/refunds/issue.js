@@ -10,15 +10,15 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const Transactions = Models.Transactions;
 const Members = Models.Members;
+const Settings = Models.Settings;
 const StockCategories = Models.StockCategories;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
-const refundPeriod = 14;
-
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
+    const refundPeriod = (await Settings.getById('maxRefundPeriodDays'))?.data || 14;
     const till_id = req.body.tillId;
     const transaction_id = req.body.transactionId;
     const refund_type = req.body.refundType;
