@@ -42,7 +42,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     let categories = await StockCategories.getCategories("treeKv");
     let unitSales = {};
 
-    for await (const category_id of Object.keys(categories)) {
+    for (const category_id of Object.keys(categories)) {
       const category = categories[category_id];
       try {
         if (category.group_id) {
@@ -55,20 +55,20 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
       }
     }
 
-    for await (const transaction of transactions) {
+    for (const transaction of transactions) {
       if(!transaction.summary.bill) {
         continue;
       }
 
-      if(transaction.summary.bill.length == 0) {
+      if (transaction.summary.bill.length == 0) {
         continue;
       }
-
+    
       if (["membership", "donation", "volunteering", "refund"].includes(transaction.summary.bill[0].item_id)) {
         continue;
       }
 
-      if(!["cash", "card"].includes(transaction.summary.paymentMethod)) {
+      if (!["cash", "card"].includes(transaction.summary.paymentMethod)) {
         continue;
       }
 
@@ -80,7 +80,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         continue;
       }
 
-      for await(let item of transaction.summary.bill) {
+      const discountMultiplier = (100 - transaction.summary.bill
+        .filter((item) => item?.discount === 1)
+        .reduce((acc, item) => acc + item?.value, 0)) / 100
+
+      for (let item of transaction.summary.bill) {
         if (!categories[item.item_id]) {
           continue;
         }
@@ -124,7 +128,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
           unitSales[item.item_id].salesInfo.totalSales += +1;
         }
 
-        unitSales[item.item_id].salesInfo.totalRevenue = parseFloat(parseFloat(unitSales[item.item_id].salesInfo.totalRevenue) + (parseFloat(item.value) || parseFloat(item.tokens) || 0)).toFixed(2);
+        unitSales[item.item_id].salesInfo.totalRevenue = parseFloat(
+          parseFloat(unitSales[item.item_id].salesInfo.totalRevenue) +
+          (parseFloat(item.value) * parseFloat(discountMultiplier) || parseFloat(item.tokens) || 0)
+      ).toFixed(2);
 
         if (transaction.member_id != "anon") {
           unitSales[item.item_id].salesInfo.boughtByMember += +1;
