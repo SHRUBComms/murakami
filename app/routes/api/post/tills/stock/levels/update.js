@@ -19,6 +19,8 @@ router.post("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "manageSto
 
     let sanitizedSummary = {};
 
+    const till = await Tills.getById(req.params.till_id);
+
     if (!(req.user.permissions.tills.manageStock == true || (req.user.permissions.tills.manageStock == "commonWorkingGroup" && req.user.working_groups.includes(till.group_id)))) {
       throw "You don't have permission to update stock levels on this till";
     }
@@ -26,9 +28,7 @@ router.post("/:till_id", Auth.isLoggedIn, Auth.canAccessPage("tills", "manageSto
     if (!summary) {
       throw "Please ";
     }
-    
-    const till = await Tills.getById(req.params.till_id);
-    
+        
     if (!till) {
       throw "Till not found";
     }
