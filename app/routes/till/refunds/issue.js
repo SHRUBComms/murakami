@@ -18,7 +18,8 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "processTransaction"), async (req, res) => {
   try {
-    const refundPeriod = (await Settings.getById('maxRefundPeriodDays'))?.data || 14;
+    const refundPeriodConfig = await Settings.getById('maxRefundPeriodDays')
+    const refundPeriod = refundPeriodConfig ? refundPeriodConfig.data : 14;
     const till_id = req.body.tillId;
     const transaction_id = req.body.transactionId;
     const refund_type = req.body.refundType;
