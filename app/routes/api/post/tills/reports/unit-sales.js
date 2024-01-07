@@ -81,8 +81,8 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
       }
 
       const discountMultiplier = (100 - transaction.summary.bill
-        .filter((item) => item?.discount === 1)
-        .reduce((acc, item) => acc + item?.value, 0)) / 100
+        .filter((item) => item.discount === 1)
+        .reduce((acc, item) => acc + item.value, 0)) / 100
 
       for (let item of transaction.summary.bill) {
         if (!categories[item.item_id]) {
