@@ -86,24 +86,14 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
       }
 
       if(transaction.summary.bill[0].item_id == "yoyoCup") {
-        
-          response.summary[monthKey].revenue.total += -Number(transaction.summary.totals.cash);
-          response.summary[monthKey].revenue.breakdown.cash += -Number(transaction.summary.totals.cash);
-          if (group_id !== null) {
-            if (!response.summary[monthKey].byGroup[group_id]) {
-              response.summary[monthKey].byGroup[group_id] = lodash.cloneDeep(blankSummary);
-            }
-
-            response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].total += -Number(transaction.summary.totals.cash);
-            response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].breakdown.cash += -Number(transaction.summary.totals.cash);
-            continue;
-      }
-    }
+        response.summary[monthKey].revenue.total += -Number(transaction.summary.totals.cash);
+        response.summary[monthKey].revenue.breakdown.cash += -Number(transaction.summary.totals.cash);
+       }
 
       // Get transaction global percentage discount
       let totalGlobalDiscountPercentage = 0;
 
-      for await (const item of transaction.summary.bill) {
+      for (const item of transaction.summary.bill) {
         if(item.discount == 1) {
           totalGlobalDiscountPercentage = item.value;
         }
@@ -128,6 +118,16 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
         }
         
         if (group_id !== null) {
+          
+          if(transaction.summary.bill[0].item_id == "yoyoCup") {
+            if (!response.summary[monthKey].byGroup[group_id]) {
+              response.summary[monthKey].byGroup[group_id] = lodash.cloneDeep(blankSummary);
+            }
+            response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].total += -Number(transaction.summary.totals.cash);
+            response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].breakdown.cash += -Number(transaction.summary.totals.cash);
+            continue;
+          }
+      
           if (!response.summary[monthKey].byGroup[group_id]) {
             response.summary[monthKey].byGroup[group_id] = lodash.cloneDeep(blankSummary);
           }
