@@ -40,7 +40,7 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
     const categories = await StockCategories.getAllCategories();
     const transactions = await Transactions.getAll();
     
-    for await (const transaction of transactions) {
+    for (const transaction of transactions) {
       if(!transaction.till_id) {
         continue;
       }
@@ -89,15 +89,16 @@ router.post("/", Auth.verifyByKey("tillRevenue"), async (req, res) => {
         
           response.summary[monthKey].revenue.total += -Number(transaction.summary.totals.cash);
           response.summary[monthKey].revenue.breakdown.cash += -Number(transaction.summary.totals.cash);
+          if (group_id !== null) {
+            if (!response.summary[monthKey].byGroup[group_id]) {
+              response.summary[monthKey].byGroup[group_id] = lodash.cloneDeep(blankSummary);
+            }
 
-          if (!response.summary[monthKey].byGroup[group_id]) {
-            response.summary[monthKey].byGroup[group_id] = lodash.cloneDeep(blankSummary);
-          }
-
-          response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].total += -Number(transaction.summary.totals.cash);
-          response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].breakdown.cash += -Number(transaction.summary.totals.cash);
-          continue;
+            response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].total += -Number(transaction.summary.totals.cash);
+            response.summary[monthKey].byGroup[tillsObj[transaction.till_id].group_id].breakdown.cash += -Number(transaction.summary.totals.cash);
+            continue;
       }
+    }
 
       // Get transaction global percentage discount
       let totalGlobalDiscountPercentage = 0;
