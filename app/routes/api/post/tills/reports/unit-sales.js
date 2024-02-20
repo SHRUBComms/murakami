@@ -84,6 +84,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         .filter((item) => item.discount === 1)
         .reduce((acc, item) => acc + item.value, 0)) / 100
 
+      const discountAbsoluteAmount = transaction.summary.bill
+        .filter((item) => item.discount === 2)
+        .reduce((acc, item) => acc + item.value, 0)
+
       for (let item of transaction.summary.bill) {
         if (!categories[item.item_id]) {
           continue;
@@ -130,8 +134,10 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
 
         unitSales[item.item_id].salesInfo.totalRevenue = parseFloat(
           parseFloat(unitSales[item.item_id].salesInfo.totalRevenue) +
-          (parseFloat(item.value) * parseFloat(discountMultiplier) || parseFloat(item.tokens) || 0)
-      ).toFixed(2);
+            (parseFloat(item.value - discountAbsoluteAmount) *
+            parseFloat(discountMultiplier) || parseFloat(item.tokens) ||
+            0)
+          ).toFixed(2);
 
         if (transaction.member_id != "anon") {
           unitSales[item.item_id].salesInfo.boughtByMember += +1;
