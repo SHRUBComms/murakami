@@ -16,8 +16,18 @@ const failedTransactions = new CronJob({
 
     console.log(`\n---\n CLEAN UP FAILED CARD TRANSACTIONS ${moment().format("L hh:mm A")}\n---\n`);
     let fxTransactions = {}; // SumUp transactions by ID.
+	/* 
+	Filter out cash transactions and card transactions that already have a SumUp ID.
+	For each transaciton, find corresponding SumUp transactions within a 20-minute window of the local transaction's date.
+	Ensure the SumUp transaction is successful and matches the local transaction amount.
+	Check if the SumUp transaction has already been processed or matched.
+	Update the local transaction record with the SumUp transaction code if a match is found.
+	*/
     try {  
 	    const transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day").toDate(), moment().subtract(1, "days").endOf("day").toDate());
+
+		//Filter out cash transactions card transactions that already have a SumUp ID.
+		transactions = transactions.filter((t) => t.summary.paymentMethod === "card" && !t.summary.sumupId)
 
 	    if(transactions.length == 0) {
 	      return;
@@ -28,15 +38,8 @@ const failedTransactions = new CronJob({
 	    if(!accessToken) {
 		throw "Something went wrong contacting SumUp"; 
 	    }
-
+ 
 	    for await (const transaction of transactions) {
-	      if (!transaction.summary.paymentMethod != "card") {
-		continue;
-	      }
-
-	      if(transaction.summary.sumupId) {
-		continue;
-	      }
 
 	      const startTimestamp = moment(transaction.date).subtract(10, "minutes");
 	      const endTimestamp = moment(transaction.date).add(10, "minutes");
