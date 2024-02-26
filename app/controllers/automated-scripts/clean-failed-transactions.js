@@ -17,7 +17,7 @@ const failedTransactions = new CronJob({
     console.log(`\n---\n CLEAN UP FAILED CARD TRANSACTIONS ${moment().format("L hh:mm A")}\n---\n`);
     let fxTransactions = {}; // SumUp transactions by ID.
     try {  
-	    const transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day").toDate(), moment().subtract(1, "days").endOf("day").toDate());
+	    let transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day").toDate(), moment().subtract(1, "days").endOf("day").toDate());
 
 	    if(transactions.length == 0) {
 	      return;
