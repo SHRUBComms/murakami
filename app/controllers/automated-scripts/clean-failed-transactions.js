@@ -24,7 +24,7 @@ const failedTransactions = new CronJob({
 	Update the local transaction record with the SumUp transaction code if a match is found.
 	*/
     try {  
-	    const transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day").toDate(), moment().subtract(1, "days").endOf("day").toDate());
+	    let transactions = await Transactions.getAllBetweenTwoDates(moment().subtract(1, "days").startOf("day").toDate(), moment().subtract(1, "days").endOf("day").toDate());
 
 		//Filter out cash transactions card transactions that already have a SumUp ID.
 		transactions = transactions.filter((t) => t.summary.paymentMethod === "card" && !t.summary.sumupId)
