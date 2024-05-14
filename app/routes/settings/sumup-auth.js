@@ -59,7 +59,7 @@ router.get(
   Auth.isOfClass(["admin"]),
   (req, res, next) => {
     passport.authenticate("sumup", {
-      scope: "transactions.history",
+      scope: "transactions.history user.profile_readonly user.app-settings",
     })(req, res, next);
   }
 );
