@@ -13,6 +13,5 @@ router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), (req, res) => {
 router.use("/email-templates", require("./email-templates"));
 router.use("/static-content", require("./static-content"));
 router.use("/data-permissions", require("./data-permissions"));
-router.use("/sumup-auth", require("./sumup-auth"));
 
 module.exports = router;

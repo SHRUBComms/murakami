@@ -83,6 +83,12 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
     console.log("Member found!");
 
+    const accessToken = await Helpers.SumUpAuth(); 
+
+    if(!accessToken) {
+      throw "Couldn't contact SumUp";
+    }
+
     console.log("Access token generated: " + accessToken);
 
     const murakamiTransaction = {
@@ -101,8 +107,12 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
     console.log("Local transaction recorded");
 
+    const SumUpCheckout = await Helpers.SumUpCreateCheckout(murakamiTransactionId, membershipCost, transactionComment, accessToken);
+
+    console.log("Transaction processed on SumUp side");
+
     res.status(200);
-    res.send({ murakami: { transaction_id: murakamiTransactionId }});
+    res.send({ SumUp: { merchant_code: SumUpCheckout.merchant_code, id: SumUpCheckout.id }, murakami: { transaction_id: murakamiTransactionId }});
 
   } catch (error) {
     console.log(error);
@@ -111,6 +121,8 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
       error = "Something went wrong! Please try again";
     }
 
+ 
+  
     res.status(400);
     res.send({ error });
   }
