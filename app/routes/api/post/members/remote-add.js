@@ -49,8 +49,6 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
       throw "Looks like you already have a membership! Please <a href='/renew?memberId=" + emailInUse.member_id + "'>renew your existing membership</a>";
     }
 
-    const accessToken = await Helpers.SumUpAuth();
-
     let contactPreferences = {};
 
     if (req.body.behaviourChangeSurveyConsent == "on") {
@@ -93,10 +91,8 @@ router.post("/", Auth.verifyByKey("membershipSignUp"), async (req, res) => {
 
     const murakamiTransactionId = await Transactions.addTransaction(murakamiTransaction);
 
-    const SumUpCheckout = await Helpers.SumUpCreateCheckout(murakamiTransactionId, membershipCost, transactionComment, accessToken);
-
     res.status(200);
-    res.send({ SumUp: { merchant_code: SumUpCheckout.merchant_code, id: SumUpCheckout.id }, murakami: { transaction_id: murakamiTransactionId, member_id: memberId }});
+    res.send( {murakami: { transaction_id: murakamiTransactionId, member_id: memberId }});
 
   } catch (error) {
     console.log(error);
