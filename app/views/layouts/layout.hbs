@@ -326,6 +326,9 @@
                                       {{#ifUserClass user.class '["admin"]'}}
                                         <li><a href="{{public_address}}/settings/data-permissions"><i class="fas fa-unlock-alt"></i><span>Data Permissions<span></a></li>
                                       {{/ifUserClass}}
+                                      {{#ifUserClass user.class '["admin"]'}}
+                                        <li><a href="{{public_address}}/settings/sumup-auth"><i class="fas fa-unlock-alt"></i><span>Connect SumUp<span></a></li>
+                                      {{/ifUserClass}}
                                     </ul>
                                 </li>
 
