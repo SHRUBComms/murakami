@@ -157,13 +157,25 @@
 				</div>
 				</div>
 				<div class="row">
-					<div class="col-xs-10 col-md-6 col-md-offset-3 col-xs-offset-1 d-none mx-auto" id="changeCalc">
-		    		<div class="input-group">
-		            <span class="input-group-prepend">
-									<span class="input-group-text" id="basic-addon1">Cash Given £</span>
-								</span>
-		            <input class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
-		    		</div>
+				<div class="col-10 col-md-6 offset-md-3 offset-1 mx-auto d-none" id="changeCalc">
+<div class="input-group">
+    <div class="input-group-prepend">
+        <span class="input-group-text" id="basic-addon1">Cash Given £</span>
+    </div>
+    <input class="form-control" id="cashGivenInput" oninput="calculateChange(this)" onblur="formatInput(this)" type="number" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+</div>
+
+<script>
+function formatInput(input) {
+    // Check if the input value is not empty and is a valid number
+    if (input.value !== '') {
+        // Format the number to ensure two decimal places
+		console.log({inputValue: input.value, float: parseFloat(inputValue)})
+        input.value = parseFloat(input.value).toFixed(2);
+    }
+}
+</script>
+
 		    		<br />
 		    		<div class="input-group">
 		            <span class="input-group-prepend">
@@ -204,14 +216,14 @@
 		    	</div>
 		  	</div>
 
-				<div class="row">
+				{{!-- <div class="row">
 					<div class="conatiner mx-auto">
 						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="checkbox" id="confirmTransaction">
 							<label class="form-check-label">Transaction details are correct</label>
 						</div>
 					</div>
-				</div>
+				</div> --}}
 
       </div>
       <div class="modal-footer">
@@ -487,10 +499,12 @@ function calculateChange(e){
 
 
 	if(isNumeric(cashGiven)){
-		if(cashGiven > global_money_total){
+		if(cashGiven >= global_money_total){
 			change = cashGiven - global_money_total;
-
-		}
+					        $("#confirmTransactionBtn").prop("disabled", false);
+    } else {
+    	$("#confirmTransactionBtn").prop("disabled", true);
+    }
 	}
 	$("#change").val(change.toFixed(2));
 }
@@ -1082,13 +1096,12 @@ function completeTransaction(type){
         },
         success: function(response){
 
-        	$("#confirmTransaction").prop("checked", false)
-        	$("#confirmTransactionBtn").prop("disabled", true)
         	selectPaymentMethod("clear");
 
         	if(response.status == "ok"){
 						getRunningBalance("{{public_address}}", "{{till.till_id}}");
         		$("#note").val("")
+				$("#cashGivenInput").val(0)
 	            transaction = [];
 	            updateTransactionList();
 	            payWithTokens = false;
@@ -1366,13 +1379,13 @@ $("#memberToggle").change(function() {
   toggleIsMember(this);
 });
 
-$("#confirmTransaction").change(function() {
-    if(this.checked) {
+{{!-- $("#cashGiven").change(function() {
+    if(this.value>0) {
         $("#confirmTransactionBtn").prop("disabled", false);
     } else {
     	$("#confirmTransactionBtn").prop("disabled", true);
     }
-});
+}); --}}
 
 
 
