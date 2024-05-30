@@ -94,7 +94,7 @@ router.post("/", async (req, res) => {
 		const member = await Members.getById(shift.member_id, { permissions: { members: { name: true } } });
 
 		if(!member) {
-			throw "Please check that the member ID you entered is correct";
+			throw "The member could not be found.";
 		}
 
 		if(isNaN(shift.duration)) {
