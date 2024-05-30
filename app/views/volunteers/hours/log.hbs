@@ -89,7 +89,7 @@
 
       	workingGroupSelectMarkup += '</select>';
 
-        var logHoursBtn = "<a class='btn btn-block btn-lg btn-primary' onclick='logHours(" + results[i].member_id +  ")'>Log Hours</a>"
+        var logHoursBtn = `<a class='btn btn-block btn-lg btn-primary' onclick='logHours("${results[i].member_id}")'>Log Hours</a>`;
       	if(working_groups.length > 0){
   	      	var shiftLogger =   '<div class="row">' +
             		      						'<div class="col-lg-6 mx-auto mb-4">' +
