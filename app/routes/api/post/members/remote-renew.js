@@ -83,8 +83,6 @@ router.post("/create-checkout", Auth.verifyByKey("membershipSignUp"), async (req
 
     console.log("Member found!");
 
-    console.log("Access token generated: " + accessToken);
-
     const murakamiTransaction = {
       till_id: "website",
       user_id: "website",
