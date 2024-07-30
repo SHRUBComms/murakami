@@ -7,7 +7,7 @@ const sanitizeCategory = async (category, stockCategories, carbonCategories) => 
   await Validators.string({ name: "category name", indefiniteArticle: "a", value: category.name }, { required: true, minLength: 0, maxLength: 51});
   await Validators.number({ name: "member discount", indefiniteArticle: "a", value: category.member_discount }, { required: true, min: 0, max: 100});
   await Validators.number({ name: "weight", indefiniteArticle: "a", value: category.weight }, { required: false, min: 0.1, max: 1000000});
-  await Validators.number({ name: "value", indefiniteArticle: "a", value: category.value }, { required: false, min: 0.01, max: 100});
+  await Validators.number({ name: "value", indefiniteArticle: "a", value: category.value }, { required: false, min: 0.01, max: 4000});
 
   if (category.carbon_id && !carbonCategories[category.carbon_id]) {
     throw "Select a valid carbon category or leave blank";
