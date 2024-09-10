@@ -19,11 +19,11 @@
     "db-downgrade": "npx sequelize-cli db:migrate:undo",
     "tests": "mocha --recursive || true",
     "tests --verbose": "mocha --recursive",
+    "lint": "eslint \"**/*.{js,json}\" --ignore-pattern \"**/*.min.js\"",
     "format": "prettier --write \"**/*.{js,json}\""
   },
   "lint-staged": {
-    "*.js": [
-      "eslint",
+    "**/*.{js,json}": [
       "prettier --check"
     ],
     "*.{json,md}": "prettier --check"
