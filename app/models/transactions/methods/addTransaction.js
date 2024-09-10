@@ -8,7 +8,7 @@ module.exports = (Transactions) => {
       user_id: transaction.user_id,
       member_id: transaction.member_id,
       date: transaction.date,
-      summary: transaction.summary
+      summary: transaction.summary,
     });
 
     return id;

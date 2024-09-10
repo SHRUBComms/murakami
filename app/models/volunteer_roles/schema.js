@@ -1,50 +1,50 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var VolunteerRoles = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const VolunteerRoles = sequelize.define(
     "volunteer_roles",
     {
       role_id: {
         type: DataTypes.STRING(20),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       group_id: {
         type: DataTypes.STRING(12),
-        allowNull: true
+        allowNull: true,
       },
       details: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       availability: {
         type: DataTypes.JSON,
-        allowNull: true
+        allowNull: true,
       },
       dateCreated: {
         type: DataTypes.DATE,
-        allowNull: true
+        allowNull: true,
       },
       public: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "0"
+        defaultValue: "0",
       },
       removed: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "0"
+        defaultValue: "0",
       },
       dateUpdated: {
         type: DataTypes.DATE,
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       tableName: "volunteer_roles",
-      timestamps: false
+      timestamps: false,
     }
   );
 

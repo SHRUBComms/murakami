@@ -15,16 +15,11 @@ const Settings = Models.Settings;
 const rootDir = process.env.CWD;
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.get(
-  "/",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin"]),
-  async (req, res) => {
-    res.render("settings/sumup-auth", {
-      title: "Sumup Authentication",
-    });
-  }
-);
+router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin"]), async (req, res) => {
+  res.render("settings/sumup-auth", {
+    title: "Sumup Authentication",
+  });
+});
 
 // Configure Passport for SumUp OAuth2
 passport.use(
@@ -53,16 +48,11 @@ passport.use(
 );
 
 // Redirect to SumUp login
-router.get(
-  "/auth",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin"]),
-  (req, res, next) => {
-    passport.authenticate("sumup", {
-      scope: "transactions.history",
-    })(req, res, next);
-  }
-);
+router.get("/auth", Auth.isLoggedIn, Auth.isOfClass(["admin"]), (req, res, next) => {
+  passport.authenticate("sumup", {
+    scope: "transactions.history",
+  })(req, res, next);
+});
 // SumUp OAuth2 callback handler
 router.get(
   "/callback",
@@ -72,14 +62,9 @@ router.get(
   })
 );
 
-router.get(
-  "/auth",
-  Auth.isLoggedIn,
-  Auth.isOfClass(["admin"]),
-  async (req, res) => {
-    res.redirect(process.env.PUBLIC_ADDRESS + "/settings/sumup-auth/auth");
-  }
-);
+router.get("/auth", Auth.isLoggedIn, Auth.isOfClass(["admin"]), async (req, res) => {
+  res.redirect(process.env.PUBLIC_ADDRESS + "/settings/sumup-auth/auth");
+});
 
 function encrypt(text) {
   const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, "base64");
@@ -97,7 +82,7 @@ function encrypt(text) {
 async function saveEncryptedSumupOauth2Keys({ encryptedData }) {
   try {
     const setting = await Settings.getById("encryptedSumupOauth2Keys");
-    
+
     if (setting) {
       // If the record exists, update it
       const updatedSetting = await Settings.updateSetting(
@@ -107,10 +92,7 @@ async function saveEncryptedSumupOauth2Keys({ encryptedData }) {
       console.log("Updated existing record:", updatedSetting);
     } else {
       // If the record does not exist, create it
-      const newSetting = await Settings.updateSetting(
-        "encryptedSumupOauth2Keys",
-        encryptedData
-      );
+      const newSetting = await Settings.updateSetting("encryptedSumupOauth2Keys", encryptedData);
       console.log("Created new record:", newSetting);
     }
   } catch (error) {

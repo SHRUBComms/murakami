@@ -5,7 +5,7 @@ module.exports = (StockCategories, sequelize, DataTypes) => {
     const query = {
       raw: true,
       where: { [DataTypes.Op.or]: [{ till_id: till_id }, { till_id: null }], active: 1 },
-      order: [["name", "ASC"]]
+      order: [["name", "ASC"]],
     };
 
     const categories = await StockCategories.findAll(query);
@@ -14,10 +14,10 @@ module.exports = (StockCategories, sequelize, DataTypes) => {
       return tree;
     } else if (format == "kv") {
       return categories.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
-    } else if(format == "treeKv") {  
+    } else if (format == "treeKv") {
       const tree = await StockCategories.treeify(categories);
       const flat = await Helpers.flatten(tree);
       return flat.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
     }
-  }
-}
+  };
+};

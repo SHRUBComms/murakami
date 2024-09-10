@@ -1,48 +1,48 @@
 /* jshint indent: 2 */
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var MailTemplates = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const MailTemplates = sequelize.define(
     "mail_templates",
     {
       mail_id: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       category: {
         type: DataTypes.STRING(15),
-        allowNull: false
+        allowNull: false,
       },
       short_description: {
         type: DataTypes.STRING(100),
-        allowNull: false
+        allowNull: false,
       },
       long_description: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
       },
       subject: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
       markup: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
       },
       plaintext: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
       },
       active: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "1"
-      }
+        defaultValue: "1",
+      },
     },
     {
       tableName: "mail_templates",
-      timestamps: false
+      timestamps: false,
     }
   );
 

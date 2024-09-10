@@ -45,7 +45,7 @@ router.get("/get-carbon-calculations", (req, res) => {
 router.get("*", (req, res) => {
   res.render("error", {
     title: "Page Not Found",
-    notFound: true
+    notFound: true,
   });
 });
 

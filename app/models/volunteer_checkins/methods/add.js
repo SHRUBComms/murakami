@@ -6,7 +6,7 @@ module.exports = (VolunteerCheckIns) => {
       member_id: member_id,
       user_id: user_id,
       questionnaire: questionnaire,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
-  }
-}
+  };
+};

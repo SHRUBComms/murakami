@@ -1,0 +1,2 @@
+npx lint-staged
+# Add sonarlint in future

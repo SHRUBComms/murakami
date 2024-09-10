@@ -8,8 +8,8 @@ module.exports = (Settings, sequelize, DataTypes) => {
   return async (id, data) => {
     const [setting, created] = await Settings.findOrCreate({
       where: { id: id },
-      defaults: { id: id, data: data }
+      defaults: { id: id, data: data },
     });
     return setting;
-  }
-}
+  };
+};

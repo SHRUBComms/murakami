@@ -8,6 +8,6 @@ module.exports = (Transactions) => {
     } else if (result.length == 0) {
       return id;
     }
-  }
+  };
   return GetId;
-}
+};

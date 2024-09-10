@@ -9,13 +9,18 @@ const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.get("/", Auth.isLoggedIn, Auth.canAccessPage("foodCollections", "viewOrganisations"), async (req, res) => {
-	const organisations = await FoodCollectionsOrganisations.getAll();
-      	res.render("food-collections/organisations/manage", {
-        	title: "Food Collection Organisations",
-        	foodCollectionsActive: true,
-        	organisations: organisations
-      	});
-});
+router.get(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("foodCollections", "viewOrganisations"),
+  async (req, res) => {
+    const organisations = await FoodCollectionsOrganisations.getAll();
+    res.render("food-collections/organisations/manage", {
+      title: "Food Collection Organisations",
+      foodCollectionsActive: true,
+      organisations: organisations,
+    });
+  }
+);
 
 module.exports = router;

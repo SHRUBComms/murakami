@@ -10,9 +10,9 @@ module.exports = (app, session) => {
         cookie: {
           path: "/",
           secure: true,
-          httpOnly: true
+          httpOnly: true,
         },
-        name: "murakami_biscuit"
+        name: "murakami_biscuit",
       })
     );
   } else {
@@ -24,9 +24,9 @@ module.exports = (app, session) => {
         expires: now.setHours(now.getHours() + 12),
         cookie: {
           path: "/",
-          httpOnly: true
+          httpOnly: true,
         },
-        name: "murakami_biscuit"
+        name: "murakami_biscuit",
       })
     );
   }

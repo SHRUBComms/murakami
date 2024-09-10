@@ -1,33 +1,33 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var CarbonCategories = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const CarbonCategories = sequelize.define(
     "carbon_categories",
     {
       carbon_id: {
         type: DataTypes.STRING(6),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       name: {
         type: DataTypes.STRING(50),
-        allowNull: false
+        allowNull: false,
       },
       factors: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       active: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "1"
-      }
+        defaultValue: "1",
+      },
     },
     {
       tableName: "carbon_categories",
-      timestamps: false
+      timestamps: false,
     }
   );
 

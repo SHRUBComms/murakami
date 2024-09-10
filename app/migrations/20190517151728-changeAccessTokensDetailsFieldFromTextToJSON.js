@@ -4,14 +4,14 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return Promise.all([
       queryInterface.changeColumn("access_tokens", "details", {
-        type: Sequelize.JSON
-      })
+        type: Sequelize.JSON,
+      }),
     ]);
   },
 
   down: (queryInterface, Sequelize) => {
     queryInterface.changeColumn("access_tokens", "details", {
-      type: Sequelize.TEXT
+      type: Sequelize.TEXT,
     });
-  }
+  },
 };

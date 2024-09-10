@@ -3,7 +3,7 @@
 const router = require("express").Router();
 
 router.get("/", (req, res) => {
-	res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
+  res.redirect(process.env.PUBLIC_ADDRESS + "/users/manage");
 });
 
 router.use("/invite", require("./invite"));

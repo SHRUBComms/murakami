@@ -17,7 +17,7 @@ const Members = Models.Members;
 const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
-router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {  
+router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   try {
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
@@ -34,67 +34,82 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     if (!till) {
       throw "Till not found";
     }
-    
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
-    
+
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
+      datePeriod,
+      startDateRaw,
+      endDateRaw
+    );
+    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(
+      till_id,
+      formattedStartDate,
+      formattedEndDate
+    );
+
     const { membersObj } = await Members.getAll();
 
-    let categories = await StockCategories.getCategories("treeKv");
-    let giftcardSales = [];
+    const categories = await StockCategories.getCategories("treeKv");
+    const giftcardSales = [];
 
     for await (const transaction of transactions) {
-      if(!transaction.summary.bill) {
+      if (!transaction.summary.bill) {
         continue;
       }
 
-      if(transaction.summary.bill.length == 0) {
+      if (transaction.summary.bill.length == 0) {
         continue;
       }
 
-      if (["membership", "donation", "volunteering", "refund"].includes(transaction.summary.bill[0].item_id)) {
+      if (
+        ["membership", "donation", "volunteering", "refund"].includes(
+          transaction.summary.bill[0].item_id
+        )
+      ) {
         continue;
       }
 
-      if(!["cash", "card"].includes(transaction.summary.paymentMethod)) {
+      if (!["cash", "card"].includes(transaction.summary.paymentMethod)) {
         continue;
       }
 
       if (transaction.summary.paymentMethod == "card" && !transaction.summary.sumupId) {
         continue;
-      } 
+      }
 
       if (transaction.summary.totals.money == 0 && transaction.summary.totals.tokens == 0) {
         continue;
       }
 
-      for await(let item of transaction.summary.bill) {
+      for await (const item of transaction.summary.bill) {
         if (!categories[item.item_id]) {
           continue;
         }
-        
-        if(categories[item.item_id].action != "giftcard") {
+
+        if (categories[item.item_id].action != "giftcard") {
           continue;
         }
 
-        let giftcardSale = {
+        const giftcardSale = {
           transaction_id: transaction.transaction_id,
           till: transaction.till_id,
           date: moment(transaction.date).format("L"),
           value: item.value,
-          member: "Non-member"        
-        }
+          member: "Non-member",
+        };
 
-        if(transaction.member_id != "anon") {
-          if(membersObj[transaction.member_id]) {
-            giftcardSale.member = membersObj[transaction.member_id].first_name + " " + membersObj[transaction.member_id].last_name;
+        if (transaction.member_id != "anon") {
+          if (membersObj[transaction.member_id]) {
+            giftcardSale.member =
+              membersObj[transaction.member_id].first_name +
+              " " +
+              membersObj[transaction.member_id].last_name;
           }
         }
 
-        for(let i = 0; i < item.quantity; i++) {
+        for (let i = 0; i < item.quantity; i++) {
           giftcardSales.push(giftcardSale);
         }
-      } 
+      }
     }
 
     res.send({ status: "ok", giftcardSales: giftcardSales });

@@ -18,9 +18,7 @@ module.exports = async () => {
   const Settings = Models.Settings;
 
   try {
-    const encryptedSumupOauth2Keys = await Settings.getById(
-      "encryptedSumupOauth2Keys"
-    );
+    const encryptedSumupOauth2Keys = await Settings.getById("encryptedSumupOauth2Keys");
     if (encryptedSumupOauth2Keys) {
       const sumUpCode = encryptedSumupOauth2Keys
         ? decrypt(encryptedSumupOauth2Keys.data.code)
@@ -64,10 +62,7 @@ module.exports = async () => {
       return json.access_token;
     }
   } catch (error) {
-    console.error(
-      "Failed to retrieve token via client and auth code grant:",
-      error
-    );
+    console.error("Failed to retrieve token via client and auth code grant:", error);
     return null;
   }
 };

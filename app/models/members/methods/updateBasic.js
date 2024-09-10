@@ -11,9 +11,9 @@ module.exports = (Members) => {
         is_member: member.is_member,
         membership_type: member.membership_type,
         free: member.free,
-        current_exp_membership: member.current_exp_membership
+        current_exp_membership: member.current_exp_membership,
       },
       { where: { member_id: member.member_id } }
     );
-  }
-}
+  };
+};

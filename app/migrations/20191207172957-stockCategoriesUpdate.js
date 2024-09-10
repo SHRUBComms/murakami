@@ -4,12 +4,12 @@ module.exports = {
       queryInterface.addColumn("stock_categories", "stockControl", {
         type: Sequelize.INTEGER(4),
         allowNull: false,
-        defaultValue: "0"
+        defaultValue: "0",
       }),
       queryInterface.addColumn("stock_categories", "stockInfo", {
-        type: Sequelize.JSON
+        type: Sequelize.JSON,
       }),
-      queryInterface.removeColumn("stock_categories", "quantity")
+      queryInterface.removeColumn("stock_categories", "quantity"),
     ]);
   },
 
@@ -19,8 +19,8 @@ module.exports = {
       queryInterface.removeColumn("stock_categories", "stockInfo"),
       queryInterface.addColumn("stock_categories", "quantity", {
         type: Sequelize.INTEGER(11),
-        allowNull: true
-      })
+        allowNull: true,
+      }),
     ]);
-  }
+  },
 };

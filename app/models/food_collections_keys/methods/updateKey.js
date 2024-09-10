@@ -6,9 +6,9 @@ module.exports = (FoodCollectionsKeys, sequelize, DataTypes) => {
         member_id: foodCollectionKey.member_id,
         organisations: foodCollectionKey.organisations,
         last_updated: new Date(),
-        active: foodCollectionKey.active
+        active: foodCollectionKey.active,
       },
       { where: { key: foodCollectionKey.key } }
-    )
+    );
   };
 };

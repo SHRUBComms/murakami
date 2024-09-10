@@ -1,24 +1,24 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var DataPermissions = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const DataPermissions = sequelize.define(
     "data_permissions",
     {
       class: {
         type: DataTypes.STRING(15),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       permissions: {
         type: DataTypes.JSON,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       tableName: "data_permissions",
-      timestamps: false
+      timestamps: false,
     }
   );
 

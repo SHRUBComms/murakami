@@ -10,27 +10,27 @@ const Members = Models.Members;
 const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.canAccessPage("members", "view"), async (req, res) => {
-	try {
-		const { membersArray } = await Members.getAll();
+  try {
+    const { membersArray } = await Members.getAll();
 
-		let sanitizedMembers = [];
+    const sanitizedMembers = [];
 
-		for await (const member of membersArray) {
-			const sanitizedMember = await Members.sanitizeMember(member, req.user);
-			if(sanitizedMember) {
-				sanitizedMembers.push(sanitizedMember);
-			}
-		}
+    for await (const member of membersArray) {
+      const sanitizedMember = await Members.sanitizeMember(member, req.user);
+      if (sanitizedMember) {
+        sanitizedMembers.push(sanitizedMember);
+      }
+    }
 
-		res.render("members/manage", {
-			title: "Manage Members",
+    res.render("members/manage", {
+      title: "Manage Members",
       members: sanitizedMembers,
       totalMembers: sanitizedMembers.length,
-			membersActive: true,
-		});
-	} catch (error) {
-		res.redirect(process.env.PUBLIC_ADDRESS + "/error");
-	}
+      membersActive: true,
+    });
+  } catch (error) {
+    res.redirect(process.env.PUBLIC_ADDRESS + "/error");
+  }
 });
 
 module.exports = router;

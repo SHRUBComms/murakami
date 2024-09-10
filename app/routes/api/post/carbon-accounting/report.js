@@ -20,23 +20,23 @@ router.post("/", Auth.verifyByKey("carbonAccountingReport"), async (req, res) =>
 
     const rawCarbon = await Carbon.getAll();
     const carbonCategories = await CarbonCategories.getAll();
-    
-    const earliestDate = moment(rawCarbon[0].trans_date).startOf("month"); 
+
+    const earliestDate = moment(rawCarbon[0].trans_date).startOf("month");
 
     const noOfMonths = Math.ceil(moment().endOf("month").diff(earliestDate, "months", true));
 
-    let carbonReport = {};
-    
-    let formattedData = {
-        recycled: { raw: 0, saved: 0 },
-        generated: { raw: 0, saved: 0 },
-        incinerated: { raw: 0, saved: 0 },
-        landfilled: { raw: 0, saved: 0 },
-        composted: { raw: 0, saved: 0 },
-        reused: { raw: 0, saved: 0 },
-        ["reuse-partners"]: { raw: 0, saved: 0 },
-        stored: { raw: 0, saved: 0 },
-        other: { raw: 0, saved: 0 }
+    const carbonReport = {};
+
+    const formattedData = {
+      recycled: { raw: 0, saved: 0 },
+      generated: { raw: 0, saved: 0 },
+      incinerated: { raw: 0, saved: 0 },
+      landfilled: { raw: 0, saved: 0 },
+      composted: { raw: 0, saved: 0 },
+      reused: { raw: 0, saved: 0 },
+      ["reuse-partners"]: { raw: 0, saved: 0 },
+      stored: { raw: 0, saved: 0 },
+      other: { raw: 0, saved: 0 },
     };
 
     // Setup data object with key for each month.
@@ -44,48 +44,54 @@ router.post("/", Auth.verifyByKey("carbonAccountingReport"), async (req, res) =>
     for await (const i of new Array(noOfMonths)) {
       const monthKey = moment(earliestDate).add(month, "months").format("YYYY-MM-DD");
       // Create a deep copy of formattedData for allWorkingGroups.
-      carbonReport[monthKey] = { allWorkingGroups: JSON.parse(JSON.stringify(formattedData)), byWorkingGroup: {} };
-      
+      carbonReport[monthKey] = {
+        allWorkingGroups: JSON.parse(JSON.stringify(formattedData)),
+        byWorkingGroup: {},
+      };
+
       for await (const workingGroup of Object.keys(allWorkingGroupsObj)) {
         // Create a deep copy of formattedData for each byWorkingGroup.
-        carbonReport[monthKey]["byWorkingGroup"][workingGroup] = JSON.parse(JSON.stringify(formattedData));
+        carbonReport[monthKey]["byWorkingGroup"][workingGroup] = JSON.parse(
+          JSON.stringify(formattedData)
+        );
       }
       month += 1;
     }
 
+    for await (const transaction of rawCarbon) {
+      if (!transaction.trans_object) {
+        continue;
+      }
 
-    for await (let transaction of rawCarbon) {  
-	    if(!transaction.trans_object) {
-	      continue;
-	    }
-      
       const monthKey = moment(transaction.trans_date).startOf("month").format("YYYY-MM-DD");
       const workingGroup = transaction.group_id;
 
       for await (const carbonCategoryId of Object.keys(transaction.trans_object)) {
-        let amount = Number(transaction.trans_object[carbonCategoryId]);
+        const amount = Number(transaction.trans_object[carbonCategoryId]);
 
-        if(isNaN(amount)) {
+        if (isNaN(amount)) {
           continue;
         }
 
         // Store raw weight
         const rawAmount = amount;
         // Store how much carbon saved, convert to kg.
-        const methodWeight = Number(carbonCategories[carbonCategoryId].factors[transaction.method])
+        const methodWeight = Number(carbonCategories[carbonCategoryId].factors[transaction.method]);
         const carbonSaved = amount * methodWeight * 1e-3;
 
         // Grand totals
         carbonReport[monthKey]["allWorkingGroups"][transaction.method].raw += +rawAmount;
         carbonReport[monthKey]["allWorkingGroups"][transaction.method].saved += carbonSaved;
 
-        // By working group 
-        carbonReport[monthKey]["byWorkingGroup"][workingGroup][transaction.method].raw += +(rawAmount).toFixed(4);
-        carbonReport[monthKey]["byWorkingGroup"][workingGroup][transaction.method].saved += +(carbonSaved).toFixed(4);
+        // By working group
+        carbonReport[monthKey]["byWorkingGroup"][workingGroup][transaction.method].raw +=
+          +rawAmount.toFixed(4);
+        carbonReport[monthKey]["byWorkingGroup"][workingGroup][transaction.method].saved +=
+          +carbonSaved.toFixed(4);
       }
     }
 
-    res.send({ status: "ok",  carbonReport, workingGroups: allWorkingGroupsObj });
+    res.send({ status: "ok", carbonReport, workingGroups: allWorkingGroupsObj });
   } catch (error) {
     res.send({ status: "fail", carbonReport: {}, workingGroups: {} });
   }

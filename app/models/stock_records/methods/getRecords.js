@@ -4,9 +4,9 @@ module.exports = (StockRecords) => {
       order: [["timestamp", "DESC"]],
       where: {
         item_id: item_id,
-        itemCondition: condition
+        itemCondition: condition,
       },
-      raw: true
+      raw: true,
     });
   };
 };

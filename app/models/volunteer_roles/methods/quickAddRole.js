@@ -7,8 +7,8 @@ module.exports = (VolunteerRoles) => {
       details: { title: title },
       availability: {},
       dateCreated: new Date(),
-      public: 0
-    })
+      public: 0,
+    });
     return { role_id: roleId, group_id: working_group, details: { title: title } };
   };
 };

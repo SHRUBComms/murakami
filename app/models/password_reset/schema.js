@@ -1,38 +1,38 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var PasswordReset = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const PasswordReset = sequelize.define(
     "password_reset",
     {
       user_id: {
         type: DataTypes.STRING(50),
-        allowNull: false
+        allowNull: false,
       },
       ip_address: {
         type: DataTypes.STRING(39),
-        allowNull: false
+        allowNull: false,
       },
       reset_code: {
         type: DataTypes.STRING(25),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       date_issued: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
       },
       used: {
         type: DataTypes.INTEGER(1),
         allowNull: false,
-        defaultValue: "0"
-      }
+        defaultValue: "0",
+      },
     },
     {
       tableName: "password_reset",
-      timestamps: false
+      timestamps: false,
     }
   );
 

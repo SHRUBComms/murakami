@@ -10,12 +10,12 @@ const Users = Models.Users;
 const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("users", "view"), async (req, res) => {
-  	const { users } = await Users.getAll(req.user);
-    	res.render("users/manage", {
-      		title: "Users",
-      		users: users,
-      		usersActive: true
-    	});
+  const { users } = await Users.getAll(req.user);
+  res.render("users/manage", {
+    title: "Users",
+    users: users,
+    usersActive: true,
+  });
 });
 
 module.exports = router;

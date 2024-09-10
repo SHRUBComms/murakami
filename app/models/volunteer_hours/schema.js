@@ -1,44 +1,44 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var VolunteerHours = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const VolunteerHours = sequelize.define(
     "volunteer_hours",
     {
       shift_id: {
         type: DataTypes.STRING(11),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       member_id: {
         type: DataTypes.STRING(11),
-        allowNull: false
+        allowNull: false,
       },
       date: {
         type: DataTypes.DATEONLY,
-        allowNull: false
+        allowNull: false,
       },
       duration_as_decimal: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: false,
       },
       working_group: {
         type: DataTypes.STRING(10),
-        allowNull: false
+        allowNull: false,
       },
       note: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
       approved: {
         type: DataTypes.INTEGER(1),
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       tableName: "volunteer_hours",
-      timestamps: false
+      timestamps: false,
     }
   );
 

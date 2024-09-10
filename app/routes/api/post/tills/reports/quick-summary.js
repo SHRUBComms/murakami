@@ -16,7 +16,6 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async (req, res) => {
   try {
-    
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
 
@@ -32,35 +31,47 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
     if (!till) {
       throw "Till not found";
     }
-    
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
 
-    let summary = {
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
+      datePeriod,
+      startDateRaw,
+      endDateRaw
+    );
+    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(
+      till_id,
+      formattedStartDate,
+      formattedEndDate
+    );
+
+    const summary = {
       numberOfTransactions: 0,
       revenue: {
         total: 0,
         breakdown: {
           card: 0,
           cash: 0,
-          unknown: 0
-        }
+          unknown: 0,
+        },
       },
       tokens: {
         spent: 0,
-        issued: 0
-      }
-    }
+        issued: 0,
+      },
+    };
 
-    for await(const transaction of transactions) {
-      if (["membership", "donation", "volunteering", "refund"].includes(transaction.summary.bill[0].item_id)) {
+    for await (const transaction of transactions) {
+      if (
+        ["membership", "donation", "volunteering", "refund"].includes(
+          transaction.summary.bill[0].item_id
+        )
+      ) {
         summary.tokens.issued += Number(transaction.summary.totals.tokens);
       } else {
-	    if (transaction.summary.totals.money > 0) {
+        if (transaction.summary.totals.money > 0) {
           summary.numberOfTransactions += 1;
 
           // If Yoyo cup, subtract the amount.
-          if(transaction.summary.bill[0].item_id == "yoyoCup") {
+          if (transaction.summary.bill[0].item_id == "yoyoCup") {
             summary.revenue.breakdown.cash += -Number(transaction.summary.totals.money);
             summary.revenue.total += -Number(transaction.summary.totals.money);
           } else if (transaction.summary.paymentMethod == "cash") {
@@ -75,7 +86,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
         if (transaction.summary.totals.tokens > 0) {
           summary.tokens.spent += Number(transaction.summary.totals.tokens);
         }
-      }	
+      }
     }
 
     res.send({ status: "ok", summary: summary });

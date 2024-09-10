@@ -1,11 +1,11 @@
 const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
 module.exports = (StockCategories) => {
-	return async (format) => {
+  return async (format) => {
     const categories = await StockCategories.findAll({ raw: true });
     if (format == "tree") {
       const tree = await StockCategories.treeify(categories);
-		  return tree;
+      return tree;
     } else if (format == "kv") {
       return categories.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
     } else if (format == "treeKv") {
@@ -13,5 +13,5 @@ module.exports = (StockCategories) => {
       const flat = await Helpers.flatten(tree);
       return flat.reduce((obj, item) => Object.assign(obj, { [item.item_id]: item }), {});
     }
-	}
-}
+  };
+};

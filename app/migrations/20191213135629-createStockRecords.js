@@ -5,35 +5,33 @@ module.exports = {
         action_id: {
           type: Sequelize.STRING(25),
           allowNull: false,
-          primaryKey: true
+          primaryKey: true,
         },
         item_id: {
           type: Sequelize.STRING(25),
-          allowNull: false
+          allowNull: false,
         },
         till_id: {
           type: Sequelize.STRING(25),
-          allowNull: false
+          allowNull: false,
         },
         user_id: {
           type: Sequelize.STRING(20),
-          allowNull: false
+          allowNull: false,
         },
         timestamp: {
           type: Sequelize.DATE,
-          allowNull: false
+          allowNull: false,
         },
         actionInfo: {
           type: Sequelize.JSON,
-          allowNull: false
-        }
-      })
+          allowNull: false,
+        },
+      }),
     ]);
   },
 
   down: (queryInterface, Sequelize) => {
-    return Promise.all([
-      queryInterface.dropTable("stock_records")
-    ]);
-  }
+    return Promise.all([queryInterface.dropTable("stock_records")]);
+  },
 };

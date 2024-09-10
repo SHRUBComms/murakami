@@ -1,32 +1,32 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var Reports = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const Reports = sequelize.define(
     "reports",
     {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
       },
       subject: {
         type: DataTypes.STRING(20),
-        allowNull: false
+        allowNull: false,
       },
       date: {
         type: DataTypes.DATEONLY,
-        allowNull: false
+        allowNull: false,
       },
       report: {
         type: DataTypes.JSON,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       tableName: "reports",
-      timestamps: false
+      timestamps: false,
     }
   );
   Helpers.includeAllModelMethods(

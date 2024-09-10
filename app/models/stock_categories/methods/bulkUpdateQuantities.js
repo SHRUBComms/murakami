@@ -2,17 +2,19 @@ const lodash = require("lodash");
 
 module.exports = (StockCategories) => {
   return async (StockRecords, user_id, till_id, categories, quantities) => {
-
     for await (const itemId of Object.keys(quantities)) {
-      let stockInfo = quantities[itemId];
-      let newStockInfo = lodash.cloneDeep(categories[itemId].stockInfo);
-      
+      const stockInfo = quantities[itemId];
+      const newStockInfo = lodash.cloneDeep(categories[itemId].stockInfo);
+
       if (stockInfo.quantity > 0) {
         newStockInfo.quantity -= stockInfo.quantity;
       }
 
       for await (const condition of Object.keys(stockInfo)) {
-        if (stockInfo[condition].quantity > 0 && categories[itemId].conditions.includes(condition)) {
+        if (
+          stockInfo[condition].quantity > 0 &&
+          categories[itemId].conditions.includes(condition)
+        ) {
           console.log(condition);
           if (newStockInfo[condition]) {
             newStockInfo[condition].quantity -= stockInfo[condition].quantity;
@@ -38,10 +40,12 @@ module.exports = (StockCategories) => {
               summary: {
                 newQty: Number(stockInfo.quantity),
                 oldQty: Number(categories[itemId].stockInfo[condition].quantity),
-                qtyModifier: Number(stockInfo.quantity) - Number(categories[itemId].stockInfo[condition].quantity)
+                qtyModifier:
+                  Number(stockInfo.quantity) -
+                  Number(categories[itemId].stockInfo[condition].quantity),
               },
-              note: null
-            }
+              note: null,
+            },
           };
 
           await StockRecords.addRecord(record);
@@ -49,5 +53,5 @@ module.exports = (StockCategories) => {
       }
     }
     return;
-  }
-}
+  };
+};

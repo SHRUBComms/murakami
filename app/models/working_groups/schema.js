@@ -1,36 +1,36 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var WorkingGroups = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const WorkingGroups = sequelize.define(
     "working_groups",
     {
       group_id: {
         type: DataTypes.STRING(12),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       prefix: {
         type: DataTypes.STRING(10),
-        allowNull: true
+        allowNull: true,
       },
       name: {
         type: DataTypes.STRING(50),
-        allowNull: false
+        allowNull: false,
       },
       welcomeMessage: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
       parent: {
         type: DataTypes.STRING(12),
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       tableName: "working_groups",
-      timestamps: false
+      timestamps: false,
     }
   );
 

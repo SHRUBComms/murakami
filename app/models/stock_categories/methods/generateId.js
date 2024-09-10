@@ -9,6 +9,6 @@ module.exports = (StockCategories) => {
     } else if (result.length == 0) {
       return id;
     }
-  }
+  };
   return GetId;
-}
+};

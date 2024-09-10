@@ -4,12 +4,12 @@ module.exports = {
       queryInterface.addColumn("reports", "id", {
         type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true
-      })
+        primaryKey: true,
+      }),
     ]);
   },
 
   down: (queryInterface, Sequelize) => {
     return Promise.all([queryInterface.removeColumn("reports", "id")]);
-  }
+  },
 };

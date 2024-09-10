@@ -1,5 +1,5 @@
-module.exports = function(Volunteers, sequelize, DataTypes) {
-  return function(member_id, volInfo, callback) {
+module.exports = function (Volunteers, sequelize, DataTypes) {
+  return function (member_id, volInfo, callback) {
     Volunteers.update(
       {
         emergencyContactRelation: volInfo.emergencyContactRelation,
@@ -11,8 +11,8 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
         availability: volInfo.availability,
         gdpr: {
           email: volInfo.gdpr.email,
-          phone: volInfo.gdpr.phone
-        }
+          phone: volInfo.gdpr.phone,
+        },
       },
       { where: { member_id: member_id } }
     ).nodeify(callback);

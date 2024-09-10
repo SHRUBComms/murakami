@@ -11,14 +11,10 @@ module.exports = {
         "destination_organisation_id",
         "destination_organisations"
       ),
-      queryInterface.changeColumn(
-        "food_collections",
-        "destination_organisations",
-        {
-          type: Sequelize.JSON,
-          allowNull: false
-        }
-      )
+      queryInterface.changeColumn("food_collections", "destination_organisations", {
+        type: Sequelize.JSON,
+        allowNull: false,
+      }),
     ]);
   },
 
@@ -36,14 +32,10 @@ module.exports = {
         "destination_organisations",
         "destination_organisation_id"
       ),
-      queryInterface.changeColumn(
-        "food_collections",
-        "destination_organisations",
-        {
-          type: Sequelize.STRING(25),
-          allowNull: false
-        }
-      )
+      queryInterface.changeColumn("food_collections", "destination_organisations", {
+        type: Sequelize.STRING(25),
+        allowNull: false,
+      }),
     ]);
-  }
+  },
 };

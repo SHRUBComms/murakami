@@ -9,13 +9,18 @@ const FoodCollectionsOrganisations = Models.FoodCollectionsOrganisations;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.post("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "manageFoodCollectionLink"), async (req, res) => {
-  try {
-    const organisations = await FoodCollectionsOrganisations.getAll();
-    res.send({ status: "ok", organisations: organisations });
-  } catch (error) {
-    res.send({ status: "fail", msg: "Something went wrong! Please try again" });
+router.post(
+  "/",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("volunteers", "manageFoodCollectionLink"),
+  async (req, res) => {
+    try {
+      const organisations = await FoodCollectionsOrganisations.getAll();
+      res.send({ status: "ok", organisations: organisations });
+    } catch (error) {
+      res.send({ status: "fail", msg: "Something went wrong! Please try again" });
+    }
   }
-});
+);
 
 module.exports = router;

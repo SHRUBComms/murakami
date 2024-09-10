@@ -1,87 +1,87 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var StockCategories = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const StockCategories = sequelize.define(
     "stock_categories",
     {
       item_id: {
         type: DataTypes.STRING(25),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       till_id: {
         type: DataTypes.STRING(25),
-        allowNull: true
+        allowNull: true,
       },
       discount: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: false
+        defaultValue: false,
       },
       carbon_id: {
         type: DataTypes.STRING(6),
-        allowNull: true
+        allowNull: true,
       },
       group_id: {
         type: DataTypes.STRING(12),
-        allowNull: true
+        allowNull: true,
       },
       name: {
         type: DataTypes.STRING(50),
-        allowNull: false
+        allowNull: false,
       },
       value: {
         type: DataTypes.FLOAT,
-        allowNull: true
+        allowNull: true,
       },
       weight: {
         type: DataTypes.INTEGER(11),
-        allowNull: true
+        allowNull: true,
       },
       conditions: {
         type: DataTypes.JSON,
         allowNull: true,
-        defaultValue: []
+        defaultValue: [],
       },
       allowTokens: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "1"
+        defaultValue: "1",
       },
       member_discount: {
         type: DataTypes.INTEGER(3),
         allowNull: false,
-        defaultValue: "0"
+        defaultValue: "0",
       },
       action: {
         type: DataTypes.STRING(20),
-        allowNull: true
+        allowNull: true,
       },
       parent: {
         type: DataTypes.STRING(10),
-        allowNull: true
+        allowNull: true,
       },
       active: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "1"
+        defaultValue: "1",
       },
       stockControl: {
         type: DataTypes.INTEGER(4),
         allowNull: false,
-        defaultValue: "0"
+        defaultValue: "0",
       },
       stockInfo: {
         type: DataTypes.JSON,
         allowNull: true,
-        defaultValue: {}
-      }
+        defaultValue: {},
+      },
     },
     {
       tableName: "stock_categories",
-      timestamps: false
+      timestamps: false,
     }
   );
 

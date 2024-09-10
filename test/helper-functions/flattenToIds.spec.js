@@ -1,46 +1,45 @@
 require("dotenv").config();
-var assert = require("chai").assert;
-var flattenToIds = require(process.env.CWD +
-  "/app/helper-functions/flattenToIds");
+const assert = require("chai").assert;
+const flattenToIds = require(process.env.CWD + "/app/helper-functions/flattenToIds");
 
-describe("Helpers.flattenToIds", function() {
-  describe("with valid params", function() {
-    it("should return an array", function() {
+describe("Helpers.flattenToIds", function () {
+  describe("with valid params", function () {
+    it("should return an array", function () {
       flattenToIds(
         [
           { uid: "1234abcd", foo: "adsjcbsc" },
-          { uid: "5678efgh", foo: "adsjcbsc" }
+          { uid: "5678efgh", foo: "adsjcbsc" },
         ],
         "uid",
-        function(result) {
+        function (result) {
           assert.typeOf(result, "array");
         }
       );
     });
 
-    it("should return an array of length 2", function() {
+    it("should return an array of length 2", function () {
       flattenToIds(
         [
           { uid: "1234abcd", foo: "adsjcbsc" },
-          { uid: "5678efgh", foo: "adsjcbsc" }
+          { uid: "5678efgh", foo: "adsjcbsc" },
         ],
         "uid",
-        function(result) {
+        function (result) {
           assert.lengthOf(result, 2);
         }
       );
     });
   });
 
-  describe("with empty or invalid params", function() {
-    it("should return an array", function() {
-      flattenToIds([], "", function(result) {
+  describe("with empty or invalid params", function () {
+    it("should return an array", function () {
+      flattenToIds([], "", function (result) {
         assert.typeOf(result, "array");
       });
     });
 
-    it("should return an empty array", function() {
-      flattenToIds([], "", function(result) {
+    it("should return an empty array", function () {
+      flattenToIds([], "", function (result) {
         assert.lengthOf(result, "0");
       });
     });
