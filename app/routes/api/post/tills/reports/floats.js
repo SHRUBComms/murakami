@@ -31,15 +31,23 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     if (!till) {
       throw "Till not found";
     }
-    
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-    const activity = await TillActivity.getAllActivityBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
+
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
+      datePeriod,
+      startDateRaw,
+      endDateRaw
+    );
+    const activity = await TillActivity.getAllActivityBetweenTwoDatesByTillId(
+      till_id,
+      formattedStartDate,
+      formattedEndDate
+    );
     const { usersObj } = await Users.getAll(req.user);
-    
-    let formattedActivity = [];
+
+    const formattedActivity = [];
 
     for await (const action of activity) {
-      let formattedAction = {};
+      const formattedAction = {};
 
       formattedAction.timestamp = moment(action.timestamp).format("L hh:mm A");
 
@@ -51,12 +59,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
         formattedAction.discrepancy = "-";
       } else {
         formattedAction.action = "Closing";
-        formattedAction.summary = "Counted Float: £" +
-        action.counted_float.toFixed(2);
+        formattedAction.summary = "Counted Float: £" + action.counted_float.toFixed(2);
         formattedAction.summary += "<br />";
         formattedAction.summary += "Expected Float: £" + action.expected_float.toFixed(2);
 
-        let discrepancy = (action.counted_float - action.expected_float).toFixed(2);
+        const discrepancy = (action.counted_float - action.expected_float).toFixed(2);
 
         if (discrepancy >= 0) {
           formattedAction.discrepancy = "£" + discrepancy;
@@ -72,8 +79,7 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
       }
 
       if (usersObj[action.user_id]) {
-        formattedAction.user =
-          usersObj[action.user_id].name;
+        formattedAction.user = usersObj[action.user_id].name;
       } else {
         formattedAction.user = "Unknown User";
       }

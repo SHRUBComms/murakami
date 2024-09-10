@@ -17,9 +17,7 @@ const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
-  
   try {
-
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
 
@@ -35,12 +33,20 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     if (!till) {
       throw "Till not found";
     }
-    
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
-    
-    let categories = await StockCategories.getCategories("treeKv");
-    let unitSales = {};
+
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
+      datePeriod,
+      startDateRaw,
+      endDateRaw
+    );
+    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(
+      till_id,
+      formattedStartDate,
+      formattedEndDate
+    );
+
+    const categories = await StockCategories.getCategories("treeKv");
+    const unitSales = {};
 
     for (const category_id of Object.keys(categories)) {
       const category = categories[category_id];
@@ -56,15 +62,19 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     }
 
     for (const transaction of transactions) {
-      if(!transaction.summary.bill) {
+      if (!transaction.summary.bill) {
         continue;
       }
 
       if (transaction.summary.bill.length == 0) {
         continue;
       }
-    
-      if (["membership", "donation", "volunteering", "refund"].includes(transaction.summary.bill[0].item_id)) {
+
+      if (
+        ["membership", "donation", "volunteering", "refund"].includes(
+          transaction.summary.bill[0].item_id
+        )
+      ) {
         continue;
       }
 
@@ -74,39 +84,45 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
 
       if (transaction.summary.paymentMethod == "card" && !transaction.summary.sumupId) {
         continue;
-      } 
+      }
 
       if (transaction.summary.totals.money == 0 && transaction.summary.totals.tokens == 0) {
         continue;
       }
 
-      const discountMultiplier = (100 - transaction.summary.bill
-        .filter((item) => item.discount === 1)
-        .reduce((acc, item) => acc + item.value, 0)) / 100
+      const discountMultiplier =
+        (100 -
+          transaction.summary.bill
+            .filter((item) => item.discount === 1)
+            .reduce((acc, item) => acc + item.value, 0)) /
+        100;
 
       const discountAbsoluteAmount = transaction.summary.bill
         .filter((item) => item.discount === 2)
-        .reduce((acc, item) => acc + item.value, 0)
+        .reduce((acc, item) => acc + item.value, 0);
 
-      for (let item of transaction.summary.bill) {
+      for (const item of transaction.summary.bill) {
         if (!categories[item.item_id]) {
           continue;
         }
 
         // Ignore whole transaction discount items
-        if(item.discount) {
+        if (item.discount) {
           continue;
         }
-        
+
         if (item.condition) {
-          categories[item.item_id + "_" + item.condition] = lodash.cloneDeep(categories[item.item_id]);
+          categories[item.item_id + "_" + item.condition] = lodash.cloneDeep(
+            categories[item.item_id]
+          );
           item.item_id += "_" + item.condition;
           categories[item.item_id].absolute_name += " (" + lodash.startCase(item.condition) + ")";
         }
 
         if (!unitSales[item.item_id]) {
           if (categories[item.item_id].group_id) {
-            categories[item.item_id].groupName = req.user.allWorkingGroupsObj[categories[item.item_id].group_id].name || "-";
+            categories[item.item_id].groupName =
+              req.user.allWorkingGroupsObj[categories[item.item_id].group_id].name || "-";
           }
 
           unitSales[item.item_id] = {
@@ -115,15 +131,13 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
               totalRevenue: 0,
               boughtByMember: 0,
               boughtByNonMember: 0,
-              memberRatio: 0
+              memberRatio: 0,
             },
-            categoryInfo:
-              categories[
-                item.item_id
-              ]
+            categoryInfo: categories[item.item_id],
           };
 
-          unitSales[item.item_id].categoryInfo.name = categories[item.item_id].absolute_name || categories[item.item_id].name;
+          unitSales[item.item_id].categoryInfo.name =
+            categories[item.item_id].absolute_name || categories[item.item_id].name;
         }
 
         try {
@@ -134,20 +148,24 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
 
         unitSales[item.item_id].salesInfo.totalRevenue = parseFloat(
           parseFloat(unitSales[item.item_id].salesInfo.totalRevenue) +
-            (parseFloat(item.value - discountAbsoluteAmount) *
-            parseFloat(discountMultiplier) || parseFloat(item.tokens) ||
-            0)
-          ).toFixed(2);
+            (parseFloat(item.value - discountAbsoluteAmount) * parseFloat(discountMultiplier) ||
+              parseFloat(item.tokens) ||
+              0)
+        ).toFixed(2);
 
         if (transaction.member_id != "anon") {
           unitSales[item.item_id].salesInfo.boughtByMember += +1;
         }
 
-        unitSales[item.item_id].salesInfo.memberRatio = ((unitSales[item.item_id].salesInfo.boughtByMember / unitSales[item.item_id].salesInfo.totalSales) * 100 || 0).toFixed(2);
-      } 
+        unitSales[item.item_id].salesInfo.memberRatio = (
+          (unitSales[item.item_id].salesInfo.boughtByMember /
+            unitSales[item.item_id].salesInfo.totalSales) *
+            100 || 0
+        ).toFixed(2);
+      }
     }
 
-    res.send({ status: "ok", unitSales: lodash.values(unitSales)});
+    res.send({ status: "ok", unitSales: lodash.values(unitSales) });
   } catch (error) {
     console.log(error);
     res.send({ status: "fail", unitSales: [] });

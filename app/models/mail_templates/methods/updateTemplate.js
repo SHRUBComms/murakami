@@ -4,5 +4,5 @@ module.exports = (MailTemplates, sequelize, DataTypes) => {
       { active: mail.active, subject: mail.subject, markup: mail.markup },
       { where: { mail_id: mail.id } }
     );
-  }
-}
+  };
+};

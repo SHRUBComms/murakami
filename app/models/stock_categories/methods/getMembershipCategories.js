@@ -1,20 +1,20 @@
-var async = require("async");
+const async = require("async");
 
-module.exports = function(StockCategories, sequelize, DataTypes) {
-  return function(callback) {
+module.exports = function (StockCategories, sequelize, DataTypes) {
+  return function (callback) {
     StockCategories.findAll({
       raw: true,
-      where: { action: { [DataTypes.Op.like]: "%MEM%" } }
-    }).nodeify(function(err, membershipCategories) {
-      var membershipCategoriesObj = {};
+      where: { action: { [DataTypes.Op.like]: "%MEM%" } },
+    }).nodeify(function (err, membershipCategories) {
+      const membershipCategoriesObj = {};
       if (membershipCategories) {
         async.each(
           membershipCategories,
-          function(category, callback) {
+          function (category, callback) {
             membershipCategoriesObj[category.item_id] = category;
             callback();
           },
-          function() {
+          function () {
             callback(err, membershipCategoriesObj);
           }
         );

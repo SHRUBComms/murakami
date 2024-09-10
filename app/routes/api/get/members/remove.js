@@ -10,21 +10,29 @@ const Members = Models.Members;
 const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
-router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "revokeMembership"), async (req, res) => {
-	try {
-		const member = await Members.getById(req.params.member_id, req.user);
-		if (!req.user.permissions.members.revokeMembership) {
-		}
+router.get(
+  "/:member_id",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("members", "revokeMembership"),
+  async (req, res) => {
+    try {
+      const member = await Members.getById(req.params.member_id, req.user);
+      if (!req.user.permissions.members.revokeMembership) {
+      }
 
-		if(req.user.permissions.members.revokeMembership == "commonWorkingGroup" && !Helpers.hasOneInCommon(req.user.working_groups, member.working_groups)) {
-		}
+      if (
+        req.user.permissions.members.revokeMembership == "commonWorkingGroup" &&
+        !Helpers.hasOneInCommon(req.user.working_groups, member.working_groups)
+      ) {
+      }
 
-		await Members.updateStatus(member_id, 0);
-		req.flash("success_msg", "Membership revoked!");
-	} catch (error) {
-	        req.flash("error_msg", "You don't have permission to revoke membership!");
-        	res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
-	}
-});
+      await Members.updateStatus(member_id, 0);
+      req.flash("success_msg", "Membership revoked!");
+    } catch (error) {
+      req.flash("error_msg", "You don't have permission to revoke membership!");
+      res.redirect(process.env.PUBLIC_ADDRESS + "/members/view/" + member_id);
+    }
+  }
+);
 
 module.exports = router;

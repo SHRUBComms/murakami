@@ -21,7 +21,7 @@ router.post("/", Auth.canAccessPage("volunteers", "add"), async (req, res) => {
       throw "Member not found";
     }
 
-    if(member.length == 0) {
+    if (member.length == 0) {
       throw "Member not found";
     }
 
@@ -35,8 +35,8 @@ router.post("/", Auth.canAccessPage("volunteers", "add"), async (req, res) => {
       res.send({ status: "ok", member_id: member.member_id, msg: "member" });
     }
   } catch (error) {
-    if(typeof error != "string") {
-      error = "Something went wrong! Please try again"
+    if (typeof error != "string") {
+      error = "Something went wrong! Please try again";
     }
     res.send({ status: "fail", msg: error });
   }

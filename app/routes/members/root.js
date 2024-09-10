@@ -7,7 +7,7 @@ const rootDir = process.env.CWD;
 const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.isOfClass(["admin", "volunteer", "staff"]), (req, res) => {
-	res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
+  res.redirect(process.env.PUBLIC_ADDRESS + "/members/manage");
 });
 
 router.use("/add", require("./add"));

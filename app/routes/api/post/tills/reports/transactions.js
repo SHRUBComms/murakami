@@ -17,7 +17,6 @@ const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
-  
   try {
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
@@ -34,15 +33,28 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     if (!till) {
       throw "Till not found";
     }
-    
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
-    
+
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
+      datePeriod,
+      startDateRaw,
+      endDateRaw
+    );
+    const transactions = await Transactions.getAllBetweenTwoDatesByTillId(
+      till_id,
+      formattedStartDate,
+      formattedEndDate
+    );
+
     const { membersObj } = await Members.getAll();
     const categories = await StockCategories.getCategories("treeKv");
-    const formattedTransactions = await Transactions.formatTransactions(transactions, membersObj, categories, till_id);
+    const formattedTransactions = await Transactions.formatTransactions(
+      transactions,
+      membersObj,
+      categories,
+      till_id
+    );
 
-    let sanitizedFormattedTransactions = [];
+    const sanitizedFormattedTransactions = [];
 
     for await (const transaction of formattedTransactions) {
       if (!transaction.paymentFailed && !transaction.isRefund) {

@@ -3,8 +3,8 @@ module.exports = (VolunteerHours, sequelize, DataTypes) => {
     return VolunteerHours.findAll({
       where: {
         approved: 1,
-        date: { [DataTypes.Op.between]: [startDate, endDate] }
-      }
+        date: { [DataTypes.Op.between]: [startDate, endDate] },
+      },
     });
   };
 };

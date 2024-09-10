@@ -7,7 +7,7 @@ const rootDir = process.env.CWD;
 const Auth = require(rootDir + "/app/controllers/auth");
 
 router.get("/", Auth.isLoggedIn, Auth.canAccessPage("volunteers", "view"), (req, res) => {
-	res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
+  res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/manage");
 });
 
 router.use("/hours", require("./hours/root"));

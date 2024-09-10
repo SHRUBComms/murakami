@@ -1,66 +1,66 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var Volunteers = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const Volunteers = sequelize.define(
     "volunteer_info",
     {
       member_id: {
         type: DataTypes.STRING(11),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       emergencyContactRelation: {
         type: DataTypes.STRING(25),
-        allowNull: false
+        allowNull: false,
       },
       emergencyContactName: {
         type: DataTypes.STRING(25),
-        allowNull: false
+        allowNull: false,
       },
       emergencyContactPhoneNo: {
         type: DataTypes.STRING(25),
-        allowNull: false
+        allowNull: false,
       },
       roles: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       assignedCoordinators: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       survey: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       availability: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       gdpr: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       dateCreated: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
       },
       lastUpdated: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
-      }
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
+      },
     },
     {
       tableName: "volunteer_info",
-      timestamps: false
+      timestamps: false,
     }
   );
 
-  Volunteers.getVolInfoById = function(id, callback) {
+  Volunteers.getVolInfoById = function (id, callback) {
     callback("err", null);
   };
 

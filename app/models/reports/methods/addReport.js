@@ -3,7 +3,7 @@ module.exports = (Reports) => {
     return Reports.create({
       date: new Date(),
       subject: subject,
-      report: report
+      report: report,
     });
-  }
+  };
 };

@@ -1,26 +1,26 @@
 /* jshint indent: 2 */
 
-var async = require("async");
+const async = require("async");
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var Settings = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const Settings = sequelize.define(
     "settings",
     {
       id: {
         type: DataTypes.STRING(50),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       data: {
         type: DataTypes.JSON,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       tableName: "settings",
-      timestamps: false
+      timestamps: false,
     }
   );
 

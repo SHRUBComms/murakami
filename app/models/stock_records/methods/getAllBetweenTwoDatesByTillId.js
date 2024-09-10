@@ -3,9 +3,9 @@ module.exports = (StockRecords, sequelize, DataTypes) => {
     return StockRecords.findAll({
       where: {
         till_id: till_id,
-        timestamp: { [DataTypes.Op.between]: [startDate, endDate] }
+        timestamp: { [DataTypes.Op.between]: [startDate, endDate] },
       },
-      order: [["timestamp", "DESC"]]
-    })
-  }
-}
+      order: [["timestamp", "DESC"]],
+    });
+  };
+};

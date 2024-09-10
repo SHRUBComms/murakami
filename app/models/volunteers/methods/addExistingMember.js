@@ -12,13 +12,13 @@ module.exports = (Volunteers) => {
         interests: volunteer.survey.interests || "",
         additionalNotes: volunteer.survey.additionalNotes || "",
         skills: volunteer.survey.skills || [],
-        contactMethods: volunteer.survey.contactMethods || []
+        contactMethods: volunteer.survey.contactMethods || [],
       },
       availability: volunteer.availability,
       gdpr: {
         email: volunteer.gdpr.email ? true : false,
-        phone: volunteer.gdpr.phone ? true : false
-      }
+        phone: volunteer.gdpr.phone ? true : false,
+      },
     });
-  }
-}
+  };
+};

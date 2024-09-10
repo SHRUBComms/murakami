@@ -5,9 +5,9 @@ module.exports = (WorkingGroups, sequelize, DataTypes) => {
         prefix: group.prefix,
         name: group.name,
         parent: group.parent,
-        welcomeMessage: group.welcomeMessage
+        welcomeMessage: group.welcomeMessage,
       },
       { where: { group_id: group.group_id } }
     );
-  }
+  };
 };

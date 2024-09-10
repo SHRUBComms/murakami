@@ -17,7 +17,6 @@ const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   try {
-
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
 
@@ -33,14 +32,27 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     if (!till) {
       throw "Till not found";
     }
-    
-    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(datePeriod, startDateRaw, endDateRaw);
-    
-    const records = await StockRecords.getAllBetweenTwoDatesByTillId(till_id, formattedStartDate, formattedEndDate);
+
+    const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
+      datePeriod,
+      startDateRaw,
+      endDateRaw
+    );
+
+    const records = await StockRecords.getAllBetweenTwoDatesByTillId(
+      till_id,
+      formattedStartDate,
+      formattedEndDate
+    );
     const { usersObj } = await Users.getAll(req.user);
-    
+
     const categories = await StockCategories.getCategories("treeKv");
-    const formattedRecords = await StockRecords.formatRecords(records, usersObj, categories, req.user.allWorkingGroupsObj);
+    const formattedRecords = await StockRecords.formatRecords(
+      records,
+      usersObj,
+      categories,
+      req.user.allWorkingGroupsObj
+    );
     res.send(formattedRecords);
   } catch (error) {
     res.send([]);

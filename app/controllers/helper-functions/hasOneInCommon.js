@@ -1,4 +1,4 @@
-module.exports = function(haystack, arr) {
+module.exports = function (haystack, arr) {
   if (!Array.isArray(arr)) {
     arr = [arr];
   }
@@ -7,7 +7,7 @@ module.exports = function(haystack, arr) {
     haystack = [haystack];
   }
 
-  return arr.some(function(v) {
+  return arr.some(function (v) {
     return haystack.indexOf(v) >= 0;
   });
 };

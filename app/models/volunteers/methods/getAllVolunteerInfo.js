@@ -1,33 +1,30 @@
-module.exports = function(Volunteers, sequelize, DataTypes) {
-  return function(settings, callback) {
-    var query = `SELECT * FROM volunteer_info
+module.exports = function (Volunteers, sequelize, DataTypes) {
+  return function (settings, callback) {
+    const query = `SELECT * FROM volunteer_info
           INNER JOIN members ON volunteer_info.member_id=members.member_id`;
-    sequelize.query(query).nodeify(function(err, volunteerInfo) {
+    sequelize.query(query).nodeify(function (err, volunteerInfo) {
       if (volunteerInfo) {
         async.eachOf(
           volunteerInfo,
-          function(volunteer, i, callback) {
+          function (volunteer, i, callback) {
             if (volunteer.working_groups) {
               async.eachOf(
                 volunteer.working_groups,
-                function(wg, j, callback) {
+                function (wg, j, callback) {
                   if (workingGroupsObj[wg]) {
                     volunteer.working_groups[j] = workingGroupsObj[wg];
                   }
                   callback();
                 },
-                function(err) {}
+                function (err) {}
               );
             }
 
-            Object.keys(volunteer.survey.preferredCommMethod).forEach(function(
-              key
-            ) {
+            Object.keys(volunteer.survey.preferredCommMethod).forEach(function (key) {
               if (key == "sms") {
                 volunteer.survey.preferredCommMethod[key] = "text message";
               } else if (key == "fb_messenger") {
-                volunteer.survey.preferredCommMethod[key] =
-                  "Facebook Messenger";
+                volunteer.survey.preferredCommMethod[key] = "Facebook Messenger";
               } else if (key == "whatsapp") {
                 volunteer.survey.preferredCommMethod[key] = "WhatsApp";
               } else if (key == "phone_call") {
@@ -37,45 +34,44 @@ module.exports = function(Volunteers, sequelize, DataTypes) {
               }
             });
 
-            var days = {
+            const days = {
               mon: "Monday",
               tue: "Tuesday",
               wed: "Wednesday",
               thu: "Thursday",
               fri: "Friday",
               sat: "Saturday",
-              sun: "Sunday"
+              sun: "Sunday",
             };
-            var periods = {
+            const periods = {
               m: "Mornings (10-12)",
               ea: "Early Afternoons (12-2)",
               a: "Afternoons (2-4)",
               la: "Late Afternoons (4-6)",
-              e: "Evenings (6-8)"
+              e: "Evenings (6-8)",
             };
 
-            var plainTimes = [];
+            const plainTimes = [];
 
             async.eachOf(
               volunteer.availability,
-              function(value, key, callback) {
+              function (value, key, callback) {
                 plainTimes.push(
                   days[key.substring(0, 3)] +
                     " " +
-                    (periods[key.substring(4, 5)] ||
-                      periods[key.substring(4, 6)])
+                    (periods[key.substring(4, 5)] || periods[key.substring(4, 6)])
                 );
 
                 callback();
               },
-              function(err) {
+              function (err) {
                 volunteer.availability = plainTimes;
               }
             );
 
             callback();
           },
-          function(err) {
+          function (err) {
             callback(err, volunteerInfo);
           }
         );

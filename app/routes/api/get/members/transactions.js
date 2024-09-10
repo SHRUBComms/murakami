@@ -13,26 +13,36 @@ const Members = Models.Members;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.get("/:member_id", Auth.isLoggedIn, Auth.canAccessPage("members", "transactionHistory"), async (req, res) => {
-	try {
-    const member = await Members.getById(req.params.member_id, req.user);
-		if (!member) {
-			throw "Member not found";
-		}
+router.get(
+  "/:member_id",
+  Auth.isLoggedIn,
+  Auth.canAccessPage("members", "transactionHistory"),
+  async (req, res) => {
+    try {
+      const member = await Members.getById(req.params.member_id, req.user);
+      if (!member) {
+        throw "Member not found";
+      }
 
-		const transactions = await Transactions.getByMemberId(req.params.member_id);
-    
-    if(!transactions) {
-			throw "Member has no transactions"
-		}
+      const transactions = await Transactions.getByMemberId(req.params.member_id);
 
-		const categories = await StockCategories.getCategories("treeKv");
+      if (!transactions) {
+        throw "Member has no transactions";
+      }
 
-		const formattedTransactions = await Transactions.formatTransactions(transactions, { [member.member_id]: { member } }, categories, req.query.till_id);
-    res.send(formattedTransactions);
-	} catch (error) {
-		res.send([]);
-	}
-});
+      const categories = await StockCategories.getCategories("treeKv");
+
+      const formattedTransactions = await Transactions.formatTransactions(
+        transactions,
+        { [member.member_id]: { member } },
+        categories,
+        req.query.till_id
+      );
+      res.send(formattedTransactions);
+    } catch (error) {
+      res.send([]);
+    }
+  }
+);
 
 module.exports = router;

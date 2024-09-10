@@ -6,5 +6,5 @@ module.exports = (VolunteerCheckIns, sequelize) => {
     } else {
       return null;
     }
-  }
-}
+  };
+};

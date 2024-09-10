@@ -1,49 +1,49 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var FoodCollections = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const FoodCollections = sequelize.define(
     "food_collections",
     {
       transaction_id: {
         type: DataTypes.STRING(15),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       member_id: {
         type: DataTypes.STRING(11),
-        allowNull: false
+        allowNull: false,
       },
       collection_organisation_id: {
         type: DataTypes.STRING(15),
-        allowNull: false
+        allowNull: false,
       },
       destination_organisations: {
         type: DataTypes.JSON,
-        allowNull: false
+        allowNull: false,
       },
       timestamp: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
       },
       amount: {
         type: DataTypes.STRING(5),
-        allowNull: false
+        allowNull: false,
       },
       note: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
       approved: {
         type: DataTypes.INTEGER(4),
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       tableName: "food_collections",
-      timestamps: false
+      timestamps: false,
     }
   );
 

@@ -11,9 +11,9 @@ module.exports = (StockCategories) => {
         member_discount: category.member_discount || 0,
         allowTokens: category.allowTokens,
         stockControl: category.stockControl,
-        stockInfo: category.stockInfo || {}
+        stockInfo: category.stockInfo || {},
       },
       { where: { item_id: category.item_id } }
-    )
+    );
   };
 };

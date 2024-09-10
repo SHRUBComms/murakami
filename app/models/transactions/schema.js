@@ -1,40 +1,40 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var Transactions = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const Transactions = sequelize.define(
     "transactions",
     {
       transaction_id: {
         type: DataTypes.STRING(30),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       till_id: {
         type: DataTypes.STRING(25),
-        allowNull: true
+        allowNull: true,
       },
       user_id: {
         type: DataTypes.STRING(25),
-        allowNull: false
+        allowNull: false,
       },
       member_id: {
         type: DataTypes.STRING(15),
-        allowNull: true
+        allowNull: true,
       },
       date: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
       },
       summary: {
         type: DataTypes.JSON,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       tableName: "transactions",
-      timestamps: false
+      timestamps: false,
     }
   );
 

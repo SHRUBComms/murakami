@@ -5,32 +5,32 @@ module.exports = {
         member_id: {
           type: DataTypes.STRING(25),
           allowNull: false,
-          unique: true
+          unique: true,
         },
         key: {
           type: DataTypes.STRING(25),
           unique: true,
           primaryKey: true,
-          allowNull: false
+          allowNull: false,
         },
         organisations: {
           type: DataTypes.JSON,
-          allowNull: false
+          allowNull: false,
         },
         last_updated: {
           type: DataTypes.DATE,
-          allowNull: false
+          allowNull: false,
         },
         active: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: 1
-        }
-      })
+          defaultValue: 1,
+        },
+      }),
     ]);
   },
 
   down: (queryInterface, Sequelize) => {
     return Promise.all([queryInterface.dropTable("food_collections_keys")]);
-  }
+  },
 };

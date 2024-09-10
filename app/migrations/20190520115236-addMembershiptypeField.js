@@ -5,12 +5,12 @@ module.exports = {
     return Promise.all([
       queryInterface.addColumn("members", "membership_type", {
         type: Sequelize.STRING(15),
-        allowNull: true
-      })
+        allowNull: true,
+      }),
     ]);
   },
 
   down: (queryInterface, Sequelize) => {
     queryInterface.removeColumn("members", "membership_type");
-  }
+  },
 };

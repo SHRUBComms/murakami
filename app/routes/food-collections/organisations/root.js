@@ -3,7 +3,7 @@
 const router = require("express").Router();
 
 router.get("/", (req, res) => {
-	res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage");
+  res.redirect(process.env.PUBLIC_ADDRESS + "/food-collections/organisations/manage");
 });
 
 router.use("/manage", require("./manage"));

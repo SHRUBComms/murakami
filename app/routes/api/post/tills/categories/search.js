@@ -18,19 +18,19 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewTill"), async
     if (!categories) {
       throw "No categories found";
     }
-    
+
     const flatCategories = await Helpers.flatten(categories);
-    let results = [];
-    
+    const results = [];
+
     for await (const category of flatCategories) {
       if (category.name.toLowerCase().search(term.toLowerCase()) != -1) {
         results.push(category);
       }
     }
-    
+
     res.send({ status: "ok", results: results.slice(0, 3) });
   } catch (error) {
-    res.send({ status: "fail", results: []});
+    res.send({ status: "fail", results: [] });
   }
 });
 

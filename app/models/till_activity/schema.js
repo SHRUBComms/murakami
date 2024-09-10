@@ -1,49 +1,49 @@
 /* jshint indent: 2 */
 
-var Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
+const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
 
-module.exports = function(sequelize, DataTypes) {
-  var TillActivity = sequelize.define(
+module.exports = function (sequelize, DataTypes) {
+  const TillActivity = sequelize.define(
     "till_activity",
     {
       action_id: {
         type: DataTypes.STRING(25),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
       till_id: {
         type: DataTypes.STRING(25),
-        allowNull: false
+        allowNull: false,
       },
       user_id: {
         type: DataTypes.STRING(11),
-        allowNull: false
+        allowNull: false,
       },
       timestamp: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP"),
       },
       expected_float: {
         type: DataTypes.FLOAT,
-        allowNull: true
+        allowNull: true,
       },
       counted_float: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: false,
       },
       note: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
       opening: {
         type: DataTypes.INTEGER(4),
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       tableName: "till_activity",
-      timestamps: false
+      timestamps: false,
     }
   );
 

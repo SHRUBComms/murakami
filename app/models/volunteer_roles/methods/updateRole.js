@@ -7,12 +7,14 @@ module.exports = (VolunteerRoles, sequelize, DataTypes) => {
     delete role.availability;
 
     console.log("Updating...");
-    return VolunteerRoles.update({
-      group_id: groupId,
-      details: role,
-      availability: availability,
-      dateUpdated: new Date() 
-    },
-    { where: { role_id: role_id } })
-	}
-}
+    return VolunteerRoles.update(
+      {
+        group_id: groupId,
+        details: role,
+        availability: availability,
+        dateUpdated: new Date(),
+      },
+      { where: { role_id: role_id } }
+    );
+  };
+};

@@ -4,12 +4,12 @@ module.exports = {
       queryInterface.removeColumn("tills", "stockControl"),
       queryInterface.addColumn("stock_categories", "group_id", {
         type: Sequelize.STRING(12),
-        allowNull: true
+        allowNull: true,
       }),
       queryInterface.addColumn("carbon", "fx_transaction_id", {
         type: Sequelize.STRING(30),
-        allowNull: true
-      })
+        allowNull: true,
+      }),
     ]);
   },
 
@@ -18,10 +18,10 @@ module.exports = {
       queryInterface.addColumn("tills", "stockControl", {
         type: Sequelize.INTEGER(4),
         allowNull: false,
-        defaultValue: "0"
+        defaultValue: "0",
       }),
       queryInterface.removeColumn("stock_categories", "group_id"),
-      queryInterface.removeColumn("carbon", "fx_transaction_id")
+      queryInterface.removeColumn("carbon", "fx_transaction_id"),
     ]);
-  }
+  },
 };

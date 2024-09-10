@@ -14,36 +14,39 @@ const automatedMails = new CronJob({
   onTick: async () => {
     try {
       console.log(`\n---\n AUTOMATED EMAIL CRON ${moment().format("L hh:mm A")}\n---\n`);
-      let memberMails = {};
-      
+      const memberMails = {};
+
       const { membersArray } = await Members.getAll();
-      let sanitizedMembers = [];
+      const sanitizedMembers = [];
 
       for await (const member of membersArray) {
-        const sanitizedMember = await Members.sanitizeMember(member, { permissions: { members: { name: true, contactDetails: true, membershipDates: true } } });
+        const sanitizedMember = await Members.sanitizeMember(member, {
+          permissions: { members: { name: true, contactDetails: true, membershipDates: true } },
+        });
 
-        if(sanitizedMember) {
+        if (sanitizedMember) {
           sanitizedMembers.push(sanitizedMember);
         }
       }
-      
+
       for await (const member of sanitizedMembers) {
         try {
+          if (member.current_exp_membership == "never") {
+            throw "Membership doesn't expire";
+          }
 
-          if(member.current_exp_membership == "never") {
-            throw "Membership doesn't expire"
-          }   
-
-          if(!moment(String(member.current_exp_membership)).isValid()) {
+          if (!moment(String(member.current_exp_membership)).isValid()) {
             throw "Invalid expiration date";
           }
           const today = moment().startOf("day").format("YYYY-MM-DD");
-          if(!member.status && member.is_member == 1) {
-
+          if (!member.status && member.is_member == 1) {
             // Behaviour change survey
-            if(member.contactPreferences) {
-              if(member.contactPreferences.behaviourChangeSurvey == true) {
-                if(moment(member.current_init_membership).add(3, "months").format("YYYY-MM-DD") == today) {
+            if (member.contactPreferences) {
+              if (member.contactPreferences.behaviourChangeSurvey == true) {
+                if (
+                  moment(member.current_init_membership).add(3, "months").format("YYYY-MM-DD") ==
+                  today
+                ) {
                   try {
                     memberMails[member.member_id].push("behaviour-survey");
                   } catch (error) {
@@ -68,7 +71,10 @@ const automatedMails = new CronJob({
 
               console.log("EXPIRED BEFORE TODAY", member.member_id, member.current_exp_membership);
               await Members.updateStatus(member.member_id, 0);
-            } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment(today).add(1, "months").format("YYYY-MM-DD")) {
+            } else if (
+              moment(member.current_exp_membership).format("YYYY-MM-DD") ==
+              moment(today).add(1, "months").format("YYYY-MM-DD")
+            ) {
               // Membership due to expire in one months time
               try {
                 memberMails[member.member_id].push("renewal-notice-long");
@@ -77,21 +83,29 @@ const automatedMails = new CronJob({
               }
 
               console.log("EXPIRES ONE MONTH", member.member_id, member.current_exp_membership);
-            } else if (moment(member.current_exp_membership).format("YYYY-MM-DD") == moment(today).add(1, "week").format("YYYY-MM-DD")) {
+            } else if (
+              moment(member.current_exp_membership).format("YYYY-MM-DD") ==
+              moment(today).add(1, "week").format("YYYY-MM-DD")
+            ) {
               // Membership due to expire in one weeks times
-              
+
               console.log("EXPIRES ONE WEEK", member.member_id, member.current_exp_membership);
-	      try {
+              try {
                 memberMails[member.member_id].push("renewal-notice-short");
               } catch (error) {
                 memberMails[member.member_id] = ["renewal-notice-short"];
               }
             }
           } else {
-            if (moment(member.current_exp_membership).add(5, "years").add(6, "months").format("YYYY-MM-DD") == moment(today).format("YYYY-MM-DD")) {
+            if (
+              moment(member.current_exp_membership)
+                .add(5, "years")
+                .add(6, "months")
+                .format("YYYY-MM-DD") == moment(today).format("YYYY-MM-DD")
+            ) {
               // Membership has been inactive for 5 and a half years
               console.log("REDACT", member.member_id, member.current_exp_membership);
-	      //await Members.redact(member.member_id);
+              //await Members.redact(member.member_id);
             }
           }
         } catch (error) {
@@ -104,10 +118,10 @@ const automatedMails = new CronJob({
         for await (const mail of membersMail) {
           try {
             console.log("SENDING EMAIL:", mail, member_id);
-	    await Mail.sendAutomatedMember(mail, member_id, {});
+            await Mail.sendAutomatedMember(mail, member_id, {});
           } catch (error) {
             console.log("MAIL ERROR:", error);
-          }  
+          }
         }
       }
 
@@ -117,7 +131,7 @@ const automatedMails = new CronJob({
     }
   },
   start: false,
-  timeZone: "Europe/London"
+  timeZone: "Europe/London",
 });
 
 module.exports = automatedMails;
