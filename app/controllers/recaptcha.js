@@ -1,4 +1,4 @@
-const ExpressRecaptcha = require("express-recaptcha").Recaptcha;
+const ExpressRecaptcha = require("express-recaptcha").RecaptchaV3;
 const fetch = require("node-fetch");
 
 const Recaptcha = {};

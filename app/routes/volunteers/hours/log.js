@@ -41,30 +41,29 @@ router.get("/", async (req, res) => {
         tillMode = true;
       }
 
-      res.render("volunteers/hours/log", {
-        tillMode: tillMode,
-        logVolunteerHoursActive: true,
-        till: {
-          till_id: till_id,
-          group_id: req.user.working_groups[0],
-          status: 1,
-        },
-        title: "Log Volunteer Hours",
-        volunteerHoursActive: true,
-        captcha: Recaptcha.recaptcha.render(),
-        working_groups: allWorkingGroupsObj,
-      });
-    } else {
-      res.render("volunteers/hours/log", {
-        title: "Log Volunteer Hours",
-        logoutActive: true,
-        member_id: member_id,
-        captcha: Recaptcha.recaptcha.render(),
-        working_groups: allWorkingGroupsObj,
-        till: { till_id: till_id },
+      Recaptcha.recaptcha.render(function (err, captchaResponse) {
+        if (err) {
+          console.error("Recaptcha error: ", err);
+          return res.status(500).send("Recaptcha failed.");
+        }
+
+        res.render("volunteers/hours/log", {
+          tillMode: tillMode,
+          logVolunteerHoursActive: true,
+          till: {
+            till_id: till_id,
+            group_id: req.user.working_groups[0],
+            status: 1,
+          },
+          title: "Log Volunteer Hours",
+          volunteerHoursActive: true,
+          captcha: captchaResponse, // pass the captcha response
+          working_groups: allWorkingGroupsObj,
+        });
       });
     }
   } catch (error) {
+    console.error({ error });
     res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
 });

@@ -362,7 +362,7 @@ function addToTransaction(item) {
 	sanitizedItem.member_discount = item.member_discount;
 
   // Restrict one global discount per transaction
-  if(transaction.filter(function(existingItem) { return existingItem.discount != false; }).length > 0 && sanitizedItem.discount) {
+  if(transaction.filter(function(existingItem) {console.log({existingItem}) return existingItem.discount != false; }).length > 0 && sanitizedItem.discount) {
     sanitizedItem = null;
     alert("You can only apply 1 whole transaction discount!");
   }

@@ -33,7 +33,7 @@ const failedTransactions = new CronJob({
         (t) => t.summary.paymentMethod === "card" && !t.summary.sumupId
       );
 
-      if (transactions.length == 0) {
+      if (transactions.length === 0) {
         return;
       }
 
@@ -57,7 +57,7 @@ const failedTransactions = new CronJob({
         }
 
         for await (const fxTransaction of sumupTransactions.items) {
-          if (fxTransaction.status != "SUCCESSFUL") {
+          if (fxTransaction.status !== "SUCCESSFUL") {
             continue;
           }
 
