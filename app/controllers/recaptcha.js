@@ -2,7 +2,7 @@ const ExpressRecaptcha = require("express-recaptcha").Recaptcha;
 const fetch = require("node-fetch");
 
 const Recaptcha = {};
-
+/*
 Recaptcha.recaptcha = new ExpressRecaptcha(
   process.env.RECAPTCHA_SITE_KEY,
   process.env.RECAPTCHA_SECRET_KEY
@@ -26,5 +26,5 @@ Recaptcha.checkRecaptcha = async (recaptchaResponse) => {
     return false;
   }
 };
-
+*/
 module.exports = Recaptcha;

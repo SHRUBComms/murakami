@@ -15,7 +15,7 @@ const Auth = require(rootDir + "/app/controllers/auth");
 
 let expectedQuestionnaire;
 
-Settings.findOne({ where: { id: "activities" } }).nodeify((err, skills) => {
+Settings.findOne({ where: { id: "activities" } }).then((err, skills) => {
   expectedQuestionnaire = {
     W7cnfJVW: {
       question_id: "W7cnfJVW",
@@ -32,7 +32,7 @@ Settings.findOne({ where: { id: "activities" } }).nodeify((err, skills) => {
     V6Q3f9BR: {
       question_id: "V6Q3f9BR",
       type: "multi-select",
-      options: skills.data,
+      //options: skills.data,
       question:
         "Please select any skills you feel that you've gained or developed during your time volunteering with us.",
       fromInitialSurvey: "goals",
