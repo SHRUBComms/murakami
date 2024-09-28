@@ -1,23 +1,6 @@
 <script>
-  function removeCategory(path) {
-    $.ajax({
-      type: "POST",
-      url: "{{public_address}}/api/post/tills/categories/remove",
-      data: {
-        item_id: eval(path).item_id,
-        till_id: "{{{till.till_id}}}"
-      },
-      success: function(response) {
-        if (response.status == "ok") {
-          alert(response.msg);
-          var parent = path.split("[")
-          parent.pop();
-          parent = parent.join("[");
-          getCategories(parent);
-        } else {
-          alert(response.msg);
-        }
-      }
-    });
-  }
+  function removeCategory(path) { $.ajax({ type: "POST", url: "{{public_address}}/api/post/tills/categories/remove",
+  data: { item_id: eval(path).item_id, till_id: "{{{till.till_id}}}" }, success: function(response)
+  { if (response.status == "ok") { alert(response.msg); var parent = path.split("[") parent.pop();
+  parent = parent.join("["); getCategories(parent); } else { alert(response.msg); } } }); }
 </script>

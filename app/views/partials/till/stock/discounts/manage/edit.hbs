@@ -12,7 +12,12 @@
         <div class="row">
           <div class="col-10 col-md-8 col-lg-8 col-xl-8 mx-auto">
 
-            <input type="text" placeholder="Discount Name" id="editDiscountName" class="form-control mb-3" />
+            <input
+              type="text"
+              placeholder="Discount Name"
+              id="editDiscountName"
+              class="form-control mb-3"
+            />
 
             <div class="input-group mb-2">
               <select class="form-control" id="editDiscountType">
@@ -25,7 +30,15 @@
               <span class="input-group-prepend">
                 <span class="input-group-text" id="editDiscountValuePre">Discount Amount: </span>
               </span>
-              <input class="form-inline form-control" id="editDiscountValue" type="number" min="0" max="100" step="1" value="0" />
+              <input
+                class="form-inline form-control"
+                id="editDiscountValue"
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value="0"
+              />
               <span class="input-group-append" id="editDiscountValuePost">
                 <span class="input-group-text">%</span>
               </span>
@@ -36,7 +49,12 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" id="editDiscountSubmit" onclick="updateDiscount()">Update Discount</button>
+        <button
+          type="button"
+          class="btn btn-success"
+          id="editDiscountSubmit"
+          onclick="updateDiscount()"
+        >Update Discount</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -44,76 +62,27 @@
 </div>
 
 <script>
-  function updateDiscount(path) {
-
-    let discount = {};
-    discount.item_id = eval(path).item_id;
-    discount.till_id = "{{till.till_id}}"
-    discount.name = $("#editDiscountName").val();
-    discount.discount_type = $("#editDiscountType").val();
-    discount.value = $("#editDiscountValue").val() || 0;
-
-    $.ajax({
-      type: "POST",
-      url: "{{public_address}}/api/post/tills/categories/discounts/update",
-      data: { discount: discount },
-      success: function(response) {
-        if (response.status == "ok") {
-          $("#editDiscount").modal("hide");
-
-          var parent = path.split("[")
-          parent.pop();
-          parent = parent.join("[");
-          $("#categorySearchResults").html("");
-          getCategories(parent);
-
-          alert(response.msg);
-
-        } else {
-          alert(response.msg);
-        }
-      }
-    });
-  }
-
-  function changeEditDiscountTypeInput(discountType) {
-    // Change discount amount input
-    if(discountType == 1) {
-      // Percentage discount
-      var discountAmountInput = $("#editDiscountValue");
-      discountAmountInput.prop("min", 0);
-      discountAmountInput.prop("max", 100);
-      discountAmountInput.prop("step", 1);
-      $("#editDiscountValuePre").text("Discount Amount");
-      $("#editDiscountValuePost").css("display", "flex");
-    } else {
-      // Fixed amount discount
-      var discountAmountInput = $("#editDiscountValue");
-      discountAmountInput.prop("min", 0.01);
-      discountAmountInput.prop("max", 100);
-      discountAmountInput.prop("step", 0.01);
-      $("#editDiscountValuePre").text("Discount Amount: £");
-      $("#editDiscountValuePost").css("display", "none");
-    }
-  }
-
-  $("#editDiscountType").on("change", function() {
-    changeEditDiscountTypeInput(this.value);
-  })
-
-
-  function openEditDiscountDialog(path) {
-    category = eval(path);
-
-    $("#edit_discount_name").html(category.name);
-    $("#editDiscountName").val(category.name);
-    $("#editDiscountType").val(category.discount);
-    console.log(category.discount);
-    changeEditDiscountTypeInput(category.discount);
-    $("#editDiscountValue").val(category.value || 0);
-
-    $("#editDiscountSubmit").attr("onClick", "updateDiscount('" + path + "')");
-
-    $("#editDiscount").modal("show");
-  }
+  function updateDiscount(path) { let discount = {}; discount.item_id = eval(path).item_id;
+  discount.till_id = "{{till.till_id}}" discount.name = $("#editDiscountName").val();
+  discount.discount_type = $("#editDiscountType").val(); discount.value =
+  $("#editDiscountValue").val() || 0; $.ajax({ type: "POST", url: "{{public_address}}/api/post/tills/categories/discounts/update",
+  data: { discount: discount }, success: function(response) { if (response.status == "ok") {
+  $("#editDiscount").modal("hide"); var parent = path.split("[") parent.pop(); parent =
+  parent.join("["); $("#categorySearchResults").html(""); getCategories(parent);
+  alert(response.msg); } else { alert(response.msg); } } }); } function
+  changeEditDiscountTypeInput(discountType) { // Change discount amount input if(discountType == 1)
+  { // Percentage discount var discountAmountInput = $("#editDiscountValue");
+  discountAmountInput.prop("min", 0); discountAmountInput.prop("max", 100);
+  discountAmountInput.prop("step", 1); $("#editDiscountValuePre").text("Discount Amount");
+  $("#editDiscountValuePost").css("display", "flex"); } else { // Fixed amount discount var
+  discountAmountInput = $("#editDiscountValue"); discountAmountInput.prop("min", 0.01);
+  discountAmountInput.prop("max", 100); discountAmountInput.prop("step", 0.01);
+  $("#editDiscountValuePre").text("Discount Amount: £"); $("#editDiscountValuePost").css("display",
+  "none"); } } $("#editDiscountType").on("change", function() {
+  changeEditDiscountTypeInput(this.value); }) function openEditDiscountDialog(path) { category =
+  eval(path); $("#edit_discount_name").html(category.name);
+  $("#editDiscountName").val(category.name); $("#editDiscountType").val(category.discount);
+  console.log(category.discount); changeEditDiscountTypeInput(category.discount);
+  $("#editDiscountValue").val(category.value || 0); $("#editDiscountSubmit").attr("onClick",
+  "updateDiscount('" + path + "')"); $("#editDiscount").modal("show"); }
 </script>

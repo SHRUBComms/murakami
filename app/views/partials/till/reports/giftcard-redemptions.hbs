@@ -1,35 +1,48 @@
 <div class="row">
   <div class="col-md-12">
     <div id="giftcardRedemptionsNote" class="alert alert-info d-none p-4" role="alert">
-      <span class="badge badge-pill badge-info mr-2">Info</span>Please note that giftcards are automatically split over an entire transaction. 
+      <span class="badge badge-pill badge-info mr-2">Info</span>Please note that giftcards are
+      automatically split over an entire transaction.
     </div>
   </div>
 </div>
 
-<table id="giftcardRedemptionsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{ "fileName": "{{till.name}} Discounts" }' data-sort-name="salesInfo.numberOfDiscountedTransactions" data-sort-order="desc">
-    <thead>
-        <tr>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th colspan="3">Sale Type</th>
-        </tr>
-        <tr>
-          <th data-field="dateOfRedemption">Date Giftcard Redeemed</th>
-          <th data-field="dateOfInitialSale">Month Giftcard Purchased</th>
-          <th data-field="giftcardBalance">Giftcard Value (£)</th>
-          <th data-field="amountSpent">Credit Spent (£)</th>
-          <th data-field="amountDonated">Credit Donated (£)</th>
-          <th data-field="member">Redeemed By</th>
-          <th scope="col" data-field="purchaseType.sales">Sales</th>
-          <th scope="col" data-field="purchaseType.membership">Membership</th>
-          <th scope="col" data-field="purchaseType.donation">Donation</th>
-        </tr>
+<table
+  id="giftcardRedemptionsTable"
+  class="fadeIn table-light d-none"
+  data-icons-prefix="fas"
+  {data-pagination="false"
+  data-toggle="table"
+  data-export-data-type="all"
+  data-striped="true"
+  data-show-export="true"
+  data-export-options='{ "fileName": "{{till.name}} Discounts" }'
+  data-sort-name="salesInfo.numberOfDiscountedTransactions"
+  data-sort-order="desc"
+>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th colspan="3">Sale Type</th>
+    </tr>
+    <tr>
+      <th data-field="dateOfRedemption">Date Giftcard Redeemed</th>
+      <th data-field="dateOfInitialSale">Month Giftcard Purchased</th>
+      <th data-field="giftcardBalance">Giftcard Value (£)</th>
+      <th data-field="amountSpent">Credit Spent (£)</th>
+      <th data-field="amountDonated">Credit Donated (£)</th>
+      <th data-field="member">Redeemed By</th>
+      <th scope="col" data-field="purchaseType.sales">Sales</th>
+      <th scope="col" data-field="purchaseType.membership">Membership</th>
+      <th scope="col" data-field="purchaseType.donation">Donation</th>
+    </tr>
 
-    </thead>
+  </thead>
 
   <tbody>
   </tbody>

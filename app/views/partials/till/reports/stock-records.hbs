@@ -1,29 +1,41 @@
-<table id="stockRecordsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" {data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
+<table
+  id="stockRecordsTable"
+  class="fadeIn table-light d-none"
+  data-icons-prefix="fas"
+  {data-pagination="false"
+  data-toggle="table"
+  data-export-data-type="all"
+  data-striped="true"
+  data-show-export="true"
+  data-export-options='{
      "fileName": "{{till.name}} Stock Records"
-   }'   data-sort-name="timestamp" data-sort-order="desc">
-    <thead>
+   }'
+  data-sort-name="timestamp"
+  data-sort-order="desc"
+>
+  <thead>
 
-        <tr>
-          <th colspan="2">Category</th>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th></th>
-          <th></th>
-        </tr>
-        <tr>
-          <th scope="col" data-field="groupName" data-sortable="true">Working Group</th>
-          <th scope="col" data-field="itemName" data-sortable="true">Name</th>
-          <th data-field="timestamp" data-sortable="true">Timestamp</th>
-          <th data-field="user" data-sortable="true">User</th>
-          <th data-field="actionInfo.niceMethod" data-sortable="true">Method</th>
-          <th data-field="actionInfo.summary.oldQty">Previous Quantity</th>
-          <th data-field="actionInfo.summary.qtyModifier">Quantity Modifier</th>
-          <th data-field="actionInfo.summary.newQty">New Quantity</th>
-        </tr>
+    <tr>
+      <th colspan="2">Category</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+    <tr>
+      <th scope="col" data-field="groupName" data-sortable="true">Working Group</th>
+      <th scope="col" data-field="itemName" data-sortable="true">Name</th>
+      <th data-field="timestamp" data-sortable="true">Timestamp</th>
+      <th data-field="user" data-sortable="true">User</th>
+      <th data-field="actionInfo.niceMethod" data-sortable="true">Method</th>
+      <th data-field="actionInfo.summary.oldQty">Previous Quantity</th>
+      <th data-field="actionInfo.summary.qtyModifier">Quantity Modifier</th>
+      <th data-field="actionInfo.summary.newQty">New Quantity</th>
+    </tr>
 
-    </thead>
+  </thead>
 
   <tbody>
   </tbody>
