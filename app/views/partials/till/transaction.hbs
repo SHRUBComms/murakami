@@ -131,7 +131,7 @@
 <div class="row mt-4 mb-4">
 	<div class="col-12 col-md-8 col-lg-6 col-xl-4 mx-auto">
 		<div id="transaction_btns" class="d-none">
-			<button type="button" class="btn btn-success btn-block btn-lg" data-toggle="modal" data-target="#myModal"><span class="transaction-total"></span></button>
+			<button type="button" id="payButton" class="btn btn-success btn-block btn-lg" data-toggle="modal" data-target="#myModal"><span class="transaction-total"></span></button>
 		</div>
 	</div>
 </div>
@@ -169,7 +169,7 @@
 		            <span class="input-group-prepend">
 									<span class="input-group-text" id="basic-addon1">Cash Given £</span>
 								</span>
-		            <input id="cashGivenInput" class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
+		            <input id="cashGivenInput" class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" inputmode="decimal"/>
 		    		</div>
 		    		<br />
 		    		<div class="input-group">
@@ -574,9 +574,12 @@ function updateTransactionList(){
 			var quantityColumnInput = document.createElement("input");
 
 			let maxQuantity;
-			try {
+			try 
+			{
 				maxQuantity = transaction[i].stockInfo[transaction[i].condition].quantity;
-			} catch(err){
+			} 
+			catch(err)
+			{
 				maxQuantity = null;
 			}
 
@@ -595,13 +598,22 @@ function updateTransactionList(){
 			}
 
 			quantityColumnInput.oninput = function(){
-				updateTransaction(i)
-			};
+				updateTransactionQty(i)
+				if(transaction.length > 0){
+					var tokens_total = 0;
+					var weight_total = 0;
+				}
+				updateButtons();
+			}
 
 			quantityColumnInput.onblur = function(){
-				updateTransaction(i)
+				updateTransactionQty(i)
+				if(transaction.length > 0){
+					var tokens_total = 0;
+					var weight_total = 0;
+				}
+				updateButtons();
 			};
-
 			quantityColumn.append(quantityColumnInput)
 		} 
 		else
@@ -616,17 +628,32 @@ function updateTransactionList(){
 		valueColumnInput.style = `width:${inputBoxWidth}px`;
 		valueColumn.className = "align-middle"
 		valueColumnInput.className = "form-control align-middle removeArrows"
+		valueColumnInput.type = "text"
+		valueColumnInput.setAttribute("inputmode", "decimal")
+		valueColumnInput.setAttribute("step", "any")
+		valueColumnInput.setAttribute("min", 0)		
 		valueColumn.id = "value_" + i;
 		valueColumnInput.id = "inputValue_" + i;
 		valueColumn.append(valueColumnInput)
 		
 		valueColumnInput.oninput = function(){
-			updateTransaction(i)
+			updateTransactionValue(i)
+			if(transaction.length > 0){
+				var tokens_total = 0;
+				var weight_total = 0;
+			}
+			updateButtons();
 		};
 
 		valueColumnInput.onblur = function(){
-			updateTransaction(i)
+			updateTransactionValue(i)
+			if(transaction.length > 0){
+				var tokens_total = 0;
+				var weight_total = 0;
+			}
+			updateButtons();
 		};
+		
 
 		if(transaction[i].discount == 1)
 		{
@@ -661,28 +688,32 @@ function updateTransactionList(){
 		weightColumnInput = document.createElement("input")
 		weightColumn.className = "align-middle"
 		weightColumnInput.className = "form-control align-middle removeArrows"
+		weightColumnInput.setAttribute("inputmode", "decimal")
+		weightColumnInput.setAttribute("step", "any")
 		weightColumn.id = "weight_" + i;
 		weightColumnInput.id = "inputWeight_" + i
 		weightColumnInput.style = `width:${inputBoxWidth}px`;
 		weightColumn.append(weightColumnInput)
 		weightColumn.oninput = function(){
-			updateTransaction(i)
+			updateTransactionWeight(i)
+			if(transaction.length > 0){
+				var tokens_total = 0;
+				var weight_total = 0;
+			}
+			updateButtons();
 		};
 		weightColumn.onblur = function(){
-			updateTransaction(i)
+			updateTransactionWeight(i)
+			if(transaction.length > 0){
+				var tokens_total = 0;
+				var weight_total = 0;
+			}
+			updateButtons();
 		};
 
-		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
-			weightColumn.contentEditable = true;
-			weightColumnInput.value = transaction[i].weight || 0
-		} else {
+		if(transaction[i].name == "Donation" || transaction[i].name == "Giftcard") {
 			weightColumn.remove(weightColumnInput)
 			weightColumn.innerHTML = "-";
-		}
-
-		if(transaction[i].giftcard == true) {
-				weightColumn.contentEditable = false;
-				weightColumnInput.value = "-";
 		}
 
 		// Create the remove column.
@@ -705,6 +736,7 @@ function updateTransactionList(){
 
 	}
 
+
 	if(transaction.length > 0){
 
 		$('<tr>',{
@@ -725,8 +757,9 @@ function updateTransactionList(){
 	}
 
 	updateButtons();
-
 }
+
+
 
 function updateButtons(){
 	tokens_total = 0;
@@ -846,10 +879,14 @@ function updateButtons(){
 			// Nothing for customer to pay.
 			$("#selectPaymentMethod").addClass("d-none");
 			$(".transaction-total").html("Pay <b>nothing</b>!")
+			$("#payButton").prop("disabled", true)
+			$("#payButton")[0].style.cursor = "default"
 		} 
 		else if(member.name && payWithTokens)
 		{
 			// Customer is member and is paying with tokens.
+			$("#payButton")[0].style.cursor = "pointer"
+			$("#payButton").prop("disabled", false)
 			if(money_total == 0)
 			{
 				if(member.balance >= tokens_total)
@@ -898,6 +935,8 @@ function updateButtons(){
 		else 
 		{
 			// Paying with money
+			$("#payButton")[0].style.cursor = "pointer"
+			$("#payButton").prop("disabled", false)
 			let cost = (tokens_total + money_total).toFixed(2)
 			$(".transaction-total").html("Pay <b>£" + cost + "</b>");
 			$("#selectPaymentMethod").removeClass("d-none");
@@ -930,88 +969,94 @@ function isNumeric(n) {
 	return !isNaN(parseFloat(n)) && n >= 0;
 }
 
-function updateTransaction(index){
-
 	// Validate value input box.
+function updateTransactionValue(index){
+	console.log($("#inputValue_" + index)[0].list)
 	if ($("#inputValue_" + index).val().length == 0)
 	{
-		newValueStr = "0"
 		transaction[index].value = 0
+		$("#inputValue_" + index).val("")
 	}
 	else
 	{
-		valueHasDot = false; 
 		newValueStr = ""
+		hasDot = false;
 		for (i = 0; i < $("#inputValue_" + index).val().length; i++)
 		{
 			if (isNumeric($("#inputValue_" + index).val()[i]))
 			{
 				newValueStr += $("#inputValue_" + index).val()[i]
-				transaction[index].value = parseFloat(newValueStr)
 			}
-			else if ($("#inputValue_" + index).val()[i] == ".")
-			{
-				if (valueHasDot == false){
-					valueHasDot = true;
-					newValueStr += "."
-					transaction[index].value = parseFloat(newValueStr)
+			else if ($("#inputValue_" + index).val()[i] == "."){
+				if ($("#inputValue_" + index).val().length == 1){
+					newValueStr = 0
 				}
-			}
-			else{
-				$("#inputValue_" + index).val("")
-				newValueStr += ""
+				if (hasDot == false){
+				newValueStr += $("#inputValue_" + index).val()[i]
+				hasDot = true
+				}
+				else{
+					newValueStr += ""
+				}
 			}
 		}
 		$("#inputValue_" + index).val(newValueStr)
+		transaction[index].value = newValueStr
 	}
+}
 
-	// Validate weight input box.
+
+// Validate weight input box.
+function updateTransactionWeight(index){
 	if ($("#inputWeight_" + index).val().length == 0)
 	{
-		newWeightStr = 0
 		transaction[index].weight = 0
+		$("#inputWeight_" + index).val("")
 	}
 	else
 	{
-		weightHasDot = false; 
 		newWeightStr = ""
+		weightHasDot = false; 
 		for (i = 0; i < $("#inputWeight_" + index).val().length; i++)
 		{
 			if (isNumeric($("#inputWeight_" + index).val()[i]))
 			{
 				newWeightStr += $("#inputWeight_" + index).val()[i]
-				transaction[index].weight = parseFloat(newWeightStr)
-
 			}
 			else if ($("#inputWeight_" + index).val()[i] == ".")
 			{
+				if ($("#inputWeight_" + index).val().length == 1){
+					newWeightStr = 0
+				}
 				if (weightHasDot == false)
 				{
 					weightHasDot = true;
 					newWeightStr += "."
-					transaction[index].weight = parseFloat(newWeightStr)
+				}
+				else{
+					newWeightStr += ""
 				}
 			}
+			
+			/*if(transaction[index].carbon_id)
+			{
+			$("#inputWeight_" + index).val(0);
+			transaction[index].weight = 0;
+			} 
 			else 
 			{
-				$("#inputWeight_" + index).val("")	
-				newWeightStr += ""
-				/*if(transaction[index].carbon_id)
-				{
-				$("#inputWeight_" + index).val(0);
-				transaction[index].weight = 0;
-				} 
-				else 
-				{
-				$("#inputWeight_" + index).val("-");
-				transaction[index].weight = 0;
-				}*/
-			}
+			$("#inputWeight_" + index).val("-");
+			transaction[index].weight = 0;
+			}*/
+			
 		}
 		$("#inputWeight_" + index).val(newWeightStr)
+		transaction[index].weight = newWeightStr
 	}
+}
 
 	// Validate quantity input box.
+function updateTransactionQty(index){
 	if ($("#quantity_" + index).val().length == 0)
 	{
 		transaction[index].quantity = 0
@@ -1030,15 +1075,7 @@ function updateTransaction(index){
 		$("#quantity_" + index).val(newQtyStr)
 		transaction[index].quantity = newQtyStr
 	}
-
-	if(transaction.length > 0){
-
-		var tokens_total = 0;
-		var weight_total = 0;
-
-	}
-	updateButtons();
-}
+}	
 
 function searchMember(callback){
   $.ajax({
