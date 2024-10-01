@@ -711,7 +711,9 @@ function updateTransactionList(){
 			updateButtons();
 		};
 
-		if(transaction[i].name == "Donation" || transaction[i].name == "Giftcard") {
+		console.log(transaction[i])
+
+		if(transaction[i].name == "Donations" || transaction[i].name == "Giftcard") {
 			weightColumn.remove(weightColumnInput)
 			weightColumn.innerHTML = "-";
 		}
