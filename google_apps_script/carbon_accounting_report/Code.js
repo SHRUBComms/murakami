@@ -15,10 +15,6 @@ function createSheet(sheet) {
   return SpreadSheet.getSheetByName(sheetName);
 }
 
-function getWorkingGroups() {
-
-}
-
 function getSheetHeaders() {
   headers = ["Month"]; // Leave first column blank
   disposalMethods = [
@@ -73,10 +69,6 @@ function getColumnAsAlpha(column) {
   return (column + 10).toString(36);
 }
 
-function clearAllSheets() {
-  allWorkingGroupsSheet.clearContents();
-}
-
 function writeCarbonAccountingReport(workingGroups, carbonReport) {
   var headers = getSheetHeaders();
   writeHeaders(allWorkingGroupsSheet, headers);
@@ -105,7 +97,6 @@ function writeWorkingGroupData(sheet, carbonReport, group_id) {
   for (var i = 0; i < carbonReportMonthKeys.length; i++) {
 
     var monthKey = carbonReportMonthKeys[i];
-    console.log(monthKey)
     var cellAsAlpha = getColumnAsAlpha(column) + row;
     sheet.getRange(cellAsAlpha).setValue(monthKey);
 
@@ -164,12 +155,24 @@ function writeAllWorkingGroups(sheet, carbonReport) {
 
 function fetchReportData() {
 
-  var key = "";
-  var response = UrlFetchApp.fetch("https://murakami.shrubcoop.org/api/post/carbon-accounting/report?key=" + key, { "method": "post" });
+  // Get api key from script properties
+  const scriptProperties = PropertiesService.getScriptProperties();
+  var key = scriptProperties.getProperty('API_KEY');
+
+  // Make the api post and parse the response
+  var response = UrlFetchApp.fetch(
+    "https://murakami.shrubcoop.org/api/post/carbon-accounting/report?key=" + key,
+    { "method": "post" }
+  );
   response = JSON.parse(response);
+
+  // Check if the request was successful
   if (response.status == "ok") {
+    console.log("Successful api response parsed");
+
+    // Wipe the report and remake
     try {
-      clearAllSheets();
+      allWorkingGroupsSheet.clearContents();
       var workingGroups = response.workingGroups;
       var carbonReport = response.carbonReport;
       writeCarbonAccountingReport(workingGroups, carbonReport);
@@ -177,7 +180,8 @@ function fetchReportData() {
     } catch (e) {
       console.error("Error: ", e);
     }
+
   } else {
-    Logger.log("Error: " + response.msg);
+    console.error("Error: " + response.msg);
   }
 }
