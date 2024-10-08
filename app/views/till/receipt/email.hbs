@@ -1,20 +1,7 @@
 <style>
-  table {
-    border-collapse: collapse;
-    font-family: sans-serif;
-  }
-
-  th, td {
-    text-align: left;
-    padding: 8px;
-  }
-
-  p {
-    font-size: 14px;
-    font-family: sans-serif;
-  }
-
-  tr:nth-child(odd) {background-color: #f2f2f2;}
+  table { border-collapse: collapse; font-family: sans-serif; } th, td { text-align: left; padding:
+  8px; } p { font-size: 14px; font-family: sans-serif; } tr:nth-child(odd) {background-color:
+  #f2f2f2;}
 </style>
 
 <center>
@@ -25,10 +12,10 @@
       <td>{{transaction.transaction_id}}</td>
     </tr>
     {{#if transaction.sumup_id}}
-    <tr>
-      <td>SumUp Transaction ID</td>
-      <td>{{transaction.sumup_id}}</td>
-    </tr>
+      <tr>
+        <td>SumUp Transaction ID</td>
+        <td>{{transaction.sumup_id}}</td>
+      </tr>
     {{/if}}
     <tr>
       <td>Timestamp</td>
@@ -51,7 +38,7 @@
       <td>Tokens Spent</td>
       <td>{{transaction.totals.tokens}}</td>
     </tr>
-    
+
     <tr>
       <td>Giftcard Spent</td>
       <td>{{transaction.totals.giftcard}}</td>
@@ -64,7 +51,8 @@
   {{#if transaction.carbon.savedThisTransaction}}
     <p>
       <b>
-        You saved {{transaction.carbon.savedThisTransaction}}kg of C0<sub>2</sub>!
+        You saved
+        {{transaction.carbon.savedThisTransaction}}kg of C0<sub>2</sub>!
       </b>
     </p>
     <br />
