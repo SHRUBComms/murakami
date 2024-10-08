@@ -156,6 +156,7 @@ function update(){
 		$('<tr>',{
 		    html:"<td>" + transaction[i].category + "</td>" +
 		    "<td id='weight_" + i + "' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + "</td>" +
+		    "<td id='weight_" + i + "' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + "</td>" +
 		    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
 		}).appendTo('#transaction-info');
 	
@@ -174,6 +175,7 @@ function update(){
 			updateTrans(i)
 		};
 	}
+}
 
 
 
@@ -197,39 +199,12 @@ function isNumeric(n) {
 }
 
 function updateTrans(index){
-	if ($("#inputLogWeight_" + index).val().length == 0)
-	{
-		transaction[index].weight = 0
-		$("#inputLogWeight_" + index).val("")
-	}
-	else
-	{
-		newWeightStr = ""
-		weightHasDot = false; 
-		for (i = 0; i < $("#inputLogWeight_" + index).val().length; i++)
-		{
-			if (isNumeric($("#inputLogWeight_" + index).val()[i]))
-			{
-				newWeightStr += $("#inputLogWeight_" + index).val()[i]
-			}
-			else if ($("#inputLogWeight_" + index).val()[i] == ".")
-			{
-				if ($("#inputLogWeight_" + index).val().length == 1){
-					newWeightStr = 0
-				}
-				if (weightHasDot == false)
-				{
-					weightHasDot = true;
-					newWeightStr += "."
-				}
-				else{
-					newWeightStr += ""
-				}
-			}
-			
-		}
-		$("#inputLogWeight_" + index).val(newWeightStr)
-		transaction[index].weight = newWeightStr
+
+	if(isNumeric($("#weight_" + index).html())){
+		transaction[index].weight = $("#weight_" + index).html();
+	} else {
+		$("#weight_" + index).html("");
+		transaction[index].weight = 0;
 	}
 
 	if(transaction.length > 0){
