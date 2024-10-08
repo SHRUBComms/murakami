@@ -973,37 +973,39 @@ function isNumeric(n) {
 
 	// Validate value input box.
 function updateTransactionValue(index){
-	console.log($("#inputValue_" + index)[0].list)
-	if ($("#inputValue_" + index).val().length == 0)
+	inputBoxElement = $("#inputValue_" + index)
+	if (inputBoxElement.val().length == 0)
 	{
 		transaction[index].value = 0
-		$("#inputValue_" + index).val("")
+		inputBoxElement.val("")
 	}
 	else
 	{
-		newValueStr = ""
+		// Check for valid numeric input - only numeric characters and one '.'
+		newValueString = ""
 		hasDot = false;
-		for (i = 0; i < $("#inputValue_" + index).val().length; i++)
+		for (i = 0; i < inputBoxElement.val().length; i++)
 		{
-			if (isNumeric($("#inputValue_" + index).val()[i]))
+			if (isNumeric(inputBoxElement.val()[i]))
 			{
-				newValueStr += $("#inputValue_" + index).val()[i]
+				newValueString += inputBoxElement.val()[i]
 			}
-			else if ($("#inputValue_" + index).val()[i] == "."){
-				if ($("#inputValue_" + index).val().length == 1){
-					newValueStr = 0
+			else if (inputBoxElement.val()[i] == "."){
+				if (inputBoxElement.val().length == 1){
+					newValueString = 0
 				}
 				if (hasDot == false){
-				newValueStr += $("#inputValue_" + index).val()[i]
-				hasDot = true
+					newValueString += inputBoxElement.val()[i]
+					hasDot = true
 				}
 				else{
-					newValueStr += ""
+					newValueString += ""
 				}
 			}
 		}
-		$("#inputValue_" + index).val(newValueStr)
-		transaction[index].value = newValueStr
+
+		inputBoxElement.val(newValueString)
+		transaction[index].value = newValueString
 	}
 }
 
