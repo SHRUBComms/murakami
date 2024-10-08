@@ -713,7 +713,7 @@ function updateTransactionList(){
 
 		console.log(transaction[i])
 
-		if(transaction[i].name == "Donations" || transaction[i].name == "Giftcard") {
+		if(transaction[i].name == "Donations" || transaction[i].name == "Giftcard" || transaction[i].discount) {
 			weightColumn.remove(weightColumnInput)
 			weightColumn.innerHTML = "-";
 		}
