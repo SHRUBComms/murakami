@@ -196,40 +196,39 @@ function isNumeric(n) {
 }
 
 function updateTrans(index){
-
 	if ($("#inputLogWeight_" + index).val().length == 0)
 	{
-		newWeightStr = 0
 		transaction[index].weight = 0
+		$("#inputLogWeight_" + index).val("")
 	}
 	else
 	{
-		weightHasDot = false; 
 		newWeightStr = ""
+		weightHasDot = false; 
 		for (i = 0; i < $("#inputLogWeight_" + index).val().length; i++)
 		{
 			if (isNumeric($("#inputLogWeight_" + index).val()[i]))
 			{
 				newWeightStr += $("#inputLogWeight_" + index).val()[i]
-				transaction[index].weight = parseFloat(newWeightStr)
-
 			}
 			else if ($("#inputLogWeight_" + index).val()[i] == ".")
 			{
+				if ($("#inputLogWeight_" + index).val().length == 1){
+					newWeightStr = 0
+				}
 				if (weightHasDot == false)
 				{
 					weightHasDot = true;
 					newWeightStr += "."
-					transaction[index].weight = parseFloat(newWeightStr)
+				}
+				else{
+					newWeightStr += ""
 				}
 			}
-			else 
-			{
-				$("#inputLogWeight_" + index).val("")	
-				newWeightStr += ""
-			}
+			
 		}
 		$("#inputLogWeight_" + index).val(newWeightStr)
+		transaction[index].weight = newWeightStr
 	}
 
 	if(transaction.length > 0){
