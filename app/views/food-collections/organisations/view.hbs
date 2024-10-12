@@ -1,34 +1,20 @@
 <!-- Latest compiled and minified CSS -->
-<link
-  rel="stylesheet"
-  href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css"
-/>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
 
 <!-- Latest compiled and minified JavaScript -->
-<script
-  src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"
-></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
 <div class="row">
   <div class="col-md-6 mx-auto">
     <div class="row mt-4">
       <div class="col-sm-5 mx-auto">
-        <a
-          class="btn btn-primary btn-block"
-          href="{{public_address}}/food-collections/organisations/update/{{organisation.organisation_id}}"
-        >Update</a>
+        <a class="btn btn-primary btn-block" href="{{public_address}}/food-collections/organisations/update/{{organisation.organisation_id}}">Update</a>
       </div>
       <div class="col-sm-5 mx-auto">
         {{#if organisation.active}}
-          <a
-            class="btn btn-danger btn-block"
-            href="{{public_address}}/api/get/food-collections/organisations/change-active-status/{{organisation.organisation_id}}?newStatus=inactive"
-          >Mark As Inactive</a>
+          <a class="btn btn-danger btn-block" href="{{public_address}}/api/get/food-collections/organisations/change-active-status/{{organisation.organisation_id}}?newStatus=inactive">Mark As Inactive</a>
         {{else}}
-          <a
-            class="btn btn-success btn-block"
-            href="{{public_address}}/api/get/food-collections/organisations/change-active-status/{{organisation.organisation_id}}?newStatus=active"
-          >Mark As Active</a>
+          <a class="btn btn-success btn-block" href="{{public_address}}/api/get/food-collections/organisations/change-active-status/{{organisation.organisation_id}}?newStatus=active">Mark As Active</a>
         {{/if}}
       </div>
     </div>
@@ -64,8 +50,7 @@
               {{#if organisation.active}}
                 <p><span class="text-success">Active</span>
                   {{~#if organisation.default~}}
-                    ,
-                    <span class="font-weight-bold">default</span>
+                  , <span class="font-weight-bold">default</span>
                   {{/if}}
                 </p>
               {{else}}
@@ -111,75 +96,65 @@
   </div>
 </div>
 
+
+
 <div class="row mt-2">
   <div class="col-md-8 mx-auto">
 
-    {{#ifCond collections.length ">" 0}}
+    {{#ifCond collections.length '>' 0}}
       <div class="row mt-4">
         <div class="col-md-12">
           <h4 class="mb-3">Collection History</h4>
-          <table
-            id="collections"
-            class="fadeIn table-light"
-            data-pagination="true"
-            data-toggle="table"
-            data-striped="true"
-          >
-            <thead>
-              <th>Date</th>
-              <th>Amount (kilos)</th>
-              <th>Collected By</th>
-              <th>Dropped Off To</th>
-              <th>Note</th>
-            </thead>
-            <tbody>
-              {{#each collections}}
-                <tr>
-                  <tr>
-                    <td>{{niceTimestamp timestamp}}</td>
-                    <td>{{amount}}</td>
-                    <td>{{collectedBy}}</td>
-                    <td>{{droppedOffTo}}</td>
-                    <td>{{note}}</td>
-                  </tr>
-                </tr>
-              {{/each}}
-            </tbody>
+          <table id="collections" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true">
+           <thead>
+             <th>Date</th>
+             <th>Amount (kilos)</th>
+             <th>Collected By</th>
+             <th>Dropped Off To</th>
+             <th>Note</th>
+           </thead>
+           <tbody>
+             {{#each collections}}
+               <tr>
+                 <tr>
+                   <td>{{niceTimestamp timestamp}}</td>
+                   <td>{{amount}}</td>
+                   <td>{{collectedBy}}</td>
+                   <td>{{droppedOffTo}}</td>
+                   <td>{{note}}</td>
+                 </tr>
+               </tr>
+             {{/each}}
+           </tbody>
           </table>
         </div>
       </div>
     {{/ifCond}}
-    {{#ifCond dropoffs.length ">" 0}}
+    {{#ifCond dropoffs.length '>' 0}}
       <div class="row mt-4">
         <div class="col-md-12">
           <h4 class="mb-3">Drop-off History</h4>
-          <table
-            id="collections"
-            class="fadeIn table-light"
-            data-pagination="true"
-            data-toggle="table"
-            data-striped="true"
-          >
-            <thead>
-              <th>Date</th>
-              <th>Amount (kilos)</th>
-              <th>Collected By</th>
-              <th>Collected From</th>
-              <th>Note</th>
-            </thead>
-            <tbody>
-              {{#each dropoffs}}
-                <tr>
-                  <tr>
-                    <td>{{niceTimestamp timestamp}}</td>
-                    <td>{{amount}}</td>
-                    <td>{{collectedBy}}</td>
-                    <td>{{collectedFrom}}</td>
-                    <td>{{note}}</td>
-                  </tr>
-                </tr>
-              {{/each}}
-            </tbody>
+          <table id="collections" class="fadeIn table-light" data-pagination="true" data-toggle="table" data-striped="true">
+           <thead>
+             <th>Date</th>
+             <th>Amount (kilos)</th>
+             <th>Collected By</th>
+             <th>Collected From</th>
+             <th>Note</th>
+           </thead>
+           <tbody>
+             {{#each dropoffs}}
+               <tr>
+                 <tr>
+                   <td>{{niceTimestamp timestamp}}</td>
+                   <td>{{amount}}</td>
+                   <td>{{collectedBy}}</td>
+                   <td>{{collectedFrom}}</td>
+                   <td>{{note}}</td>
+                 </tr>
+               </tr>
+             {{/each}}
+           </tbody>
           </table>
         </div>
       </div>

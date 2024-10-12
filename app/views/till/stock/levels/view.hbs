@@ -12,12 +12,8 @@
 		<div class="card-body">
 			<h3>
 				<span id="tillName" class="align-middle">{{till.name}}</span>
-				<span
-					class="{{#if status.opening}}text-success{{else}}text-danger{{/if}} align-top"
-				>&#9679;</span></h3>
-				<p id="tillBalanceWrapper" class="d-none text-muted mb-0">
-					Till Balance: <b>£<span id="tillBalance"></span></b>
-				</p>
+				<span class="{{#if status.opening}}text-success{{else}}text-danger{{/if}} align-top">&#9679;</span></h3>
+				<p id="tillBalanceWrapper" class="d-none text-muted mb-0">Till Balance: <b>£<span id="tillBalance"></span></b></p>
 			{{#if till.disabled}}
 				<p class="text-danger font-weight-bold mt-1">Disabled</p>
 			{{/if}}

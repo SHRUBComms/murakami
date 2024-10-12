@@ -1,34 +1,29 @@
 <div class="row mt-5 mb-5">
-  <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 mx-auto">
-    <div class="card">
-      <div class="card-body">
-        <center>
-          <h2>Login</h2>
-        </center>
-        <hr />
-        <form action="{{public_address}}/login" method="post">
-          <div class="form-group">
-            <input
-              type="text"
-              class="form-control"
-              name="username"
-              placeholder="Email or Username"
-            />
-          </div>
-          <div class="form-group">
-            <input type="password" class="form-control" name="password" placeholder="Password" />
-          </div>
-          <div class="form-group">
-            <button class="btn btn-block btn-primary" type="submit">Login</button>
-          </div>
-        </form>
+	<div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-4 mx-auto">
+			<div class="card">
+					<div class="card-body">
+						<center>
+							<h2>Login</h2>
+						</center>
+						<hr />
+						<form action="{{public_address}}/login" method="post">
+						    <div class="form-group">
+						    	<input type="text" class="form-control" name="username" placeholder="Email or Username">
+						  	</div>
+						  	<div class="form-group">
+						    	<input type="password" class="form-control" name="password" placeholder="Password">
+						  	</div>
+						  	<div class="form-group">
+						  	   <button class="btn btn-block btn-primary" type="submit">Login</button>
+							 </div>
+						</form>
 
-        {{#if settings.passwordReset}}
-          <p>
-            <a href="{{public_address}}/recover">Forgot your password?</a>
-          </p>
-        {{/if}}
-      </div>
-    </div>
-  </div>
+						{{#if settings.passwordReset}}
+							<p>
+								<a href="{{public_address}}/recover">Forgot your password?</a>
+							</p>
+						{{/if}}
+					</div>
+			</div>
+	</div>
 </div>
