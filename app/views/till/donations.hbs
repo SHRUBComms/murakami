@@ -1,91 +1,162 @@
 <div id="transaction_info" class="row pl-3 mt-4 mb-4"></div>
 
 <div class="row m-4">
-  <div class="col-md-5 mx-auto">
+	<div class="col-md-5 mx-auto">
 
-    <input type="hidden" id="member_id" value="{{member.id.text}}" />
+		<input type="hidden" id="member_id" value="{{member.id.text}}" />
 
     <div class="form-group">
-      <input
-        type="text"
-        class="form-control"
-        id="memberInput"
-        oninput="searchMember()"
-        value=""
-        placeholder="Member's name"
-      />
+      	<input type="text" class="form-control" id="memberInput" oninput="searchMember()" value="" placeholder="Member's name">
     </div>
 
-  </div>
+	</div>
 </div>
 
 <div class="row m-4">
-  <div class="col-md-10 mx-auto">
-    <div class="row" id="searchResults"></div>
-  </div>
+	<div class="col-md-10 mx-auto">
+		<div class="row" id="searchResults"></div>
+	</div>
 </div>
 
 <div class="row d-none" id="donationInput">
-  <div class="container">
+	<div class="container">
 
-    <div class="form-group form-inline">
-      <div class="mx-auto">
-        <input
-          type="number"
-          class="input-lg form-control"
-          oninput="updateTokens(this)"
-          step="1"
-          min="1"
-          max="50"
-          value="1"
-        />
-        <button class="btn btn-success" onclick="processDonation()" id="submitDonation">Add Tokens</button>
-      </div>
-    </div>
+		<div class="form-group form-inline">
+			<div class="mx-auto">
+				<input type="number" class="input-lg form-control" oninput="updateTokens(this)" step=1 min=1 max=50 value="1" />
+				<button class="btn btn-success" onclick="processDonation()" id="submitDonation">Add Tokens</button>
+			</div>
+		</div>
 
-  </div>
+	</div>
 </div>
 
 <script>
 
-  var results = []; var member = {}; var tokens = 0; function updateTokens(e){ tokens = e.value; }
-  function searchMember(){ $.ajax({ type: "POST", url: "{{public_address}}/api/post/members/search/simple",
-  data: { 'term': $('#memberInput').val() }, success: function(response){ if(response.status ==
-  "ok"){ results = response.results; updateSearchResults(); } } }); } function
-  updateSearchResults(){ member = {}; $("#searchResults").html(""); for(let
-  i=0;i<results.length;i++){ if(results[i].is_member){
-  $("#searchResults").html($("#searchResults").html() + "<div class='col-md-4 mx-auto
-  member-result'>" + "<div class='card'>" + "<div class='card-body'>" + "<p class='mb-2'><b>" +
-  results[i].name + "</b></p>" + "<p class='mb-2'>" + results[i].balance + " tokens</p>" + "<p
-  class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString()
-  + "<p>" + "<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
-  "</div>" + "</div>" + "</div>") } else { $("#searchResults").html($("#searchResults").html() +
-  "<div class='col-md-4 mx-auto member-result'>" + "<div class='card'>" + "<div class='card-body'>"
-  + "<p class='mb-3'><b>" + results[i].name + "</b></p>" + "<p class='mb-3'>Membership expired!<p>"
-  + "<a class='btn btn-primary mb-2' onclick='selectMember(" + i + ")'>Select Member</a>" + "</div>"
-  + "</div>" + "</div>") } } } function selectMember(index){ member = results[index];
-  if(member.is_member){ $("#searchResults").html( "<div class='col-md-4 mb-4 mx-auto
-  member-result'>" + "<div class='card member-selected'>" + "<div class='card-body'>" + "<p
-  class='mb-2'><b>" + member.name + "</b></p>" + "<p class='mb-2'>" + member.balance + " tokens</p>"
-  + "<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
-  "</div>" + "</div>" + "</div>") $("#donationInput").removeClass("d-none") } else {
-  $("#searchResults").html( "<div class='col-md-4 mb-4 mx-auto member-result'>" + "<div class='card
-  member-result member-selected-expired'>" + "<div class='card-body'>" + "<p class='mb-2'><b>" +
-  member.name + "</b></p>" + "<p class='mb-2'>" + member.balance + " tokens (unavailable)</p>" + "<p
-  class='mb-2'>Membership expired!</p>" + "</div>" + "</div>" + "</div>") member.balance = 0; } }
-  function processDonation(type){ $("#submitDonation").prop("disabled", true) let member_id =
-  member.id || member.member_id || null; $.ajax({ type: "POST", url: "{{public_address}}/till/donations",
-  data: { 'member_id': member_id, 'till_id': "{{till.till_id}}", 'tokens': tokens }, success:
-  function(response){ if(response.status == "ok"){ $("#transaction_info").removeClass("d-none");
-  $("#transaction_info").css("display", "block") $("#transaction_info").html('<div class="alert
-  alert-success alert-dismissible fade show col-md-5 p-3 mx-auto"
-  onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close'
-  data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
-  results = [] results[0] = response.member; selectMember(0) $("#submitDonation").prop("disabled",
-  false) } else { $("#transaction_info").removeClass("d-none") $("#transaction_info").html('<div
-  class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto"
-  onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close'
-  data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
-  $("#submitDonation").prop("disabled", false) } } }); }
+var results = [];
+var member = {};
+var tokens = 0;
+
+function updateTokens(e){
+	tokens = e.value;
+}
+
+function searchMember(){
+  $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/members/search/simple",
+      data: {
+          'term': $('#memberInput').val()
+      },
+      success: function(response){
+
+        if(response.status == "ok"){
+        	results = response.results;
+          	updateSearchResults();
+        }
+
+      }
+  });
+}
+
+function updateSearchResults(){
+	member = {};
+	$("#searchResults").html("");
+	for(let i=0;i<results.length;i++){
+		if(results[i].is_member){
+			$("#searchResults").html($("#searchResults").html() +
+				"<div class='col-md-4 mx-auto member-result'>" +
+					"<div class='card'>" +
+						"<div class='card-body'>" +
+							"<p class='mb-2'><b>" + results[i].name + "</b></p>" +
+							"<p class='mb-2'>" + results[i].balance + " tokens</p>" +
+							"<p class='mb-2'>Membership expires: " + new Date(results[i].membership_expires).toLocaleDateString() + "<p>" +
+							"<a class='btn btn-primary' onclick='selectMember(" + i + ")'>Select Member</a>" +
+						"</div>" +
+					"</div>" +
+				"</div>")
+		} else {
+			$("#searchResults").html($("#searchResults").html() +
+			"<div class='col-md-4 mx-auto member-result'>" +
+				"<div class='card'>" +
+					"<div class='card-body'>"  +
+						"<p class='mb-3'><b>" + results[i].name + "</b></p>" +
+						"<p class='mb-3'>Membership expired!<p>" +
+						"<a class='btn btn-primary mb-2' onclick='selectMember(" + i + ")'>Select Member</a>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
+		}
+	}
+}
+
+
+
+function selectMember(index){
+	member = results[index];
+
+	if(member.is_member){
+		$("#searchResults").html(
+			"<div class='col-md-4 mb-4 mx-auto member-result'>" +
+				"<div class='card member-selected'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens</p>" +
+						"<p>Membership expires: " + new Date(member.membership_expires).toLocaleDateString() + "<p>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
+			$("#donationInput").removeClass("d-none")
+	} else {
+		$("#searchResults").html(
+			"<div class='col-md-4 mb-4 mx-auto member-result'>" +
+				"<div class='card member-result member-selected-expired'>" +
+					"<div class='card-body'>" +
+						"<p class='mb-2'><b>" + member.name + "</b></p>" +
+						"<p class='mb-2'>" + member.balance + " tokens (unavailable)</p>" +
+						"<p class='mb-2'>Membership expired!</p>" +
+					"</div>" +
+				"</div>" +
+			"</div>")
+		member.balance = 0;
+	}
+
+}
+
+function processDonation(type){
+	$("#submitDonation").prop("disabled", true)
+	let member_id = member.id || member.member_id || null;
+    $.ajax({
+        type: "POST",
+        url: "{{public_address}}/till/donations",
+        data: {
+        	'member_id': member_id,
+        	'till_id': "{{till.till_id}}",
+        	'tokens': tokens
+        },
+        success: function(response){
+
+        	if(response.status == "ok"){
+
+	            $("#transaction_info").removeClass("d-none");
+	            $("#transaction_info").css("display", "block")
+	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+
+							results =  []
+							results[0] = response.member;
+							selectMember(0)
+
+							$("#submitDonation").prop("disabled", false)
+
+	        } else {
+
+	        	$("#transaction_info").removeClass("d-none")
+	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto" onclick="dismiss(\'#transaction_info\')">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
+						$("#submitDonation").prop("disabled", false)
+
+					}
+        }
+    });
+}
 
 </script>

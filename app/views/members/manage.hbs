@@ -1,172 +1,224 @@
 <!-- Latest compiled and minified CSS -->
-<link
-  rel="stylesheet"
-  href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css"
-/>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
 
 <!-- Latest compiled and minified JavaScript -->
-<script
-  src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"
-></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
 
 <div class="row mt-4 mb-4">
-  <div class="col-lg-8 col-md-10 mx-auto">
-    <div class="row">
-      <div class="col-lg-8 col-md-9">
-        <table
-          id="membershipTable"
-          class="fadeIn table-light"
-          data-pagination="true"
-          data-search="true"
-          data-striped="true"
-          data-toggle="table"
-          style="border: none !important;"
-        >
-          <thead>
-            <th data-sortable="true" data-field="name">Name</th>
-            <th data-field="status">Status</th>
-            <th data-field="action"></th>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-      <div class="col-lg-4 col-md-3">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="mb-1">Filter Members</h4>
+	<div class="col-lg-8 col-md-10 mx-auto">
+		<div class="row">
+			<div class="col-lg-8 col-md-9">
+					<table id="membershipTable" class="fadeIn table-light" data-pagination="true" data-search="true" data-striped="true" data-toggle="table" style="border: none !important;">
+						<thead>
+							<th data-sortable="true" data-field="name">Name</th>
+							<th data-field="status">Status</th>
+							<th data-field="action"></th>
+						</thead>
+						<tbody>
+						</tbody>
+					</table>
+			</div>
+			<div class="col-lg-4 col-md-3">
+				<div class="card">
+					<div class="card-body">
+						<h4 class="mb-1">Filter Members</h4>
 
-            <p class="mb-0"><b>Membership Status</b></p>
-
+						<p class="mb-0"><b>Membership Status</b></p>
+ 
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="membershipStatus[current]"
-                checked
-              />
+              <input class="form-check-input" type="checkbox" id="membershipStatus[current]" checked>
               <label class="form-check-label">Current</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="membershipStatus[expired]" />
+              <input class="form-check-input" type="checkbox" id="membershipStatus[expired]">
               <label class="form-check-label">Expired</label>
             </div>
 
-            <p class="mt-2 mb-1"><b>Membership Type</b></p>
+						<p class="mt-2 mb-1"><b>Membership Type</b></p>
+            
 
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="membershipType[paid]" checked />
+              <input class="form-check-input" type="checkbox" id="membershipType[paid]" checked>
               <label class="form-check-label">Paid</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="membershipType[volunteer]"
-                checked
-              />
+              <input class="form-check-input" type="checkbox" id="membershipType[volunteer]" checked>
               <label class="form-check-label">Volunteer</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="membershipType[staff]" checked />
+              <input class="form-check-input" type="checkbox" id="membershipType[staff]" checked>
               <label class="form-check-label">Staff</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="membershipType[trustee]"
-                checked
-              />
+              <input class="form-check-input" type="checkbox" id="membershipType[trustee]" checked>
               <label class="form-check-label">Trustee</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="membershipType[lifetime]"
-                checked
-              />
+              <input class="form-check-input" type="checkbox" id="membershipType[lifetime]" checked>
               <label class="form-check-label">Lifetime</label>
             </div>
 
-            <p class="mt-2 mb-1"><b>Behaviour Change Survey</b></p>
-
+						<p class="mt-2 mb-1"><b>Behaviour Change Survey</b></p>
+            
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="behaviourChange[subscribed]"
-                checked
-              />
+              <input class="form-check-input" type="checkbox" id="behaviourChange[subscribed]" checked>
               <label class="form-check-label">Subscribed</label>
             </div>
 
             <div class="form-check form-check-inline">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="behaviourChange[notSubscribed]"
-                checked
-              />
+              <input class="form-check-input" type="checkbox" id="behaviourChange[notSubscribed]" checked>
               <label class="form-check-label">Not Subscribed</label>
             </div>
 
             <p><b id="totalMembers">{{totalMembers}}</b> members (current selection)</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
 
-  var filter = { status: { expired: false, current: true }, type: { paid: true, volunteer: true,
-  staff: true, trustee: true }, behaviourChange: { subscribed: true, notsubscribed: true } } var
-  publicAddress = "{{public_address}}" var members =
-  {{{json members}}}; var $membershipTable; window.onload = function() { var membershipFilterChecks
-  = document.getElementsByClassName("form-check-input"); for (var i = 0; i <
-  membershipFilterChecks.length; i++) { membershipFilterChecks[i].addEventListener("click",
-  updateMembershipFilter); } $membershipTable = $("#membershipTable"); updateMembershipFilter(); }
-  function updateMembershipFilter() { filter = { status: { expired:
-  document.getElementById("membershipStatus[expired]").checked, current:
-  document.getElementById("membershipStatus[current]").checked }, type: { paid:
-  document.getElementById("membershipType[paid]").checked, volunteer:
-  document.getElementById("membershipType[volunteer]").checked, staff:
-  document.getElementById("membershipType[staff]").checked, trustee:
-  document.getElementById("membershipType[trustee]").checked, lifetime:
-  document.getElementById("membershipType[lifetime]").checked }, behaviourChange: { subscribed:
-  document.getElementById("behaviourChange[subscribed]").checked, notSubscribed:
-  document.getElementById("behaviourChange[notSubscribed]").checked } } updateMembership(); }
-  function updateMembership() { var selectedMembership = {}; var formattedMembership = [];
-  members.forEach(function(member, index) { selectedMembership[member.member_id] = member;
-  if(member.is_member == 0 && !filter.status.expired) { delete selectedMembership[member.member_id];
-  } if(member.is_member == 1 && !filter.status.current) { delete
-  selectedMembership[member.member_id]; } if(member.membership_type == null &&
-  member.working_groups.length == 0 && !filter.type.paid) { delete
-  selectedMembership[member.member_id]; } if(member.working_groups.length > 0 &&
-  !filter.type.volunteer) { delete selectedMembership[member.member_id]; } if(member.membership_type
-  == "staff" && !filter.type.staff) { delete selectedMembership[member.member_id]; }
-  if(member.membership_type == "trustee" && !filter.type.trustee) { delete
-  selectedMembership[member.member_id]; } if(member.membership_type == "lifetime" &&
-  !filter.type.lifetime) { delete selectedMembership[member.member_id]; }
-  if(member.contactPreferences.behaviourChangeSurvey) { if(!filter.behaviourChange.subscribed) {
-  delete selectedMembership[member.member_id]; } } else { if(!filter.behaviourChange.notSubscribed)
-  { delete selectedMembership[member.member_id]; } } if(typeof selectedMembership[member.member_id]
-  !== "undefined") { member.name = member.first_name + " " + member.last_name; member.status = "";
-  if(member.is_member == 1) { member.status = "Current member, "; if(member.free) { member.status +=
-  "free"; } else { member.status += "paid"; } } else { member.status = "No longer a member"; }
-  member.action = "<a href='" + publicAddress + "/members/view/" + member.member_id + "' class='btn
-  btn-block btn-primary'>View"; if(member.canUpdate) { member.action += "/Update"; } member.action
-  += "</a>"; formattedMembership.push(member); } });
+var filter = {
+  status: {
+    expired: false,
+    current: true
+  },
+  type: {
+    paid: true,
+    volunteer: true,
+    staff: true,
+    trustee: true
+  },
+  behaviourChange: {
+    subscribed: true,
+    notsubscribed: true
+  }
+}
+
+var publicAddress = "{{public_address}}"
+var members = {{{json members}}};
+
+var $membershipTable; 
+
+window.onload = function()  {
+  
+  var membershipFilterChecks = document.getElementsByClassName("form-check-input");
+
+  for (var i = 0; i < membershipFilterChecks.length; i++) {
+      membershipFilterChecks[i].addEventListener("click", updateMembershipFilter);
+  }
+
+  $membershipTable = $("#membershipTable");
+  
+  updateMembershipFilter();
+}
+
+function updateMembershipFilter() {
+  
+  filter = {
+    status: {
+      expired: document.getElementById("membershipStatus[expired]").checked,
+      current: document.getElementById("membershipStatus[current]").checked
+    },
+    type: {
+      paid: document.getElementById("membershipType[paid]").checked,
+      volunteer: document.getElementById("membershipType[volunteer]").checked,
+      staff: document.getElementById("membershipType[staff]").checked,
+      trustee: document.getElementById("membershipType[trustee]").checked,
+      lifetime: document.getElementById("membershipType[lifetime]").checked
+    },
+    behaviourChange: {
+      subscribed: document.getElementById("behaviourChange[subscribed]").checked,
+      notSubscribed: document.getElementById("behaviourChange[notSubscribed]").checked
+    }
+  }
+
+  updateMembership();
+}
+
+function updateMembership() {
+  var selectedMembership = {};
+  var formattedMembership = [];
+  members.forEach(function(member, index) {
+    selectedMembership[member.member_id] = member;
+    
+    if(member.is_member == 0 && !filter.status.expired) {
+      delete selectedMembership[member.member_id];
+    } 
+
+    if(member.is_member == 1 && !filter.status.current) {
+      delete selectedMembership[member.member_id];
+    }
+
+    if(member.membership_type == null && member.working_groups.length == 0 && !filter.type.paid) {
+      delete selectedMembership[member.member_id];
+    } 
+
+    if(member.working_groups.length > 0 && !filter.type.volunteer) {
+      delete selectedMembership[member.member_id];
+    }
+
+    if(member.membership_type == "staff" && !filter.type.staff) {
+      delete selectedMembership[member.member_id];
+    }
+
+    if(member.membership_type == "trustee" && !filter.type.trustee) {
+      delete selectedMembership[member.member_id];
+    }
+
+    if(member.membership_type == "lifetime" && !filter.type.lifetime) {
+      delete selectedMembership[member.member_id];
+    }
+
+    if(member.contactPreferences.behaviourChangeSurvey) {
+      if(!filter.behaviourChange.subscribed) {
+        delete selectedMembership[member.member_id];
+      }
+    } else {
+      if(!filter.behaviourChange.notSubscribed) {
+        delete selectedMembership[member.member_id];
+      }
+    }
+
+    if(typeof selectedMembership[member.member_id] !== "undefined") {
+      member.name = member.first_name + " " + member.last_name;
+      member.status = "";
+      if(member.is_member == 1) {
+        member.status = "Current member, ";
+        if(member.free) {
+          member.status += "free";
+        } else {
+          member.status += "paid";
+        }
+      } else {
+        member.status = "No longer a member";
+      }
+
+      member.action = "<a href='" + publicAddress + "/members/view/" + member.member_id + "' class='btn btn-block btn-primary'>View";
+
+      if(member.canUpdate) {
+        member.action += "/Update";
+      }
+
+      member.action += "</a>";
+  
+      formattedMembership.push(member);
+    }
+  });
+
   document.getElementById("totalMembers").textContent = formattedMembership.length;
-  updateMembershipTable(formattedMembership); } function updateMembershipTable(formattedMembership)
-  { $membershipTable.bootstrapTable("load", formattedMembership); }
+  updateMembershipTable(formattedMembership);
+}
+
+function updateMembershipTable(formattedMembership) {
+  $membershipTable.bootstrapTable("load", formattedMembership);
+}
 
 </script>

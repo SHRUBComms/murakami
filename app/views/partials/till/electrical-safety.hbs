@@ -1,57 +1,40 @@
+
 <div id="electricalSafetyModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
     <div class="modal-content">
-      <div class="modal-header">
+			<div class="modal-header">
         <h5 class="modal-title">Electrical Safety Check</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <div class="row">
+				<div class="row">
 
-          <div class="col-md-12">
+					<div class="col-md-12">
 
-            <div id="electricalSafety" class="p-4">
+						<div id="electricalSafety" class="p-4">
 
-              <h5 class="mb-1">Please check the safety of any outgoing electronics!</h5>
-              <p class="mb-3">If there is no ID and the item plugs into the wall, please DO NOT sell
-                it. Battery powered items are ok to sell.</p>
+							<h5 class="mb-1">Please check the safety of any outgoing electronics!</h5>
+							<p class="mb-3">If there is no ID and the item plugs into the wall, please DO NOT sell it. Battery powered items are ok to sell.</p>
 
-              <div class="form-inline mx-auto">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="ID Number"
-                  id="patTestingNumber"
-                  oninput="resetElectricalColours()"
-                />
-                <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
-              </div>
+				      <div class="form-inline mx-auto">
+		              <input type="text" class="form-control" placeholder="ID Number" id="patTestingNumber" oninput="resetElectricalColours()" />
+		              <a class="btn btn-primary" onclick="verifyElectricalSafety()">Verify Safety</a>
+				      </div>
 
-              <h5 class="mt-2" id="electricalSafetyMessage"></h5>
+						  <h5 class="mt-2" id="electricalSafetyMessage"></h5>
 
-            </div>
-          </div>
-        </div>
+						</div>
+					</div>
+				</div>
 
       </div>
       <div class="modal-footer">
-        <button
-          type="button"
-          id="confirmTransactionBtn"
-          class="btn btn-success"
-          data-dismiss="modal"
-        >Item Safe</button>
-        <button
-          type="button"
-          class="btn btn-danger"
-          id="removeUnsafe"
-          onclick=""
-          data-dismiss="modal"
-        >Not Safe</button>
+      	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal">Item Safe</button>
+        <button type="button" class="btn btn-danger" id="removeUnsafe" onclick="" data-dismiss="modal">Not Safe</button>
       </div>
     </div>
 
@@ -59,17 +42,44 @@
 </div>
 
 <script>
-  function showElectricalSafety() { $("#electricalSafety").removeClass("d-none"); } function
-  verifyElectricalSafety() { $.ajax({ type: "POST", url:
-  "https://shrub.space/testing/api/verify-safety.php", crossDomain: true, data: { "key": "{{{diode_api_key}}}",
-  "item-id": $("#patTestingNumber").val() }, success: function(response){ response =
-  JSON.parse(response); if(response.status == "fail"){ if(response.msg.includes("DO NOT SELL!!!")){
-  $("#electricalSafety").css("background-color", "red")
-  $("#electricalSafetyMessage").text(response.msg); setTimeout(function(){ alert(response.msg); },
-  500); } else { $("#electricalSafety").css("background-color", "#FFD24C")
-  $("#electricalSafetyMessage").text(response.msg); } } else {
-  $("#electricalSafety").css("background-color", "#98FB98")
-  $("#electricalSafetyMessage").text(response.msg); } } }) } function resetElectricalColours(){
-  $("#electricalSafety").css("background-color", "white") $("#electricalSafetyMessage").text(""); }
+function showElectricalSafety() {
+	$("#electricalSafety").removeClass("d-none");
+}
+
+function verifyElectricalSafety() {
+	$.ajax({
+		type: "POST",
+		url: "https://shrub.space/testing/api/verify-safety.php",
+		crossDomain: true,
+		data: {
+			"key": "{{{diode_api_key}}}",
+			"item-id": $("#patTestingNumber").val()
+		},
+        success: function(response){
+        	response = JSON.parse(response);
+        	if(response.status == "fail"){
+        		if(response.msg.includes("DO NOT SELL!!!")){
+	        		$("#electricalSafety").css("background-color", "red")
+	        		$("#electricalSafetyMessage").text(response.msg);
+	        		setTimeout(function(){ alert(response.msg); }, 500);
+        		} else {
+        			$("#electricalSafety").css("background-color", "#FFD24C")
+        			$("#electricalSafetyMessage").text(response.msg);
+        		}
+        	} else {
+        		$("#electricalSafety").css("background-color", "#98FB98")
+        		$("#electricalSafetyMessage").text(response.msg);
+        	}
+
+        }
+	})
+}
+
+function resetElectricalColours(){
+
+	$("#electricalSafety").css("background-color", "white")
+	$("#electricalSafetyMessage").text("");
+
+}
 
 </script>

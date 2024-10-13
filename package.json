@@ -20,7 +20,7 @@
     "tests": "mocha --recursive || true",
     "tests --verbose": "mocha --recursive",
     "lint": "eslint \"**/*.{js,json}\" --ignore-pattern \"**/*.min.js\"",
-    "format": "prettier --write \"**/*.{js,json,hbs}\""
+    "format": "prettier --write \"**/*.{js,json}\""
   },
   "lint-staged": {
     "**/*.{js,json}": [

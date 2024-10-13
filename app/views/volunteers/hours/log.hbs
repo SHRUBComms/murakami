@@ -2,201 +2,263 @@
 
 {{#if user}}
 
+
   <div class="row mt-5">
-    <div class="col-md-6 offset-md-3">
+  	<div class="col-md-6 offset-md-3">
 
-      <div class="container">
 
-        <div class="row">
-          <div id="hours_logged_info" class="col-md-12">
+          <div class="container">
+
+            <div class="row">
+              <div id="hours_logged_info" class="col-md-12">
+              </div>
+            </div>
+
+            <div class="row d-none">
+              {{{captcha}}}
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="memberInput" class="form-control" placeholder="Search for member" oninput="search()" />
+            </div>
           </div>
-        </div>
 
-        <div class="row d-none">
-          {{{captcha}}}
-        </div>
-
-        <div class="form-group">
-          <input
-            type="text"
-            id="memberInput"
-            class="form-control"
-            placeholder="Search for member"
-            oninput="search()"
-          />
-        </div>
       </div>
-
-    </div>
   </div>
 
   <div id="search-results">
 
   </div>
 
-  <script>
-    var allWorkingGroups =
-    {{{json user.allWorkingGroupsObj}}};
-    {{#ifCond user.permissions.volunteerHours.log "==" true}}
-      var working_groups =
-      {{{json user.allWorkingGroupsFlat}}};
-    {{else}}
-      var working_groups =
-      {{{json user.working_groups}}};
-    {{/ifCond}}
 
-    function search(){ $.ajax({ type: "POST", url: "{{public_address}}/api/post/members/search",
-    data: { 'term': $('#memberInput').val() }, success: function(response){ if(response.status ==
-    "ok"){ updateSearchOutput(response.results); } else { $('#search-results').html("Something went
-    wrong!"); } } }); } function updateSearchOutput(results){ $('#search-results').html(""); var
-    resultStart = '<div class="row mt-5 mb-5">' + '<div class="col-md-6 offset-md-3">' + '<div
-    class="card">' + '<div class="card-body">'; var resultEnd = '</div></div></div></div>'
-    if(results.length == 0) { $('#search-results').html($('#search-results').html() + resultStart +
-    "<p>You don\'t exist :'(</p>" + resultEnd ); } else { for(let i=0;i<results.length;i++){ var
-    workingGroupSelectMarkup = '<select id="working_group_select_' + results[i].member_id + '"
-    class="form-control">'+ '<option>Select a working group...</option>';
-    working_groups.forEach(function(key){ workingGroupSelectMarkup += "<option value='" +
-    allWorkingGroups[key].group_id + "'>" + allWorkingGroups[key].name + "</option>"; })
-    workingGroupSelectMarkup += '</select>'; var logHoursBtn = `<a class='btn btn-block btn-lg
-    btn-primary' onclick='logHours("${results[i].member_id}")'>Log Hours</a>`;
-    if(working_groups.length > 0){ var shiftLogger = '<div class="row">' + '<div class="col-lg-6
-    mx-auto mb-4">' + workingGroupSelectMarkup + '</div>' + '<div class="col-lg-4 mx-auto mb-4">' +
-    '<input type="date" class="form-control" id="date_' + results[i].member_id + '" name="date"
-    value="' + moment().format("YYYY-MM-DD") + '" max="'+ moment().format("YYYY-MM-DD") + '" />' +
-    '</div>' + '<div class="col-lg-2 mx-auto mb-4">' + '<input type="number" class="form-control"
-    id="duration_' + results[i].member_id + '" name="duration" min="0.25" max="1000" step="0.25"
-    value="0" />' + '</div>' + '</div>' + '<div class="row">' + '<div class="col-lg-8 mx-auto">' +
-    logHoursBtn + "</div>" + "</div>" } else { var shiftLogger = '<div class="row">' + '<div
-    class="col-lg-8 mx-auto">' + '<p>Not a member of any working groups!</p>' + '</div>' + '</div>'
-    } results[i].email = results[i].email || "Email address not available"
-    $('#search-results').html($('#search-results').html() + resultStart + "<a href='/members/view/"
-    + results[i].member_id + "'><p><b>" + results[i].name + "</p></b></a>" + "<p>" +
-    results[i].email + "</p>" + "<hr />" + shiftLogger + resultEnd ); var found = false; } } }
-    function logHours(member_id){ var duration = $("#duration_" + member_id).val(); var
-    working_group = $("#working_group_select_" + member_id).val(); var date = $("#date_" +
-    member_id).val(); $.ajax({ type: "POST", url: "{{public_address}}/volunteers/hours/log", data: {
-    shift: { member_id: member_id, duration: duration, date: date, working_group: working_group,
-    note: "" }, recaptcha:
-    {{#if user}}null{{else}}grecaptcha.getResponse();{{/if}}
-    }, success: function(response){ if(response.status == "ok"){ $("#hours_logged_info").html('<div
-    class="alert alert-success alert-dismissible fade show p-3" role="alert">' + response.msg + '
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span
-    aria-hidden="true">&times;</span> </button></div>'); search(); } else {
-    $("#hours_logged_info").html('<div class="alert alert-danger alert-dismissible fade show p-3"
-    role="alert">' + response.msg + ' <button type="button" class="close" data-dismiss="alert"
-    aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>'); } } }); }
+  <script>
+  var allWorkingGroups = {{{json user.allWorkingGroupsObj}}};
+  {{#ifCond user.permissions.volunteerHours.log '==' true}}
+    var working_groups = {{{json user.allWorkingGroupsFlat}}};
+  {{else}}
+    var working_groups = {{{json user.working_groups}}};
+  {{/ifCond}}
+
+  function search(){
+    $.ajax({
+        type: "POST",
+        url: "{{public_address}}/api/post/members/search",
+        data: {
+            'term': $('#memberInput').val()
+        },
+        success: function(response){
+
+          if(response.status == "ok"){
+            updateSearchOutput(response.results);
+          } else {
+            $('#search-results').html("Something went wrong!");
+          }
+        }
+    });
+  }
+
+  function updateSearchOutput(results){
+
+    $('#search-results').html("");
+
+    var resultStart = '<div class="row mt-5 mb-5">' +
+        	               '<div class="col-md-6 offset-md-3">' +
+        			              '<div class="card">' +
+        					              '<div class="card-body">';
+
+    var resultEnd = '</div></div></div></div>'
+
+    if(results.length == 0) {
+      $('#search-results').html($('#search-results').html() +
+
+          resultStart +
+                  "<p>You don\'t exist :'(</p>" +
+          resultEnd
+       );
+    } else {
+      for(let i=0;i<results.length;i++){
+
+      	var workingGroupSelectMarkup =  '<select id="working_group_select_' + results[i].member_id + '" class="form-control">'+
+      	  '<option>Select a working group...</option>';
+        
+        working_groups.forEach(function(key){
+          workingGroupSelectMarkup += "<option value='" + allWorkingGroups[key].group_id + "'>" + allWorkingGroups[key].name + "</option>";
+        })
+
+
+
+      	workingGroupSelectMarkup += '</select>';
+
+        var logHoursBtn = `<a class='btn btn-block btn-lg btn-primary' onclick='logHours("${results[i].member_id}")'>Log Hours</a>`;
+      	if(working_groups.length > 0){
+  	      	var shiftLogger =   '<div class="row">' +
+            		      						'<div class="col-lg-6 mx-auto mb-4">' +
+            		      							workingGroupSelectMarkup +
+            		      						'</div>' +
+                                  '<div class="col-lg-4 mx-auto mb-4">' +
+                                    '<input type="date" class="form-control" id="date_' + results[i].member_id + '" name="date" value="' + moment().format("YYYY-MM-DD") + '" max="'+ moment().format("YYYY-MM-DD") + '" />' +
+                                  '</div>' +
+                                  '<div class="col-lg-2 mx-auto mb-4">' +
+                                    '<input type="number" class="form-control" id="duration_' + results[i].member_id + '" name="duration" min="0.25" max="1000" step="0.25" value="0" />' +
+                                  '</div>' +
+                                '</div>'  +
+
+                                '<div class="row">' +
+                                  '<div class="col-lg-8 mx-auto">' +
+                                        logHoursBtn +
+                                  "</div>" +
+                                "</div>"
+      	} else {
+      		var shiftLogger = '<div class="row">' +
+  		      						'<div class="col-lg-8 mx-auto">' +
+  		      							'<p>Not a member of any working groups!</p>' +
+  		      						'</div>' +
+  		      					'</div>'
+      	}
+
+        results[i].email = results[i].email || "Email address not available"
+        $('#search-results').html($('#search-results').html() +
+          resultStart +
+            "<a href='/members/view/" + results[i].member_id + "'><p><b>" +
+              results[i].name +
+            "</p></b></a>" +
+
+            "<p>" +
+              results[i].email  +
+            "</p>" +
+            "<hr />" +
+            shiftLogger +
+          resultEnd
+        );
+
+        var found = false;
+      }
+    }
+  }
+
+  function logHours(member_id){
+    var duration = $("#duration_" + member_id).val();
+    var working_group = $("#working_group_select_" + member_id).val();
+    var date = $("#date_" + member_id).val();
+     $.ajax({
+        type: "POST",
+        url: "{{public_address}}/volunteers/hours/log",
+        data: {
+          shift: {
+            member_id: member_id,
+            duration: duration,
+            date: date,
+            working_group: working_group,
+            note: ""
+          },
+          recaptcha: {{#if user}}null{{else}}grecaptcha.getResponse();{{/if}}
+        },
+        success: function(response){
+          if(response.status == "ok"){
+            $("#hours_logged_info").html('<div class="alert alert-success alert-dismissible fade show p-3" role="alert">' + response.msg + '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+            search();
+          } else {
+            $("#hours_logged_info").html('<div class="alert alert-danger alert-dismissible fade show p-3" role="alert">' + response.msg + '  <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button></div>');
+          }
+        }
+     });
+  }
 
   </script>
+
 
 {{else}}
-  <style>
-    .g-recaptcha > div { margin: auto; }
-  </style>
+<style>
+.g-recaptcha > div {
+  margin: auto;
+}
+</style>
 
-  <div class="row mt-4 mb-5">
-    <div class="col-md-6 col-sm-8 col-xs-10 mx-auto">
+<div class="row mt-4 mb-5">
+  <div class="col-md-6 col-sm-8 col-xs-10 mx-auto">
       <div class="card">
-        <div class="card-body">
-          <div class="row mb-4">
-            <div class="mx-auto">
-              <h2>Log Your Hours</h2>
-            </div>
-          </div>
-
-          <form action="{{public_address}}/volunteers/hours/log" method="post">
-
-            <div class="row">
-              <div class="col-sm-12 col-md-10 mx-auto">
-                <div class="form-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="shift[member_id]"
-                    id="member_id"
-                    placeholder="Membership ID"
-                    value="{{member_id}}"
-                  />
+          <div class="card-body">
+              <div class="row mb-4">
+                <div class="mx-auto">
+  							    <h2>Log Your Hours</h2>
                 </div>
-              </div>
-            </div>
+  						</div>
 
-            <div class="row">
-              <div class="col-sm-12 col-md-10 mx-auto mb-1">
-                <div class="form-group">
-                  <select class="form-control" name="shift[working_group]">
-                    <option value="">Select a working group...</option>
-                    {{#each working_groups}}
-                      <option value="{{group_id}}">{{name}}</option>
-                    {{/each}}
-                  </select>
-                </div>
-              </div>
-              <div class="col-sm-12 col-md-10 mx-auto mb-1 mb-md-0 mb-lg-0 mb-xl-0">
+              <form action="{{public_address}}/volunteers/hours/log" method="post">
+
                 <div class="row">
-                  <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
-                    <div class="form-inline">
-                      <label class="form-label mr-2">Date</label>
-                      <input type="date" class="form-control" id="date" name="shift[date]" />
-                    </div>
-                  </div>
-                  <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
-                    <div class="form-inline">
-                      <label class="form-label mr-2">Hours</label>
-                      <input
-                        type="number"
-                        style="width: 50%;"
-                        class="form-control"
-                        id="duration"
-                        name="shift[duration]"
-                        min="0.25"
-                        max="1000"
-                        step="0.25"
-                        value="0"
-                      />
+                  <div class="col-sm-12 col-md-10 mx-auto">
+                    <div class="form-group">
+                      <input type="text" class="form-control" name="shift[member_id]" id="member_id" placeholder="Membership ID" value="{{member_id}}" />
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div class="row mb-3 mt-3">
-              <div class="col-sm-12 col-md-10 col-lg-8 mx-auto mb-1">
-                <div class="mx-auto">
-                  <textarea
-                    class="form-control"
-                    name="shift[note]"
-                    maxlength="200"
-                    placeholder="Note (optional)"
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-
-            <div class="row mb-3 mt-3">
-              <div class="container">
-                <div class="mx-auto">
-                  {{{captcha}}}
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-12 col-md-10 mx-auto">
-                <div class="form-group">
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-block btn-primary form-control">Log Hours</button>
+                <div class="row">
+                  <div class="col-sm-12 col-md-10 mx-auto mb-1">
+                    <div class="form-group">
+                      <select class="form-control" name="shift[working_group]">
+                        <option value="">Select a working group...</option>
+                        {{#each working_groups}}
+                          <option value="{{group_id}}">{{name}}</option>
+                        {{/each}}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-10 mx-auto mb-1 mb-md-0 mb-lg-0 mb-xl-0">
+                    <div class="row">
+                      <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
+                        <div class="form-inline">
+                          <label class="form-label mr-2">Date</label>
+                          <input type="date" class="form-control" id="date" name="shift[date]" />
+                        </div>
+                      </div>
+                      <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 col-xs-6 mx-auto">
+                        <div class="form-inline">
+                          <label class="form-label mr-2">Hours</label>
+                          <input type="number" style="width: 50%;" class="form-control" id="duration" name="shift[duration]" min="0.25" max="1000" step="0.25" value="0" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-          </form>
+                <div class="row mb-3 mt-3">
+                  <div class="col-sm-12 col-md-10 col-lg-8 mx-auto mb-1">
+                    <div class="mx-auto">
+                      <textarea class="form-control" name="shift[note]" maxlength="200" placeholder="Note (optional)"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mb-3 mt-3">
+                  <div class="container">
+                    <div class="mx-auto">
+                      {{{captcha}}}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-sm-12 col-md-10 mx-auto">
+                    <div class="form-group">
+                      <div class="form-group">
+                        <button type="submit" class="btn btn-block btn-primary form-control">Log Hours</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  <script>
-    window.onload = function() { var today = moment().format("YYYY-MM-DD"); $("#date").val(today);
-    $("#date").prop("max", today); }
-  </script>
+</div>
+<script>
+window.onload = function() {
+  var today = moment().format("YYYY-MM-DD");
+  $("#date").val(today);
+  $("#date").prop("max", today);
+}
+</script>
 {{/if}}

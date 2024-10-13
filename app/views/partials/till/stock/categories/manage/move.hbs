@@ -11,13 +11,7 @@
 
         <div class="row">
           <div class="col-sm-6 offset-sm-3">
-            <input
-              class="form-control"
-              id="searchCategory"
-              type="text"
-              oninput="searchCategories(this)"
-              placeholder="Move to..."
-            />
+            <input class="form-control" id="searchCategory" type="text" oninput="searchCategories(this)" placeholder="Move to..." />
             <input type="hidden" id="newParent" />
             <center>
               <p id="categorySearchResults"></p>
@@ -27,12 +21,7 @@
 
       </div>
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-success"
-          id="moveCategorySubmit"
-          onclick="moveCategory()"
-        >Move Category</button>
+        <button type="button" class="btn btn-success" id="moveCategorySubmit" onclick="moveCategory()">Move Category</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
       </div>
     </div>
@@ -40,22 +29,72 @@
 </div>
 
 <script>
-  function moveCategory(path) { $.ajax({ type: "POST", url: "{{public_address}}/api/post/tills/categories/move",
-  data: { item_id: eval(path).item_id, newParent: $("#newParent").val(), till_id: "{{{till.till_id}}}"
-  }, success: function(response) { if (response.status == "ok") { $("#moveCategory").modal("hide");
-  alert(response.msg); $("#newParent").val(""); $("#searchCategory").val("");
-  $("#moveCategory").modal("hide"); var parent = path.split("[") parent.pop(); parent =
-  parent.join("["); $("#categorySearchResults").html(""); getCategories(parent); } else {
-  alert(response.msg); } } }); } function searchCategories(e) { $.ajax({ type: "POST", url: "{{public_address}}/api/post/tills/categories/search",
-  data: { term: e.value, till_id: "{{{till.till_id}}}" }, success: function(response) {
-  $("#newParent").val(""); $("#categorySearchResults").html("<ul>"); if (response.status == "ok" &&
-  response.results.length > 0) { for (let i = 0; i < response.results.length; i++) {
-  $("#categorySearchResults").html( $("#categorySearchResults").html() + "<li
-  style='list-style-type: none;'><a class='btn btn-primary mt-3' onclick='selectCategory(this)'
-  id='" + response.results[i].item_id + "'>" + response.results[i].absolute_name + "</a></li><br />"
-  ); } } else { $("#categorySearchResults").html("No results :'(") }
-  $("#categorySearchResults").html( $("#categorySearchResults").html() + "</ul>" ); } }); } function
-  openMoveCategoryDialog(path) { category = eval(path);
-  $("#move_category_name").html(category.name); $("#moveCategory").modal("show");
-  $("#moveCategorySubmit").attr("onClick", "moveCategory('" + path + "')"); }
+  function moveCategory(path) {
+
+    $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/tills/categories/move",
+      data: {
+        item_id: eval(path).item_id,
+        newParent: $("#newParent").val(),
+        till_id: "{{{till.till_id}}}"
+      },
+      success: function(response) {
+        if (response.status == "ok") {
+          $("#moveCategory").modal("hide");
+          alert(response.msg);
+          $("#newParent").val("");
+          $("#searchCategory").val("");
+          $("#moveCategory").modal("hide");
+
+          var parent = path.split("[")
+          parent.pop();
+          parent = parent.join("[");
+          $("#categorySearchResults").html("");
+          getCategories(parent);
+        } else {
+          alert(response.msg);
+        }
+      }
+    });
+  }
+
+  function searchCategories(e) {
+    $.ajax({
+      type: "POST",
+      url: "{{public_address}}/api/post/tills/categories/search",
+      data: {
+        term: e.value,
+        till_id: "{{{till.till_id}}}"
+      },
+      success: function(response) {
+        $("#newParent").val("");
+        $("#categorySearchResults").html("<ul>");
+        if (response.status == "ok" && response.results.length > 0) {
+          for (let i = 0; i < response.results.length; i++) {
+            $("#categorySearchResults").html(
+              $("#categorySearchResults").html() +
+              "<li style='list-style-type: none;'><a class='btn btn-primary mt-3' onclick='selectCategory(this)' id='" +
+              response.results[i].item_id +
+              "'>" +
+              response.results[i].absolute_name +
+              "</a></li><br />"
+            );
+          }
+        } else {
+          $("#categorySearchResults").html("No results :'(")
+        }
+        $("#categorySearchResults").html(
+          $("#categorySearchResults").html() + "</ul>"
+        );
+      }
+    });
+  }
+
+  function openMoveCategoryDialog(path) {
+    category = eval(path);
+    $("#move_category_name").html(category.name);
+    $("#moveCategory").modal("show");
+    $("#moveCategorySubmit").attr("onClick", "moveCategory('" + path + "')");
+  }
 </script>

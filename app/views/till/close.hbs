@@ -1,79 +1,86 @@
 <div class="row mt-5 mb-5">
-  <div class="col-md-4 offset-md-4">
-    <div class="card">
-      <div class="card-body">
-        <center>
-          <h2>Close Till</h2>
-          <hr />
-          <h3>{{till.name}}</h3>
-          <p class="small">Opened: {{niceTimestamp status.timestamp}}</p>
-        </center>
+	<div class="col-md-4 offset-md-4">
+		<div class="card">
+				<div class="card-body">
+					<center>
+						<h2>Close Till</h2>
+						<hr />
+						<h3>{{till.name}}</h3>
+						<p class="small ">Opened: {{niceTimestamp status.timestamp}}</p>
+					</center>
 
-        <br />
+					<br />
 
-        <form action="{{public_address}}/till/close/{{till.till_id}}" method="post">
-          <div class="row">
-            <div class="col-md-10 mx-auto">
+					<form action="{{public_address}}/till/close/{{till.till_id}}" method="post">
+						<div class="row">
+							<div class="col-md-10 mx-auto">
 
-              <span class="text-muted small mb-0 d-block">= Opening Float + Total Cash Takings -
-                Cash Refunds - Cash Reimbursements</span>
-              <span class="text-muted small mb-0 d-block">= (£{{opening_float}}
-                + £{{revenue_total}}) - £{{refunds_total}}
-                - £{{reimbursements_total}}</span>
-              <p class="p mb-0 d-block">Expected Float = <b>£{{expected_float}}</b></p>
 
-              <hr />
 
-              <div class="input-group">
-                <span class="input-group-prepend">
-                  <span class="input-group-text">Counted Float: £</span>
-                </span>
-                <input
-                  class="form-inline form-control"
-                  type="text"
-                  placeholder="0.00"
-                  id="counted_float"
-                  name="counted_float"
-                />
-              </div>
+								<span class="text-muted small mb-0 d-block">= Opening Float + Total Cash Takings - Cash Refunds - Cash Reimbursements</span>
+								<span class="text-muted small mb-0 d-block">= (£{{opening_float}} + £{{revenue_total}}) - £{{refunds_total}} - £{{reimbursements_total}}</span>
+								<p class="p mb-0 d-block">Expected Float = <b>£{{expected_float}}</b></p>
 
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-10 mx-auto">
-              <p class="text-danger mt-2" id="floatDiscrepancy"></p>
-            </div>
-          </div>
-          <br />
-          <div class="row">
-            <div class="col-md-10 mx-auto">
-              <textarea name="note" placeholder="Note (optional)" class="form-control"></textarea>
-            </div>
-          </div>
-          <br />
-          <div class="row">
-            <div class="col-md-10 mx-auto">
-              <input
-                type="submit"
-                class="form-control btn btn-block btn-primary"
-                value="Close Till"
-              />
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+								<hr />
+
+								<div class="input-group">
+									<span class="input-group-prepend">
+										<span class="input-group-text">Counted Float: £</span>
+									</span>
+									<input class="form-inline form-control" type="text" placeholder="0.00" id="counted_float" name="counted_float" />
+								</div>
+
+
+
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-10 mx-auto">
+								<p class="text-danger mt-2" id="floatDiscrepancy"></p>
+							</div>
+						</div>
+						<br />
+						<div class="row">
+							<div class="col-md-10 mx-auto">
+								<textarea name="note" placeholder="Note (optional)" class="form-control"></textarea>
+							</div>
+						</div>
+						<br />
+						<div class="row">
+							<div class="col-md-10 mx-auto">
+								<input type="submit" class="form-control btn btn-block btn-primary" value="Close Till">
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+ </div>
 
 <script>
-  $("#counted_float").on("input", function(){ var expected_float =
-  {{expected_float}}; var counted_float = this.value; if(!isNaN(expected_float) &&
-  !isNaN(counted_float)){ var floatDiscrepancy = counted_float - expected_float if(floatDiscrepancy
-  > 0){ $("#floatDiscrepancy").text("Discrepancy: £+" + floatDiscrepancy.toFixed(2)) } else {
-  $("#floatDiscrepancy").text("Discrepancy: £" + floatDiscrepancy.toFixed(2)) } if(floatDiscrepancy
-  == 0){ $("#floatDiscrepancy").addClass("text-success")
-  $("#floatDiscrepancy").removeClass("text-danger") } else {
-  $("#floatDiscrepancy").addClass("text-danger") $("#floatDiscrepancy").removeClass("text-success")
-  } } else { $("#floatDiscrepancy").text("") } })
+	$("#counted_float").on("input", function(){
+		var expected_float = {{expected_float}};
+		var counted_float = this.value;
+		if(!isNaN(expected_float) && !isNaN(counted_float)){
+			var floatDiscrepancy = counted_float - expected_float
+
+			if(floatDiscrepancy > 0){
+				$("#floatDiscrepancy").text("Discrepancy: £+" + floatDiscrepancy.toFixed(2))
+			} else {
+				$("#floatDiscrepancy").text("Discrepancy: £" + floatDiscrepancy.toFixed(2))
+			}
+
+			if(floatDiscrepancy == 0){
+				$("#floatDiscrepancy").addClass("text-success")
+				$("#floatDiscrepancy").removeClass("text-danger")
+			} else {
+
+				$("#floatDiscrepancy").addClass("text-danger")
+				$("#floatDiscrepancy").removeClass("text-success")
+			}
+		} else {
+			$("#floatDiscrepancy").text("")
+		}
+
+	})
 </script>
