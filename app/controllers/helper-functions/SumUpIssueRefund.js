@@ -12,7 +12,7 @@ module.exports = async (transaction_id, amount, accessToken) => {
 
   console.log("SUMUP ISSUE REFUND RESPONSE", new Date(), response);
 
-  if (response.status != 204) {
+  if (response.status !== 204) {
     throw "SumUp failed to issue the refund - please contact support";
   }
 

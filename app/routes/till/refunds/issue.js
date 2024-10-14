@@ -31,7 +31,9 @@ router.post(
       const amount = req.body.amount;
       const response = { status: "fail", transaction: {} };
 
-      console.log("REFUND REQUEST", new Date(), req.body);
+      if (action === "issue") {
+        console.log("REFUND ISSUE", new Date(), req.body);
+      }
 
       if (!till_id) {
         throw "Please select a valid till";
@@ -41,28 +43,24 @@ router.post(
         throw "Please enter a transaction ID";
       }
 
-      if (!refund_type) {
-        throw "Please select a refund type";
+      if (!["sumup", "murakami"].includes(refund_type)) {
+        throw "Please select a valid refund type";
       }
 
       if (!action) {
         throw "Please select an action";
       }
 
-      if (!(action == "lookup" || (action == "issue" && !isNaN(amount)))) {
+      if (!(action === "lookup" || (action === "issue" && !isNaN(amount)))) {
         throw "Please select a valid action";
-      }
-
-      if (!["sumup", "murakami"].includes(refund_type)) {
-        throw "Please select a valud refund type";
       }
 
       const till = await Tills.getOpenTill(till_id);
 
       if (
         !(
-          req.user.permissions.tills.processRefunds == true ||
-          (req.user.permissions.tills.processRefunds == "commonWorkingGroup" &&
+          req.user.permissions.tills.processRefunds === true ||
+          (req.user.permissions.tills.processRefunds === "commonWorkingGroup" &&
             req.user.working_groups.includes(till.group_id))
         )
       ) {
@@ -91,14 +89,14 @@ router.post(
       }
 
       if (
-        ["membership", "donation", "volunteering", "refund"].includes(
-          transaction.summary.bill[0].item_id
+        transaction.summary.bill.some(({ item_id }) =>
+          ["membership", "donation", "volunteering", "refund"].includes(item_id)
         )
       ) {
         throw "This transaction is non-refundable";
       }
 
-      if (transaction.summary.totals.money == 0) {
+      if (transaction.summary.totals.money === 0) {
         throw "Transaction can't be refunded - money was not used as the payment method";
       }
 
@@ -106,7 +104,7 @@ router.post(
         throw "Transaction can't be refunded - money was not used as the payment method";
       }
 
-      if (action == "lookup") {
+      if (action === "lookup") {
         const { membersObj } = await Members.getAll();
         const categories = await StockCategories.getCategoriesByTillId(till_id, "treeKv");
         const formattedTransactions = await Transactions.formatTransactions(
@@ -132,11 +130,11 @@ router.post(
             throw "Transaction could not be verified with SumUp";
           }
 
-          if (sumupTransaction.amount != transaction.summary.totals.money) {
+          if (sumupTransaction.amount !== transaction.summary.totals.money) {
             throw "Murakami and SumUp's records are inconsistent - please contact support";
           }
 
-          if (sumupTransaction.status != "SUCCESSFUL") {
+          if (sumupTransaction.status !== "SUCCESSFUL") {
             throw "Transaction failed at point of purchase";
           }
 
@@ -170,11 +168,14 @@ router.post(
         }
       }
     } catch (error) {
-      console.log("CARD REFUND ERROR", new Date(), error);
-      if (typeof error != "string") {
-        error = "Something went wrong! Please try again";
+      let msg;
+      console.error("CARD REFUND ERROR", new Date(), error);
+      if (typeof error === "string") {
+        msg = error;
+      } else {
+        msg = "Something went wrong! Please try again";
       }
-      res.send({ status: "fail", msg: error });
+      res.send({ status: "fail", msg });
     }
   }
 );

@@ -41,7 +41,6 @@ passport.use(
         code: encrypt(authorizationCode),
       };
       saveEncryptedSumupOauth2Keys({ encryptedData: encryptedSumupOauth2Keys });
-      console.log({ encryptedSumupOauth2Keys });
       return cb(null);
     }
   )
@@ -50,7 +49,7 @@ passport.use(
 // Redirect to SumUp login
 router.get("/auth", Auth.isLoggedIn, Auth.isOfClass(["admin"]), (req, res, next) => {
   passport.authenticate("sumup", {
-    scope: "transactions.history",
+    scope: ["transactions.history", "payments"],
   })(req, res, next);
 });
 // SumUp OAuth2 callback handler
@@ -81,20 +80,7 @@ function encrypt(text) {
  */
 async function saveEncryptedSumupOauth2Keys({ encryptedData }) {
   try {
-    const setting = await Settings.getById("encryptedSumupOauth2Keys");
-
-    if (setting) {
-      // If the record exists, update it
-      const updatedSetting = await Settings.updateSetting(
-        "encryptedSumupOauth2Keys",
-        encryptedData
-      );
-      console.log("Updated existing record:", updatedSetting);
-    } else {
-      // If the record does not exist, create it
-      const newSetting = await Settings.updateSetting("encryptedSumupOauth2Keys", encryptedData);
-      console.log("Created new record:", newSetting);
-    }
+    await Settings.updateSetting("encryptedSumupOauth2Keys", encryptedData);
   } catch (error) {
     console.error("Error accessing the database:", error);
   }
