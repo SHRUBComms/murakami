@@ -27,7 +27,13 @@
 							{{/if}}
 						{{/if}}
 					</td>
-					<td><a href="{{../public_address}}/till/transaction/{{till_id}}" class="btn btn-primary">View/Update</a></td>
+					<td>
+						{{#if (lookup (lookup ../activity till_id) 'opening')}}
+							<a href="{{../public_address}}/till/transaction/{{till_id}}" class="btn btn-primary">View/Update</a>
+						{{else}}
+							<a href="{{../public_address}}/till/open/{{till_id}}" class="btn btn-primary">View/Update</a>
+						{{/if}}
+					</td>
 				</tr>
 			{{/each}}
 			</tbody>
