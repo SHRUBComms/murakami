@@ -26,7 +26,6 @@ router.use("/carbon-accounting", require("./carbon-accounting/root"));
 router.use("/food-collections", require("./food-collections/root"));
 
 router.use("/error", require("./error"));
-router.use("/log", require("./log"));
 router.use("/support", require("./support"));
 router.use("/login", require("./login"));
 router.use("/contact-preferences", require("./contact-preferences"));
