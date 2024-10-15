@@ -49,7 +49,7 @@ passport.use(
 // Redirect to SumUp login
 router.get("/auth", Auth.isLoggedIn, Auth.isOfClass(["admin"]), (req, res, next) => {
   passport.authenticate("sumup", {
-    scope: ["transactions.history", "payments"],
+    scope: ["transactions.history"],
   })(req, res, next);
 });
 // SumUp OAuth2 callback handler
