@@ -164,6 +164,7 @@ function update(){
 		logWeightInput.className = "form-control align-middle removeArrows"
 		logWeightInput.id = "inputLogWeight_" + i
 		logWeightInput.style = `width:80px`;
+		logWeightInput.setAttribute("inputmode", "numeric")
 		logWeightInput.value = transaction[i].weight
 		$("#weight_" + i).append(logWeightInput)
 		logWeightInput.oninput = function(){
