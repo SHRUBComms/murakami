@@ -421,7 +421,6 @@ router.post(
         }
       }
 
-      console.log(totals);
       formattedTransaction.summary.totals = totals;
       formattedTransaction.summary.paymentMethod = paymentMethod;
 
