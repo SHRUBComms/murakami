@@ -144,10 +144,14 @@ app.use(async (req, res, next) => {
 const automatedMails = require("./app/controllers/automated-scripts/emails");
 const automatedReports = require("./app/controllers/automated-scripts/reports");
 const cleanFailedTransactions = require("./app/controllers/automated-scripts/clean-failed-transactions");
+const backfillSumupTransactions = require("./app/controllers/automated-scripts/backfill-transactions");
+const reconcileSumupTransactions = require("./app/controllers/automated-scripts/reconcile-transactions");
 if (process.env.NODE_ENV == "production") {
   automatedMails.start();
   automatedReports.start();
   cleanFailedTransactions.start();
+  backfillSumupTransactions.start();
+  reconcileSumupTransactions.start();
 }
 
 // Define routers
