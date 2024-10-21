@@ -161,7 +161,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Could not connect to SumUp";
     }
 
-    console.log("Got access token: " + accessToken);
+    console.log("Got access token");
 
     // Fetch SumUp transaction by SumUp ID and Murakami ID - verify that they match
     const SumUpTransaction = await Helpers.SumUpGetTransaction(SumUpTransactionId, accessToken);
