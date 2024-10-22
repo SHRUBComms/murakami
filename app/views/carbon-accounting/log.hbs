@@ -155,10 +155,29 @@ function update(){
 		weight_total += +transaction[i].weight;
 		$('<tr>',{
 		    html:"<td>" + transaction[i].category + "</td>" +
-		    "<td id='weight_" + i + "' contenteditable='true' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + transaction[i].weight + "</td>" +
+		    "<td id='weight_" + i + "' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + "</td>" +
+		    "<td id='weight_" + i + "' oninput='updateTrans(" + i + ")' onblur='updateTrans(" + i + ")'>" + "</td>" +
 		    "<td class='remove-item clickable' onclick='removeFromTrans(" + i + ")'>x</td>"
 		}).appendTo('#transaction-info');
+	
+
+		let logWeightInput = document.createElement("input")
+		logWeightInput.className = "form-control align-middle removeArrows"
+		logWeightInput.id = "inputLogWeight_" + i
+		logWeightInput.style = `width:80px`;
+		logWeightInput.setAttribute("inputmode", "numeric")
+		logWeightInput.value = transaction[i].weight
+		$("#weight_" + i).append(logWeightInput)
+		logWeightInput.oninput = function(){
+			updateTrans(i)
+		};
+		logWeightInput.onblur = function(){
+			updateTrans(i)
+		};
 	}
+}
+
+
 
 	if(transaction.length > 0){
 		$('<tr>',{
@@ -173,7 +192,7 @@ function update(){
 	} else {
 		$("#transaction_btns").addClass("d-none");
 	}
-}
+
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && n >= 0 && n % 1 == 0;
@@ -218,7 +237,8 @@ function completeTrans(){
 	            transaction = [];
 	            update();
 	            $("#transaction_info").html('<div class="alert alert-success alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
-	            $("#transaction_history").bootstrapTable('refresh');
+	            //$("#transaction_history").bootstrapTable('refresh');
+				$("#transaction_history").Datatable; // Line above caused error. This line doesn't.
 	        } else {
 	        	$("#transaction_info").html('<div class="alert alert-danger alert-dismissible fade show col-md-5 p-3 mx-auto">' + response.msg + "<button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>");
 	        }
