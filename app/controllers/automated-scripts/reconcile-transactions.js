@@ -9,7 +9,7 @@ const SumupTransactions = Models.SumupTransactions;
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 // Backfill date
-const specifiedDate = new Date("2024-10-26");
+const specifiedDate = new Date("2024-11-01");
 
 const reconcileSumupTransactions = new CronJob({
   cronTime: "0 2 * * *",
