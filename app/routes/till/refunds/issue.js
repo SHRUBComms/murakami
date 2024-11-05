@@ -121,10 +121,11 @@ router.post(
             throw "Something went wrong connecting to SumUp! Please try again";
           }
 
-          const sumupTransaction = await Helpers.SumUpGetTransaction(
-            transaction.summary.sumupId,
-            accessToken
-          );
+          const sumupTransaction = await Helpers.SumUpGetTransaction({
+            transactionId: transaction.summary.sumupId,
+            accessToken,
+            lookupField: "transaction_code",
+          });
 
           if (!sumupTransaction) {
             throw "Transaction could not be verified with SumUp";

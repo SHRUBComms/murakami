@@ -27,10 +27,11 @@ router.get(
         throw "Could not access SumUp";
       }
 
-      const sumupTransaction = await Helpers.SumUpGetTransaction(
-        req.query["smp-tx-code"],
-        accessToken
-      );
+      const sumupTransaction = await Helpers.SumUpGetTransaction({
+        transactionId: req.query["smp-tx-code"],
+        accessToken: accessToken,
+        lookupField: "transaction_code",
+      });
 
       if (!sumupTransaction) {
         throw "SumUp transaction not found";
