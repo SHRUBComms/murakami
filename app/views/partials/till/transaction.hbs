@@ -1389,6 +1389,7 @@ function selectPaymentMethod(method){
 	} else if(method == "card") {
 		$("#cardOption").addClass("member-selected");
 		paymentMethod = method;
+		$("#confirmTransactionBtn").prop("disabled", false);
 	}
 }
 
