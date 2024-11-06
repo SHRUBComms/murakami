@@ -164,14 +164,23 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
     console.log("Got access token");
 
     // Fetch SumUp transaction by SumUp ID and Murakami ID - verify that they match
-    const SumUpTransaction = await Helpers.SumUpGetTransaction({
+    let SumUpTransaction = await Helpers.SumUpGetTransaction({
       transactionId: SumUpTransactionId,
       accessToken,
       lookupField: "id",
     });
 
+    // If no match, try to fetch by Murakami ID
     if (!SumUpTransaction) {
-      throw "Something went wrong processing your payment";
+      SumUpTransaction = await Helpers.SumUpGetTransaction({
+        transactionId: murakamiTransactionId,
+        accessToken,
+        lookupField: "foreign_transaction_id",
+      });
+
+      if (!SumUpTransaction) {
+        throw "Something went wrong processing your payment";
+      }
     }
 
     console.log("SumUp transaction found: " + SumUpTransactionId);

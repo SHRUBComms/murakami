@@ -15,8 +15,17 @@ module.exports = async (startDate, endDate, access_token) => {
     );
 
     const json = await response.json();
+
+    if (response.status !== 200) {
+      throw new Error(
+        `Failed to fetch transaction details: ${response.status} ${response.statusText}`
+      );
+    }
     return json;
   } catch (error) {
+    console.log({
+      errorMessage: `Error fetching SumUpTransactionBetweenTwoDates from sumup: ${error}`,
+    });
     throw "Something went wrong fetching the transaction details from SumUp";
   }
 };
