@@ -162,7 +162,7 @@
 		            <span class="input-group-prepend">
 									<span class="input-group-text" id="basic-addon1">Cash Given £</span>
 								</span>
-		            <input class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
+		            <input id="cashGivenInput" class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
 		    		</div>
 		    		<br />
 		    		<div class="input-group">
@@ -481,6 +481,15 @@ function removeFromTransaction(index){
 	updateTransactionList();
 }
 
+function enableCompleteTransactionButton(amountDue){
+	if ($("#cashGivenInput").val() >= amountDue){
+		$("#confirmTransactionBtn").prop("disabled", false);
+	}
+	else{
+		$("#confirmTransactionBtn").prop("disabled", true);
+	}
+}
+
 function calculateChange(e){
 	let cashGiven = parseFloat(e.value);
 	let change = 0;
@@ -493,6 +502,7 @@ function calculateChange(e){
 		}
 	}
 	$("#change").val(change.toFixed(2));
+	enableCompleteTransactionButton(global_money_total)
 }
 
 function updateTransactionList(){
@@ -1365,16 +1375,6 @@ function toggleIsMember(e) {
 $("#memberToggle").change(function() {
   toggleIsMember(this);
 });
-
-$("#confirmTransaction").change(function() {
-    if(this.checked) {
-        $("#confirmTransactionBtn").prop("disabled", false);
-    } else {
-    	$("#confirmTransactionBtn").prop("disabled", true);
-    }
-});
-
-
 
 function selectPaymentMethod(method){
 	$("#cashOption").removeClass("member-selected");
