@@ -9,13 +9,13 @@ const SumupTransactions = Models.SumupTransactions;
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 // Backfill date
-const specifiedDate = new Date("2024-11-01");
+const specifiedDate = moment("2024-11-01", "YYYY-MM-DD");
 
 const reconcileSumupTransactions = new CronJob({
-  cronTime: "0 2 * * *",
+  cronTime: "0 3 * * *",
   onTick: async () => {
     // Only run the daily ingestion after the backfill
-    const now = new Date();
+    const now = moment();
     if (now < specifiedDate) {
       console.log("Will only run after backfill has been completed");
       return;

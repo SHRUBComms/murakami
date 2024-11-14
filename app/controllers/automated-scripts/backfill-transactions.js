@@ -9,14 +9,14 @@ const SumupTransactions = Models.SumupTransactions;
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 // Backfill date
-const specifiedDate = new Date("2024-11-01");
+const specifiedDate = moment("2024-11-01", "YYYY-MM-DD");
 
 const backfillSumupTransactions = new CronJob({
-  cronTime: "0 2 * * *",
+  cronTime: "0 3 * * *",
   onTick: async () => {
     // Only run backfill on the specified date
-    const now = new Date();
-    if (now.toISOString().slice(0, 10) !== specifiedDate.toISOString().slice(0, 10)) {
+    const now = moment();
+    if (!now.isSame(specifiedDate, "day")) {
       console.log("Not the specified date, skipping backfill.");
       return;
     } else {
