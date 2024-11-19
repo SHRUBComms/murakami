@@ -42,8 +42,8 @@
 		{{#groupedEach 3 carbonCategories}}
 		  <div class="row">
 		    {{#each this}}
-
-		      <div class="col-sm-3 item-options" onclick="addToTrans('{{carbon_id}}', '{{name}}')">
+				<div class="col-sm-3 item-options" onclick="addToTrans('{{carbon_id}}', 'David Is The Best')">
+		      {{!-- <div class="col-sm-3 item-options" onclick="addToTrans('{{carbon_id}}', '{{name}}')"> --}}
 		      		<center>
 						<span>{{name}}</span>
 					</center>
@@ -67,7 +67,8 @@
 		  </tbody>
 		</table>
 		<div id="transaction_btns" class="d-none">
-			<a class="btn btn-block btn-success mt-4" onclick="completeTrans()">Log Weight</a>
+			{{!-- <a class="btn btn-block btn-success mt-4" onclick="completeTrans()">Log Weight</a> --}}
+			<div class="btn btn-block btn-success mt-4" onclick="completeTrans()">Log Weight</div>
 		</div>
 	</div>
 

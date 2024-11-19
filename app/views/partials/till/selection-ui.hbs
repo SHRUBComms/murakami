@@ -50,7 +50,8 @@ categories.parent = null;
 var globalCategory;
 
 function updateOptions(path) {
-  $("#options").html("");
+
+  $("#options").html("").delay( 800 ).fadeIn( 400 );
 
   options = eval(path);
 
@@ -106,6 +107,7 @@ function updateOptions(path) {
         }
 
         optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options itemBtn";
+        {{!-- optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options itemBtn"; --}}
         
         {{#ifCond mode '==' 'manage-stock'}}
           if(!option.stockControl && (!option.children || option.children.length == 0)){
@@ -119,7 +121,7 @@ function updateOptions(path) {
 
       if (option.children && option.children.length > 0) {
         optionDOMObject.parent.onclick = function() {
-          updateOptions(path + "[" + i + "].children");
+          sleep(100).then(() => { updateOptions(path + "[" + i + "].children"); });
         };
       } else {
         {{#ifCond mode '==' "transaction"}}
@@ -232,7 +234,12 @@ function updateOptions(path) {
 
     optionDOMObject.parent.className = "col-sm-3 item-options";
     optionDOMObject.parent.onclick = function() {
-      updateOptions(parent);
+      
+      {{!--  --}}
+      {{!-- updateOptions(parent); --}}
+
+      {{!-- delay in order for css hover effect to become visible before till option buttons update --}}
+      sleep(100).then(() => { updateOptions(parent); });
     };
 
     optionDOMObject.text.className = "text-center";
@@ -262,7 +269,7 @@ function updateOptions(path) {
     if ($(".itemBtn:hover").length != 0) {
 
       globalCategory = $(".itemBtn:hover").attr("id");
-      event.preventDefault();
+      {{!-- event.preventDefault(); --}}
 
       $(".custom-menu")
         .finish()
@@ -352,6 +359,10 @@ function updateOptions(path) {
 
 
 {{/ifCond}}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function getCategories(path) {
 

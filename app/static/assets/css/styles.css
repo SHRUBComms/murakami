@@ -2370,7 +2370,13 @@ table.dataTable thead td {
   font-size: 13px;
   transition: 0.75s;
   border-top-color: var(--primary-color);
+  /* background-color: #46ca65; */
   vertical-align: middle;
+}
+
+.item-options:active {
+  background-color: #46ca65;
+  transition: 0.001s;
 }
 
 .discount-options {
@@ -2387,9 +2393,13 @@ table.dataTable thead td {
 
 .new-category-option:hover {
   font-size: 13px;
-  transition: 0.5s;
+  transition: 0.001s;
   color: white;
   background-color: var(--green);
+  border-top-color: var(--green);
+}
+
+.new-category-option:active {
   border-top-color: var(--green);
 }
 
