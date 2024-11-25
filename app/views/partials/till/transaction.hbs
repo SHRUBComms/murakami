@@ -1383,6 +1383,8 @@ function selectPaymentMethod(method){
 	paymentMethod = null;
 
 	if(method == "cash"){
+		$("#confirmTransactionBtn").prop("disabled", true);
+		$("#cashGivenInput").val("");
 		$("#cashOption").addClass("member-selected");
 		$("#changeCalc").removeClass("d-none");
 		document.getElementById("cashGivenInput").focus();
