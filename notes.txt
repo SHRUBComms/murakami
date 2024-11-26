@@ -1,3 +1,0 @@
-Pie chart on till dashboard fails on negative number - no frontend error.
-
-
