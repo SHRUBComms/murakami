@@ -1373,6 +1373,7 @@ function selectPaymentMethod(method){
 	paymentMethod = null;
 
 	if(method == "cash"){
+		$("#change").val("");
 		$("#confirmTransactionBtn").prop("disabled", true);
 		$("#cashGivenInput").val("");
 		$("#cashOption").addClass("member-selected");
