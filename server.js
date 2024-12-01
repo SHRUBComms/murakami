@@ -76,6 +76,7 @@ app.listen(port);
 console.log("### " + process.env.NODE_ENV.toUpperCase() + " ###");
 console.log("Server started on local port " + port);
 console.log("Running on public address " + process.env.PUBLIC_ADDRESS);
+console.log("Node.js version:", process.version);
 
 // Initiate DB stuffs
 const Models = require("./app/models/sequelize");
