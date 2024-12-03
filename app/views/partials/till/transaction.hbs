@@ -627,6 +627,10 @@ function updateTransactionList(){
 			weightColumn.textContent = "-";
     }
 
+	if(transaction[i].value > 0){
+		valueColumn.contentEditable = false;
+	}
+
 		removeColumn = document.createElement("td");
 		removeColumn.className = "remove-item clickable align-middle"
 		removeColumn.textContent = "x"
