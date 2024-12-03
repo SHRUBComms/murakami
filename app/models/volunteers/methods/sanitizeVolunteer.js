@@ -472,7 +472,7 @@ module.exports = () => {
             } catch (err) {}
 
             if (Object.keys(sanitizedVolunteer).length > 0) {
-              if (sanitizedVolunteer.roles.length > 0) {
+              if (sanitizedVolunteer.roles && sanitizedVolunteer.roles.length > 0) {
                 sanitizedVolunteer.active = true;
               } else {
                 sanitizedVolunteer.active = false;

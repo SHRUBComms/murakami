@@ -96,14 +96,6 @@ router.post(
         throw "This transaction is non-refundable";
       }
 
-      if (transaction.summary.totals.money === 0) {
-        throw "Transaction can't be refunded - money was not used as the payment method";
-      }
-
-      if (!["cash", "card"].includes(transaction.summary.paymentMethod)) {
-        throw "Transaction can't be refunded - money was not used as the payment method";
-      }
-
       if (action === "lookup") {
         const { membersObj } = await Members.getAll();
         const categories = await StockCategories.getCategoriesByTillId(till_id, "treeKv");
@@ -115,16 +107,33 @@ router.post(
         );
         res.send({ status: "ok", transaction: formattedTransactions[0] });
       } else {
+        if (transaction.summary.totals.money === 0) {
+          throw "Transaction can't be refunded - money was not used as the payment method";
+        }
+
+        if (!["cash", "card"].includes(transaction.summary.paymentMethod)) {
+          throw "Transaction can't be refunded - money was not used as the payment method";
+        }
+
+        if (Number(amount) > Number(transaction.summary.totals.money)) {
+          throw "Please enter a valid refund amount";
+        }
+
+        if (Number(amount) < 0.01) {
+          throw "Please enter a valid refund amount";
+        }
+
         if (transaction.summary.sumupId) {
           const accessToken = await Helpers.SumUpAuth();
           if (!accessToken) {
             throw "Something went wrong connecting to SumUp! Please try again";
           }
 
-          const sumupTransaction = await Helpers.SumUpGetTransaction(
-            transaction.summary.sumupId,
-            accessToken
-          );
+          const sumupTransaction = await Helpers.SumUpGetTransaction({
+            transactionId: transaction.summary.sumupId,
+            accessToken,
+            lookupField: "transaction_code",
+          });
 
           if (!sumupTransaction) {
             throw "Transaction could not be verified with SumUp";
@@ -147,14 +156,6 @@ router.post(
 
           res.send({ status: "ok", msg: "Refund successfully issued by SumUp" });
         } else {
-          if (Number(amount) > Number(transaction.summary.totals.money)) {
-            throw "Please enter a valid refund amount";
-          }
-
-          if (Number(amount) < 0.01) {
-            throw "Please enter a valid refund amount";
-          }
-
           if (Number(amount) > Number(tillBalance)) {
             throw "Not enough money in till to issue refund!";
           }

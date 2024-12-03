@@ -161,10 +161,25 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
       throw "Could not connect to SumUp";
     }
 
-    console.log("Got access token: " + accessToken);
+    console.log("Got access token");
 
     // Fetch SumUp transaction by SumUp ID and Murakami ID - verify that they match
-    const SumUpTransaction = await Helpers.SumUpGetTransaction(SumUpTransactionId, accessToken);
+    let SumUpTransaction;
+
+    try {
+      SumUpTransaction = await Helpers.SumUpGetTransaction({
+        transactionId: SumUpTransactionId,
+        accessToken,
+        lookupField: "id",
+      });
+    } catch (error) {
+      // If no match, try to fetch by Murakami ID
+      SumUpTransaction = await Helpers.SumUpGetTransaction({
+        transactionId: murakamiTransactionId,
+        accessToken,
+        lookupField: "foreign_transaction_id",
+      });
+    }
 
     if (!SumUpTransaction) {
       throw "Something went wrong processing your payment";
@@ -172,7 +187,7 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
 
     console.log("SumUp transaction found: " + SumUpTransactionId);
 
-    if (SumUpTransaction.status != "SUCCESSFUL") {
+    if (SumUpTransaction.status !== "SUCCESSFUL") {
       throw "Payment was not successful";
     }
 
