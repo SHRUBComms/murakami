@@ -359,8 +359,8 @@ router.post(
 
         formattedTransaction.summary.discount_info = discountInfo;
 
-        if (payWithTokens == true) {
-          if (totalMoney == 0) {
+        if (payWithTokens === true) {
+          if (totalMoney === 0) {
             if (member.balance >= totalTokens) {
               totals.tokens = Math.ceil(totalTokens);
             } else {
@@ -384,10 +384,6 @@ router.post(
           }
         } else {
           totals.money = (Number(totalTokens) + Number(totalMoney)).toFixed(2);
-        }
-
-        if (totals.money == 0 && totals.tokens == 0) {
-          paymentMethod = null;
         }
       } else {
         totals.money = (Number(totalTokens) + Number(totalMoney)).toFixed(2);
@@ -415,13 +411,11 @@ router.post(
           };
           formattedTransaction.summary.bill.push(automaticDonation);
         }
-
-        if (totals.money == 0) {
-          paymentMethod = null;
-        }
       }
 
-      console.log(totals);
+      if (!Number(totals.money)) {
+        paymentMethod = null;
+      }
       formattedTransaction.summary.totals = totals;
       formattedTransaction.summary.paymentMethod = paymentMethod;
 

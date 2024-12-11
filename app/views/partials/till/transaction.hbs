@@ -124,7 +124,7 @@
 <div class="row mt-4 mb-4">
 	<div class="col-12 col-md-8 col-lg-6 col-xl-4 mx-auto">
 		<div id="transaction_btns" class="d-none">
-			<button type="button" class="btn btn-success btn-block btn-lg" data-toggle="modal" data-target="#myModal"><span class="transaction-total"></span></button>
+			<button type="button" class="btn btn-success btn-block btn-lg" data-toggle="modal" data-target="#myModal" onclick="selectPaymentMethod('card')"><span class="transaction-total"></span></button>
 		</div>
 	</div>
 </div>
@@ -162,7 +162,7 @@
 		            <span class="input-group-prepend">
 									<span class="input-group-text" id="basic-addon1">Cash Given £</span>
 								</span>
-		            <input class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" />
+		            <input id="cashGivenInput" class="form-inline form-control" oninput="calculateChange(this)" type="text" placeholder="0.00" inputmode="numeric"/>
 		    		</div>
 		    		<br />
 		    		<div class="input-group">
@@ -201,19 +201,9 @@
                 </div>
               </div>
             </div>
-		    	</div>
-		  	</div>
-
-				<div class="row">
-					<div class="conatiner mx-auto">
-						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="checkbox" id="confirmTransaction">
-							<label class="form-check-label">Transaction details are correct</label>
-						</div>
-					</div>
-				</div>
-
-      </div>
+		</div>
+	</div>
+    </div>
       <div class="modal-footer">
       	<button type="button" id="confirmTransactionBtn" class="btn btn-success" data-dismiss="modal" onclick="completeTransaction()" disabled="disabled">Complete Transaction</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -481,6 +471,15 @@ function removeFromTransaction(index){
 	updateTransactionList();
 }
 
+function enableCompleteTransactionButton(amountDue){
+	if ($("#cashGivenInput").val() >= amountDue){
+		$("#confirmTransactionBtn").prop("disabled", false);
+	}
+	else{
+		$("#confirmTransactionBtn").prop("disabled", true);
+	}
+}
+
 function calculateChange(e){
 	let cashGiven = parseFloat(e.value);
 	let change = 0;
@@ -493,6 +492,7 @@ function calculateChange(e){
 		}
 	}
 	$("#change").val(change.toFixed(2));
+	enableCompleteTransactionButton(global_money_total)
 }
 
 function updateTransactionList(){
@@ -626,6 +626,10 @@ function updateTransactionList(){
 			weightColumn.contentEditable = false;
 			weightColumn.textContent = "-";
     }
+
+	if(transaction[i].value > 0){
+		valueColumn.contentEditable = false;
+	}
 
 		removeColumn = document.createElement("td");
 		removeColumn.className = "remove-item clickable align-middle"
@@ -1366,16 +1370,6 @@ $("#memberToggle").change(function() {
   toggleIsMember(this);
 });
 
-$("#confirmTransaction").change(function() {
-    if(this.checked) {
-        $("#confirmTransactionBtn").prop("disabled", false);
-    } else {
-    	$("#confirmTransactionBtn").prop("disabled", true);
-    }
-});
-
-
-
 function selectPaymentMethod(method){
 	$("#cashOption").removeClass("member-selected");
 	$("#cardOption").removeClass("member-selected");
@@ -1383,12 +1377,17 @@ function selectPaymentMethod(method){
 	paymentMethod = null;
 
 	if(method == "cash"){
+		$("#change").val("");
+		$("#confirmTransactionBtn").prop("disabled", true);
+		$("#cashGivenInput").val("");
 		$("#cashOption").addClass("member-selected");
 		$("#changeCalc").removeClass("d-none");
+		document.getElementById("cashGivenInput").focus();
 		paymentMethod = method;
 	} else if(method == "card") {
 		$("#cardOption").addClass("member-selected");
 		paymentMethod = method;
+		$("#confirmTransactionBtn").prop("disabled", false);
 	}
 }
 

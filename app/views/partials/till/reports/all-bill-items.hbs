@@ -1,0 +1,31 @@
+<div class="row"></div>
+  <div class="col-md-12">
+    <div id="allBillItemsNote" class="alert alert-info d-none p-4" role="alert">
+      <span class="badge badge-pill badge-info mr-2">Info</span><b>Please note that refunds and failed card transactions have been redacted.</b>
+    </div>
+  </div>
+</div>
+
+<table id="allBillItemsTable" class="fadeIn table-light d-none" data-icons-prefix="fas" data-pagination="false" data-toggle="table" data-export-data-type="all" data-striped="true" data-show-export="true" data-export-options='{
+     "fileName": "All Tills Bill Items"
+   }'>
+    <thead>
+        <tr>
+          <th data-field="till_name">Till</th>
+          <th data-field="transaction_id">Transaction ID</th>
+          <th data-field="date">Date</th>
+          <th data-field="isMember">Member</th>
+          <th data-field="item">Item</th>
+          <th data-field="quantity">Quantity</th>
+          <th data-field="value">Value</th>
+          <th data-field="condition">Condition</th>
+          <th data-field="payment_method">Payment Method</th>
+          <th data-field="transactionTotalDiscount">Discount (Transaction)</th>
+          <th data-field="transactionTotalTokens">Tokens (Transaction)</th>
+          <th data-field="sumupId">Sumup ID</th>
+          <th data-field="allowsTokens">Allows Tokens</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
