@@ -33,7 +33,6 @@ const reconcileSumupTransactions = new CronJob({
 
     // Set backfill dates
     const startDate = await getPrevDate();
-    const adjustedStartDate = startDate.add(1, "days");
     const endDate = moment();
 
     // Set access token
@@ -45,6 +44,7 @@ const reconcileSumupTransactions = new CronJob({
     // Get all new SumUp transactions
     let records;
     if (startDate) {
+      const adjustedStartDate = startDate.add(1, "days");
       records = await Helpers.sumUpGetAllTransactionsBetweenTwoDates(
         accessToken,
         adjustedStartDate.toDate(),
