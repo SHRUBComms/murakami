@@ -1,7 +1,6 @@
 // /volunteers/hours/log
 
 const router = require("express").Router();
-const request = require("request");
 const moment = require("moment");
 const sanitizeHtml = require("sanitize-html");
 
@@ -10,60 +9,29 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const WorkingGroups = Models.WorkingGroups;
 const Members = Models.Members;
-const Volunteers = Models.Volunteers;
-const VolunteerRoles = Models.VolunteerRoles;
 const VolunteerHours = Models.VolunteerHours;
-const Tills = Models.Tills;
-
-const Recaptcha = require(rootDir + "/app/controllers/recaptcha");
 
 router.get("/", async (req, res) => {
   try {
-    let allowed = false;
-
-    if (!req.user || (req.user && req.user.permissions.volunteerHours.log)) {
-      allowed = true;
-    }
-
-    if (!allowed) {
+    if (!req.user || !req.user.permissions.volunteerHours.log) {
       throw "Not permitted";
     }
 
     const { allWorkingGroupsObj } = await WorkingGroups.getAll();
-
-    let tillMode = false;
     const till_id = req.query.till_id || null;
 
-    const member_id = req.query.member_id || null;
-
-    if (req.user) {
-      if (till_id) {
-        tillMode = true;
-      }
-
-      res.render("volunteers/hours/log", {
-        tillMode: tillMode,
-        logVolunteerHoursActive: true,
-        till: {
-          till_id: till_id,
-          group_id: req.user.working_groups[0],
-          status: 1,
-        },
-        title: "Log Volunteer Hours",
-        volunteerHoursActive: true,
-        captcha: Recaptcha.recaptcha.render(),
-        working_groups: allWorkingGroupsObj,
-      });
-    } else {
-      res.render("volunteers/hours/log", {
-        title: "Log Volunteer Hours",
-        logoutActive: true,
-        member_id: member_id,
-        captcha: Recaptcha.recaptcha.render(),
-        working_groups: allWorkingGroupsObj,
-        till: { till_id: till_id },
-      });
-    }
+    res.render("volunteers/hours/log", {
+      tillMode: !!till_id,
+      logVolunteerHoursActive: true,
+      till: {
+        till_id: till_id,
+        group_id: req.user.working_groups[0],
+        status: 1,
+      },
+      title: "Log Volunteer Hours",
+      volunteerHoursActive: true,
+      working_groups: allWorkingGroupsObj,
+    });
   } catch (error) {
     res.redirect(process.env.PUBLIC_ADDRESS + "/");
   }
@@ -71,19 +39,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    let allowed = false;
-    if (!req.user) {
-      const recaptchaApproved = await Recaptcha.checkRecaptcha(req.body["g-recaptcha-response"]);
-
-      if (recaptchaApproved == false) {
-        throw "Please confirm that you're not a robot";
-      }
-      allowed = true;
-    } else if (req.user && req.user.permissions.volunteerHours.log) {
-      allowed = true;
-    }
-
-    if (!allowed) {
+    if (!req.user || !req.user.permissions.volunteerHours.log) {
       throw "Not permitted";
     }
 
@@ -138,25 +94,15 @@ router.post("/", async (req, res) => {
       await Members.updateStatus(member.member_id, 1);
     }
 
-    if (req.user) {
-      res.send({ status: "ok", msg: "Shift logged successfully!" });
-    } else {
-      req.flash("success_msg", "Shift logged successfully!");
-      res.redirect(process.env.PUBLIC_ADDRESS + "/volunteers/hours/log");
-    }
+    res.send({ status: "ok", msg: "Shift logged successfully!" });
   } catch (error) {
-    if (typeof error != "string") {
-      error = "Something went wrong! Please try again";
-    }
-
-    if (req.user) {
-      res.send({ status: "fail", msg: error });
+    let msg;
+    if (typeof error === "string") {
+      msg = error;
     } else {
-      req.flash("error_msg", error);
-      res.redirect(
-        process.env.PUBLIC_ADDRESS + "/volunteers/hours/log?member_id=" + req.body.shift.member_id
-      );
+      msg = "Something went wrong! Please try again";
     }
+    res.send({ status: "fail", msg });
   }
 });
 

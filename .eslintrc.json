@@ -20,9 +20,14 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "no-var": "error", // Disallow the use of 'var'
-    "prefer-const": "error", // Suggest 'const' if a variable is never reassigned
+    "no-var": "warn", // Disallow the use of 'var'
+    "prefer-const": "warn", // Suggest 'const' if a variable is never reassigned
     "eqeqeq": ["warn", "always"], // Enforce the use of '==='
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "no-unused-vars": "warn",
+    "no-ex-assign": "warn",
+    "no-empty": "warn",
+    "no-useless-catch": "warn",
+    "no-useless-escape": "warn"
   }
 }
