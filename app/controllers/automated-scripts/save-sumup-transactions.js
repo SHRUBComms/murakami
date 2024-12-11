@@ -26,7 +26,7 @@ async function getPrevDate() {
   }
 }
 
-const reconcileSumupTransactions = new CronJob({
+const saveSumupTransactions = new CronJob({
   cronTime: "0 3 * * *",
   onTick: async () => {
     console.log("we are running");
@@ -61,4 +61,4 @@ const reconcileSumupTransactions = new CronJob({
   timeZone: "Europe/London",
 });
 
-module.exports = reconcileSumupTransactions;
+module.exports = saveSumupTransactions;
