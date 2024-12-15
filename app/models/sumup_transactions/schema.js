@@ -1,5 +1,3 @@
-const Helpers = require(process.env.CWD + "/app/controllers/helper-functions/root");
-
 module.exports = function (sequelize, DataTypes) {
   const SumupTransactions = sequelize.define(
     "sumup_transactions",
