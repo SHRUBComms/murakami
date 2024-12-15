@@ -59,6 +59,10 @@ const Models = {
   Settings: require(rootDir + "/app/models/settings/schema")(sequelize, Sequelize),
   StockCategories: require(rootDir + "/app/models/stock_categories/schema")(sequelize, Sequelize),
   StockRecords: require(rootDir + "/app/models/stock_records/schema")(sequelize, Sequelize),
+  SumupTransactions: require(rootDir + "/app/models/sumup_transactions/schema")(
+    sequelize,
+    Sequelize
+  ),
   TillActivity: require(rootDir + "/app/models/till_activity/schema")(sequelize, Sequelize),
   Tills: require(rootDir + "/app/models/tills/schema")(sequelize, Sequelize),
   Transactions: require(rootDir + "/app/models/transactions/schema")(sequelize, Sequelize),
