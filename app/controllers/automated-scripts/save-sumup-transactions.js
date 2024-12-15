@@ -29,7 +29,7 @@ async function getPrevDate() {
 const saveSumupTransactions = new CronJob({
   cronTime: "0 3 * * *",
   onTick: async () => {
-    console.log("we are running");
+    console.log(`Running saveSumupTransactions ${moment().format("DD/MM/YYYY HH:mm")}`);
 
     // Set backfill dates
     const startDate = await getPrevDate();
@@ -44,7 +44,8 @@ const saveSumupTransactions = new CronJob({
     // Get all new SumUp transactions
     let records;
     if (startDate) {
-      const adjustedStartDate = startDate.add(1, "days");
+      //Add a second to the start date to avoid duplicate records
+      const adjustedStartDate = startDate.add(1, "seconds");
       records = await Helpers.sumUpGetAllTransactionsBetweenTwoDates(
         accessToken,
         adjustedStartDate.toDate(),

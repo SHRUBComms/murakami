@@ -7,9 +7,9 @@ module.exports = async (records, sumupTransactions, batchSize = 1000) => {
         validate: true,
         returning: true,
       });
-      console.log(`Inserted batch ${Math.floor(i / batchSize) + 1}`);
+      console.log(`Inserted batch of ${batch.length} records`);
     }
-    console.log("All records inserted successfully");
+    console.log(`${records.length} records inserted successfully`);
   } catch (error) {
     console.error("Error inserting records:", error);
   }
