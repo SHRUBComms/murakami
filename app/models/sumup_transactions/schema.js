@@ -81,12 +81,5 @@ module.exports = function (sequelize, DataTypes) {
     }
   );
 
-  Helpers.includeAllModelMethods(
-    SumupTransactions,
-    sequelize,
-    DataTypes,
-    process.env.CWD + "/app/models/sumup_transactions/methods/"
-  );
-
   return SumupTransactions;
 };
