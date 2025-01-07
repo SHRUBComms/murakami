@@ -50,7 +50,11 @@ categories.parent = null;
 var globalCategory;
 
 function updateOptions(path) {
-  $("#options").html("");
+  let delay_time = 800;
+  let fadein_time = 400;
+  let submenu_delay = 100;
+
+  $("#options").html("").delay( delay_time ).fadeIn( fadein_time );
 
   options = eval(path);
 
@@ -118,9 +122,11 @@ function updateOptions(path) {
         optionDOMObject.parent.className = "col-xs-5 col-sm-3 item-options discount-options itemBtn"; 
       }
 
+      {{!-- when button selected leads to a sub-menu --}}
       if (option.children && option.children.length > 0) {
+        {{!-- display sub-menu items --}}
         optionDOMObject.parent.onclick = function() {
-          updateOptions(path + "[" + i + "].children");
+          sleep(submenu_delay).then(() => { updateOptions(path + "[" + i + "].children"); });
         };
       } else {
         {{#ifCond mode '==' "transaction"}}
@@ -221,6 +227,7 @@ function updateOptions(path) {
 
   {{/ifCond}}
 
+  {{!-- when user selects "back" item and parent option exists, load the item selection containing the parent item --}}
   if (parentReal) {
 
     row = document.createElement("div");
@@ -233,7 +240,8 @@ function updateOptions(path) {
 
     optionDOMObject.parent.className = "col-sm-3 item-options";
     optionDOMObject.parent.onclick = function() {
-      updateOptions(parent);
+      {{!-- delay in order for css hover effect to become visible before till option buttons update --}}
+      sleep(submenu_delay).then(() => { updateOptions(parent); });
     };
 
     optionDOMObject.text.className = "text-center";
@@ -353,6 +361,10 @@ function updateOptions(path) {
 
 
 {{/ifCond}}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function getCategories(path) {
 
