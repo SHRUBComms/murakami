@@ -561,6 +561,7 @@ function updateTransactionList(){
       quantityColumnInput.setAttribute("step", 1)
       quantityColumnInput.setAttribute("max", maxQuantity || 999);
       quantityColumnInput.setAttribute("min", 1)
+	  quantityColumnInput.setAttribute("inputmode", "numeric")
 
       quantityColumnInput.oninput = function(){
         updateTransaction(i)
