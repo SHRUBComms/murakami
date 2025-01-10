@@ -600,6 +600,7 @@ function updateTransactionList(){
     
 		if(transaction[i].setValue == false || transaction[i].discount == false){
 			valueColumn.contentEditable = true;
+			valueColumn.setAttribute("inputmode", "numeric");
 		}
 
     if(transaction[i].giftcard == true) {
@@ -619,6 +620,7 @@ function updateTransactionList(){
 		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
 			weightColumn.contentEditable = true;
 			weightColumn.textContent = transaction[i].weight || 0;
+			weightColumn.setAttribute("inputmode", "numeric");
 		} else {
 			weightColumn.textContent = "-";
 		}
