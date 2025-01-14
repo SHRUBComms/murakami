@@ -624,24 +624,33 @@ function updateTransactionList(){
 		weightColumn = document.createElement("td");
 		weightColumn.className = "align-middle"
 		weightColumn.id = "weight_" + i;
-		weightColumn.oninput = function(){
+		let weightColumnInput = document.createElement("input");
+		weightColumnInput.id = "weightInput_" + i;
+		weightColumnInput.type = "number";
+		weightColumnInput.value = transaction[i].value;
+		weightColumnInput.className = "form-control align-middle"
+		weightColumnInput.setAttribute("min", 0)	
+		weightColumnInput.style = `width:${inputBoxWidth}px`;	
+
+		weightColumnInput.oninput = function(){
 			updateTransaction(i)
 		};
-		weightColumn.onblur = function(){
+		weightColumnInput.onblur = function(){
 			updateTransaction(i)
 		};
 
 		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
-			weightColumn.contentEditable = true;
-			weightColumn.textContent = transaction[i].weight || 0;
+			weightColumnInput.readOnly = false
+			weightColumnInput.value = transaction[i].weight || 0;
 		} else {
-			weightColumn.textContent = "-";
+			weightColumnInput.value = "-";
 		}
 
-    if(transaction[i].giftcard == true) {
-			weightColumn.contentEditable = false;
-			weightColumn.textContent = "-";
+    if(transaction[i].giftcard == true || transaction[i].action == "Donation") {
+			weightColumnInput.readOnly = true;
     }
+
+	weightColumn.append(weightColumnInput)
 
 		removeColumn = document.createElement("td");
 		removeColumn.className = "remove-item clickable align-middle"
@@ -848,14 +857,14 @@ function isNumeric(n) {
 
 function updateTransaction(index){
 
-	if(isNumeric($("#weight_" + index).html())){
-		transaction[index].weight = $("#weight_" + index).html();
+	if(isNumeric($("#weightInput_" + index).val())){
+		transaction[index].weight = $("#weightInput_" + index).val();
 	} else {
 		if(transaction[index].carbon_id){
-			$("#weight_" + index).html("0");
+			$("#weightInput_" + index).html("0");
 			transaction[index].weight = 0;
 		} else {
-			$("#weight_" + index).html("-");
+			$("#weightInput_" + index).html("-");
 			transaction[index].weight = 0;
 		}
 
