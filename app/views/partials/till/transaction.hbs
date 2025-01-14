@@ -674,7 +674,7 @@ function updateTransactionList(){
 		$('<tr>',{
 		    html:"<td><b>SUBTOTAL:</b></td>" +
 		    "<td id='money_total'>" + real_total_transaction_value + "</td>" +
-		    "<td id='weight_total'>" + weight_total + "</td>" +
+		    "<td id='weight_subtotal'>" + weight_total + "</td>" +
 		    "<td></td>" +
 				"<td></td>"
 		}).appendTo('#transaction-info');
@@ -771,6 +771,7 @@ function updateButtons(){
 
 	$("#tokens_total").html(value_total.toFixed(2));
 	$("#money_total").html(real_total_transaction_value.toFixed(2));
+	$("#weight_subtotal").html(weight_total.toFixed(0));
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0 && contains_real_items){
