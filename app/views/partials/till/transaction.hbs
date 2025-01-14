@@ -543,6 +543,8 @@ function updateTransactionList(){
 
 		quantityColumn = document.createElement("td");
 		quantityColumn.className = "align-middle"
+
+		let inputBoxWidth = 80;
     
     if(transaction[i].action == null && transaction[i].discount == false){
       var quantityColumnInput = document.createElement("input");
@@ -561,6 +563,7 @@ function updateTransactionList(){
       quantityColumnInput.setAttribute("step", 1)
       quantityColumnInput.setAttribute("max", maxQuantity || 999);
       quantityColumnInput.setAttribute("min", 1)
+	  quantityColumnInput.style = `width:${inputBoxWidth}px`;
 
       quantityColumnInput.oninput = function(){
         updateTransaction(i)
@@ -583,7 +586,8 @@ function updateTransactionList(){
 		valueColumnInput.type = "number";
 		valueColumnInput.value = transaction[i].value;
 		valueColumnInput.className = "form-control align-middle"
-		valueColumnInput.setAttribute("min", 0)		
+		valueColumnInput.setAttribute("min", 0)	
+		valueColumnInput.style = `width:${inputBoxWidth}px`;	
 		
     valueColumnInput.oninput = function(){
 			updateTransaction(i)
