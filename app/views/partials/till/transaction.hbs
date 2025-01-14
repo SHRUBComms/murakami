@@ -578,12 +578,18 @@ function updateTransactionList(){
 		valueColumn = document.createElement("td");
 		valueColumn.className = "align-middle"
 		valueColumn.id = "value_" + i;
+		let valueColumnInput = document.createElement("input");
+		valueColumnInput.id = "valueInput_" + i;
+		valueColumnInput.type = "number";
+		valueColumnInput.value = transaction[i].value;
+		valueColumnInput.className = "form-control align-middle"
+		valueColumnInput.setAttribute("min", 0)		
 		
-    valueColumn.oninput = function(){
+    valueColumnInput.oninput = function(){
 			updateTransaction(i)
 		};
     
-		valueColumn.onblur = function(){
+		valueColumnInput.onblur = function(){
 			updateTransaction(i)
 		};
 
@@ -594,16 +600,22 @@ function updateTransactionList(){
     } else if(transaction[i].giftcard == true) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>£" + Number(transaction[i].value).toFixed(2) + " off!</span>";
     } else {
-		  valueColumn.textContent = transaction[i].value;
+		  valueColumnInput.value = transaction[i].value;
     }
     
 		if(transaction[i].setValue == false || transaction[i].discount == false){
-			valueColumn.contentEditable = true;
+			valueColumnInput.readOnly = false;
 		}
 
-    if(transaction[i].giftcard == true) {
-      valueColumn.contentEditable = false;
+	if(transaction[i].value > 0){
+		valueColumnInput.readOnly = true;
+	}
+
+    if(transaction[i].name == "Giftcard") {
+      valueColumnInput.readOnly = false;
     }
+
+	valueColumn.append(valueColumnInput)
 
 		weightColumn = document.createElement("td");
 		weightColumn.className = "align-middle"
@@ -626,10 +638,6 @@ function updateTransactionList(){
 			weightColumn.contentEditable = false;
 			weightColumn.textContent = "-";
     }
-
-	if(transaction[i].value > 0){
-		valueColumn.contentEditable = false;
-	}
 
 		removeColumn = document.createElement("td");
 		removeColumn.className = "remove-item clickable align-middle"
@@ -849,10 +857,10 @@ function updateTransaction(index){
 
 	}
 
-	if(isNumeric($("#value_" + index).text())){
-		transaction[index].value = $("#value_" + index).html();
+	if(isNumeric($("#valueInput_" + index).val())){
+		transaction[index].value = ($("#valueInput_" + index).val());
 	} else {
-		$("#value_" + index).html("");
+		$("#valueInput_" + index).html("");
 		transaction[index].value = 0;
 	}
 
