@@ -560,9 +560,9 @@ function updateTransactionList(){
       quantityColumnInput.type = "number";
       quantityColumnInput.value = transaction[i].quantity;
       quantityColumnInput.className = "form-control align-middle"
-      quantityColumnInput.setAttribute("step", 1)
+      //quantityColumnInput.setAttribute("step", 1)
       quantityColumnInput.setAttribute("max", maxQuantity || 999);
-      quantityColumnInput.setAttribute("min", 1)
+      quantityColumnInput.setAttribute("min", 0)
 	  quantityColumnInput.style = `width:${inputBoxWidth}px`;
 	  quantityColumnInput.setAttribute("inputmode", "numeric")
 
@@ -884,8 +884,8 @@ function updateTransaction(index){
 	if(isNumericAndWhole($("#quantity_" + index).val())){
 		transaction[index].quantity = $("#quantity_" + index).val();
 	} else {
-		$("#quantity_" + index).val(1);
-		transaction[index].quantity = 1;
+		$("#quantity_" + index).val("");
+		transaction[index].quantity = 0;
 	}
 
 	if(transaction.length > 0){
