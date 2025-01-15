@@ -564,6 +564,7 @@ function updateTransactionList(){
       quantityColumnInput.setAttribute("max", maxQuantity || 999);
       quantityColumnInput.setAttribute("min", 1)
 	  quantityColumnInput.style = `width:${inputBoxWidth}px`;
+	  quantityColumnInput.setAttribute("inputmode", "numeric")
 
       quantityColumnInput.oninput = function(){
         updateTransaction(i)
@@ -587,7 +588,8 @@ function updateTransactionList(){
 		valueColumnInput.value = transaction[i].value;
 		valueColumnInput.className = "form-control align-middle"
 		valueColumnInput.setAttribute("min", 0)	
-		valueColumnInput.style = `width:${inputBoxWidth}px`;	
+		valueColumnInput.style = `width:${inputBoxWidth}px`;
+		valueColumnInput.setAttribute("inputmode", "decimal")	
 		
     valueColumnInput.oninput = function(){
 			updateTransaction(i)
@@ -630,7 +632,8 @@ function updateTransactionList(){
 		weightColumnInput.value = transaction[i].value;
 		weightColumnInput.className = "form-control align-middle"
 		weightColumnInput.setAttribute("min", 0)	
-		weightColumnInput.style = `width:${inputBoxWidth}px`;	
+		weightColumnInput.style = `width:${inputBoxWidth}px`;
+		weightColumnInput.setAttribute("inputmode", "numeric")	
 
 		weightColumnInput.oninput = function(){
 			updateTransaction(i)
