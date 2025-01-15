@@ -560,7 +560,6 @@ function updateTransactionList(){
       quantityColumnInput.type = "number";
       quantityColumnInput.value = transaction[i].quantity;
       quantityColumnInput.className = "form-control align-middle"
-      //quantityColumnInput.setAttribute("step", 1)
       quantityColumnInput.setAttribute("max", maxQuantity || 999);
       quantityColumnInput.setAttribute("min", 0)
 	  quantityColumnInput.style = `width:${inputBoxWidth}px`;
