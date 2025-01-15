@@ -650,15 +650,11 @@ function updateTransactionList(){
 			weightColumnInput.value = "-";
 		}
 
-    if(transaction[i].giftcard == true || transaction[i].action == "Donation") {
-			weightColumnInput.readOnly = true;
-    }
-
-	if (transaction[i].discount == false){
-		weightColumn.append(weightColumnInput)
+	if (transaction[i].discount == true || transaction[i].action == "DONATION" || transaction[i].giftcard == true){
+		weightColumn.innerText = "-";
 	}
 	else{
-		weightColumn.innerText = "-";
+		weightColumn.append(weightColumnInput)
 	}
 
 		removeColumn = document.createElement("td");
