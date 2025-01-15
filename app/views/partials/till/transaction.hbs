@@ -620,7 +620,9 @@ function updateTransactionList(){
       valueColumnInput.readOnly = false;
     }
 
-	valueColumn.append(valueColumnInput)
+	if (transaction[i].discount == false){
+		valueColumn.append(valueColumnInput)
+	}
 
 		weightColumn = document.createElement("td");
 		weightColumn.className = "align-middle"
@@ -652,7 +654,12 @@ function updateTransactionList(){
 			weightColumnInput.readOnly = true;
     }
 
-	weightColumn.append(weightColumnInput)
+	if (transaction[i].discount == false){
+		weightColumn.append(weightColumnInput)
+	}
+	else{
+		weightColumn.innerText = "-";
+	}
 
 		removeColumn = document.createElement("td");
 		removeColumn.className = "remove-item clickable align-middle"
