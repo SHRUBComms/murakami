@@ -597,6 +597,10 @@ function updateTransactionList(){
 		valueColumnInput.onblur = function(){
 			updateTransaction(i)
 		};
+	
+	valueColumnInput.onclick = function(){
+		valueColumnInput.select();
+	}
 
     if(transaction[i].discount == 1) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>" + transaction[i].value + "% discount!</span>";
@@ -642,6 +646,10 @@ function updateTransactionList(){
 		weightColumnInput.onblur = function(){
 			updateTransaction(i)
 		};
+
+		weightColumnInput.onclick = function(){
+			weightColumnInput.select();
+		}
 
 		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
 			weightColumnInput.readOnly = false
