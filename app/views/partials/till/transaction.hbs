@@ -573,6 +573,10 @@ function updateTransactionList(){
         updateTransaction(i)
       };
 
+	  quantityColumnInput.onclick = function(){
+		document.getElementById("quantity_" + i).select();
+	  };
+
       quantityColumn.append(quantityColumnInput)
 		} else {
 			quantityColumn.innerText = "-";
