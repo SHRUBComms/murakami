@@ -35,6 +35,11 @@ const mockCategories = {
     allowTokens: false,
     discount: 1,
   },
+  donation: {
+    absolute_name: "Donation",
+    allowTokens: false,
+    discount: 0,
+  },
 };
 
 const standardBillItemResponse = (transaction, mockTill, index) => ({
@@ -43,7 +48,7 @@ const standardBillItemResponse = (transaction, mockTill, index) => ({
   till_name: mockTill.name,
   isMember: transaction.member_id !== "anon",
   item: mockCategories[transaction.summary.bill[index].item_id].absolute_name,
-  quantity: transaction.summary.bill[index].quantity || 1,
+  quantity: 1,
   valueBeforeDiscountsAndTokens: transaction.summary.bill[index].value || 0,
   condition: "-",
   payment_method: lodash.startCase(transaction.summary.paymentMethod || "-"),
@@ -52,6 +57,7 @@ const standardBillItemResponse = (transaction, mockTill, index) => ({
   sumupId: transaction.summary.sumupId,
   allowsTokens: Boolean(mockCategories[transaction.summary.bill[index].item_id]?.allowTokens),
 });
+
 describe("handleBillItem", () => {
   const mockTransaction = {
     transaction_id: "test-123",
@@ -79,28 +85,15 @@ describe("handleBillItem", () => {
     };
 
     const result = handleBillItem({
-      transaction: mockTransaction,
       billItem,
-      till: mockTill,
-      transactionDiscountMultiplier: 1,
-      transactionDiscountAbsolute: 0,
-      transactionTotalTokens: 0,
       categories: mockCategories,
     });
 
     expect(result).toEqual({
-      transaction_id: "test-123",
-      date: moment(mockTransaction.date).format("L"),
-      till_name: "Test Till",
-      isMember: false,
       item: "Test Item 1",
       quantity: 2,
-      value: 10,
+      valueBeforeDiscountsAndTokens: 10,
       condition: "New",
-      payment_method: "Card",
-      transactionTotalAbsoluteDiscount: 0,
-      transactionTotalTokens: 0,
-      sumupId: "sumup-123",
       allowsTokens: true,
     });
   });
@@ -113,30 +106,11 @@ describe("handleBillItem", () => {
     };
 
     const result = handleBillItem({
-      transaction: mockTransaction,
       billItem,
-      till: mockTill,
-      transactionDiscountMultiplier: 1,
-      transactionDiscountAbsolute: 0,
-      transactionTotalTokens: 0,
       categories: mockCategories,
     });
 
-    expect(result).toEqual({
-      transaction_id: "test-123",
-      date: moment(mockTransaction.date).format("L"),
-      till_name: "Test Till",
-      isMember: false,
-      item: "Giftcard",
-      quantity: 1,
-      value: 20,
-      condition: "-",
-      payment_method: "Card",
-      transactionTotalAbsoluteDiscount: 0,
-      transactionTotalTokens: 0,
-      sumupId: "sumup-123",
-      allowsTokens: false,
-    });
+    expect(result).toBeUndefined();
   });
 
   //npx jest -t "skips discounted items" app/routes/api/post/tills/reports/__tests__/all-bill-items.test.js
@@ -148,12 +122,7 @@ describe("handleBillItem", () => {
     };
 
     const result = handleBillItem({
-      transaction: mockTransaction,
       billItem,
-      till: mockTill,
-      transactionDiscountMultiplier: 0,
-      transactionDiscountAbsolute: 10,
-      transactionTotalTokens: 0,
       categories: mockCategories,
     });
 
@@ -161,6 +130,7 @@ describe("handleBillItem", () => {
   });
 });
 
+// npx jest -t "handleTransaction" app/routes/api/post/tills/reports/__tests__/all-bill-items.test.js
 describe("handleTransaction", () => {
   const mockTill = {
     name: "Test Till",
@@ -194,9 +164,11 @@ describe("handleTransaction", () => {
     };
 
     const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
+    expect(result.reduce((acc, i) => acc + i.quantity, 0)).toBe(3);
     expect(result[0].item).toBe("Test Item 1");
-    expect(result[1].item).toBe("Test Item 2");
+    expect(result[1].item).toBe("Test Item 1");
+    expect(result[2].item).toBe("Test Item 2");
   });
 
   test("skips failed card transactions", () => {
@@ -273,8 +245,8 @@ describe("handleTransaction", () => {
         paymentMethod: "cash",
         totals: {
           tokens: 5,
-          giftCards: 2,
-          cash: 174.4,
+          giftcard: 2,
+          money: 174.4,
         },
       },
     };
@@ -314,9 +286,195 @@ describe("handleTransaction", () => {
     expect(
       result.reduce((acc, i) => acc.add(i.attributedCashEquivalentSaleValue), new Decimal(0))
     ).toEqual(
-      new Decimal(transaction.summary.totals.cash || 0)
-        .add(transaction.summary.totals.giftCards || 0)
-        .add(transaction.summary.totals.card || 0)
+      new Decimal(transaction.summary.totals.money || 0).add(
+        transaction.summary.totals.giftcard || 0
+      )
     );
+  });
+
+  test("handles transaction with gift card use", () => {
+    const transaction = {
+      transaction_id: "test-123",
+      date: "2024-03-20",
+      summary: {
+        bill: [
+          {
+            value: 70,
+            item_id: "item-1",
+            quantity: 1,
+          },
+          {
+            value: 50,
+            item_id: "absolute-discount",
+            discount: 2,
+          },
+          {
+            value: 10,
+            item_id: "giftcard",
+            quantity: 1,
+          },
+        ],
+        totals: {
+          money: 10,
+          giftcard: 10,
+        },
+        paymentMethod: "cash",
+      },
+    };
+
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      {
+        //item-1
+        attributedCashEquivalentSaleValue: 20,
+        transactionTotalAbsoluteDiscount: -50,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 0),
+      },
+    ]);
+    expect(
+      result.reduce((acc, i) => acc.add(i.attributedCashEquivalentSaleValue), new Decimal(0))
+    ).toEqual(
+      new Decimal(transaction.summary.totals.money || 0).add(
+        transaction.summary.totals.giftcard || 0
+      )
+    );
+  });
+  //   npx jest -t "handles transaction with discounts, tokens, and gift cards" app/routes/api/post/tills/reports/__tests__/all-bill-items.test.js
+  test("handles multiple quantity with gift card use", () => {
+    const transaction = {
+      transaction_id: "test-123",
+      date: "2024-03-20",
+      summary: {
+        bill: [
+          {
+            value: 70,
+            item_id: "item-1",
+            quantity: 2,
+          },
+        ],
+        totals: {
+          money: 130,
+          giftcard: 10,
+        },
+        paymentMethod: "cash",
+      },
+    };
+
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([
+      {
+        //item-1
+        attributedCashEquivalentSaleValue: 70,
+        transactionTotalAbsoluteDiscount: 0,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 0),
+      },
+      {
+        //item-1
+        attributedCashEquivalentSaleValue: 70,
+        transactionTotalAbsoluteDiscount: 0,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 0),
+      },
+    ]);
+    expect(
+      result.reduce((acc, i) => acc.add(i.attributedCashEquivalentSaleValue), new Decimal(0))
+    ).toEqual(
+      new Decimal(transaction.summary.totals.money || 0).add(
+        transaction.summary.totals.giftcard || 0
+      )
+    );
+  });
+
+  test("returns empty array when no bill items provided", () => {
+    const transaction = {
+      transaction_id: "no-bill-123",
+      date: "2024-03-25",
+      member_id: "anon",
+      summary: {
+        bill: [],
+        paymentMethod: "cash",
+        totals: { tokens: 0, giftCards: 0, cash: 0, card: 0 },
+      },
+    };
+
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result).toEqual([]);
+  });
+
+  test("returns empty array when all bill items are skipped (donation items)", () => {
+    const transaction = {
+      transaction_id: "donation-only",
+      date: "2024-03-25",
+      member_id: "anon",
+      summary: {
+        bill: [
+          {
+            item_id: "donation",
+            quantity: 1,
+            value: 100,
+          },
+          {
+            item_id: "giftcard",
+            quantity: 2,
+            value: 100,
+          },
+        ],
+        paymentMethod: "cash",
+        totals: { tokens: 0, giftCards: 0, cash: 0, card: 0 },
+      },
+    };
+
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result).toEqual([]);
+  });
+  test("handles refunds correctly", () => {
+    const transaction = {
+      transaction_id: "refund-123",
+      date: "2024-03-25",
+      member_id: "anon",
+      summary: {
+        bill: [
+          {
+            value: "90.00",
+            item_id: "refund",
+          },
+        ],
+        totals: {
+          money: "90.00",
+        },
+        comment: "Complete refund",
+        paymentMethod: "cash",
+        refundedTransactionId: "60695301",
+      },
+    };
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result.length).toEqual(1);
+    expect(result[0].attributedCashEquivalentSaleValue).toEqual(-90);
+  });
+
+  test("handles items which are no longer in the categories by ignoring them", () => {
+    const transaction = {
+      transaction_id: "random-item-123",
+      date: "2024-03-25",
+      member_id: "anon",
+      summary: {
+        bill: [
+          {
+            value: "90.00",
+            item_id: "random-item",
+          },
+        ],
+        totals: {
+          money: "90.00",
+        },
+        paymentMethod: "cash",
+      },
+    };
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result).toEqual([]);
   });
 });

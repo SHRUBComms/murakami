@@ -17,10 +17,14 @@ const { handleTransaction } = require("./handlers");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   try {
-    const datePeriod = req.body.datePeriod || "today";
-    const startDateRaw = req.body.startDate || null;
-    const endDateRaw = req.body.endDate || null;
+    // Destructure inputs with defaults
+    const {
+      datePeriod = "today",
+      startDate: startDateRaw = null,
+      endDate: endDateRaw = null,
+    } = req.body;
 
+    // Convert plain English date range to actual dates
     const { formattedStartDate, formattedEndDate } = await Helpers.plainEnglishDateRangeToDates(
       datePeriod,
       startDateRaw,
@@ -30,28 +34,35 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
     // Get all tills
     const tills = await Tills.findAll({});
 
+    // Retrieve stock categories
     const categories = await StockCategories.getCategories("treeKv");
-    const billItems = [];
 
-    for (const till of tills) {
+    // Fetch transactions concurrently for every till, compile the bill items for each
+    const billItemsPromises = tills.map(async (till) => {
       const transactions = await Transactions.getAllBetweenTwoDatesByTillId(
         till.till_id,
         formattedStartDate,
         formattedEndDate
       );
-
+      const billItemsForTill = [];
       for (const transaction of transactions) {
         const transactionBillItems = handleTransaction({ transaction, till, categories });
         if (transactionBillItems.length > 0) {
-          billItems.push(...transactionBillItems);
+          billItemsForTill.push(...transactionBillItems);
         }
       }
-    }
+      return billItemsForTill;
+    });
 
-    res.send(billItems);
+    // Wait until all concurrent tasks complete and flatten the bill items
+    const billItemsArrays = await Promise.all(billItemsPromises);
+    const billItems = billItemsArrays.flat();
+
+    // Return the bill items with a proper HTTP status
+    res.status(200).json(billItems);
   } catch (error) {
-    console.error(error);
-    res.send([]);
+    console.error("Error while fetching bill items:", error);
+    res.status(500).json({ error: "An error occurred while retrieving bill items" });
   }
 });
 
