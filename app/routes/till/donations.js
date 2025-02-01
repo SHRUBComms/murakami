@@ -8,7 +8,7 @@ const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const Transactions = Models.Transactions;
 const Members = Models.Members;
-
+const Settings = Models.Settings;
 const Auth = require(rootDir + "/app/controllers/auth");
 const Mail = require(rootDir + "/app/controllers/mail/root");
 
@@ -89,9 +89,16 @@ router.post(
       if (!member) {
         throw "Member not found!";
       }
-
-      const newBalance = Number(member.balance) + Number(tokens);
-      await Members.updateBalance(member_id, newBalance);
+      const issueTokensEnabled = await Settings.getTokenIssuanceStatus();
+      let tokensIssued = "0";
+      let newBalance = member.balance;
+      let msg = "Donation recorded successfully";
+      if (issueTokensEnabled) {
+        tokensIssued = tokens;
+        newBalance = Number(member.balance) + Number(tokensIssued);
+        await Members.updateBalance(member_id, newBalance);
+        msg = "Tokens added and member notified!";
+      }
 
       const formattedTransaction = {
         till_id: till_id,
@@ -99,18 +106,20 @@ router.post(
         member_id: member_id,
         date: new Date(),
         summary: {
-          totals: { tokens: tokens },
-          bill: [{ item_id: "donation", tokens: tokens }],
+          totals: { tokens: tokensIssued },
+          bill: [{ item_id: "donation", tokens: tokensIssued }],
         },
       };
 
       await Transactions.addTransaction(formattedTransaction);
 
-      await Mail.sendAutomatedMember("donation", member.member_id, { tokens: tokens });
+      if (issueTokensEnabled) {
+        await Mail.sendAutomatedMember("donation", member.member_id, { tokens: tokensIssued });
+      }
 
       res.send({
         status: "ok",
-        msg: "Tokens added and member notified!",
+        msg: msg,
         member: {
           id: member.member_id,
           name: `${member.first_name} ${member.last_name}`,
@@ -119,11 +128,9 @@ router.post(
           membership_expires: member.current_exp_membership,
         },
       });
-    } catch (error) {
-      if (typeof error != "string") {
-        error = "Something went wrong! Please try again";
-      }
-      res.send({ status: "fail", msg: error });
+    } catch (err) {
+      const message = typeof err !== "string" ? "Something went wrong! Please try again" : err;
+      res.send({ status: "fail", msg: message });
     }
   }
 );

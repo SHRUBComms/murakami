@@ -15,6 +15,7 @@ const StockRecords = Models.StockRecords;
 const Members = Models.Members;
 const Carbon = Models.Carbon;
 const CarbonCategories = Models.CarbonCategories;
+const Settings = Models.Settings;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
@@ -524,7 +525,10 @@ router.post(
           };
 
           await Transactions.addTransaction(membershipTokensTransaction);
-          await Members.updateBalance(member_id, (member.balance || 0) + 5);
+          const issueTokensEnabled = await Settings.getTokenIssuanceStatus();
+          if (issueTokensEnabled) {
+            await Members.updateBalance(member_id, (member.balance || 0) + 5);
+          }
 
           response.transactionSummary += " 12 months of membership issued.";
         } else if (membershipBought == "MEM-HY") {
