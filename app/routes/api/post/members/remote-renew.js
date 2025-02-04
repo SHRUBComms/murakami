@@ -163,14 +163,35 @@ router.post("/verify-renewal", Auth.verifyByKey("membershipSignUp"), async (req,
 
     console.log("Got access token");
 
-    const SumUpTransaction = await Helpers.SumUpGetTransaction({
+    let SumUpTransaction = await Helpers.SumUpGetTransaction({
       transactionId: SumUpTransactionId,
       accessToken,
       lookupField: "transaction_code",
     });
 
     if (!SumUpTransaction) {
-      throw "Something went wrong processing your payment";
+      const transactionCandidates = await Helpers.SumUpGetTransactionBetweenTwoDates({
+        startDate: moment(murakamiTransaction.date).toDate(),
+        endDate: moment(murakamiTransaction.date).add(10, "minutes").toDate(),
+        accessToken,
+      });
+
+      for (const transaction of transactionCandidates.items) {
+        if (
+          transaction.payment_type === "ECOM" && //website payment
+          transaction.product_summary === "SHRUB Cooperative" &&
+          transaction.status === "SUCCESSFUL" &&
+          transaction.type === "PAYMENT" &&
+          transaction.amount.toNumber() === murakamiTransaction.summary.totals.money.toNumber()
+        ) {
+          SumUpTransaction = transaction;
+          break;
+        }
+      }
+
+      if (!SumUpTransaction) {
+        throw "Something went wrong processing your payment";
+      }
     }
 
     console.log("SumUp transaction found: " + SumUpTransactionId);
