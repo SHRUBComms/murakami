@@ -1,4 +1,4 @@
-<div class="modal" id="addDiscountChild" tabindex="-1" role="dialog">
+<div class="modal" id="addDiscount" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -64,9 +64,6 @@
       success: function(response) {
 
         if (response.status == "ok") {
-
-          $("#addDiscount").modal("hide");
-
           discount.item_id = response.newId;
           if (!eval(path).children) {
             eval(path + ".children=[]");
@@ -78,8 +75,14 @@
             getCategories("categories.options");
           }
 
-          alert(response.msg);
-
+          $("#addDiscount").modal("hide");
+          $("#notification")
+            .removeClass("alert-danger")
+            .addClass("alert-success")
+            .html(response.msg)
+            .fadeIn("slow")
+            .delay(2000)
+            .fadeOut(1000);
         } else {
           alert(response.msg);
         }
@@ -123,7 +126,7 @@
     $("#addDiscountValue").val(0);
 
     $("#discount_parent_name").html(discount.name || "root");
-    $("#addDiscountChild").modal("show");
+    $("#addDiscount").modal("show");
     $("#addDiscountSubmit").attr("onClick", "addDiscount('" + path + "')");
   }
 </script>

@@ -9,11 +9,18 @@
       },
       success: function(response) {
         if (response.status == "ok") {
-          alert(response.msg);
           var parent = path.split("[")
           parent.pop();
           parent = parent.join("[");
           getCategories(parent);
+
+          $("#notification")
+            .removeClass("alert-danger")
+            .addClass("alert-success")
+            .html(response.msg)
+            .fadeIn("slow")
+            .delay(2000)
+            .fadeOut(1000);
         } else {
           alert(response.msg);
         }
