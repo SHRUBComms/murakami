@@ -543,6 +543,8 @@ function updateTransactionList(){
 
 		quantityColumn = document.createElement("td");
 		quantityColumn.className = "align-middle"
+
+		let inputBoxWidth = 80;
     
     if(transaction[i].action == null && transaction[i].discount == false){
       var quantityColumnInput = document.createElement("input");
@@ -558,9 +560,10 @@ function updateTransactionList(){
       quantityColumnInput.type = "number";
       quantityColumnInput.value = transaction[i].quantity;
       quantityColumnInput.className = "form-control align-middle"
-      quantityColumnInput.setAttribute("step", 1)
       quantityColumnInput.setAttribute("max", maxQuantity || 999);
-      quantityColumnInput.setAttribute("min", 1)
+      quantityColumnInput.setAttribute("min", 0)
+	  quantityColumnInput.style = `width:${inputBoxWidth}px`;
+	  quantityColumnInput.setAttribute("inputmode", "numeric")
 
       quantityColumnInput.oninput = function(){
         updateTransaction(i)
@@ -570,6 +573,10 @@ function updateTransactionList(){
         updateTransaction(i)
       };
 
+	  quantityColumnInput.onclick = function(){
+		document.getElementById("quantity_" + i).select();
+	  };
+
       quantityColumn.append(quantityColumnInput)
 		} else {
 			quantityColumn.innerText = "-";
@@ -578,14 +585,26 @@ function updateTransactionList(){
 		valueColumn = document.createElement("td");
 		valueColumn.className = "align-middle"
 		valueColumn.id = "value_" + i;
+		let valueColumnInput = document.createElement("input");
+		valueColumnInput.id = "valueInput_" + i;
+		valueColumnInput.type = "number";
+		valueColumnInput.value = transaction[i].value;
+		valueColumnInput.className = "form-control align-middle"
+		valueColumnInput.setAttribute("min", 0)	
+		valueColumnInput.style = `width:${inputBoxWidth}px`;
+		valueColumnInput.setAttribute("inputmode", "decimal")	
 		
-    valueColumn.oninput = function(){
+    valueColumnInput.oninput = function(){
 			updateTransaction(i)
 		};
     
-		valueColumn.onblur = function(){
+		valueColumnInput.onblur = function(){
 			updateTransaction(i)
 		};
+	
+	valueColumnInput.onclick = function(){
+		valueColumnInput.select();
+	}
 
     if(transaction[i].discount == 1) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>" + transaction[i].value + "% discount!</span>";
@@ -594,41 +613,60 @@ function updateTransactionList(){
     } else if(transaction[i].giftcard == true) {
       valueColumn.innerHTML = "<span style='color: #1986e6;'>£" + Number(transaction[i].value).toFixed(2) + " off!</span>";
     } else {
-		  valueColumn.textContent = transaction[i].value;
+		  valueColumnInput.value = transaction[i].value;
     }
     
 		if(transaction[i].setValue == false || transaction[i].discount == false){
-			valueColumn.contentEditable = true;
+			valueColumnInput.readOnly = false;
 		}
 
-    if(transaction[i].giftcard == true) {
-      valueColumn.contentEditable = false;
+	if(transaction[i].value > 0){
+		valueColumnInput.readOnly = true;
+	}
+
+    if(transaction[i].name == "Giftcard") {
+      valueColumnInput.readOnly = false;
     }
+
+	if (transaction[i].discount == false){
+		valueColumn.append(valueColumnInput)
+	}
 
 		weightColumn = document.createElement("td");
 		weightColumn.className = "align-middle"
 		weightColumn.id = "weight_" + i;
-		weightColumn.oninput = function(){
+		let weightColumnInput = document.createElement("input");
+		weightColumnInput.id = "weightInput_" + i;
+		weightColumnInput.type = "number";
+		weightColumnInput.value = transaction[i].value;
+		weightColumnInput.className = "form-control align-middle"
+		weightColumnInput.setAttribute("min", 0)	
+		weightColumnInput.style = `width:${inputBoxWidth}px`;
+		weightColumnInput.setAttribute("inputmode", "numeric")	
+
+		weightColumnInput.oninput = function(){
 			updateTransaction(i)
 		};
-		weightColumn.onblur = function(){
+		weightColumnInput.onblur = function(){
 			updateTransaction(i)
 		};
 
-		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
-			weightColumn.contentEditable = true;
-			weightColumn.textContent = transaction[i].weight || 0;
-		} else {
-			weightColumn.textContent = "-";
+		weightColumnInput.onclick = function(){
+			weightColumnInput.select();
 		}
 
-    if(transaction[i].giftcard == true) {
-			weightColumn.contentEditable = false;
-			weightColumn.textContent = "-";
-    }
+		if(transaction[i].carbon_id != "" && transaction[i].discount == false){
+			weightColumnInput.readOnly = false
+			weightColumnInput.value = transaction[i].weight || 0;
+		} else {
+			weightColumnInput.value = "-";
+		}
 
-	if(transaction[i].value > 0){
-		valueColumn.contentEditable = false;
+	if (transaction[i].discount == true || transaction[i].action == "DONATION" || transaction[i].giftcard == true){
+		weightColumn.innerText = "-";
+	}
+	else{
+		weightColumn.append(weightColumnInput)
 	}
 
 		removeColumn = document.createElement("td");
@@ -653,7 +691,7 @@ function updateTransactionList(){
 		$('<tr>',{
 		    html:"<td><b>SUBTOTAL:</b></td>" +
 		    "<td id='money_total'>" + real_total_transaction_value + "</td>" +
-		    "<td id='weight_total'>" + weight_total + "</td>" +
+		    "<td id='weight_subtotal'>" + weight_total + "</td>" +
 		    "<td></td>" +
 				"<td></td>"
 		}).appendTo('#transaction-info');
@@ -750,6 +788,7 @@ function updateButtons(){
 
 	$("#tokens_total").html(value_total.toFixed(2));
 	$("#money_total").html(real_total_transaction_value.toFixed(2));
+	$("#weight_subtotal").html(weight_total.toFixed(0));
 	$("#weight_total").html(weight_total.toFixed(0));
 
 	if(transaction.length > 0 && contains_real_items){
@@ -836,31 +875,31 @@ function isNumeric(n) {
 
 function updateTransaction(index){
 
-	if(isNumeric($("#weight_" + index).html())){
-		transaction[index].weight = $("#weight_" + index).html();
+	if(isNumeric($("#weightInput_" + index).val())){
+		transaction[index].weight = $("#weightInput_" + index).val();
 	} else {
 		if(transaction[index].carbon_id){
-			$("#weight_" + index).html("0");
+			$("#weightInput_" + index).html("0");
 			transaction[index].weight = 0;
 		} else {
-			$("#weight_" + index).html("-");
+			$("#weightInput_" + index).html("-");
 			transaction[index].weight = 0;
 		}
 
 	}
 
-	if(isNumeric($("#value_" + index).text())){
-		transaction[index].value = $("#value_" + index).html();
+	if(isNumeric($("#valueInput_" + index).val())){
+		transaction[index].value = ($("#valueInput_" + index).val());
 	} else {
-		$("#value_" + index).html("");
+		$("#valueInput_" + index).html("");
 		transaction[index].value = 0;
 	}
 
 	if(isNumericAndWhole($("#quantity_" + index).val())){
 		transaction[index].quantity = $("#quantity_" + index).val();
 	} else {
-		$("#quantity_" + index).val(1);
-		transaction[index].quantity = 1;
+		$("#quantity_" + index).val("");
+		transaction[index].quantity = 0;
 	}
 
 	if(transaction.length > 0){
