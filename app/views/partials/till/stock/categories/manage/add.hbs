@@ -1,4 +1,4 @@
-<div class="modal" id="addChild" tabindex="-1" role="dialog">
+<div class="modal" id="addCategory" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -137,9 +137,6 @@
       success: function(response) {
 
         if (response.status == "ok") {
-
-          $("#addCategory").modal("hide");
-
           category.item_id = response.newId;
           if (!eval(path).children) {
             eval(path + ".children=[]");
@@ -151,8 +148,14 @@
             getCategories("categories.options");
           }
 
-          alert(response.msg);
-
+          $("#addCategory").modal("hide");
+          $("#notification")
+            .removeClass("alert-danger")
+            .addClass("alert-success")
+            .html(response.msg)
+            .fadeIn("slow")
+            .delay(2000)
+            .fadeOut(1000);
         } else {
           alert(response.msg);
         }
@@ -190,7 +193,7 @@
     toggleStockControl('add');
 
     $("#parent_name").html(category.name || "root");
-    $("#addChild").modal("show");
+    $("#addCategory").modal("show");
     $("#addCategorySubmit").attr("onClick", "addCategory('" + path + "')");
   }
 </script>
