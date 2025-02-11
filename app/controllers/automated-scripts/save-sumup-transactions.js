@@ -27,7 +27,7 @@ async function getPrevDate() {
 }
 
 const saveSumupTransactions = new CronJob({
-  cronTime: "0 3 * * *",
+  cronTime: "55 20 * * *",
   onTick: async () => {
     console.log(`Running saveSumupTransactions ${moment().format("DD/MM/YYYY HH:mm")}`);
 
