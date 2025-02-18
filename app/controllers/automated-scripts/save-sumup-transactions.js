@@ -22,12 +22,12 @@ async function getPrevDate() {
     }
   } catch (error) {
     console.error("Error fetching backfill date:", error);
-    throw error;
+    return moment(new Date("2000-01-01"));
   }
 }
 
 const saveSumupTransactions = new CronJob({
-  cronTime: "0 3 * * *",
+  cronTime: "*/5 * * * *",
   onTick: async () => {
     console.log(`Running saveSumupTransactions ${moment().format("DD/MM/YYYY HH:mm")}`);
 
@@ -38,7 +38,7 @@ const saveSumupTransactions = new CronJob({
     // Set access token
     const accessToken = await Helpers.SumUpAuth();
     if (!accessToken) {
-      throw "Something went wrong contacting SumUp";
+      throw new Error("Something went wrong contacting SumUp");
     }
 
     // Get all new SumUp transactions
@@ -46,6 +46,9 @@ const saveSumupTransactions = new CronJob({
     if (startDate) {
       //Add a second to the start date to avoid duplicate records
       const adjustedStartDate = startDate.add(1, "seconds");
+      console.log(
+        `fetching sumup transactions from ${adjustedStartDate.format("DD/MM/YYYY HH:mm")} to ${endDate.format("DD/MM/YYYY HH:mm")}`
+      );
       records = await Helpers.sumUpGetAllTransactionsBetweenTwoDates(
         accessToken,
         adjustedStartDate.toDate(),
