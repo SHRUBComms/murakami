@@ -1,3 +1,4 @@
+const fetch = require("node-fetch");
 const moment = require("moment");
 moment.locale("en-gb");
 
@@ -24,6 +25,6 @@ module.exports = async (accessToken) => {
     }
     return allRecords;
   } catch (error) {
-    throw "Error fetching transaction details from SumUp";
+    throw new Error(`Error fetching transaction details from SumUp: ${error.message}`);
   }
 };

@@ -54,7 +54,7 @@ module.exports = function (sequelize, DataTypes) {
       },
       card_type: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       client_transaction_id: {
         type: DataTypes.STRING,

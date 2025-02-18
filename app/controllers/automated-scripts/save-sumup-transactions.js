@@ -38,7 +38,7 @@ const saveSumupTransactions = new CronJob({
     // Set access token
     const accessToken = await Helpers.SumUpAuth();
     if (!accessToken) {
-      throw "Something went wrong contacting SumUp";
+      throw new Error("Something went wrong contacting SumUp");
     }
 
     // Get all new SumUp transactions
@@ -46,6 +46,9 @@ const saveSumupTransactions = new CronJob({
     if (startDate) {
       //Add a second to the start date to avoid duplicate records
       const adjustedStartDate = startDate.add(1, "seconds");
+      console.log(
+        `fetching sumup transactions from ${adjustedStartDate.format("DD/MM/YYYY HH:mm")} to ${endDate.format("DD/MM/YYYY HH:mm")}`
+      );
       records = await Helpers.sumUpGetAllTransactionsBetweenTwoDates(
         accessToken,
         adjustedStartDate.toDate(),
