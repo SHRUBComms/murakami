@@ -104,7 +104,7 @@ const handleTransaction = ({ transaction, till, categories }) => {
     transaction_id: transaction.transaction_id,
     date: moment(transaction.date).format("L"),
     till_name: till.name,
-    isMember: transaction.member_id !== "anon",
+    member_id: transaction.member_id,
     transactionTotalAbsoluteDiscount: transactionDiscountAbsolute,
     transactionTotalTokens: transaction.summary.totals.tokens,
     transactionTotalGiftCards: transaction.summary.totals.giftCards,
