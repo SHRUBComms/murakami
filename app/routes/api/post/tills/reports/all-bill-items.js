@@ -8,7 +8,6 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const Tills = Models.Tills;
 const Transactions = Models.Transactions;
-const Members = Models.Members;
 const StockCategories = Models.StockCategories;
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 

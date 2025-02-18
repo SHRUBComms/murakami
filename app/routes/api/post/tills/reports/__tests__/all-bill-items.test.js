@@ -46,7 +46,7 @@ const standardBillItemResponse = (transaction, mockTill, index) => ({
   transaction_id: transaction.transaction_id,
   date: moment(transaction.date).format("L"),
   till_name: mockTill.name,
-  isMember: transaction.member_id !== "anon",
+  member_id: transaction.member_id,
   item: mockCategories[transaction.summary.bill[index].item_id].absolute_name,
   quantity: 1,
   valueBeforeDiscountsAndTokens: transaction.summary.bill[index].value || 0,
