@@ -114,10 +114,13 @@ const handleTransaction = ({ transaction, till, categories }) => {
   };
 
   // Apply proportional discount and token adjustments to each bill item.
+  const tokensValue = Decimal.min(
+    totalTokenEligibleDecimal,
+    new Decimal(transaction.summary.totals.tokens || 0)
+  ).toNumber();
   transactionBillItems = transactionBillItems.map((item) => {
     const itemValue = new Decimal(item.valueBeforeDiscountsAndTokens || 0);
     const absoluteDiscount = new Decimal(transactionDiscountAbsolute || 0);
-    const tokensValue = new Decimal(transaction.summary.totals.tokens || 0);
     const discountMultiplier = new Decimal(transactionDiscountMultiplier || 1);
 
     const portionOfAbsoluteDiscount = totalBeforeDiscountsDecimal.isZero()
