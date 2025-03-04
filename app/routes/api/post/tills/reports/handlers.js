@@ -170,7 +170,69 @@ const handleTransaction = ({ transaction, till, categories }) => {
   return transactionBillItems;
 };
 
+const convertTillActivityToFloatsReport = async ({ activity, usersObj }) => {
+  const formattedActivity = [];
+
+  let previousAction = null;
+  for (const action of activity) {
+    const formattedAction = {};
+
+    formattedAction.timestamp = moment(action.timestamp).format("L hh:mm A");
+
+    if (action.opening === 1) {
+      formattedAction.action = "Opening";
+
+      formattedAction.summary = "Counted Float: £" + action.counted_float.toFixed(2);
+
+      formattedAction.discrepancy = "";
+    } else {
+      formattedAction.action = "Closing";
+      formattedAction.summary = "Counted Float: £" + action.counted_float.toFixed(2);
+      formattedAction.summary += "<br />";
+      formattedAction.summary += "Expected Float: £" + action.expected_float.toFixed(2);
+
+      const discrepancy = (action.counted_float - action.expected_float).toFixed(2);
+
+      if (discrepancy >= 0) {
+        formattedAction.discrepancy = "" + discrepancy;
+      } else {
+        formattedAction.discrepancy = "-" + Math.abs(discrepancy).toFixed(2);
+      }
+    }
+
+    if (action.note) {
+      formattedAction.note = action.note;
+    } else {
+      formattedAction.note = "-";
+    }
+
+    if (usersObj[action.user_id]) {
+      formattedAction.user = usersObj[action.user_id].name;
+    } else {
+      formattedAction.user = "Unknown User";
+    }
+
+    if (
+      previousAction?.opening === 0 &&
+      action.opening === 1 &&
+      previousAction.counted_float !== action.counted_float
+    ) {
+      const floatToSafeAction = {
+        action: "Transfer to Safe",
+        summary:
+          "Implied cash to safe: £" +
+          new Decimal(previousAction.counted_float).sub(action.counted_float).toFixed(2),
+        discrepancy: "",
+      };
+      formattedActivity.push(floatToSafeAction);
+    }
+    formattedActivity.push(formattedAction);
+    previousAction = action;
+  }
+  return formattedActivity;
+};
 module.exports = {
   handleBillItem,
   handleTransaction,
+  convertTillActivityToFloatsReport,
 };

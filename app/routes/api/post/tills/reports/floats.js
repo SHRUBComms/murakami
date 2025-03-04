@@ -13,11 +13,13 @@ const TillActivity = Models.TillActivity;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
+const { convertTillActivityToFloatsReport } = require("./handlers");
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   try {
     const till_id = req.body.till_id;
     const datePeriod = req.body.datePeriod || "today";
+    const user = req.user;
 
     const startDateRaw = req.body.startDate || null;
     const endDateRaw = req.body.endDate || null;
@@ -42,51 +44,11 @@ router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), as
       formattedStartDate,
       formattedEndDate
     );
-    const { usersObj } = await Users.getAll(req.user);
-
-    const formattedActivity = [];
-
-    for await (const action of activity) {
-      const formattedAction = {};
-
-      formattedAction.timestamp = moment(action.timestamp).format("L hh:mm A");
-
-      if (action.opening == 1) {
-        formattedAction.action = "Opening";
-
-        formattedAction.summary = "Counted Float: £" + action.counted_float.toFixed(2);
-
-        formattedAction.discrepancy = "-";
-      } else {
-        formattedAction.action = "Closing";
-        formattedAction.summary = "Counted Float: £" + action.counted_float.toFixed(2);
-        formattedAction.summary += "<br />";
-        formattedAction.summary += "Expected Float: £" + action.expected_float.toFixed(2);
-
-        const discrepancy = (action.counted_float - action.expected_float).toFixed(2);
-
-        if (discrepancy >= 0) {
-          formattedAction.discrepancy = "£" + discrepancy;
-        } else {
-          formattedAction.discrepancy = "-£" + Math.abs(discrepancy).toFixed(2);
-        }
-      }
-
-      if (action.note) {
-        formattedAction.note = action.note;
-      } else {
-        formattedAction.note = "-";
-      }
-
-      if (usersObj[action.user_id]) {
-        formattedAction.user = usersObj[action.user_id].name;
-      } else {
-        formattedAction.user = "Unknown User";
-      }
-
-      formattedActivity.push(formattedAction);
-    }
-
+    const { usersObj } = await Users.getAll(user);
+    const formattedActivity = await convertTillActivityToFloatsReport({
+      activity,
+      usersObj,
+    });
     res.send(formattedActivity);
   } catch (error) {
     res.send([]);
