@@ -78,6 +78,10 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: true,
         defaultValue: {},
       },
+      vat_category: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      }
     },
     {
       tableName: "stock_categories",
