@@ -17,6 +17,7 @@ module.exports = (StockCategories) => {
       stockControl: category.stockControl,
       stockInfo: category.stockInfo || {},
       parent: category.parent,
+      vat_category: null
     });
 
     return id;
