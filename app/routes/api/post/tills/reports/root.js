@@ -5,6 +5,7 @@ const router = require("express").Router();
 router.use("/quick-summary", require("./quick-summary"));
 router.use("/transactions", require("./transactions"));
 router.use("/transactions-by-project", require("./transactions-by-project"));
+router.use("/transactions-by-weekday-by-hour", require("./transactions-by-weekday-by-hour"));
 router.use("/floats", require("./floats"));
 router.use("/revenue", require("./revenue"));
 router.use("/all-bill-items", require("./all-bill-items"));
