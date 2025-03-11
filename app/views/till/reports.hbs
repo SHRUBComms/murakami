@@ -42,14 +42,17 @@
       <option value="custom">Custom Time Period</option>
     </select>
 
-    <div class="row d-none mt-2" id="customDateRange">
-      <div class="col-md-6">
+	<div class="row d-none mt-2" id="customDateRange">
+      <div class="col-md-5">
         <p>Start Date</p>
         <input type="date" id="startDate" class="form-control" />
       </div>
-      <div class="col-md-6">
+      <div class="col-md-5">
         <p>End Date</p>
         <input type="date" id="endDate" class="form-control" />
+      </div>
+      <div class="col-md-2 ms-auto d-flex align-items-end">
+        <button id="goButton" class="btn btn-primary mt-2"> Go! </button>
       </div>
     </div>
 
@@ -134,10 +137,7 @@ $("#datePeriod").on("change", function(){
   }
 })
 
-$("#startDate").on("change", function(){
-	getReport()
-});
-$("#endDate").on("change", function(){
+$("#goButton").on("click", function(){
 	getReport()
 });
 
