@@ -3,6 +3,7 @@
 const router = require("express").Router();
 
 const moment = require("moment");
+
 moment.locale("en-gb");
 
 const rootDir = process.env.CWD;
@@ -10,14 +11,20 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.post("/", Auth.verifyByKey("footfallReport"), async (req, res) =>
-{
-  try
-  {
-    const {startDate, endDate, tillName, weekdayNumber} = req.query;
+router.post("/", Auth.verifyByKey("footfallReport"), async (req, res) => {
+  try {
+    const { startDate, endDate, tillName } = req.query;
+
+    if (!startDate || !endDate || !tillName) {
+      return res.status(400).send({ status: "fail", message: "Missing required parameters" });
+    }
+
+    const formattedStartDate = moment(startDate).format("YYYY-MM-DD");
+    const formattedEndDate = moment(endDate).format("YYYY-MM-DD");
 
     const sqlQuery = `
-      SELECT      SUM(IF(HOUR(tr.\`date\`) BETWEEN 0 AND 10, 1, 0)) AS \`Before 11am\`
+      SELECT      WEEKDAY(tr.\`date\`) AS \`Weekday\`
+          ,       SUM(IF(HOUR(tr.\`date\`) BETWEEN 0 AND 10, 1, 0)) AS \`Before 11am\`
           ,       SUM(IF(HOUR(tr.\`date\`) = 11, 1, 0)) AS \`11am-12pm\`
           ,       SUM(IF(HOUR(tr.\`date\`) = 12, 1, 0)) AS \`12pm-1pm\`
           ,       SUM(IF(HOUR(tr.\`date\`) = 13, 1, 0)) AS \`1pm-2pm\`
@@ -26,25 +33,23 @@ router.post("/", Auth.verifyByKey("footfallReport"), async (req, res) =>
           ,       SUM(IF(HOUR(tr.\`date\`) = 16, 1, 0)) AS \`4pm-5pm\`
           ,       SUM(IF(HOUR(tr.\`date\`) = 17, 1, 0)) AS \`5pm-6pm\`
           ,       SUM(IF(HOUR(tr.\`date\`) BETWEEN 18 AND 23, 1, 0)) AS \`6pm Onwards\`
-      FROM        murakami_local.transactions tr
-      INNER JOIN  murakami_local.tills ti
+      FROM        murakami_dev.transactions tr
+      INNER JOIN  murakami_dev.tills ti
       ON          ti.till_id = tr.till_id
-      WHERE       tr.\`date\` BETWEEN '${startDate}' AND '${endDate}'
-      AND         ti.\`name\` = '${tillName}'
-      AND         WEEKDAY(tr.\`date\`) = ${weekdayNumber};
+      WHERE       tr.\`date\` BETWEEN ? AND ?
+      AND         ti.\`name\` = ?
+      GROUP BY    WEEKDAY(tr.\`date\`);
     `;
 
-    const results = await Models.sequelize.query(
-      sqlQuery,
-      {type: Models.sequelize.QueryTypes.SELECT}
-    );
+    const results = await Models.sequelize.query(sqlQuery, {
+      replacements: [formattedStartDate, formattedEndDate, tillName],
+      type: Models.sequelize.QueryTypes.SELECT,
+    });
 
-    res.send({status: "ok", data: results});
-  }
-  catch (error)
-  {
+    res.send({ status: "ok", data: results });
+  } catch (error) {
     console.error(error);
-    res.send({status: "fail", data: []});
+    res.status(500).send({ status: "fail", message: "Internal server error", data: [] });
   }
 });
 
