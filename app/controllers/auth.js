@@ -56,7 +56,7 @@ Auth.verifyByKey = (resource) => {
       "carbonAccountingReport",
       "publicVolunteerRoles",
       "tillRevenue",
-      "transactionsByWeekdayByHourReport",
+      "footfallReport",
       "membershipReport",
       "membershipSignUp",
     ];

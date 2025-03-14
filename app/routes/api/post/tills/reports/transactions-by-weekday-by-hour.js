@@ -10,7 +10,7 @@ const rootDir = process.env.CWD;
 const Models = require(rootDir + "/app/models/sequelize");
 const Auth = require(rootDir + "/app/controllers/auth");
 
-router.post("/", Auth.verifyByKey("transactionsByWeekdayByHourReport"), async (req, res) =>
+router.post("/", Auth.verifyByKey("footfallReport"), async (req, res) =>
 {
   try
   {
