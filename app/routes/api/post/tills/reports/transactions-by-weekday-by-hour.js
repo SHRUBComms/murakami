@@ -33,8 +33,8 @@ router.post("/", Auth.verifyByKey("footfallReport"), async (req, res) => {
           ,       SUM(IF(HOUR(tr.\`date\`) = 16, 1, 0)) AS \`4pm-5pm\`
           ,       SUM(IF(HOUR(tr.\`date\`) = 17, 1, 0)) AS \`5pm-6pm\`
           ,       SUM(IF(HOUR(tr.\`date\`) BETWEEN 18 AND 23, 1, 0)) AS \`6pm Onwards\`
-      FROM        murakami_dev.transactions tr
-      INNER JOIN  murakami_dev.tills ti
+      FROM        murakami.transactions tr
+      INNER JOIN  murakami.tills ti
       ON          ti.till_id = tr.till_id
       WHERE       tr.\`date\` BETWEEN ? AND ?
       AND         ti.\`name\` = ?
