@@ -1,16 +1,12 @@
 function updateReport() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = spreadsheet.getSheetByName("Transactions by Weekday by Hour");
+
   const reportData = fetchReportData(sheet);
+  wipeReportData(sheet);
 
-  for (let weekday = 0; weekday <= 6; weekday++) {
-    const weekdayData = reportData.find((item) => item.Weekday === weekday);
-
-    if (weekdayData) {
-      writeWeekdayData(sheet, weekday, weekdayData);
-    } else {
-      writeMissingData(sheet, weekday);
-    }
+  for (let i = 0; i < reportData.length; i++) {
+    writeReportData(sheet, reportData[i]);
   }
 }
 
@@ -18,9 +14,9 @@ function fetchReportData(sheet) {
   const scriptProperties = PropertiesService.getScriptProperties();
   const apiKey = scriptProperties.getProperty("API_KEY");
 
-  const startDate = sheet.getRange("B12").getValue().toISOString().split("T")[0];
-  const endDate = sheet.getRange("B13").getValue().toISOString().split("T")[0];
-  const tillName = `${sheet.getRange("B14").getValue()} Till`;
+  const startDate = sheet.getRange("B25").getValue().toISOString().split("T")[0];
+  const endDate = sheet.getRange("B26").getValue().toISOString().split("T")[0];
+  const tillName = `${sheet.getRange("B27").getValue()} Till`;
 
   const request =
     "https://murakami.shrubcoop.org/api/post/tills/reports/transactions-by-weekday-by-hour" +
@@ -40,30 +36,32 @@ function fetchReportData(sheet) {
   }
 }
 
-function writeWeekdayData(sheet, weekday, weekdayData) {
-  const row = weekday + 2;
+function wipeReportData(sheet) {
+  const columns = ["B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
-  sheet.getRange("B" + row).setValue(weekdayData["Before 11am"]);
-  sheet.getRange("C" + row).setValue(weekdayData["11am-12pm"]);
-  sheet.getRange("D" + row).setValue(weekdayData["12pm-1pm"]);
-  sheet.getRange("E" + row).setValue(weekdayData["1pm-2pm"]);
-  sheet.getRange("F" + row).setValue(weekdayData["2pm-3pm"]);
-  sheet.getRange("G" + row).setValue(weekdayData["3pm-4pm"]);
-  sheet.getRange("H" + row).setValue(weekdayData["4pm-5pm"]);
-  sheet.getRange("I" + row).setValue(weekdayData["5pm-6pm"]);
-  sheet.getRange("J" + row).setValue(weekdayData["6pm Onwards"]);
+  for (let weekday = 0; weekday <= 6; weekday++) {
+    columns.forEach((column) => sheet.getRange(column + (weekday + 3)).setValue(0));
+    columns.forEach((column) => sheet.getRange(column + (weekday + 15)).setValue(0));
+  }
 }
 
-function writeMissingData(sheet, weekday) {
-  const row = weekday + 2;
+function writeReportData(sheet, data) {
+  const weekday = data.transaction_weekday;
+  const hour = data.transaction_hour;
 
-  sheet.getRange("B" + row).setValue(0);
-  sheet.getRange("C" + row).setValue(0);
-  sheet.getRange("D" + row).setValue(0);
-  sheet.getRange("E" + row).setValue(0);
-  sheet.getRange("F" + row).setValue(0);
-  sheet.getRange("G" + row).setValue(0);
-  sheet.getRange("H" + row).setValue(0);
-  sheet.getRange("I" + row).setValue(0);
-  sheet.getRange("J" + row).setValue(0);
+  const column_map = {
+    "Before 11am": "B",
+    "11am-12pm": "C",
+    "12pm-1pm": "D",
+    "1pm-2pm": "E",
+    "2pm-3pm": "F",
+    "3pm-4pm": "G",
+    "4pm-5pm": "H",
+    "5pm-6pm": "I",
+    "6pm Onwards": "J",
+  };
+  const column = column_map[hour];
+
+  sheet.getRange(column + (weekday + 3)).setValue(data.total_quantity);
+  sheet.getRange(column + (weekday + 15)).setValue(parseFloat(data.total_value).toFixed(2));
 }
