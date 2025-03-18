@@ -16,7 +16,7 @@ function fetchReportData(sheet) {
 
   const startDate = sheet.getRange("B25").getValue().toISOString().split("T")[0];
   const endDate = sheet.getRange("B26").getValue().toISOString().split("T")[0];
-  const tillName = `${sheet.getRange("B27").getValue()} Till`;
+  const tillName = sheet.getRange("B27").getValue();
 
   const request =
     "https://murakami.shrubcoop.org/api/post/tills/reports/transactions-by-weekday-by-hour" +
