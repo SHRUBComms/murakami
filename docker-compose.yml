@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    # depends_on:
+    #   - db
+    networks:
+      - app_network
+    restart: unless-stopped
+
+networks:  # Add this section
+  app_network:
+    driver: bridge
+  # db:
+  #   image: mysql:8
+  #   env_file:
+  #     - .env-docker
+  #   # environment:
+  #   #   - MYSQL_DATABASE=${DEV_DB_NAME}
+  #   #   - MYSQL_USER=${DEV_DB_USER}
+  #   #   - MYSQL_PASSWORD=${DEV_DB_PASS}
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"
+  #   restart: unless-stopped
+
+volumes:
+  mysql_data:
