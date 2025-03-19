@@ -13,7 +13,9 @@ const TillActivity = Models.TillActivity;
 
 const Auth = require(rootDir + "/app/controllers/auth");
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
-const { convertTillActivityToFloatsReport } = require("./handlers");
+const { convertTillActivityToFloatsReport } = require(
+  rootDir + "/app/routes/api/post/tills/reports/handlers"
+);
 
 router.post("/", Auth.isLoggedIn, Auth.canAccessPage("tills", "viewReports"), async (req, res) => {
   try {

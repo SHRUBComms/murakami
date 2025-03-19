@@ -4,26 +4,25 @@ moment.locale("en-gb");
 // Mock data
 const mockTillActivity = [
   {
-    timestamp: "2019-07-10 10:47:17",
-    counted_float: 70.0,
-    expected_float: 32.4,
+    timestamp: "2019-07-10 10:48:29",
+    counted_float: 84.6,
+    expected_float: 84.6,
     opening: 0,
     note: null,
     user_id: "848148592500",
   },
   {
-    timestamp: "2019-07-10 10:48:29",
-    counted_float: 34.6,
-    expected_float: null,
+    timestamp: "2019-07-10 10:47:17",
+    counted_float: 70.0,
     opening: 1,
     note: null,
     user_id: "848148592500",
   },
   {
     timestamp: "2020-12-11 18:13:32",
-    counted_float: 141.73,
-    expected_float: 150.01,
-    opening: 0,
+    counted_float: 30.0,
+    expected_float: null,
+    opening: 1,
     note: null,
     user_id: "9652067818400",
   },
@@ -102,11 +101,38 @@ describe("convertTillActivityToFloatsReport", () => {
     });
 
     expect(result).toHaveLength(4); // 3 original activities + 1 transfer
-    expect(result[1]).toEqual({
-      action: "Transfer to Safe",
-      summary: "Implied cash to safe: £35.40",
-      discrepancy: "",
-    });
+    expect(result).toEqual([
+      {
+        timestamp: "11/12/2020 06:13 PM",
+        action: "Opening",
+        summary: "Counted Float: £30.00",
+        discrepancy: "",
+        note: "-",
+        user: "Test User 2",
+      },
+      {
+        action: "Transfer to Safe",
+        summary: "Implied cash to safe: £14.60",
+        discrepancy: "",
+        transferToFromTill: "-14.60",
+      },
+      {
+        timestamp: "10/07/2019 10:48 AM",
+        action: "Closing",
+        summary: "Counted Float: £84.60<br />Expected Float: £84.60",
+        discrepancy: "0.00",
+        note: "-",
+        user: "Test User 1",
+      },
+      {
+        timestamp: "10/07/2019 10:47 AM",
+        action: "Opening",
+        summary: "Counted Float: £70.00",
+        discrepancy: "",
+        note: "-",
+        user: "Test User 1",
+      },
+    ]);
   });
 
   it("should handle notes when present", async () => {

@@ -174,7 +174,9 @@ const convertTillActivityToFloatsReport = async ({ activity, usersObj }) => {
   const formattedActivity = [];
 
   let previousAction = null;
-  for (const action of activity) {
+  const sortedActivity = activity.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  for (const action of sortedActivity) {
     const formattedAction = {};
 
     formattedAction.timestamp = moment(action.timestamp).format("L hh:mm A");
@@ -217,12 +219,15 @@ const convertTillActivityToFloatsReport = async ({ activity, usersObj }) => {
       action.opening === 1 &&
       previousAction.counted_float !== action.counted_float
     ) {
+      const transferToFromTill = new Decimal(previousAction.counted_float).sub(
+        action.counted_float
+      );
+
       const floatToSafeAction = {
         action: "Transfer to Safe",
-        summary:
-          "Implied cash to safe: £" +
-          new Decimal(previousAction.counted_float).sub(action.counted_float).toFixed(2),
+        summary: `Implied cash to safe: £${transferToFromTill.negated().toFixed(2)}`,
         discrepancy: "",
+        transferToFromTill: transferToFromTill.toFixed(2),
       };
       formattedActivity.push(floatToSafeAction);
     }
