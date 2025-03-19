@@ -22,18 +22,29 @@ function fetchReportData(sheet) {
     "https://murakami.shrubcoop.org/api/post/tills/reports/transactions-by-weekday-by-hour" +
     "?key=" +
     apiKey +
-    `&startDate=${startDate}` +
-    `&endDate=${endDate}` +
-    `&tillName=${tillName}`;
+    "&startDate=" +
+    startDate +
+    "&endDate=" +
+    endDate +
+    "&tillName=" +
+    encodeURIComponent(tillName);
 
-  console.log(`Making API request: ${request}`);
+  console.log("Making API request: " + request);
   const response = UrlFetchApp.fetch(request, { method: "post" });
 
-  if (response.status == "ok") {
-    return response.data;
-  } else {
-    console.error("Response status: " + response.status);
+  const responseCode = response.getResponseCode();
+  if (responseCode !== 200) {
+    console.error("Response code: " + responseCode);
+    return null;
   }
+
+  const responseBody = JSON.parse(response.getContentText());
+  if (responseBody.status !== "ok") {
+    console.error("Response status: " + responseBody.status);
+    return null;
+  }
+
+  return responseBody.data;
 }
 
 function wipeReportData(sheet) {
