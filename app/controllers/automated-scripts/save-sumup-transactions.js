@@ -8,31 +8,23 @@ const SumupTransactions = Models.SumupTransactions;
 
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
-async function getPrevDate() {
-  try {
-    const latestRecord = await SumupTransactions.findOne({
-      attributes: ["timestamp"],
-      order: [["timestamp", "DESC"]],
-    });
-
-    if (latestRecord && latestRecord.dataValues.timestamp) {
-      return moment(latestRecord.dataValues.timestamp);
-    } else {
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching backfill date:", error);
-    throw error;
-  }
-}
-
 const saveSumupTransactions = new CronJob({
-  cronTime: "0 3 * * *",
+  cronTime: "* * * * *",
   onTick: async () => {
     console.log(`Running saveSumupTransactions ${moment().format("DD/MM/YYYY HH:mm")}`);
 
     // Set backfill dates
-    const startDate = await getPrevDate();
+    let startDate = null;
+    let latestTransactionId = null;
+    const latestRecord = await SumupTransactions.findOne({
+      attributes: ["timestamp", "id"],
+      order: [["timestamp", "DESC"]],
+    });
+
+    if (latestRecord && latestRecord.dataValues.timestamp) {
+      startDate = moment(latestRecord.dataValues.timestamp);
+      latestTransactionId = latestRecord.dataValues.id;
+    }
     const endDate = moment();
 
     // Set access token
@@ -45,21 +37,32 @@ const saveSumupTransactions = new CronJob({
     let records;
     if (startDate) {
       //Add a second to the start date to avoid duplicate records
-      const adjustedStartDate = startDate.add(1, "seconds");
-      console.log(
-        `fetching sumup transactions from ${adjustedStartDate.format("DD/MM/YYYY HH:mm")} to ${endDate.format("DD/MM/YYYY HH:mm")}`
-      );
       records = await Helpers.sumUpGetAllTransactionsBetweenTwoDates(
         accessToken,
-        adjustedStartDate.toDate(),
+        startDate.toDate(),
         endDate.toDate()
       );
     } else {
       records = await Helpers.sumUpGetAllTransactions(accessToken);
     }
 
+    // Find the index of the latest transaction in the records array
+    let cutoffIndex = -1;
+    if (latestTransactionId) {
+      cutoffIndex = records.findIndex((record) => record.id === latestTransactionId);
+    }
+
+    // Slice the array to only include new transactions
+    const newRecords =
+      cutoffIndex !== -1 ? records.slice(cutoffIndex + 1, records.length) : records;
+
+    // Filter out pending transactions
+    const transactionsToStore = newRecords.filter((record) => {
+      return record.status !== "PENDING";
+    });
+
     // Insert SumUp transaction records into database
-    await Helpers.insertSumUpTransactions(records, SumupTransactions);
+    await Helpers.insertSumUpTransactions(transactionsToStore, SumupTransactions);
   },
   start: false,
   timeZone: "Europe/London",
