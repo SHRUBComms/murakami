@@ -9,7 +9,7 @@ const SumupTransactions = Models.SumupTransactions;
 const Helpers = require(rootDir + "/app/controllers/helper-functions/root");
 
 const saveSumupTransactions = new CronJob({
-  cronTime: "* * * * *",
+  cronTime: "0 3 * * *",
   onTick: async () => {
     console.log(`Running saveSumupTransactions ${moment().format("DD/MM/YYYY HH:mm")}`);
 
