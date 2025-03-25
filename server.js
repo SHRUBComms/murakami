@@ -146,13 +146,12 @@ const automatedMails = require("./app/controllers/automated-scripts/emails");
 const automatedReports = require("./app/controllers/automated-scripts/reports");
 const cleanFailedTransactions = require("./app/controllers/automated-scripts/clean-failed-transactions");
 const saveSumupTransactions = require("./app/controllers/automated-scripts/save-sumup-transactions");
-if (process.env.NODE_ENV == "production") {
+if (process.env.NODE_ENV === "production") {
   automatedMails.start();
   automatedReports.start();
-  cleanFailedTransactions.start();
-  saveSumupTransactions.start();
 }
-
+cleanFailedTransactions.start();
+saveSumupTransactions.start();
 // Define routers
 app.use(path, require("./app/routes/root"));
 
