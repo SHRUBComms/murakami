@@ -477,4 +477,81 @@ describe("handleTransaction", () => {
     const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
     expect(result).toEqual([]);
   });
+  test("handles transactions which are tokens only", () => {
+    const transaction = {
+      transaction_id: "token-only",
+      date: "2024-03-25",
+      member_id: "12345",
+      summary: {
+        bill: [
+          {
+            value: 0,
+            weight: 200,
+            item_id: "item-3",
+            quantity: 1,
+            condition: null,
+          },
+          //allow tokens, no discount
+          {
+            value: 5,
+            weight: 50,
+            item_id: "item-2",
+            quantity: 1,
+            condition: null,
+          },
+          {
+            value: 10,
+            weight: 150,
+            item_id: "item-2",
+            quantity: 1,
+            condition: null,
+          },
+          {
+            value: 4.5,
+            weight: 150,
+            item_id: "item-2",
+            quantity: 1,
+            condition: null,
+          },
+        ],
+        totals: {
+          tokens: 20,
+        },
+        comment: "",
+        discount_info: {},
+        paymentMethod: null,
+      },
+    };
+    const result = handleTransaction({ transaction, till: mockTill, categories: mockCategories });
+    expect(result).toEqual([
+      {
+        //item-1
+        attributedCashEquivalentSaleValue: 0,
+        transactionTotalAbsoluteDiscount: 0,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 0),
+      },
+      {
+        //item-2
+        attributedCashEquivalentSaleValue: -0,
+        transactionTotalAbsoluteDiscount: 0,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 1),
+      },
+      {
+        //item-3
+        attributedCashEquivalentSaleValue: 0,
+        transactionTotalAbsoluteDiscount: 0,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 2),
+      },
+      {
+        //item-4
+        attributedCashEquivalentSaleValue: 0,
+        transactionTotalAbsoluteDiscount: 0,
+        transactionDiscountMultiplier: 1,
+        ...standardBillItemResponse(transaction, mockTill, 3),
+      },
+    ]);
+  });
 });
