@@ -48,7 +48,7 @@ function fetchReportData(sheet) {
 }
 
 function wipeReportData(sheet) {
-  const columns = ["B", "C", "D", "E", "F", "G", "H", "I", "J"];
+  const columns = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 
   for (let weekday = 0; weekday <= 6; weekday++) {
     columns.forEach((column) => sheet.getRange(column + (weekday + 3)).setValue(0));
@@ -69,7 +69,9 @@ function writeReportData(sheet, data) {
     "3pm-4pm": "G",
     "4pm-5pm": "H",
     "5pm-6pm": "I",
-    "6pm Onwards": "J",
+    "6pm-7pm": "J",
+    "7pm-8pm": "K",
+    "8pm Onwards": "L",
   };
   const column = column_map[hour];
 
