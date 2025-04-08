@@ -26,6 +26,7 @@
 			<option value="giftcard-sales">Giftcard Sales</option>
 			<option value="giftcard-redemptions">Giftcard Redemptions</option>
       <option value="all-bill-items">All Tills Bill Items</option>
+      <option value="sumup-reconciliation">SumUp Reconciliation</option>
     </select>
   </div>
 
@@ -95,6 +96,8 @@
     {{>till/reports/giftcard-redemptions}}
 
 		{{>till/reports/all-bill-items}}
+		
+		{{>till/reports/sumup-reconciliation}}
 
 	</div>
 
@@ -110,6 +113,7 @@ const discountsTable = $("#discountsTable");
 const giftcardSalesTable = $("#giftcardSalesTable");
 const giftcardRedemptionsTable = $("#giftcardRedemptionsTable");
 const allBillItemsTable = $("#allBillItemsTable");
+const sumupReconciliationTable = $("#sumupReconciliationTable");
 
 let searchParams = new URLSearchParams(window.location.search)
 
@@ -300,6 +304,23 @@ function getReport(){
 				allBillItemsTable.bootstrapTable('load', response)
 			}
 		});
+	} else if(reportType == "sumup-reconciliation") {
+		$.ajax({
+			type: "POST",
+			url: "{{public_address}}/api/post/tills/reports/sumup-reconciliation",
+			data: {
+				datePeriod: datePeriod,
+				startDate: startDate,
+				endDate: endDate,
+				till_id: "{{till.till_id}}"
+			},
+			success: function(response){
+				$("#sumupReconciliationTable").removeClass("d-none")
+				$("#sumupReconciliationToolbar").removeClass("d-none");
+				$("#sumupReconciliationNote").removeClass("d-none");
+				sumupReconciliationTable.bootstrapTable('load', response)
+			}
+		});
 	}
 
 
@@ -337,10 +358,14 @@ function resetAllReports() {
 	$("#allBillItemsTable").addClass("d-none");
 	$("#allBillItemsToolbar").addClass("d-none");
 	$("#allBillItemsNote").addClass("d-none");
+
+	$("#sumupReconciliationTable").addClass("d-none");
+	$("#sumupReconciliationToolbar").addClass("d-none");
+	$("#sumupReconciliationNote").addClass("d-none");
 }
 
 $("document").ready(function(){
-	tableIds = ["transactions", "floats", "unitSales", "stockRecords", "discounts", "giftcardSales", "giftcardRedemptions", "allBillItems"]
+	tableIds = ["transactions", "floats", "unitSales", "stockRecords", "discounts", "giftcardSales", "giftcardRedemptions", "allBillItems", "sumupReconciliation"]
 
 	$(".bootstrap-table > div.fixed-table-toolbar").each(function(i){
 		$(this).attr("id", tableIds[i] + "Toolbar");

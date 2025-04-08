@@ -14,5 +14,6 @@ router.use("/stock-records", require("./stock-records"));
 router.use("/discounts", require("./discounts"));
 router.use("/giftcard-sales", require("./giftcard-sales"));
 router.use("/giftcard-redemptions", require("./giftcard-redemptions"));
+router.use("/sumup-reconciliation", require("./sumup-reconciliation"));
 
 module.exports = router;
