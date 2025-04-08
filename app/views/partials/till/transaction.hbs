@@ -729,7 +729,12 @@ function updateButtons(){
       giftcard_value = transaction[i].value;
     } else {
       contains_real_items = true;
+	  if (transaction[i].action == "DONATION"){
+		var total_modifier = +(transaction[i].value)
+	  }
+	  else{
       var total_modifier = +(transaction[i].value * transaction[i].quantity);
+	  }
       real_total_transaction_value += total_modifier;
 
       if(member.name) {
