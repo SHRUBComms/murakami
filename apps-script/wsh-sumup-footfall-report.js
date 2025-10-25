@@ -89,10 +89,9 @@ function TransformTransactionData(rawTransactionData) {
       amount = rawTransactionData[t].amount - rawTransactionData[t].refunded_amount;
     }
 
-    // Calculate the timestamp
-    const timestamp = new Date(
-      rawTransactionData[t].timestamp.replace(" ", "T").replace(/\.([0-9]{3})[0-9]*/, ".$1")
-    );
+    // Convert the timestamp string to a Date
+    // GMT -> BST issues are dealt with automatically!
+    let timestamp = new Date(rawTransactionData[t].timestamp);
 
     // Append to new array
     transformedTransactionData.push([amount, timestamp.getDay(), timestamp.getHours()]);
