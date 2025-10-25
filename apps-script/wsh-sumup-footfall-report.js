@@ -70,7 +70,14 @@ function TransformTransactionData(rawTransactionData) {
 
   for (let t = 0; t < rawTransactionData.length; t++) {
     // Check it's a WSH transaction
-    if (!(rawTransactionData[t].product_summary.toLowerCase().indexOf("wee spoke hub") >= 0)) {
+    if (
+      !(
+        (typeof rawTransactionData[t].product_summary !== "undefined" &&
+          rawTransactionData[t].product_summary.toLowerCase().indexOf("wee spoke hub") >= 0) ||
+        (typeof rawTransactionData[t].user !== "undefined" &&
+          rawTransactionData[t].user.toLowerCase().indexOf("weespokehub") >= 0)
+      )
+    ) {
       continue;
     }
 
