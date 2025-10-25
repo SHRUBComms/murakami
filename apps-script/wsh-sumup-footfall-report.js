@@ -23,8 +23,16 @@ function FetchTransactionData(sheet) {
   const apiKey = scriptProperties.getProperty("API_KEY");
   const merchantCode = scriptProperties.getProperty("MERCHANT_CODE");
 
-  const startDate = sheet.getRange("B25").getValue().toISOString().split("T")[0];
-  const endDate = sheet.getRange("B26").getValue().toISOString().split("T")[0];
+  const startDate = Utilities.formatDate(
+    sheet.getRange("B25").getValue(),
+    "Europe/London",
+    "yyyy-MM-dd"
+  );
+  const endDate = Utilities.formatDate(
+    sheet.getRange("B26").getValue(),
+    "Europe/London",
+    "yyyy-MM-dd"
+  );
 
   const request =
     "https://api.sumup.com/v2.1/merchants/" +
