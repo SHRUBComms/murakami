@@ -3,8 +3,9 @@ function updateReport() {
   const sheet = spreadsheet.getSheetByName("Transactions by Weekday by Hour");
 
   WipeReportData(sheet);
-  const rawTransactionData = FetchTransactionData(sheet);
-  const transformedTransactionData = TransformTransactionData(rawTransactionData);
+  const inputParameters = GatherInputParameters(sheet);
+  const rawTransactionData = FetchTransactionData(inputParameters);
+  const transformedTransactionData = TransformTransactionData(rawTransactionData, inputParameters);
 
   WriteHeatmaps(sheet, transformedTransactionData);
 }
@@ -18,11 +19,7 @@ function WipeReportData(sheet) {
   }
 }
 
-function FetchTransactionData(sheet) {
-  const scriptProperties = PropertiesService.getScriptProperties();
-  const apiKey = scriptProperties.getProperty("API_KEY");
-  const merchantCode = scriptProperties.getProperty("MERCHANT_CODE");
-
+function GatherInputParameters(sheet) {
   const startDate = Utilities.formatDate(
     sheet.getRange("B25").getValue(),
     "Europe/London",
@@ -33,15 +30,30 @@ function FetchTransactionData(sheet) {
     "Europe/London",
     "yyyy-MM-dd"
   );
+  const transactionGroup = sheet.getRange("C25").getValue();
+
+  inputParameters = {
+    startDate: startDate,
+    endDate: endDate,
+    transactionGroup: transactionGroup,
+  };
+
+  return inputParameters;
+}
+
+function FetchTransactionData(inputParameters) {
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const apiKey = scriptProperties.getProperty("API_KEY");
+  const merchantCode = scriptProperties.getProperty("MERCHANT_CODE");
 
   const request =
     "https://api.sumup.com/v2.1/merchants/" +
     merchantCode +
     "/transactions/history?limit=1000000&statuses[]=SUCCESSFUL" +
     "&oldest_time=" +
-    startDate +
+    inputParameters.startDate +
     "&newest_time=" +
-    endDate;
+    inputParameters.endDate;
 
   console.log("Making API request: " + request);
   const response = UrlFetchApp.fetch(request, {
@@ -65,17 +77,32 @@ function FetchTransactionData(sheet) {
   return responseBody.items;
 }
 
-function TransformTransactionData(rawTransactionData) {
+function TransformTransactionData(rawTransactionData, inputParameters) {
   const transformedTransactionData = [];
 
   for (let t = 0; t < rawTransactionData.length; t++) {
-    // Check it's a WSH transaction
+    // Check the product summary or user match 'Wee Spoke Hub'
     if (
+      inputParameters.transactionGroup === "Wee Spoke Hub" &&
       !(
         (typeof rawTransactionData[t].product_summary !== "undefined" &&
           rawTransactionData[t].product_summary.toLowerCase().indexOf("wee spoke hub") >= 0) ||
         (typeof rawTransactionData[t].user !== "undefined" &&
           rawTransactionData[t].user.toLowerCase().indexOf("weespokehub") >= 0)
+      )
+    ) {
+      continue;
+    }
+
+    // Check the product summary or user match 'Pavilion Foodsharing'
+    if (
+      inputParameters.transactionGroup === "Pavilion Foodsharing" &&
+      !(
+        (typeof rawTransactionData[t].product_summary !== "undefined" &&
+          rawTransactionData[t].product_summary.toLowerCase().indexOf("pavilion foodsharing") >=
+            0) ||
+        (typeof rawTransactionData[t].user !== "undefined" &&
+          rawTransactionData[t].user.toLowerCase().indexOf("foodsharing") >= 0)
       )
     ) {
       continue;
