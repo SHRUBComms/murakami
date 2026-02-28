@@ -112,8 +112,6 @@ function TransformTransactionData(rawTransactionData, inputParameters) {
     let amount = rawTransactionData[t].amount;
     if (rawTransactionData[t].status == "REFUNDED") {
       amount = rawTransactionData[t].amount * -1;
-    } else if (rawTransactionData[t].refunded_amount > 0) {
-      amount = rawTransactionData[t].amount - rawTransactionData[t].refunded_amount;
     }
 
     // Convert the timestamp string to a Date
