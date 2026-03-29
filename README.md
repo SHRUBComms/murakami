@@ -69,3 +69,11 @@ For more detailed debug info:
 The `server.js` file will run the server when called. There is a `package.json` script for this too:
 
 - `npm run start`
+
+### Docker
+
+The Docker release uses the same `.env` config as the local app with the only difference being you'll need to set `CWD="/app"`
+
+Then run:
+
+- `docker-compose up --build`

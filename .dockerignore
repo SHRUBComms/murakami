@@ -1,0 +1,30 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+.git-blame-ignore-revs
+
+# Development files
+node_modules
+npm-debug.log
+.env
+.env.*
+*.log
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Testing
+test
+jest.config.js
+coverage
+
+# IDE files
+.vscode
+.idea
+
+# Other
+*.md
+LICENSE
