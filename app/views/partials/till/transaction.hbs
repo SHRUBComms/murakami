@@ -546,7 +546,7 @@ function updateTransactionList(){
 
 		let inputBoxWidth = 80;
     
-    if(transaction[i].action == null && transaction[i].discount == false){
+    if(transaction[i].action !== "giftcard" && transaction[i].discount == false){
       var quantityColumnInput = document.createElement("input");
 
       let maxQuantity;
